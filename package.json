@@ -1,0 +1,43 @@
+{
+  "name": "cher-journal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cher Journal - Story reading platform with monetization",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "install": "npm install",
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:backend": "npm run dev -w apps/backend",
+    "dev:admin": "npm run dev -w apps/admin",
+    "dev:web": "npm run dev -w apps/web",
+    "dev:mobile": "npm run dev -w apps/mobile",
+    "build": "npm run build --workspaces --if-present",
+    "build:backend": "npm run build -w apps/backend",
+    "build:admin": "npm run build -w apps/admin",
+    "build:web": "npm run build -w apps/web",
+    "test": "npm run test -w apps/test",
+    "prisma:generate": "npm run prisma:generate -w apps/backend",
+    "prisma:migrate": "npm run prisma:migrate -w apps/backend",
+    "prisma:migrate:dev": "npm run prisma:migrate:dev -w apps/backend",
+    "prisma:seed": "npm run prisma:seed -w apps/backend",
+    "prisma:studio": "npm run prisma:studio -w apps/backend",
+    "api:sync": "tsx scripts/sync-api.ts",
+    "api:generate": "tsx scripts/generate-routes.ts",
+    "api:security": "tsx scripts/api-inventory.ts",
+    "admin:check-menus": "tsx scripts/check-context-menus.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "glob": "^10.3.10",
+    "prettier": "^3.7.4",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

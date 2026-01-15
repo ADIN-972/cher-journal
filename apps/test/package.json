@@ -1,0 +1,10 @@
+{
+  "name": "@cher-journal/test",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo 'Tests not yet implemented'"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

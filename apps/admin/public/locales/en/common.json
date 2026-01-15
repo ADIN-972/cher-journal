@@ -1,0 +1,864 @@
+﻿{
+  "navigation": {
+    "dashboard": "Dashboard",
+    "chapters": "Chapters",
+    "users": "Users",
+    "orders": "Orders",
+    "settings": "Settings",
+    "logout": "Logout",
+    "collapse_sidebar": "Collapse",
+    "expand_sidebar": "Expand"
+  },
+  "header": {
+    "admin": "Administrator",
+    "language": "Language",
+    "french": "Français",
+    "english": "English"
+  },
+  "chapters": {
+    "title": "Chapters",
+    "all": "All",
+    "published": "Published",
+    "in_progress": "In Progress",
+    "drafts": "Drafts",
+    "archived": "Archived",
+    "create_chapter": "Create Chapter",
+    "edit_chapter": "Edit Chapter",
+    "delete_chapter": "Delete Chapter",
+    "view_volumes": "View Volumes",
+    "bulk_edit": "Bulk Edit",
+    "no_chapters": "No chapters at this time",
+    "no_drafts": "No drafts",
+    "no_in_progress": "No chapters in progress",
+    "no_published": "No published chapters",
+    "no_archived": "No archived chapters",
+    "confirm_delete": "Are you sure you want to delete this chapter?",
+    "chapter_created": "Chapter created successfully",
+    "chapter_updated": "Chapter updated successfully",
+    "chapter_deleted": "Chapter deleted successfully",
+    "error_loading": "Error loading chapters"
+  },
+  "users": {
+    "title": "Users",
+    "email": "Email",
+    "created_at": "Created on",
+    "status": "Status",
+    "actions": "Actions",
+    "no_users": "No users found",
+    "view": "View",
+    "delete": "Delete",
+    "status_active": "Active",
+    "status_suspended": "Suspended",
+    "role_admin": "Admin",
+    "role_user": "User",
+    "all": "All",
+    "admins": "Admins",
+    "users": "Users",
+    "error_loading": "Error loading users",
+    "user_suspended": "User suspended",
+    "user_activated": "User activated",
+    "user_details": "User Details",
+    "back_to_users": "Back to users",
+    "account_info": "Account Information",
+    "public_id": "Public ID",
+    "internal_id": "Internal ID",
+    "registered_on": "Registered on",
+    "suspend_user": "Suspend user",
+    "activate_user": "Activate user",
+    "promote_admin": "Promote to Admin",
+    "demote_user": "Demote to User",
+    "overview": "Overview",
+    "entitlements": "Entitlements",
+    "orders": "Orders",
+    "sessions": "Sessions",
+    "active_entitlements": "Active entitlements",
+    "total_orders": "Total orders",
+    "active_sessions": "Active sessions",
+    "add_entitlement": "Add access",
+    "no_entitlements": "No entitlements",
+    "no_orders": "No orders",
+    "no_sessions": "No active sessions",
+    "chapter": "Chapter",
+    "volumes": "Volumes",
+    "access": "Access",
+    "source": "Source",
+    "date": "Date",
+    "revoke": "Revoke",
+    "order_id": "ID",
+    "order_type": "Type",
+    "amount": "Amount",
+    "order_status": "Status",
+    "created_on": "Created on",
+    "expires_on": "Expires on",
+    "revoke_session": "Revoke"
+  },
+  "orders": {
+    "completed": "Completed",
+    "pending": "Pending",
+    "failed": "Failed",
+    "refunded": "Refunded",
+    "all_perspectives": "All perspectives",
+    "narrator_only": "Narrator only",
+    "total_orders": "Total Orders",
+    "completed_orders": "Completed Orders",
+    "total_revenue": "Total Revenue",
+    "error_loading": "Error loading orders",
+    "filter_all": "All",
+    "filter_completed": "Completed",
+    "filter_pending": "Pending",
+    "column_user": "User",
+    "column_chapter": "Chapter",
+    "column_volumes": "Volumes",
+    "column_access": "Access",
+    "column_amount": "Amount",
+    "column_status": "Status",
+    "column_date": "Date",
+    "no_orders_found": "No orders found",
+    "fab": {
+      "filter_title": "Filter",
+      "all_orders": "All orders",
+      "completed_orders": "Completed orders",
+      "pending_orders": "Pending orders",
+      "actions_title": "Actions",
+      "export_csv": "Export CSV",
+      "coming_soon": "Coming soon"
+    }
+  },
+  "prices": {
+    "title": "Pricing",
+    "subtitle": "Manage prices by scope",
+    "new_price": "New Price",
+    "filter_by_scope": "Filter by scope",
+    "all": "All",
+    "no_prices": "No prices found",
+    "configured_count": "{{count}} price(s) configured",
+    "reference": "Reference",
+    "promos_count": "{{count}} promo(s)",
+    "linked_promotions": "Linked promotions",
+    "confirm_delete": "Delete this price?",
+    "scope": {
+      "volume": "Volume",
+      "chapter": "Chapter",
+      "epilogue": "Epilogue",
+      "pov": "POV",
+      "coloring": "Coloring",
+      "bundle": "Bundle",
+      "subscription": "Subscription"
+    },
+    "promo_type": {
+      "free": "Free"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    }
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "loading": "Loading...",
+    "loading_ellipsis": "Saving...",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "back": "Back",
+    "add": "Add",
+    "remove": "Remove",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "view": "View",
+    "card_view": "Card View",
+    "list_view": "List View",
+    "calendar_view": "Calendar View"
+  },
+  "login": {
+    "title": "Cher Journal - Admin",
+    "email_label": "Email",
+    "password_label": "Password",
+    "submit_button": "Sign in",
+    "success_message": "Login successful!",
+    "error_message": "Login failed"
+  },
+  "messages": {
+    "loading": "Loading...",
+    "error": {
+      "load_chapters": "Error loading chapters",
+      "load_users": "Error loading users",
+      "load_orders": "Error loading orders",
+      "load_images": "Error loading images",
+      "load_stats": "Error loading statistics",
+      "load_perspectives": "Error loading perspectives",
+      "load_chapter": "Error loading chapter"
+    },
+    "success": {
+      "chapter_created": "Chapter created successfully",
+      "chapter_updated": "Chapter updated successfully",
+      "chapter_deleted": "Chapter deleted successfully",
+      "user_updated": "User updated",
+      "perspective_added": "Perspective added",
+      "perspective_deleted": "Perspective deleted",
+      "image_uploaded": "Image uploaded"
+    }
+  },
+  "buttons": {
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View",
+    "suspend": "Suspend",
+    "activate": "Activate",
+    "close": "Close",
+    "add_images": "Add Images",
+    "add_volume": "Add Volume",
+    "add_perspective": "Add Perspective"
+  },
+  "confirmations": {
+    "delete_chapter": "Are you sure you want to delete this chapter?",
+    "delete_chapter_warning": "This action is irreversible and will also delete all volumes and their content",
+    "delete_perspective": "Are you sure you want to delete this perspective?",
+    "delete_perspective_warning": "This action is irreversible and will also delete all text",
+    "delete_image": "Are you sure you want to delete this image?",
+    "delete_volume": "Are you sure you want to delete this volume?"
+  },
+  "dashboard": {
+    "stats_users": "Users",
+    "stats_chapters": "Chapters",
+    "stats_orders": "Orders",
+    "stats_revenue": "Revenue",
+    "recent_activity": "Recent Activity",
+    "monthly_sales": "Monthly Sales",
+    "recent_activities": "Recent Activities",
+    "view_all_users": "View all users",
+    "view_orders": "View orders",
+    "view_report": "View report",
+    "view_details": "View details",
+    "manage_chapters": "Manage chapters",
+    "last_month": "last month",
+    "this_month": "this month",
+    "chapters_new": "+{{count}} new",
+    "activity_chart": "Activity chart",
+    "sales_chart": "Sales chart",
+    "activity": {
+      "user_registered": {
+        "title": "New user registered",
+        "subtitle": "{{email}} signed up",
+        "time": "2 hours ago"
+      },
+      "order_completed": {
+        "title": "Order completed",
+        "subtitle": "Order #{{id}} for {{amount}}",
+        "time": "5 hours ago"
+      },
+      "chapter_published": {
+        "title": "New chapter published",
+        "subtitle": "Chapter \"{{title}}\" is now live",
+        "time": "Yesterday"
+      }
+    }
+  },
+  "promotions": {
+    "title": "Promotions",
+    "subtitle": "Manage promotions and discounts",
+    "new_promotion": "New Promotion",
+    "edit_promotion": "Edit Promotion",
+    "create_promotion": "Create Promotion",
+    "delete_promotion": "Delete Promotion",
+    "confirm_delete": "Are you sure you want to delete this promotion?",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "delete": "Delete",
+    "edit": "Edit",
+    "no_promotions": "No promotions found",
+    "toggle_on": "Activate",
+    "toggle_off": "Deactivate",
+    "filters": {
+      "scope": "Scope",
+      "status": "Status",
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "table": {
+      "scope": "Scope",
+      "type": "Type",
+      "reduction": "Reduction",
+      "period": "Period",
+      "usages": "Usages",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "scopes": {
+      "VOLUME": "Volume",
+      "CHAPTER": "Chapter",
+      "EPILOGUE": "Epilogue",
+      "POV": "Protagonist POV",
+      "COLORING": "Coloring Book",
+      "BUNDLE": "Bundle",
+      "SUBSCRIPTION": "Subscription"
+    },
+    "types": {
+      "PERCENT": "Percentage",
+      "FIXED": "Fixed Amount",
+      "FREE": "Free"
+    },
+    "form": {
+      "error_load": "Error loading promotion",
+      "error_save": "Error while saving",
+      "error_delete": "Error while deleting",
+      "subtitle_edit": "Update the promotion settings",
+      "subtitle_create": "Configure a new promotion",
+      "summary_impact": "Summary \u0026 Impact",
+      "details": "Details:",
+      "scope_label": "Scope",
+      "type_label": "Reduction Type",
+      "value_label": "Value",
+      "explanation_scope_selection": "Defines which content type this promotion applies to. Changing the scope resets the linked price.",
+      "explanation_type_percent_short": "Percentage: applies proportionally to the price",
+      "explanation_type_fixed_short": "Fixed amount: reduces the price by the specified amount",
+      "explanation_type_free_short": "Free: gives the content at no cost",
+      "example_percent": "Ex: 20",
+      "example_amount": "Ex: 0.50",
+      "percent": "Percentage",
+      "amount": "Amount (€)",
+      "value": "Value",
+      "not_applicable": "Not applicable",
+      "start_date": "Start Date",
+      "end_date": "End Date",
+      "max_uses": "Max Uses",
+      "per_user": "Per User",
+      "unlimited": "Unlimited",
+      "status": "Active",
+      "active": "Active",
+      "inactive": "Inactive",
+      "explanation_status_toggle": "Disable this promotion to pause it without deleting it. Uncheck to disable temporarily, then re-enable later.",
+      "explanation_status_period": "A promotion must be active and within its valid period to apply.",
+      "price_preview": "Price Preview",
+      "original_price": "Original Price",
+      "final_price": "Final Price",
+      "associated_price": "Associated Price",
+      "select_price": "-- Select a price --",
+      "price_example": "Price Example",
+      "usual_price": "Usual Price:",
+      "discounted_price": "Price with Promotion:",
+      "customer_savings": "Customer Savings:",
+      "section_content_type": "📌 Content Type",
+      "section_reduction_type": "💰 Reduction Type",
+      "section_value": "✂️ Value",
+      "section_period": "⏰ Active Period",
+      "section_limits": "🎯 Usage Limits",
+      "section_status": "✔️ Status",
+      "alert_zero_value": "⚠️ Warning: The reduction value is 0. This promotion will have no effect!",
+      "impact_summary": "💡Summary Impact:",
+      "on_scope": "On",
+      "offers": "this promotion offers",
+      "free_access": "free access",
+      "reduction_percent": "{{value}}% discount",
+      "reduction_amount": "{{value}} discount",
+      "for": "for",
+      "summary_intro": "On {{scope}}, this promotion offers",
+      "summary_for": "for {{audience}}",
+      "max_clients": "max {{value}} client(s)",
+      "unlimited_clients": "unlimited clients",
+      "summary_total_uses": "total {{value}} uses",
+      "summary_period": "from {{start}} to {{end}}.",
+      "client": "client(s)",
+      "total": "total",
+      "uses": "uses",
+      "all_clients": "for all clients",
+      "from": "from",
+      "to": "to",
+      "explanation_scope_volume": "This promotion will apply to each volume in your chapters.",
+      "explanation_scope_chapter": "This promotion will apply to the entire chapter.",
+      "explanation_scope_epilogue": "This promotion will apply to epilogues.",
+      "explanation_scope_pov": "This promotion will apply to alternative perspectives (Protagonist POV).",
+      "explanation_scope_coloring": "This promotion will apply to coloring books.",
+      "explanation_scope_bundle": "This promotion will apply to bundles/packs.",
+      "explanation_scope_subscription": "This promotion will apply to subscriptions.",
+      "explanation_type_percent": "The discount applies as a percentage of the price. The higher the price, the greater the savings.",
+      "explanation_type_fixed": "Fixed amount deducted from the price, regardless of the initial price.",
+      "explanation_type_free": "The content will be completely free for users.",
+      "explanation_value_percent": "Customers will save {{value}}% on the displayed price.",
+      "explanation_value_fixed": "Each purchase will be reduced by {{value}} euros.",
+      "explanation_period": "The promotion will only be automatically active during this period. After the end date, it will have no effect.",
+      "explanation_max_uses": "The promotion will stop after {{value}} uses.",
+      "explanation_per_user": "Each customer can benefit from it {{value}} times.",
+      "explanation_status_active": "This promotion is enabled and will apply during its valid period.",
+      "explanation_status_inactive": "This promotion is disabled. It will not apply, even during the period.",
+      "explanation_price_linked": "Optional: Linking a promotion to a specific price allows you to preview the discounted price. Without a linked price, the promotion applies to all prices in the same scope.",
+      "impact_explanation": "Customers will pay {{final}} instead of {{original}} if they use this promotion."
+    }
+  },
+  "user_detail": {
+    "confirm_revoke_entitlement": "Are you sure you want to revoke this entitlement?",
+    "confirm_revoke_session": "Are you sure you want to revoke this session?",
+    "toast": {
+      "entitlement_revoked": "Entitlement revoked",
+      "session_revoked": "Session revoked",
+      "revoke_error": "Error while revoking"
+    },
+    "actions": {
+      "message": "Message",
+      "analytics": "Analytics"
+    },
+    "notes": {
+      "title": "Notes",
+      "body": "Very active user, loves fantasy stories. Participated in several beta tests."
+    },
+    "address": {
+      "title": "Address",
+      "line": "15 Rue de la Paix, 75002 Paris, France",
+      "view_map": "View map"
+    },
+    "attachments": {
+      "title": "Attachments",
+      "none": "No attachments"
+    },
+    "search_orders_placeholder": "Search by number or amount",
+    "stats": {
+      "total_orders": "Total orders",
+      "paid_orders": "Paid orders"
+    },
+    "order": "Order",
+    "status": "Status",
+    "no_orders": "No orders",
+    "order_label": "Order #{{id}}",
+    "chapters": {
+      "title": "Chapters - Reading history and payments",
+      "none": "No chapter access"
+    },
+    "chapter": {
+      "paid_label": "Paid",
+      "volume_prefix": "Vol.",
+      "read_label": "Read",
+      "volumes": "volumes",
+      "paid_volumes": "Paid volumes",
+      "volumes_range": "Volumes {{from}} to {{to}}",
+      "access": "Access: {{access}}",
+      "source": "Source: {{source}}",
+      "granted_on": "Granted on",
+      "orders": "Orders ({{count}})",
+      "read_history": "Reading history ({{count}} volumes)",
+      "volume_label": "Volume {{volume}}",
+      "paid": "Paid",
+      "free": "Free",
+      "opened_on": "Opened: {{date}}",
+      "completed_on": "Completed: {{date}}",
+      "read_history_title": "Reading history"
+    }
+  },
+  "volume_form": {
+    "errors": {
+      "load_volume": "Error loading volume",
+      "load_chapter": "Error loading chapter",
+      "title_required": "Title is required",
+      "negative_wait": "Wait duration cannot be negative",
+      "save": "An error occurred"
+    },
+    "success": {
+      "updated": "Volume updated successfully",
+      "created": "Volume created successfully"
+    },
+    "edit_title": "Edit volume",
+    "create_title": "Create new volume",
+    "chapter_label": "Chapter: {{title}}",
+    "chapter_with_volume": "Chapter: {{title}} - Volume #{{number}}",
+    "illustration_label": "Volume illustration",
+    "illustration_alt": "Illustration",
+    "remove_illustration": "Remove illustration",
+    "choose_illustration": "Choose an illustration",
+    "illustration_help": "Image displayed for this volume",
+    "title_label": "Volume title *",
+    "title_placeholder": "e.g. The discovery",
+    "publish_date_label": "Publication date",
+    "publish_date_help": "If set, the wait countdown cannot start before this date",
+    "wait_label": "Wait duration (hours)",
+    "wait_help": "Waiting time before free unlock (24h = 1 day)",
+    "final_paywall_label": "Mandatory paid volume (final paywall)",
+    "final_paywall_help": "If checked, this volume cannot be unlocked for free by waiting",
+    "free_label": "Free volume",
+    "free_help": "If checked, this volume is accessible for free without waiting or payment",
+    "saving": "Saving...",
+    "save_edit": "Update",
+    "save_create": "Create",
+    "modal_title": "Select an illustration"
+  },
+  "register": {
+    "title": "Create an account",
+    "subtitle": "Join the Cher Journal admin",
+    "first_name_label": "First name",
+    "first_name_placeholder": "Your first name",
+    "last_name_label": "Last name",
+    "last_name_placeholder": "Your last name",
+    "username_label": "Username (optional)",
+    "username_placeholder": "Choose a username (optional)",
+    "email_label": "Email address",
+    "password_label": "Password",
+    "confirm_password_label": "Confirm password",
+    "email_placeholder": "your.email@example.com",
+    "password_placeholder": "Your password",
+    "confirm_password_placeholder": "Confirm your password",
+    "password_strength": "Password strength:",
+    "strength": {
+      "weak": "Weak",
+      "medium": "Medium",
+      "strong": "Strong"
+    },
+    "errors": {
+      "first_name_required": "First name is required",
+      "last_name_required": "Last name is required",
+      "password_mismatch": "Passwords do not match",
+      "password_match": "Passwords match",
+      "password_length": "Password must be at least 6 characters long"
+    },
+    "terms": {
+      "prefix": "I accept the",
+      "tos": "terms of use",
+      "and": "and the",
+      "privacy": "privacy policy"
+    },
+    "submit": "Create my account",
+    "submitting": "Creating account...",
+    "already_account": "Already have an account?",
+    "login": "Sign in",
+    "toast": {
+      "success": "Account created successfully! You can now sign in.",
+      "error": "Error while creating the account"
+    }
+  },
+  "settings": {
+    "loading": "Loading settings...",
+    "options": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "french": "French",
+      "english": "English",
+      "comfortable": "Comfortable",
+      "compact": "Compact",
+      "twenty_four": "24-hour",
+      "twelve": "12-hour"
+    },
+    "views": {
+      "card": "Card view",
+      "list": "List view",
+      "calendar": "Calendar view"
+    },
+    "admin": {
+      "title": "Admin settings",
+      "include_archived": {
+        "label": "Include archived chapters",
+        "help": "Show archived chapters in the list"
+      },
+      "theme": "Admin theme",
+      "language": "Default language",
+      "chapter_view": "Chapters view (default)",
+      "page_size": "Page size"
+    },
+    "user": {
+      "title": "User preferences",
+      "theme": "Theme",
+      "language": "Language",
+      "density": "Display density",
+      "date_format": "Time format"
+    },
+    "superadmin": {
+      "title": "Superadmin zone",
+      "critical": "⚠️ Critical system settings",
+      "encryption": {
+        "label": "Text encryption",
+        "enabled": "Enabled (AES-256-GCM)",
+        "disabled": "Disabled (plaintext)",
+        "help": "Encrypt volume texts with envelope encryption"
+      },
+      "maintenance": {
+        "label": "Maintenance mode",
+        "enabled": "Active - Site unavailable",
+        "disabled": "Inactive",
+        "help": "Blocks site access for maintenance"
+      },
+      "logs": {
+        "label": "System debug logs",
+        "enabled": "Detailed logs enabled",
+        "disabled": "Normal logs",
+        "help": "Enable detailed server logs (performance impact)"
+      },
+      "system_info": "System information",
+      "warning": {
+        "title": "⚠️ Security warning",
+        "body": "These settings directly affect system behavior. Incorrect changes can cause serious issues. Changes are saved immediately and applied on the next server restart."
+      }
+    }
+  },
+  "chapters_page": {
+    "bulk": {
+      "select_required": "Please select at least one chapter",
+      "update_success": "{{count}} chapter(s) updated successfully",
+      "update_error": "Error while updating in bulk"
+    },
+    "duplicate": {
+      "success": "Chapter duplicated successfully",
+      "error": "Error while duplicating"
+    },
+    "archive": {
+      "archived": "Chapter archived",
+      "unarchived": "Chapter unarchived",
+      "error": "Error while archiving"
+    },
+    "status": {
+      "labels": {
+        "DRAFT": "Draft",
+        "IN_PROGRESS": "In progress",
+        "PUBLISHED": "Published"
+      },
+      "changed": "Chapter set to {{status}}",
+      "error": "Error while changing status"
+    },
+    "context": {
+      "chapter_actions": "Actions on this chapter",
+      "view_volumes": "View volumes",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "publish": "Publication",
+      "publish_now": "Publish",
+      "draft": "Move to draft",
+      "in_progress": "Move to in progress",
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "actions": "Actions",
+      "delete": "Delete",
+      "global_actions": "Global actions",
+      "create": "Create chapter",
+      "select_visible": "Select all (visible)",
+      "deselect_visible": "Deselect all (visible)",
+      "selection": "Selection",
+      "bulk_edit": "Bulk edit ({{count}})",
+      "sort": "Sort",
+      "sort_az": "A-Z",
+      "sort_za": "Z-A",
+      "sort_date_recent": "Date (recent)",
+      "sort_date_old": "Date (oldest)",
+      "view": "View",
+      "view_card": "Card view",
+      "view_list": "List view",
+      "view_calendar": "Calendar view",
+      "filter": "Filter",
+      "filter_all": "All",
+      "filter_published": "Published",
+      "filter_in_progress": "In progress",
+      "filter_draft": "Draft",
+      "filter_archived": "Archived"
+    },
+    "include_archived": {
+      "on": "Include archived: ON",
+      "off": "Include archived: OFF"
+    },
+    "tooltip": {
+      "select_visible": "Select all visible chapters",
+      "deselect_visible": "Deselect visible chapters",
+      "sort_az": "Sort A-Z",
+      "sort_za": "Sort Z-A",
+      "sort_date_recent": "Sort by date (recent)",
+      "sort_date_old": "Sort by date (oldest)",
+      "view_card": "Card display",
+      "view_list": "List display",
+      "view_calendar": "Calendar display",
+      "include_archived": "Include archived chapters in the list",
+      "filter_all": "All chapters",
+      "filter_published": "Published chapters",
+      "filter_in_progress": "Chapters in progress",
+      "filter_draft": "Draft chapters",
+      "filter_archived": "Archived chapters"
+    },
+    "filters": {
+      "all": "All",
+      "published": "Published",
+      "in_progress": "In progress",
+      "draft": "Draft",
+      "archived": "Archived"
+    },
+    "empty": {
+      "all": "No chapters yet",
+      "draft": "No drafts",
+      "in_progress": "No chapters in progress",
+      "published": "No published chapters",
+      "archived": "No archived chapters"
+    },
+    "actions": {
+      "create": "Create chapter",
+      "bulk_edit": "Bulk edit",
+      "select_all": "Select all",
+      "deselect_all": "Deselect all"
+    },
+    "selection": {
+      "count": "{{count}} chapter(s) selected"
+    },
+    "fab": {
+      "title": "Main actions"
+    }
+  },
+  "chapter_detail": {
+    "back_to_chapters": "Back to chapters",
+    "protagonist": "Protagonist",
+    "volumes_title": "Volumes ({{count}})",
+    "selected_count": "({{count}} selected)",
+    "no_volumes": "No volumes for this chapter",
+    "chapter_images": "Chapter images",
+    "view": {
+      "card": "Card view",
+      "list": "List view",
+      "calendar": "Calendar view"
+    },
+    "buttons": {
+      "edit_titles": "Edit titles",
+      "bulk_import": "Bulk import",
+      "add_volume": "Add volume",
+      "quick_create": "Quickly create multiple volumes"
+    },
+    "context_menu": {
+      "volume_actions": "Volume actions",
+      "manage_perspectives": "Manage perspectives",
+      "selection": "Selection",
+      "select": "Select",
+      "danger": "Danger",
+      "display": "Display",
+      "select_all": "Select all",
+      "deselect_all": "Deselect all",
+      "bulk_actions": "Bulk actions",
+      "bulk_edit": "Bulk edit ({{count}})"
+    },
+    "toast": {
+      "volumes_created": "{{count}} volumes created successfully",
+      "create_error": "Error creating volumes",
+      "volume_deleted": "Volume deleted successfully",
+      "delete_error": "Error deleting volume",
+      "select_required": "Please select at least one volume",
+      "bulk_update_success": "{{count}} volume(s) updated successfully",
+      "bulk_update_error": "Error updating volumes in bulk",
+      "titles_update_success": "{{count}} title(s) updated successfully",
+      "titles_update_error": "Error updating titles",
+      "image_assigned_chapter": "Image assigned to chapter cover",
+      "image_assigned_volume": "Image assigned to volume",
+      "image_assign_error": "Error assigning image",
+      "load_error": "Error loading chapter"
+    },
+    "modal": {
+      "bootstrap_title": "Create volumes in bulk",
+      "bootstrap_description": "This action will create multiple empty volumes for this chapter. You can then add content to each volume individually.",
+      "volumes_count": "Number of volumes to create",
+      "create": "Create"
+    },
+    "dialog": {
+      "delete_title": "Delete volume",
+      "delete_message": "Are you sure you want to delete volume {{number}}?"
+    },
+    "fab": {
+      "quick_create": "Create volumes in bulk",
+      "edit_titles": "Edit titles",
+      "bulk_import": "Bulk import",
+      "add_volume": "Add volume",
+      "bulk_edit": "Bulk edit",
+      "select_all": "Select all",
+      "deselect_all": "Deselect all"
+    }
+  },
+  "chapter_view": {
+    "calendar_coming_soon": "Calendar view coming soon",
+    "statistics": {
+      "volumes_written": "volumes written",
+      "volumes_illustrated": "volumes illustrated",
+      "volumes_protagonist": "protagonist volumes",
+      "coloring_pages": "coloring pages"
+    },
+    "price": {
+      "base": "Base price",
+      "paywall": "Paywall price",
+      "epilogue": "Epilogue price"
+    },
+    "table": {
+      "image": "Image",
+      "title": "Title",
+      "protagonist": "Protagonist",
+      "status": "Status",
+      "prices": "Prices",
+      "release_date": "Release date"
+    },
+    "on_activation": "On activation",
+    "no_chapters": "No chapters"
+  },
+  "volume_view": {
+    "calendar_coming_soon": "Calendar view coming soon",
+    "toast": {
+      "image_assigned": "Image assigned to volume",
+      "image_assign_error": "Error assigning image"
+    },
+    "select_all": "Select all",
+    "deselect_all": "Deselect all",
+    "table": {
+      "image": "Image",
+      "title": "Title",
+      "price": "Price",
+      "wait_duration": "Duration",
+      "free": "Free",
+      "actions": "Actions"
+    },
+    "free": "Free",
+    "manage_perspectives": "Manage perspectives"
+  },
+  "add_entitlement_modal": {
+    "title": "Chapter access",
+    "close_aria": "Close modal",
+    "chapter": "Chapter",
+    "select_chapter": "Select a chapter",
+    "from": "From",
+    "to": "To",
+    "scope": "Perspectives",
+    "source": "Source",
+    "source_purchase": "Purchase",
+    "source_preorder": "Preorder",
+    "source_pack": "Pack",
+    "source_subscription": "Subscription",
+    "button_add": "Add access",
+    "button_adding": "Adding...",
+    "toast": {
+      "load_error": "Error loading chapters",
+      "success": "Access added successfully",
+      "error": "Error adding access"
+    }
+  },
+  "chapter_form": {
+    "title": "Title",
+    "title_placeholder": "Ex: The Mystery of the Forest",
+    "title_required": "Title is required",
+    "protagonist": "Protagonist name",
+    "protagonist_placeholder": "Ex: Emma",
+    "protagonist_required": "Protagonist name is required",
+    "status": "Status",
+    "status_draft": "Draft",
+    "status_in_progress": "In Progress",
+    "status_published": "Published",
+    "cover_image": "Cover image",
+    "cover_create_first": "Create the chapter first to add a cover image",
+    "remove_image": "Remove image",
+    "choose_cover": "Choose a cover image",
+    "cover_desc": "Image displayed for this chapter",
+    "price_free_to_read": "Free-to-read price (€)",
+    "price_free_to_read_desc": "Price for standard volumes (after timer)",
+    "price_paywall": "Paywall price (€)",
+    "price_paywall_desc": "Price for paywall volumes (final)",
+    "price_epilogue": "Epilogue price (€)",
+    "price_epilogue_desc": "Price for volumes \u0026gt;10 (0 = timer only)",
+    "publish_date": "Publication date",
+    "publish_date_desc": "If set, volumes for this chapter cannot start counting down before this date",
+    "create": "Create",
+    "select_cover": "Select a cover image",
+    "toast": {
+      "created": "Chapter created successfully",
+      "updated": "Chapter updated successfully"
+    }
+  }
+}

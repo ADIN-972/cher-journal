@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dashed,
+.dashed-animated {
+  background-size: 150% 1500%;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 25px,
+    #ffffff60 25px,
+    #ffffff60 50px
+  );
+
+  background-size: 150% 100%;
+}
+
+.notfar {
+  -webkit-transform: perspective(93) rotateX(20deg);
+  background-color: #e8e1d0;
+  margin: -63px 6%;
+  width: 88%;
+  height: 60px;
+}
+
+.notfar_shad {
+  -webkit-transform: perspective(93) rotateX(-9deg);
+  margin: 0px 6%;
+  width: 88%;
+  height: 26px;
+}
+
+/* Animations pour les pages Login/Register */
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.5s;
+}

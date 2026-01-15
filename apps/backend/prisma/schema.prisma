@@ -1,0 +1,448 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPERADMIN
+}
+
+enum ChapterStatus {
+  DRAFT
+  IN_PROGRESS
+  PUBLISHED
+}
+
+enum Perspective {
+  NARRATOR
+  PROTAGONIST
+}
+
+enum OrderType {
+  CHAPTER
+  PREORDER
+  BUNDLE
+  COLORING
+  VERSION_PACK
+}
+
+enum OrderStatus {
+  PAID
+  REFUNDED
+  PENDING
+}
+
+enum EntitlementVersionScope {
+  BASE
+  ALL
+}
+
+enum EntitlementSource {
+  PURCHASE
+  PREORDER
+  PACK
+  SUBSCRIPTION
+}
+
+enum UnlockTriggeredBy {
+  WAIT
+  PURCHASE
+}
+
+// Pricing scopes covering per-volume, per-chapter, add-ons, bundles, and subscriptions
+enum PriceScope {
+  VOLUME
+  CHAPTER
+  EPILOGUE
+  POV
+  COLORING
+  BUNDLE
+  SUBSCRIPTION
+}
+
+enum PromotionType {
+  PERCENT
+  FIXED
+  FREE
+}
+
+enum AssetKind {
+  IMAGE
+  COLORING_PAGE
+}
+
+model User {
+  id                  String      @id @default(uuid())
+  publicId            String      @unique @default(uuid())
+  email               String      @unique
+  passwordHash        String
+  firstName           String
+  lastName            String
+  username            String?     @unique
+  status              UserStatus  @default(ACTIVE)
+  role                UserRole    @default(USER)
+  createdAt           DateTime    @default(now())
+  sessions            Session[]
+  orders              Order[]
+  entitlements        Entitlement[]
+  unlocks             Unlock[]
+  reads               VolumeRead[]
+  appliedPromotions   AppliedPromotion[]
+
+  @@map("users")
+}
+
+model Session {
+  id            String   @id @default(uuid())
+  userId        String
+  sessionToken  String   @unique
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime
+  ipHash        String?
+  userAgentHash String?
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model Chapter {
+  id              String         @id @default(uuid())
+  title           String
+  protagonistName String
+  status          ChapterStatus  @default(DRAFT)
+  publishedAt     DateTime?
+  coverAssetId    String?
+  isArchived      Boolean        @default(false)
+  coverAsset      ChapterAsset?  @relation("ChapterCover", fields: [coverAssetId], references: [id])
+  createdAt       DateTime       @default(now())
+  assets          ChapterAsset[]
+  volumes         Volume[]
+  entitlements    Entitlement[]
+  unlocks         Unlock[]
+  reads           VolumeRead[]
+  priceOverride   ChapterPriceOverride?
+
+  @@map("chapters")
+}
+
+model Volume {
+  id                   String          @id @default(uuid())
+  chapterId            String
+  volumeNumber         Int
+  title                String
+  waitDuration         BigInt          @default(0)
+  isFinalPaywall       Boolean         @default(false)
+  isFree               Boolean         @default(false)
+  publishedAt          DateTime?
+  illustrationAssetId  String?
+  illustrationAsset    ChapterAsset?   @relation("VolumeIllustration", fields: [illustrationAssetId], references: [id])
+  createdAt            DateTime        @default(now())
+  chapter              Chapter         @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  versions             VolumeVersion[]
+
+  @@unique([chapterId, volumeNumber])
+  @@index([chapterId])
+  @@map("volumes")
+}
+
+model VolumeVersion {
+  id                   String         @id @default(uuid())
+  volumeId             String
+  perspective          Perspective
+  textBlobId           String?
+  illustrationAssetId  String?
+  illustrationAsset    ChapterAsset?  @relation("VersionIllustration", fields: [illustrationAssetId], references: [id])
+  text                 String?
+  isAutoText           Boolean        @default(true)
+  createdAt            DateTime       @default(now())
+  volume               Volume         @relation(fields: [volumeId], references: [id], onDelete: Cascade)
+  textBlob             EncryptedBlob? @relation("VersionText", fields: [textBlobId], references: [id], onDelete: SetNull)
+  assets               VersionAsset[]
+
+  @@unique([volumeId, perspective])
+  @@index([volumeId])
+  @@map("volume_versions")
+}
+
+model VersionAsset {
+  id              String         @id @default(uuid())
+  volumeVersionId String
+  assetOrder      Int
+  chapterAssetId  String
+  createdAt       DateTime       @default(now())
+  volumeVersion   VolumeVersion  @relation(fields: [volumeVersionId], references: [id], onDelete: Cascade)
+  chapterAsset    ChapterAsset   @relation(fields: [chapterAssetId], references: [id], onDelete: Restrict)
+
+  @@unique([volumeVersionId, assetOrder])
+  @@index([volumeVersionId])
+  @@index([chapterAssetId])
+  @@map("version_assets")
+}
+
+model ChapterAsset {
+  id                  String      @id @default(uuid())
+  chapterId           String
+  kind                AssetKind   @default(IMAGE)
+  label               String?
+  objectKey           String
+  thumbnailObjectKey  String?
+  mimeType            String
+  sizeBytes           Int
+  width               Int?
+  height              Int?
+  sha256              String?
+  createdAt           DateTime    @default(now())
+  chapter             Chapter     @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  coverFor            Chapter[]   @relation("ChapterCover")
+  illustrationFor     Volume[]    @relation("VolumeIllustration")
+  versionIllustrationFor VolumeVersion[] @relation("VersionIllustration")
+  versionAssets       VersionAsset[]
+
+  @@index([chapterId])
+  @@map("chapter_assets")
+}
+
+model Order {
+  id                      String      @id @default(uuid())
+  userId                  String
+  type                    OrderType
+  status                  OrderStatus @default(PENDING)
+  provider                String?
+  providerSessionId       String?
+  providerPaymentIntentId String?
+  currency                String?
+  amountTotal             Int?
+  appliedPriceFreeToRead  Int?        // Prix appliqué au moment de la commande
+  appliedPricePaywall     Int?
+  appliedPriceEpilogue    Int?
+  appliedPriceSchemaId    String?     // Quel schéma était actif?
+  appliedPromotionId      String?     // Quelle promo a été appliquée?
+  createdAt               DateTime    @default(now())
+  user                    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("orders")
+}
+
+model Entitlement {
+  id           String                   @id @default(uuid())
+  userId       String
+  chapterId    String
+  volumeFrom   Int
+  volumeTo     Int
+  versionScope EntitlementVersionScope  @default(BASE)
+  source       EntitlementSource
+  grantedAt    DateTime                 @default(now())
+  user         User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter      Chapter                  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@index([userId, chapterId])
+  @@map("entitlements")
+}
+
+model Unlock {
+  id           String            @id @default(uuid())
+  userId       String
+  chapterId    String
+  volumeNumber Int
+  unlocksAt    DateTime
+  triggeredBy  UnlockTriggeredBy
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter      Chapter           @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chapterId, volumeNumber])
+  @@index([userId, chapterId])
+  @@map("unlocks")
+}
+
+model VolumeRead {
+  id            String   @id @default(uuid())
+  userId        String
+  chapterId     String
+  volumeNumber  Int
+  firstOpenedAt DateTime @default(now())
+  completedAt   DateTime?
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter       Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chapterId, volumeNumber])
+  @@index([userId, chapterId])
+  @@map("volume_reads")
+}
+
+model EncryptedBlob {
+  id         String          @id @default(uuid())
+  ownerId    String
+  purpose    String
+  cipherText Bytes
+  iv         Bytes
+  tag        Bytes
+  wrappedDek Bytes
+  alg        String
+  version    Int
+  createdAt  DateTime @default(now())
+  versionTexts VolumeVersion[] @relation("VersionText")
+
+  @@index([ownerId, purpose])
+  @@map("encrypted_blobs")
+}
+
+model WebhookEvent {
+  id         String   @id @default(uuid())
+  provider   String
+  eventId    String   @unique
+  type       String
+  receivedAt DateTime @default(now())
+
+  @@map("webhook_events")
+}
+
+model Setting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
+
+model Price {
+  id          String       @id @default(uuid())
+  scope       PriceScope
+  refId       String?      // volumeId, chapterId, bundleId, etc.
+  amountCents Int
+  currency    String       @default("EUR")
+  createdAt   DateTime     @default(now())
+
+  promotions  Promotion[]
+
+  @@index([scope, refId])
+  @@map("prices")
+}
+
+model Promotion {
+  id           String         @id @default(uuid())
+  scope        PriceScope
+  refId        String?
+  type         PromotionType
+  value        Int?           // percent or fixed cents depending on type
+  startsAt     DateTime
+  endsAt       DateTime
+  maxUses      Int?
+  perUserLimit Int?
+  isActive     Boolean        @default(true)
+
+  priceId      String?
+  price        Price?         @relation(fields: [priceId], references: [id])
+  applied      AppliedPromotion[]
+
+  @@index([scope, refId])
+  @@index([priceId])
+  @@map("promotions")
+}
+
+model AppliedPromotion {
+  id          String     @id @default(uuid())
+  promotionId String
+  userId      String
+  appliedAt   DateTime   @default(now())
+
+  promotion   Promotion  @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([promotionId])
+  @@map("applied_promotions")
+}
+
+// ============= PRICE SCHEMAS & OVERRIDES =============
+
+model PriceSchema {
+  id              String    @id @default(uuid())
+  name            String
+  description     String?
+  
+  // Prix par type de volume (en centimes)
+  priceFreeToRead Int       @default(199)
+  pricePaywall    Int       @default(299)
+  priceEpilogue   Int       @default(399)
+  
+  // Metadata
+  isActive        Boolean   @default(true)
+  appliedFrom     DateTime  @default(now())
+  appliedTo       DateTime?
+  createdAt       DateTime  @default(now())
+  createdBy       String    // admin user ID
+  
+  // Relations
+  chapterOverrides ChapterPriceOverride[]
+  
+  @@index([isActive])
+  @@index([appliedFrom])
+  @@map("price_schemas")
+}
+
+model ChapterPriceOverride {
+  id              String    @id @default(uuid())
+  
+  // Relation
+  chapterId       String    @unique
+  chapter         Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  
+  // Schéma de base
+  schemaId        String
+  schema          PriceSchema @relation(fields: [schemaId], references: [id])
+  
+  // Overrides (optionnels - NULL = utiliser le prix du schéma)
+  priceFreeToRead Int?
+  pricePaywall    Int?
+  priceEpilogue   Int?
+  
+  // Raison de l'exception
+  reason          String?
+  
+  // Metadata
+  isActive        Boolean   @default(true)
+  appliedFrom     DateTime  @default(now())
+  appliedTo       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([schemaId])
+  @@index([isActive])
+  @@map("chapter_price_overrides")
+}
+
+model PriceHistory {
+  id              String    @id @default(uuid())
+  
+  // Quelle entité?
+  entityType      String    // "SCHEMA" ou "OVERRIDE"
+  entityId        String    // PriceSchema.id ou ChapterPriceOverride.id
+  
+  // Valeurs avant/après
+  previousValues  Json?
+  newValues       Json?
+  
+  // Changement
+  changeReason    String?
+  changedBy       String    // admin user ID
+  changedAt       DateTime  @default(now())
+  
+  @@index([entityType, entityId])
+  @@index([changedAt])
+  @@map("price_histories")
+}

@@ -1,0 +1,12 @@
+import { FastifyInstance } from 'fastify';
+import { requireAdmin } from '../../../lib/middleware';
+import { DashboardController } from './dashboard.controller';
+
+const controller = new DashboardController();
+
+export async function adminDashboardRoutes(app: FastifyInstance) {
+  app.get('/admin/dashboard', {
+    preHandler: requireAdmin,
+    handler: controller.getStats.bind(controller),
+  });
+}

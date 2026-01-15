@@ -1,0 +1,811 @@
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { api } from "../lib/api";
+import type { PriceScope, PromotionType } from "@cher-journal/types";
+import { useI18n } from "../lib/i18n";
+import {
+  MdArrowBack,
+  MdSave,
+  MdDelete,
+  MdCheckCircle,
+  MdCancel,
+} from "react-icons/md";
+import ToggleButton from "../components/ToggleButton";
+
+interface FormData {
+  scope: PriceScope;
+  refId?: string;
+  type: PromotionType;
+  value?: number;
+  startsAt: string;
+  endsAt: string;
+  maxUses?: number;
+  perUserLimit?: number;
+  isActive: boolean;
+  priceId?: string;
+}
+
+export function PromotionForm() {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const isEdit = !!id;
+  const { t, language } = useI18n();
+  const locale = language === "en" ? "en-US" : "fr-FR";
+
+  const [formData, setFormData] = useState<FormData>({
+    scope: "VOLUME",
+    type: "PERCENT",
+    value: 0,
+    startsAt: new Date().toISOString().split("T")[0],
+    endsAt: new Date(Date.now() + 24 * 3600000).toISOString().split("T")[0],
+    isActive: true,
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [prices, setPrices] = useState<any[]>([]);
+  const [previewPrice, setPreviewPrice] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (isEdit) {
+      loadPromotion();
+    }
+    loadPrices();
+  }, [isEdit, id]);
+
+  const loadPromotion = async () => {
+    if (!id) return;
+    try {
+      const res = await api.get(`/admin/promotions/${id}`);
+      const promo = res.data.data;
+
+      setFormData({
+        scope: promo.scope,
+        refId: promo.refId || undefined,
+        type: promo.type,
+        value: promo.value || undefined,
+        startsAt: new Date(promo.startsAt).toISOString().split("T")[0],
+        endsAt: new Date(promo.endsAt).toISOString().split("T")[0],
+        maxUses: promo.maxUses || undefined,
+        perUserLimit: promo.perUserLimit || undefined,
+        isActive: promo.isActive,
+        priceId: promo.priceId || undefined,
+      });
+    } catch (err) {
+      setError(
+        t("promotions.form.error_load", t("messages.error.load_orders"))
+      );
+    }
+  };
+
+  const loadPrices = async () => {
+    try {
+      const res = await api.get("/admin/prices");
+      setPrices(res.data.data || []);
+    } catch (err) {
+      console.error("Failed to load prices:", err);
+    }
+  };
+
+  const calculatePreview = async () => {
+    if (!formData.priceId) {
+      setPreviewPrice(null);
+      return;
+    }
+
+    try {
+      const res = await api.get(
+        "/admin/prices/" + formData.priceId + "/calculate"
+      );
+      setPreviewPrice(res.data.data.finalPrice);
+    } catch (err) {
+      console.error("Failed to calculate price:", err);
+    }
+  };
+
+  useEffect(() => {
+    calculatePreview();
+  }, [formData.priceId]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const payload = {
+        ...formData,
+        startsAt: new Date(formData.startsAt),
+        endsAt: new Date(formData.endsAt),
+      };
+
+      if (isEdit) {
+        await api.patch(`/admin/promotions/${id}`, payload);
+      } else {
+        await api.post("/admin/promotions", payload);
+      }
+
+      navigate("/promotions");
+    } catch (err: any) {
+      setError(
+        err.response?.data?.error?.message || t("promotions.form.error_save")
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!isEdit || !id) return;
+    if (!confirm(t("promotions.confirm_delete"))) return;
+
+    try {
+      await api.delete(`/admin/promotions/${id}`);
+      navigate("/promotions");
+    } catch (err) {
+      setError(t("promotions.form.error_delete"));
+    }
+  };
+
+  const formatPrice = (cents: number) => {
+    return `${(cents / 100).toFixed(2)}€`;
+  };
+
+  const formatDate = (date: Date | string) => {
+    return new Date(date).toLocaleDateString(locale, {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const getScopeLabel = (scope: PriceScope) => {
+    const labels: Record<PriceScope, string> = {
+      VOLUME: t("promotions.scopes.VOLUME"),
+      CHAPTER: t("promotions.scopes.CHAPTER"),
+      EPILOGUE: t("promotions.scopes.EPILOGUE"),
+      POV: t("promotions.scopes.POV"),
+      COLORING: t("promotions.scopes.COLORING"),
+      BUNDLE: t("promotions.scopes.BUNDLE"),
+      SUBSCRIPTION: t("promotions.scopes.SUBSCRIPTION"),
+    };
+    return labels[scope];
+  };
+
+  const getTypeLabel = (type: PromotionType) => {
+    const labels: Record<PromotionType, string> = {
+      PERCENT: t("promotions.types.PERCENT"),
+      FIXED: t("promotions.types.FIXED"),
+      FREE: t("promotions.types.FREE"),
+    };
+    return labels[type];
+  };
+
+  const scopeOptions: Array<{ value: PriceScope; label: string }> = [
+    { value: "VOLUME", label: t("promotions.scopes.VOLUME") },
+    { value: "CHAPTER", label: t("promotions.scopes.CHAPTER") },
+    { value: "EPILOGUE", label: t("promotions.scopes.EPILOGUE") },
+    { value: "POV", label: t("promotions.scopes.POV") },
+    { value: "COLORING", label: t("promotions.scopes.COLORING") },
+    { value: "BUNDLE", label: t("promotions.scopes.BUNDLE") },
+    { value: "SUBSCRIPTION", label: t("promotions.scopes.SUBSCRIPTION") },
+  ];
+
+  const typeOptions: Array<{ value: PromotionType; label: string }> = [
+    { value: "PERCENT", label: `${t("promotions.types.PERCENT")} (%)` },
+    { value: "FIXED", label: `${t("promotions.types.FIXED")} (€)` },
+    { value: "FREE", label: t("promotions.types.FREE") },
+  ];
+
+  const relevantPrices = prices.filter((p) => p.scope === formData.scope);
+
+  return (
+    <div className="p-6">
+      {/* Header */}
+      <div className="flex items-center gap-4 mb-6">
+        <button
+          onClick={() => navigate("/promotions")}
+          className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 transition">
+          <MdArrowBack className="text-xl text-gray-600" />
+        </button>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {isEdit
+              ? t("promotions.edit_promotion")
+              : t("promotions.create_promotion")}
+          </h1>
+          <p className="text-sm text-gray-600 mt-1">
+            {isEdit
+              ? t("promotions.form.subtitle_edit", t("promotions.subtitle"))
+              : t("promotions.form.subtitle_create", t("promotions.subtitle"))}
+          </p>
+        </div>
+      </div>
+
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-800 font-medium">{error}</p>
+        </div>
+      )}
+
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main form */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Scope, Type, Value - 3 columns on large screens, 1 on small */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
+              <label className="block text-sm font-semibold text-gray-900 mb-3">
+                {t("promotions.form.scope_label")}
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {scopeOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() =>
+                      setFormData({
+                        ...formData,
+                        scope: opt.value,
+                        priceId: undefined,
+                      })
+                    }
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                      formData.scope === opt.value
+                        ? "bg-rose-500 text-white shadow-lg"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                {t("promotions.form.explanation_scope_selection")}
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <label className="block text-sm font-semibold text-gray-900 mb-3">
+                {t("promotions.form.type_label")}
+              </label>
+              <select
+                value={formData.type}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    type: e.target.value as PromotionType,
+                  })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent">
+                {typeOptions.map((opt) => (
+                  <option
+                    key={opt.value}
+                    value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-2">
+                {formData.type === "PERCENT"
+                  ? t("promotions.form.explanation_type_percent_short")
+                  : formData.type === "FIXED"
+                    ? t("promotions.form.explanation_type_fixed_short")
+                    : t("promotions.form.explanation_type_free_short")}
+              </p>
+            </div>
+
+            {formData.type !== "FREE" && (
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                  {formData.type === "PERCENT"
+                    ? t("promotions.form.percent")
+                    : t("promotions.form.amount")}
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max={formData.type === "PERCENT" ? "100" : "999"}
+                  step={formData.type === "PERCENT" ? "1" : "0.01"}
+                  value={formData.value || ""}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      value: e.target.value
+                        ? Number(e.target.value)
+                        : undefined,
+                    })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                  placeholder={
+                    formData.type === "PERCENT"
+                      ? t("promotions.form.example_percent", "Ex: 20")
+                      : t("promotions.form.example_amount", "Ex: 0.50")
+                  }
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  {formData.type === "PERCENT"
+                    ? t("promotions.form.explanation_value_percent")
+                    : t("promotions.form.explanation_value_fixed")}
+                </p>
+              </div>
+            )}
+            {formData.type === "FREE" && (
+              <div className="bg-white rounded-lg shadow-sm p-6 opacity-50">
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                  {t("promotions.form.value")}
+                </label>
+                <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50">
+                  <p className="text-sm text-gray-500">
+                    {t("promotions.types.FREE")}
+                  </p>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  {t("promotions.form.not_applicable")}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Price Link */}
+          {relevantPrices.length > 0 && (
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <label className="block text-sm font-semibold text-gray-900 mb-3">
+                {t("promotions.form.associated_price")}
+              </label>
+              <select
+                value={formData.priceId || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    priceId: e.target.value || undefined,
+                  })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent">
+                <option value="">{t("promotions.form.select_price")}</option>
+                {relevantPrices.map((price) => (
+                  <option
+                    key={price.id}
+                    value={price.id}>
+                    {formatPrice(price.amountCents)}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-2">
+                {t("promotions.form.explanation_price_linked")}
+              </p>
+            </div>
+          )}
+
+          {/* Dates */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-4">
+              {t("promotions.form.section_period")}
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                  {t("promotions.form.start_date")}
+                </label>
+                <input
+                  type="date"
+                  value={formData.startsAt}
+                  onChange={(e) =>
+                    setFormData({ ...formData, startsAt: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                  {t("promotions.form.end_date")}
+                </label>
+                <input
+                  type="date"
+                  value={formData.endsAt}
+                  onChange={(e) =>
+                    setFormData({ ...formData, endsAt: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-3">
+              {t("promotions.form.explanation_period")}
+            </p>
+          </div>
+
+          {/* Limits */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-4">
+              {t("promotions.form.section_limits")}
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                  {t("promotions.form.max_uses")}
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.maxUses || ""}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      maxUses: e.target.value
+                        ? Number(e.target.value)
+                        : undefined,
+                    })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                  placeholder={t("promotions.form.unlimited")}
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  {t("promotions.form.explanation_max_uses")}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                  {t("promotions.form.per_user")}
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.perUserLimit || ""}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      perUserLimit: e.target.value
+                        ? Number(e.target.value)
+                        : undefined,
+                    })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                  placeholder={t("promotions.form.unlimited")}
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  {t("promotions.form.explanation_per_user")}
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded text-xs text-blue-800">
+              {t("promotions.form.limits_example")}
+            </div>
+          </div>
+
+          {/* Status */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-4">
+              {t("promotions.form.section_status")}
+            </p>
+            <ToggleButton
+              checked={formData.isActive}
+              onChange={(checked) =>
+                setFormData({ ...formData, isActive: checked })
+              }
+              ariaLabel={t("promotions.form.active")}
+              variant="green"
+              label={t("promotions.form.active")}
+              description={t("promotions.form.explanation_status_toggle")}
+            />
+            <div className="mt-3 p-3 bg-amber-50 border border-amber-100 rounded text-xs text-amber-800">
+              {t("promotions.form.explanation_status_period")}
+            </div>
+          </div>
+        </div>
+
+        {/* Preview sidebar */}
+        <div className="lg:col-span-1">
+          {/* Unified Summary Card */}
+          <div
+            className={`rounded-lg shadow-sm p-6 border-2 relative ${
+              formData.isActive
+                ? "bg-green-50 border-green-200"
+                : "bg-gray-50 dashed border-gray-300"
+            }`}>
+            <div className="absolute top-4 right-4">
+              {formData.isActive ? (
+                <MdCheckCircle className="text-3xl text-green-600" />
+              ) : (
+                <MdCancel className="text-3xl text-gray-400" />
+              )}
+            </div>
+
+            <h3 className="text-lg font-bold text-gray-900 mb-6">
+              {t("promotions.form.summary_impact")}
+            </h3>
+
+            {/* Overall impact */}
+            <div className="mt-4 p-3 bg-blue-50 border border-l-8 border-blue-400 rounded-lg text-xs text-blue-800">
+              <p>
+                {t("promotions.form.summary_intro", undefined, {
+                  scope: getScopeLabel(formData.scope),
+                })}{" "}
+                <strong>
+                  {formData.type === "FREE"
+                    ? t("promotions.form.free_access")
+                    : formData.type === "PERCENT"
+                      ? t("promotions.form.reduction_percent", undefined, {
+                          value: formData.value ?? 0,
+                        })
+                      : t("promotions.form.reduction_amount", undefined, {
+                          value: formatPrice((formData.value || 0) * 100),
+                        })}
+                </strong>
+                {formData.maxUses || formData.perUserLimit ? (
+                  <>
+                    {" "}
+                    {t("promotions.form.summary_for", undefined, {
+                      audience: formData.perUserLimit
+                        ? t("promotions.form.max_clients", undefined, {
+                            value: formData.perUserLimit,
+                          })
+                        : t("promotions.form.unlimited_clients"),
+                    })}
+                    {formData.maxUses && (
+                      <>
+                        {" "}
+                        {t("promotions.form.summary_total_uses", undefined, {
+                          value: formData.maxUses,
+                        })}
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <> {t("promotions.form.all_clients")} </>
+                )}{" "}
+                {t("promotions.form.summary_period", undefined, {
+                  start: formatDate(formData.startsAt),
+                  end: formatDate(formData.endsAt),
+                })}
+              </p>
+            </div>
+
+            <h2 className="text-lg font-bold text-gray-900 my-6">
+              {t("promotions.form.details")}
+            </h2>
+            <div className="space-y-5 mt-4">
+              {/* Scope Section */}
+              <div className="border-b border-gray-200 pb-4">
+                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                  {t("promotions.form.section_content_type")}
+                </p>
+                <p className="text-sm font-bold text-gray-900 mb-2">
+                  {getScopeLabel(formData.scope)}
+                </p>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  {formData.scope === "VOLUME"
+                    ? t("promotions.form.explanation_scope_volume")
+                    : formData.scope === "CHAPTER"
+                      ? t("promotions.form.explanation_scope_chapter")
+                      : formData.scope === "EPILOGUE"
+                        ? t("promotions.form.explanation_scope_epilogue")
+                        : formData.scope === "POV"
+                          ? t("promotions.form.explanation_scope_pov")
+                          : formData.scope === "COLORING"
+                            ? t("promotions.form.explanation_scope_coloring")
+                            : formData.scope === "BUNDLE"
+                              ? t("promotions.form.explanation_scope_bundle")
+                              : t(
+                                  "promotions.form.explanation_scope_subscription"
+                                )}
+                </p>
+              </div>
+
+              {/* Type Section */}
+              <div className="border-b border-gray-200 pb-4">
+                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                  {t("promotions.form.section_reduction_type")}
+                </p>
+                <p className="text-sm font-bold text-gray-900 mb-2">
+                  {getTypeLabel(formData.type)}
+                </p>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  {formData.type === "PERCENT"
+                    ? t("promotions.form.explanation_type_percent")
+                    : formData.type === "FIXED"
+                      ? t("promotions.form.explanation_type_fixed")
+                      : t("promotions.form.explanation_type_free")}
+                </p>
+              </div>
+
+              {/* Value Section */}
+              {formData.type !== "FREE" && (
+                <div className="border-b border-gray-200 pb-4">
+                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                    {t("promotions.form.section_value")}
+                  </p>
+                  <p className="text-sm font-bold text-green-600 mb-2">
+                    {formData.type === "PERCENT"
+                      ? t("promotions.form.reduction_percent", undefined, {
+                          value: formData.value ?? 0,
+                        })
+                      : t("promotions.form.reduction_amount", undefined, {
+                          value: formatPrice((formData.value || 0) * 100),
+                        })}
+                  </p>
+                  <p className="text-xs text-gray-600 leading-relaxed">
+                    {formData.type === "PERCENT"
+                      ? t(
+                          "promotions.form.explanation_value_percent",
+                          undefined,
+                          {
+                            value: formData.value ?? 0,
+                          }
+                        )
+                      : t(
+                          "promotions.form.explanation_value_fixed",
+                          undefined,
+                          {
+                            value: formatPrice((formData.value || 0) * 100),
+                          }
+                        )}
+                  </p>
+                  {formData.value === 0 && (
+                    <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+                      {t("promotions.form.alert_zero_value")}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Dates Section */}
+              <div className="border-b border-gray-200 pb-4">
+                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                  {t("promotions.form.section_period")}
+                </p>
+                <p className="text-sm font-bold text-gray-900 mb-2">
+                  {formatDate(formData.startsAt)} →{" "}
+                  {formatDate(formData.endsAt)}
+                </p>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  {t("promotions.form.explanation_period")}
+                </p>
+              </div>
+
+              {/* Limits Section */}
+              {(formData.maxUses || formData.perUserLimit) && (
+                <div className="border-b border-gray-200 pb-4">
+                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                    {t("promotions.form.section_limits")}
+                  </p>
+                  <div className="space-y-2">
+                    {formData.maxUses && (
+                      <div>
+                        <p className="text-xs font-medium text-gray-700">
+                          {t("promotions.form.summary_total_uses", undefined, {
+                            value: formData.maxUses,
+                          })}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {t(
+                            "promotions.form.explanation_max_uses",
+                            undefined,
+                            {
+                              value: formData.maxUses,
+                            }
+                          )}
+                        </p>
+                      </div>
+                    )}
+                    {formData.perUserLimit && (
+                      <div>
+                        <p className="text-xs font-medium text-gray-700">
+                          {t("promotions.form.max_clients", undefined, {
+                            value: formData.perUserLimit,
+                          })}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {t(
+                            "promotions.form.explanation_per_user",
+                            undefined,
+                            {
+                              value: formData.perUserLimit,
+                            }
+                          )}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Status Section */}
+              <div className="border-b border-gray-200 pb-4">
+                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                  {t("promotions.form.section_status")}
+                </p>
+                <p
+                  className={`text-sm font-bold mb-2 ${
+                    formData.isActive ? "text-green-600" : "text-red-600"
+                  }`}>
+                  {formData.isActive
+                    ? `✅ ${t("promotions.form.active")}`
+                    : `❌ ${t("promotions.form.inactive")}`}
+                </p>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  {formData.isActive
+                    ? t("promotions.form.explanation_status_active")
+                    : t("promotions.form.explanation_status_inactive")}
+                </p>
+              </div>
+
+              {/* Price Preview if linked */}
+              {formData.priceId && previewPrice !== null && (
+                <div className="bg-white rounded border-2 border-rose-200 p-4">
+                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">
+                    {t("promotions.form.price_example")}
+                  </p>
+                  {relevantPrices.find((p) => p.id === formData.priceId) &&
+                    (() => {
+                      const price = relevantPrices.find(
+                        (p) => p.id === formData.priceId
+                      );
+                      if (!price) return null;
+                      return (
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-gray-600">
+                              {t("promotions.form.usual_price")}
+                            </span>
+                            <span className="text-sm font-bold text-gray-900">
+                              {formatPrice(price.amountCents)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-gray-600">
+                              {t("promotions.form.discounted_price")}
+                            </span>
+                            <span className="text-sm font-bold text-green-600">
+                              {formatPrice(previewPrice || 0)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                            <span className="text-xs font-medium text-gray-700">
+                              {t("promotions.form.customer_savings")}
+                            </span>
+                            <span className="text-sm font-bold text-green-700">
+                              -
+                              {formatPrice(
+                                price.amountCents - (previewPrice || 0)
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="lg:col-span-2 flex gap-3 pt-4">
+          <button
+            type="button"
+            onClick={() => navigate("/promotions")}
+            className="px-6 py-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 transition font-medium">
+            {t("promotions.cancel")}
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 flex items-center justify-center gap-2 px-6 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 disabled:bg-gray-400 transition font-medium">
+            <MdSave className="text-xl" />
+            {loading ? t("promotions.saving") : t("promotions.save")}
+          </button>
+          {isEdit && (
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="px-6 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition font-medium flex items-center gap-2">
+              <MdDelete className="text-xl" />
+              {t("promotions.delete")}
+            </button>
+          )}
+        </div>
+      </form>
+    </div>
+  );
+}

@@ -1,0 +1,63 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run prisma:*)",
+      "Bash(npx prisma:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx jest:*)",
+      "Bash(npx playwright:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(dir:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git branch:*)",
+      "PowerShell(Get-Content:*)",
+      "PowerShell(Get-ChildItem:*)",
+      "PowerShell(Test-Path:*)",
+      "PowerShell(Select-String:*)",
+      "PowerShell(npm:*)",
+      "PowerShell(node:*)",
+      "PowerShell(npx:*)",
+      "WebSearch"
+    ]
+  },
+  "autoApprove": {
+    "patterns": [
+      "npm install",
+      "npm i",
+      "npm run dev",
+      "npm run build",
+      "npm test",
+      "npm run prisma:generate",
+      "npm run prisma:migrate:dev",
+      "npx prisma generate",
+      "npx prisma studio",
+      "git status",
+      "git log",
+      "git diff"
+    ]
+  },
+  "restrictions": {
+    "requireApproval": [
+      "npm run prisma:migrate:deploy",
+      "npm run prisma:db:push",
+      "npx prisma db push",
+      "git push",
+      "git commit",
+      "rm -rf",
+      "Remove-Item -Recurse"
+    ]
+  }
+}
