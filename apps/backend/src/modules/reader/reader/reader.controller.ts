@@ -11,6 +11,7 @@ interface VolumeVersionDTO {
   perspective: Perspective;
   illustrationAssetId: string | null;
   createdAt: Date;
+  characterCount?: number;
   // NEVER expose: text, textBlobId, textBlob
 }
 
@@ -21,6 +22,7 @@ function sanitizeVolumeVersion(version: any): VolumeVersionDTO {
     perspective: version.perspective,
     illustrationAssetId: version.illustrationAssetId,
     createdAt: version.createdAt,
+    characterCount: version.characterCount,
     // Explicitly NOT including: text, textBlob, textBlobId
   };
 }
@@ -126,6 +128,12 @@ export class ReaderController {
         return reply.status(404).send({
           success: false,
           error: { code: 'VERSION_NOT_FOUND', message: 'Version not found' },
+        });
+      }
+      if (error.message === 'VOLUME_NOT_AVAILABLE') {
+        return reply.status(404).send({
+          success: false,
+          error: { code: 'VOLUME_NOT_AVAILABLE', message: 'Volume is not available yet or not published' },
         });
       }
       throw error;

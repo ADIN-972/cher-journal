@@ -1,5 +1,5 @@
 import prisma from '../../../lib/prisma';
-import { ChapterStatus, EntitlementVersionScope } from '@prisma/client';
+import { ChapterStatus, EntitlementVersionScope, VolumeStatus } from '@prisma/client';
 
 export class LibraryService {
   async getLibrary(userId: string) {
@@ -11,6 +11,14 @@ export class LibraryService {
           include: {
             coverAsset: true,
             volumes: {
+              where: {
+                // Only include volumes that are published and accessible
+                status: VolumeStatus.PUBLISHED,
+                OR: [
+                  { scheduledFor: null },
+                  { scheduledFor: { lte: new Date() } }
+                ]
+              },
               orderBy: { volumeNumber: 'asc' },
             },
           },

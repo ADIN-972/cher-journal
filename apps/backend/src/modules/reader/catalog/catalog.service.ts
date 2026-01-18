@@ -1,17 +1,31 @@
 import prisma from '../../../lib/prisma';
-import { ChapterStatus } from '@prisma/client';
+import { ChapterStatus, VolumeStatus } from '@prisma/client';
 
 export class CatalogService {
   async listChapters() {
     return prisma.chapter.findMany({
       where: {
         status: ChapterStatus.PUBLISHED,
+        // Chapter must be either without scheduledFor OR scheduled date has passed
+        OR: [
+          { scheduledFor: null },
+          { scheduledFor: { lte: new Date() } }
+        ]
       },
       include: {
         coverAsset: true,
         _count: {
           select: {
-            volumes: true,
+            volumes: {
+              where: {
+                // Only count volumes that are published and accessible
+                status: VolumeStatus.PUBLISHED,
+                OR: [
+                  { scheduledFor: null },
+                  { scheduledFor: { lte: new Date() } }
+                ]
+              }
+            },
           },
         },
       },
@@ -25,6 +39,14 @@ export class CatalogService {
       include: {
         coverAsset: true,
         volumes: {
+          where: {
+            // Only include volumes that are published and accessible
+            status: VolumeStatus.PUBLISHED,
+            OR: [
+              { scheduledFor: null },
+              { scheduledFor: { lte: new Date() } }
+            ]
+          },
           include: {
             illustrationAsset: true,
           },
@@ -40,7 +62,7 @@ export class CatalogService {
     // If user authenticated, check entitlements
     let hasAccess = false;
     let versionScope = null;
-    
+
     if (userId) {
       const entitlement = await prisma.entitlement.findFirst({
         where: {
@@ -48,7 +70,7 @@ export class CatalogService {
           chapterId: id,
         },
       });
-      
+
       if (entitlement) {
         hasAccess = true;
         versionScope = entitlement.versionScope;

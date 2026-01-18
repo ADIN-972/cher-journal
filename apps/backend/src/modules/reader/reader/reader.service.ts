@@ -163,6 +163,13 @@ export class ReaderService {
       where: {
         chapterId,
         volumeNumber,
+        // Volume must be published
+        status: 'PUBLISHED',
+        // AND either no scheduled date OR scheduled date has passed
+        OR: [
+          { scheduledFor: null },
+          { scheduledFor: { lte: new Date() } }
+        ]
       },
       include: {
         versions: {
@@ -179,7 +186,7 @@ export class ReaderService {
     });
 
     if (!volume || volume.versions.length === 0) {
-      throw new Error("VERSION_NOT_FOUND");
+      throw new Error("VOLUME_NOT_AVAILABLE");
     }
 
     return volume.versions[0];
