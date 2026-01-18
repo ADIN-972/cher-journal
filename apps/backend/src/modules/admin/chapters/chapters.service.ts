@@ -16,6 +16,7 @@ export class ChaptersService {
     return {
       ...volume,
       waitDuration: Number(volume.waitDuration),
+      status: volume.status, // Ensure status is included
     };
   }
 
@@ -50,6 +51,7 @@ export class ChaptersService {
                 illustrationAssetId: null,
                 illustrationAsset: null,
                 hasText: false,
+                characterCount: 0,
                 // SECURITY: Never expose text or textBlobId
               };
             }
@@ -61,6 +63,7 @@ export class ChaptersService {
               illustrationAssetId: ver.illustrationAssetId,
               illustrationAsset: ver.illustrationAsset,
               hasText: !!ver.textBlobId,
+              characterCount: ver.characterCount,
               // SECURITY: Explicitly NOT including 'text' or 'textBlobId'
             };
           });
@@ -139,6 +142,7 @@ export class ChaptersService {
         volumes: chapter.volumes.map((vol) => ({
           ...vol,
           waitDuration: Number(vol.waitDuration),
+          status: vol.status, // Ensure status is included
           versions: undefined,
         })),
       };
@@ -508,18 +512,6 @@ export class ChaptersService {
 
     if (updates.status !== undefined) {
       updateData.status = updates.status;
-    }
-
-    if (updates.priceFreeToRead !== undefined) {
-      updateData.priceFreeToRead = updates.priceFreeToRead;
-    }
-
-    if (updates.pricePaywall !== undefined) {
-      updateData.pricePaywall = updates.pricePaywall;
-    }
-
-    if (updates.priceEpilogue !== undefined) {
-      updateData.priceEpilogue = updates.priceEpilogue;
     }
 
     if (updates.publishedAt !== undefined) {

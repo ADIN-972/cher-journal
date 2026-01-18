@@ -86,12 +86,12 @@ async function main() {
   // Create realistic orders spread across 2025
   const types = ["CHAPTER", "BUNDLE", "VERSION_PACK", "COLORING"];
   const amounts = [699, 349, 699, 299];
-  
+
   let orderCount = 0;
   for (let month = 0; month < 12; month++) {
     for (let userIdx = 0; userIdx < users.length; userIdx++) {
       // Each user buys 1-3 items per month
-      const itemsThisMonth = 1 + (month + userIdx) % 3;
+      const itemsThisMonth = 1 + ((month + userIdx) % 3);
       for (let item = 0; item < itemsThisMonth; item++) {
         const typeIdx = (month + userIdx + item) % types.length;
         await prisma.order.create({

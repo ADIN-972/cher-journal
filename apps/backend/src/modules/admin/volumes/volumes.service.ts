@@ -13,10 +13,31 @@ import { encrypt, decryptBlob } from "../../../lib/crypto";
 export class VolumesService {
   // Helper to convert BigInt to Number for JSON serialization
   private serializeVolume(volume: any) {
-    return {
+    const serialized: any = {
       ...volume,
       waitDuration: Number(volume.waitDuration),
+      status: volume.status, // Ensure status is included
     };
+
+    // Add hasText flag to each version if versions are included
+    if (volume.versions && Array.isArray(volume.versions)) {
+      serialized.versions = volume.versions.map((version: any) => {
+        const hasText = config.encryptionEnabled
+          ? version.textBlobId !== null
+          : version.text !== null;
+
+        return {
+          ...version,
+          hasText,
+          // characterCount is already in the database
+          // Remove sensitive fields
+          text: undefined,
+          textBlobId: undefined,
+        };
+      });
+    }
+
+    return serialized;
   }
 
   private serializeVolumes(volumes: any[]) {
@@ -188,37 +209,50 @@ export class VolumesService {
       orderBy: { perspective: "asc" },
     });
 
-    // Ensure both perspectives are represented
+    // Ensure both perspectives exist in database
     const versionMap = new Map(versions.map((v) => [v.perspective, v]));
     const allPerspectives: Array<"NARRATOR" | "PROTAGONIST"> = [
       "NARRATOR",
       "PROTAGONIST",
     ];
 
-    const completeVersions = allPerspectives.map((perspective) => {
-      const version = versionMap.get(perspective);
-      if (!version) {
-        // Return a placeholder for non-existent perspectives
+    // Create missing versions automatically
+    const completeVersions = await Promise.all(
+      allPerspectives.map(async (perspective) => {
+        let version = versionMap.get(perspective);
+
+        if (!version) {
+          // Create the missing version in database
+          version = await prisma.volumeVersion.create({
+            data: {
+              volumeId,
+              perspective,
+            },
+            include: {
+              illustrationAsset: true,
+            },
+          });
+        }
+
+        // Determine if version has text
+        const hasText = config.encryptionEnabled
+          ? version.textBlobId !== null
+          : version.text !== null;
+
+        // SECURITY: Exclude text and textBlobId from response
         return {
-          id: `placeholder-${volumeId}-${perspective}`,
-          volumeId,
-          perspective,
-          illustrationAssetId: null,
-          illustrationAsset: null,
-          // SECURITY: Never expose text or textBlobId
+          id: version.id,
+          volumeId: version.volumeId,
+          perspective: version.perspective,
+          illustrationAssetId: version.illustrationAssetId,
+          illustrationAsset: version.illustrationAsset,
+          hasText,
+          characterCount: version.characterCount,
+          createdAt: version.createdAt,
+          // NOT including: text, textBlobId
         };
-      }
-      // SECURITY: Exclude text and textBlobId from response
-      return {
-        id: version.id,
-        volumeId: version.volumeId,
-        perspective: version.perspective,
-        illustrationAssetId: version.illustrationAssetId,
-        illustrationAsset: version.illustrationAsset,
-        createdAt: version.createdAt,
-        // NOT including: text, textBlobId
-      };
-    });
+      })
+    );
 
     return completeVersions;
   }
@@ -242,6 +276,7 @@ export class VolumesService {
     // Allow text updates only if encryption is disabled (dev mode)
     if (!config.encryptionEnabled && data.text !== undefined) {
       updateData.text = data.text;
+      updateData.characterCount = data.text ? data.text.length : 0;
     }
 
     // NOTE: In production (encryption enabled), use dedicated /text endpoint for updates
@@ -334,8 +369,8 @@ export class VolumesService {
       throw new Error("VERSION_NOT_FOUND");
     }
 
-    // If encryption is disabled, return plaintext
-    if (!config.encryptionEnabled && version.text) {
+    // If encryption is disabled, return plaintext (including empty strings)
+    if (!config.encryptionEnabled && version.text !== null) {
       return version.text;
     }
 
@@ -344,8 +379,8 @@ export class VolumesService {
       return decryptBlob(version.textBlob);
     }
 
-    // No text available
-    throw new Error("NO_TEXT_BLOB");
+    // No text available - return empty string instead of error
+    return "";
   }
 
   async updateVersionText(versionId: string, data: { text: string }) {
@@ -361,6 +396,10 @@ export class VolumesService {
     }
 
     const updateData: any = {};
+
+    // Calculate character count
+    const characterCount = data.text ? data.text.length : 0;
+    updateData.characterCount = characterCount;
 
     // Handle text update based on encryption mode
     if (config.encryptionEnabled) {
@@ -451,26 +490,41 @@ export class VolumesService {
         });
       }
 
-      // Update narrator version text
-      const narratorVersion = volume.versions.find(
+      // Ensure both versions exist (create if missing)
+      let narratorVersion = volume.versions.find(
         (v) => v.perspective === Perspective.NARRATOR
       );
-      if (narratorVersion) {
-        await this.updateVersionText(narratorVersion.id, {
-          text: data.narratorText,
+      if (!narratorVersion) {
+        narratorVersion = await prisma.volumeVersion.create({
+          data: {
+            volumeId: volume.id,
+            perspective: Perspective.NARRATOR,
+          },
         });
       }
 
-      // Update protagonist version text if provided
-      if (data.protagonistText) {
-        const protagonistVersion = volume.versions.find(
-          (v) => v.perspective === Perspective.PROTAGONIST
-        );
-        if (protagonistVersion) {
-          await this.updateVersionText(protagonistVersion.id, {
-            text: data.protagonistText,
-          });
-        }
+      let protagonistVersion = volume.versions.find(
+        (v) => v.perspective === Perspective.PROTAGONIST
+      );
+      if (!protagonistVersion) {
+        protagonistVersion = await prisma.volumeVersion.create({
+          data: {
+            volumeId: volume.id,
+            perspective: Perspective.PROTAGONIST,
+          },
+        });
+      }
+
+      // Update narrator version text
+      await this.updateVersionText(narratorVersion.id, {
+        text: data.narratorText,
+      });
+
+      // Update protagonist version text if provided (including empty strings)
+      if (data.protagonistText !== undefined) {
+        await this.updateVersionText(protagonistVersion.id, {
+          text: data.protagonistText,
+        });
       }
 
       return {

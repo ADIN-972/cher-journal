@@ -24,6 +24,12 @@ enum ChapterStatus {
   PUBLISHED
 }
 
+enum VolumeStatus {
+  DRAFT
+  IN_PROGRESS
+  PUBLISHED
+}
+
 enum Perspective {
   NARRATOR
   PROTAGONIST
@@ -41,6 +47,18 @@ enum OrderStatus {
   PAID
   REFUNDED
   PENDING
+}
+
+enum RefundStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum RefundType {
+  FULL
+  PARTIAL
 }
 
 enum EntitlementVersionScope {
@@ -77,6 +95,12 @@ enum PromotionType {
   FREE
 }
 
+enum PromotionTargetType {
+  ALL_USERS
+  SPECIFIC_USERS
+  CRITERIA_BASED
+}
+
 enum AssetKind {
   IMAGE
   COLORING_PAGE
@@ -99,6 +123,7 @@ model User {
   unlocks             Unlock[]
   reads               VolumeRead[]
   appliedPromotions   AppliedPromotion[]
+  auditLogs           AuditLog[]
 
   @@map("users")
 }
@@ -123,6 +148,7 @@ model Chapter {
   protagonistName String
   status          ChapterStatus  @default(DRAFT)
   publishedAt     DateTime?
+  scheduledFor    DateTime?      // Date de publication programmée
   coverAssetId    String?
   isArchived      Boolean        @default(false)
   coverAsset      ChapterAsset?  @relation("ChapterCover", fields: [coverAssetId], references: [id])
@@ -134,6 +160,7 @@ model Chapter {
   reads           VolumeRead[]
   priceOverride   ChapterPriceOverride?
 
+  @@index([scheduledFor])
   @@map("chapters")
 }
 
@@ -142,10 +169,12 @@ model Volume {
   chapterId            String
   volumeNumber         Int
   title                String
+  status               VolumeStatus    @default(DRAFT)
   waitDuration         BigInt          @default(0)
   isFinalPaywall       Boolean         @default(false)
   isFree               Boolean         @default(false)
   publishedAt          DateTime?
+  scheduledFor         DateTime?       // Date de publication programmée
   illustrationAssetId  String?
   illustrationAsset    ChapterAsset?   @relation("VolumeIllustration", fields: [illustrationAssetId], references: [id])
   createdAt            DateTime        @default(now())
@@ -154,6 +183,7 @@ model Volume {
 
   @@unique([chapterId, volumeNumber])
   @@index([chapterId])
+  @@index([scheduledFor])
   @@map("volumes")
 }
 
@@ -166,6 +196,7 @@ model VolumeVersion {
   illustrationAsset    ChapterAsset?  @relation("VersionIllustration", fields: [illustrationAssetId], references: [id])
   text                 String?
   isAutoText           Boolean        @default(true)
+  characterCount       Int            @default(0)
   createdAt            DateTime       @default(now())
   volume               Volume         @relation(fields: [volumeId], references: [id], onDelete: Cascade)
   textBlob             EncryptedBlob? @relation("VersionText", fields: [textBlobId], references: [id], onDelete: SetNull)
@@ -231,9 +262,32 @@ model Order {
   appliedPromotionId      String?     // Quelle promo a été appliquée?
   createdAt               DateTime    @default(now())
   user                    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refunds                 Refund[]
 
   @@index([userId])
   @@map("orders")
+}
+
+model Refund {
+  id                    String       @id @default(uuid())
+  orderId               String
+  amountRefunded        Int          // Amount in cents
+  currency              String       @default("eur")
+  type                  RefundType
+  status                RefundStatus @default(PENDING)
+  reason                String?      // Admin reason for refund
+  notes                 String?      // Internal notes
+  providerRefundId      String?      // Stripe refund ID
+  revokeEntitlements    Boolean      @default(true) // Should we revoke access?
+  refundedBy            String?      // Admin user ID who processed refund
+  refundedAt            DateTime     @default(now())
+  processedAt           DateTime?    // When Stripe confirmed
+  failureReason         String?      // If failed, why?
+  order                 Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([status])
+  @@map("refunds")
 }
 
 model Entitlement {
@@ -328,13 +382,32 @@ model Price {
   createdAt   DateTime     @default(now())
 
   promotions  Promotion[]
+  history     PriceHistory[]
 
   @@index([scope, refId])
   @@map("prices")
 }
 
+model PriceHistory {
+  id             String    @id @default(uuid())
+  priceId        String
+  price          Price     @relation(fields: [priceId], references: [id], onDelete: Cascade)
+  oldAmountCents Int
+  newAmountCents Int
+  currency       String    @default("EUR")
+  changedAt      DateTime  @default(now())
+  changedBy      String?   // ID de l'admin qui a fait la modification
+  reason         String?   // Raison du changement (optionnel)
+
+  @@index([priceId, changedAt])
+  @@index([changedAt])
+  @@map("price_history")
+}
+
 model Promotion {
   id           String         @id @default(uuid())
+  name         String         @default("Promotion") // Nom de la promotion
+  description  String?        // Description
   scope        PriceScope
   refId        String?
   type         PromotionType
@@ -344,6 +417,16 @@ model Promotion {
   maxUses      Int?
   perUserLimit Int?
   isActive     Boolean        @default(true)
+  code         String?        @unique // Code promo (ex: "SUMMER2024", optionnel)
+
+  // Ciblage des utilisateurs
+  targetType   PromotionTargetType @default(ALL_USERS)
+  targetUserIds String[]       @default([]) // Liste d'IDs utilisateurs (pour SPECIFIC_USERS)
+  targetCriteria Json?         // Critères de ciblage (pour CRITERIA_BASED)
+
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now()) @updatedAt
+  createdBy    String?        // ID de l'admin qui a créé la promo
 
   priceId      String?
   price        Price?         @relation(fields: [priceId], references: [id])
@@ -351,6 +434,9 @@ model Promotion {
 
   @@index([scope, refId])
   @@index([priceId])
+  @@index([targetType])
+  @@index([isActive, startsAt, endsAt])
+  @@index([code])
   @@map("promotions")
 }
 
@@ -426,23 +512,39 @@ model ChapterPriceOverride {
   @@map("chapter_price_overrides")
 }
 
-model PriceHistory {
-  id              String    @id @default(uuid())
-  
-  // Quelle entité?
-  entityType      String    // "SCHEMA" ou "OVERRIDE"
-  entityId        String    // PriceSchema.id ou ChapterPriceOverride.id
-  
-  // Valeurs avant/après
-  previousValues  Json?
-  newValues       Json?
-  
-  // Changement
-  changeReason    String?
-  changedBy       String    // admin user ID
-  changedAt       DateTime  @default(now())
-  
-  @@index([entityType, entityId])
-  @@index([changedAt])
-  @@map("price_histories")
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String   // ID de l'admin qui a effectué l'action
+  action      String   // CREATE, UPDATE, DELETE, LOGIN, LOGOUT, etc.
+  resource    String   // User, Chapter, Order, Price, Promotion, etc.
+  resourceId  String?  // ID de la ressource concernée
+  metadata    Json?    // Détails supplémentaires (old values, new values, etc.)
+  ip          String?  // Adresse IP
+  userAgent   String?  // User agent
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// Configuration système pour paiements et autres paramètres
+model SystemConfig {
+  id          String   @id @default(uuid())
+  key         String   @unique // Ex: "stripe.publishable_key", "stripe.secret_key"
+  value       String?  // Valeur (peut être NULL pour secrets non renseignés)
+  category    String   // PAYMENT, EMAIL, GENERAL, SECURITY, etc.
+  type        String   // STRING, BOOLEAN, NUMBER, JSON, SECRET
+  description String?  // Description de la configuration
+  isEncrypted Boolean  @default(false) // Si la valeur est chiffrée
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?  // ID de l'admin qui a modifié
+
+  @@index([category])
+  @@map("system_configs")
 }

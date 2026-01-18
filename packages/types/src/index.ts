@@ -118,10 +118,12 @@ export interface Volume {
   chapterId: string;
   volumeNumber: number;
   title: string;
+  status: 'DRAFT' | 'IN_PROGRESS' | 'PUBLISHED';
   waitDuration: number;
   isFinalPaywall: boolean;
   isFree: boolean;
   publishedAt?: Date | null;
+  scheduledFor?: Date | null;
   illustrationAssetId: string | null;
   illustrationAsset?: ChapterAsset | null;
   versions?: VolumeVersion[];
@@ -138,6 +140,7 @@ export interface VolumeVersion {
   text?: string | null;
   isAutoText?: boolean; // Indicates if the text is auto-generated (lorem ipsum)
   createdAt?: Date;
+  characterCount?: number;
 }
 
 export interface ChapterAsset {
