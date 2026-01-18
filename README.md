@@ -2,7 +2,7 @@
 
 Plateforme de lecture d'histoires avec système de monétisation, perspectives narrateur/protagoniste, et mécanisme wait-until-free.
 
-> 📋 **[GLOBAL TODO - Liste complète des fonctionnalités à implémenter](./GLOBAL-TODO.md)**
+> 📋 **[GLOBAL TODO - Liste complète des fonctionnalités à implémenter](./docs/GLOBAL-TODO.md)**
 
 ## 🏗️ Architecture
 
@@ -218,7 +218,7 @@ Scripts de test dédiés pour le système de publication:
 
 ```bash
 # Tests automatiques (recommandé)
-cd apps/backend
+cd docs
 .\run-all-tests.ps1  # Windows
 ./run-all-tests.sh   # Linux/Mac
 
@@ -228,9 +228,9 @@ npx tsx test-reader-access.ts  # Test accès lecteur
 ```
 
 **Documentation complète:**
-- [QUICK-START-TESTS.md](QUICK-START-TESTS.md) - Guide rapide de test
-- [TEST-COMPLETE-GUIDE.md](TEST-COMPLETE-GUIDE.md) - Tests détaillés (15 tests)
-- [INDEX-DOCUMENTATION.md](INDEX-DOCUMENTATION.md) - Index de toute la documentation
+- [docs/QUICK-START-TESTS.md](docs/QUICK-START-TESTS.md) - Guide rapide de test
+- [docs/TEST-COMPLETE-GUIDE.md](docs/TEST-COMPLETE-GUIDE.md) - Tests détaillés (15 tests)
+- [docs/INDEX-DOCUMENTATION.md](docs/INDEX-DOCUMENTATION.md) - Index de toute la documentation
 
 ## 📦 Scripts utiles
 

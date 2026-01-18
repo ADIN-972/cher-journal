@@ -10,7 +10,7 @@ echo ""
 
 # Vérifier que nous sommes dans le bon dossier
 if [ ! -f "test-cron.ts" ]; then
-    echo "❌ Erreur: Ce script doit être exécuté depuis apps/backend/"
+    echo "❌ Erreur: Ce script doit être exécuté depuis docs/"
     exit 1
 fi
 

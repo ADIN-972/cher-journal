@@ -1,5 +1,5 @@
 import { PrismaClient, VolumeStatus, ChapterStatus } from '@prisma/client';
-import { schedulingService } from './src/modules/admin/scheduling/scheduling.service';
+import { schedulingService } from '../apps/backend/src/modules/admin/scheduling/scheduling.service';
 
 const prisma = new PrismaClient();
 

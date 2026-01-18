@@ -8,7 +8,7 @@ Write-Host ""
 
 # Vérifier que nous sommes dans le bon dossier
 if (-Not (Test-Path "test-cron.ts")) {
-    Write-Host "❌ Erreur: Ce script doit être exécuté depuis apps/backend/" -ForegroundColor Red
+    Write-Host "❌ Erreur: Ce script doit être exécuté depuis docs/" -ForegroundColor Red
     exit 1
 }
 
