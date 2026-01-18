@@ -2,6 +2,8 @@
 
 Plateforme de lecture d'histoires avec système de monétisation, perspectives narrateur/protagoniste, et mécanisme wait-until-free.
 
+> 📋 **[GLOBAL TODO - Liste complète des fonctionnalités à implémenter](./GLOBAL-TODO.md)**
+
 ## 🏗️ Architecture
 
 Monorepo structure:
@@ -171,6 +173,12 @@ npm run dev:mobile
 - Gestion Pages (VersionAsset + reorder)
 - Users, Orders, Entitlements
 - Bootstrap volumes automatique
+- **📅 Système de Publication**
+  - Statuts de volumes (DRAFT, IN_PROGRESS, PUBLISHED)
+  - Programmation flexible des publications
+  - Calendrier de publication groupé par chapitre
+  - Publication automatique via cron
+  - Contrôle d'accès lecteur basé sur les dates
 
 ## 🗂️ Modèle de données
 
@@ -203,6 +211,26 @@ Tests couvrant:
 - Wait-until-free logic
 - Entitlements
 - Encryption/decryption
+
+### Tests du Système de Publication
+
+Scripts de test dédiés pour le système de publication:
+
+```bash
+# Tests automatiques (recommandé)
+cd apps/backend
+.\run-all-tests.ps1  # Windows
+./run-all-tests.sh   # Linux/Mac
+
+# Tests individuels
+npx tsx test-cron.ts           # Test publication automatique
+npx tsx test-reader-access.ts  # Test accès lecteur
+```
+
+**Documentation complète:**
+- [QUICK-START-TESTS.md](QUICK-START-TESTS.md) - Guide rapide de test
+- [TEST-COMPLETE-GUIDE.md](TEST-COMPLETE-GUIDE.md) - Tests détaillés (15 tests)
+- [INDEX-DOCUMENTATION.md](INDEX-DOCUMENTATION.md) - Index de toute la documentation
 
 ## 📦 Scripts utiles
 
