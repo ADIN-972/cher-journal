@@ -1200,6 +1200,33 @@ Cette liste recense toutes les fonctionnalités à implémenter pour finaliser l
     - `apps/backend/src/modules/admin/orders/orders.routes.ts`
     - `apps/admin/src/pages/Orders.tsx`
 
+#### Matin (suite)
+- ✅ **Tâche 19 complétée: Bibliothèque d'assets améliorée (Backend)** (PHASE 2 - Important)
+  - Migration: `20260119023851_add_asset_tags_and_versions`
+  - Tables créées: `AssetTag`, `AssetTagging`
+  - ChapterAsset enrichi: version, originalAssetId, updatedAt, tags
+  - Indexes: sha256 (doublons), originalAssetId (versions)
+  - Backend: Module `asset-tags` complet (service, controller, routes, schemas)
+  - Service: 12 méthodes (CRUD tags, tagging, bulk operations, recherche)
+  - Service assets enrichi: list() avec filtres, findDuplicates(), createVersion(), getAssetVersions()
+  - Endpoints: 12 nouveaux endpoints pour tags et versions
+  - Détection doublons: Groupement par SHA256 avec comptage
+  - Versions d'assets: Système de versioning avec lien vers original
+  - Recherche avancée: Filtres par kind, search, tagIds, showDuplicates
+  - Documentation: ASSET-LIBRARY-V2.md complète (150+ lignes)
+  - Fichiers: 11 fichiers créés/modifiés
+  - Frontend: À implémenter (TagManager, AssetFilters, etc.)
+  - Édition d'images: À implémenter (Canvas API)
+  - CDN: À implémenter (Cloudflare R2)
+
+- 🐛 **Correction: Dashboard KPIs - Analytics top content**
+  - Problème: Order model n'a pas de champ `refId` pour tracker les achats par chapitre/volume
+  - Erreur: Prisma groupBy échouait avec "Unknown argument 'refId'"
+  - Solution temporaire: Retour de tableaux vides pour topChapters/topVolumes
+  - TODO: Ajouter champ `refId String?` au modèle Order
+  - TODO: Implémenter analytics des contenus les plus vendus
+  - Fichier: `apps/backend/src/modules/admin/dashboard/dashboard.service.ts`
+
 #### Matin
 - ✅ Tâche 4 complétée: Formulaire Prix créé et intégré
 - 📝 Création de ce document GLOBAL-TODO.md
