@@ -149,12 +149,76 @@ export interface ChapterAsset {
   kind: AssetKind;
   label: string | null;
   objectKey: string;
+  thumbnailObjectKey?: string | null;
   mimeType: string;
   sizeBytes: number;
   width: number | null;
   height: number | null;
   sha256: string | null;
+  version: number;
+  originalAssetId: string | null;
   createdAt: Date;
+  updatedAt: Date;
+  tags?: AssetTagging[];
+  originalAsset?: ChapterAsset | null;
+  versions?: ChapterAsset[];
+}
+
+export interface AssetTag {
+  id: string;
+  name: string;
+  description: string | null;
+  color: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  assets?: AssetTagging[];
+  _count?: {
+    assets: number;
+  };
+}
+
+export interface AssetTagging {
+  id: string;
+  assetId: string;
+  tagId: string;
+  createdAt: Date;
+  asset?: ChapterAsset;
+  tag?: AssetTag;
+}
+
+export interface DuplicateGroup {
+  sha256: string;
+  count: number;
+  assets: ChapterAsset[];
+}
+
+// Asset Tags DTOs
+export interface CreateTagDto {
+  name: string;
+  description?: string;
+  color?: string;
+}
+
+export interface UpdateTagDto {
+  name?: string;
+  description?: string;
+  color?: string;
+}
+
+export interface TagAssetDto {
+  tagId: string;
+}
+
+export interface BulkTagDto {
+  assetIds: string[];
+  tagIds: string[];
+}
+
+export interface AssetFilters {
+  kind?: AssetKind;
+  search?: string;
+  tagIds?: string[];
+  showDuplicates?: boolean;
 }
 
 export interface Order {

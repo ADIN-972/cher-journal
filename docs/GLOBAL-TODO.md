@@ -452,7 +452,7 @@ Cette liste recense toutes les fonctionnalités à implémenter pour finaliser l
 ---
 
 ### ✅ 19. Bibliothèque d'assets améliorée 🟡
-**Status:** Backend complété ✅
+**Status:** Complété ✅
 **Priorité:** PHASE 2
 
 **Sous-tâches:**
@@ -466,11 +466,15 @@ Cette liste recense toutes les fonctionnalités à implémenter pour finaliser l
 - [x] Services backend (AssetTagsService, AssetsService amélioré)
 - [x] Routes API complètes
 - [x] Documentation ASSET-LIBRARY-V2.md
-- [ ] Interface frontend (TagManager, AssetFilters, etc.) - À venir
+- [x] Interface frontend (TagManager, AssetFilters, etc.)
+- [x] Composants React (DuplicateManager, AssetVersionHistory)
+- [x] Intégration dans ChapterImageGallery
+- [x] Types TypeScript (packages/types)
+- [x] Intégration dans Settings pour gestion tags
 - [ ] Édition basique d'images (crop, resize) avec Canvas API - À venir
 - [ ] CDN integration (Cloudflare R2) - À venir
 
-**Fichiers créés/modifiés:**
+**Fichiers créés/modifiés (Backend):**
 - ✅ `apps/backend/prisma/schema.prisma` (AssetTag, AssetTagging, ChapterAsset amélioré)
 - ✅ `apps/backend/prisma/migrations/20260119023851_add_asset_tags_and_versions/`
 - ✅ `apps/backend/src/modules/admin/asset-tags/asset-tags.service.ts`
@@ -480,12 +484,19 @@ Cette liste recense toutes les fonctionnalités à implémenter pour finaliser l
 - ✅ `apps/backend/src/modules/admin/assets/assets.service.ts` (amélioré)
 - ✅ `apps/backend/src/modules/admin/assets/assets.controller.ts` (amélioré)
 - ✅ `apps/backend/src/modules/admin/assets/assets.routes.ts` (amélioré)
-- ✅ `apps/backend/src/modules/admin/assets/assets.schemas.ts` (amélioré)
 - ✅ `apps/backend/src/app.ts` (routes enregistrées)
-- ✅ `docs/ASSET-LIBRARY-V2.md`
-- ⏳ `apps/admin/src/pages/AssetsLibrary.tsx` (à créer)
-- ⏳ `apps/admin/src/components/TagManager.tsx` (à créer)
-- ⏳ `apps/admin/src/components/AssetFilters.tsx` (à créer)
+
+**Fichiers créés/modifiés (Frontend):**
+- ✅ `apps/admin/src/components/TagManager.tsx` (370 lignes)
+- ✅ `apps/admin/src/components/AssetFilters.tsx` (299 lignes)
+- ✅ `apps/admin/src/components/DuplicateManager.tsx` (380 lignes)
+- ✅ `apps/admin/src/components/AssetVersionHistory.tsx` (420 lignes)
+- ✅ `apps/admin/src/components/ChapterImageGallery.tsx` (amélioré avec tags)
+- ✅ `apps/admin/src/pages/Settings.tsx` (intégration TagManager)
+- ✅ `packages/types/src/index.ts` (types AssetTag, AssetTagging, etc.)
+
+**Documentation:**
+- ✅ `docs/ASSET-LIBRARY-V2.md` (architecture et API)
 
 ---
 

@@ -10,10 +10,27 @@ import {
   MdStorage,
   MdSecurity,
   MdDeveloperMode,
+  MdPayment,
+  MdVisibility,
+  MdVisibilityOff,
+  MdLabel,
 } from "react-icons/md";
 import { useI18n } from "../lib/i18n";
 import GroupButton from "../components/GroupButton";
 import ToggleButton from "../components/ToggleButton";
+import TagManager from "../components/TagManager";
+import toast from "react-hot-toast";
+
+interface SystemConfig {
+  id: string;
+  key: string;
+  value: string | null;
+  category: string;
+  type: string;
+  description?: string;
+  isEncrypted: boolean;
+  updatedAt: string;
+}
 
 type AdminSettingKey =
   | "admin.includeArchived"
@@ -81,6 +98,13 @@ export default function SettingsPage() {
   const [maintenanceMode, setMaintenanceMode] = useState<boolean>(false);
   const [debugLogging, setDebugLogging] = useState<boolean>(false);
 
+  // Payment configuration
+  const [paymentConfigs, setPaymentConfigs] = useState<SystemConfig[]>([]);
+  const [editingConfig, setEditingConfig] = useState<string | null>(null);
+  const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
+  const [configValues, setConfigValues] = useState<Record<string, string>>({});
+  const [isInitializing, setIsInitializing] = useState(false);
+
   const isSuperAdmin = user?.role === "SUPERADMIN";
 
   useEffect(() => {
@@ -129,6 +153,59 @@ export default function SettingsPage() {
       setLoading(false);
     })();
   }, [userKeyPrefix, user?.role]);
+
+  // Load payment configurations
+  useEffect(() => {
+    loadPaymentConfigs();
+  }, []);
+
+  const loadPaymentConfigs = async () => {
+    try {
+      const response = await api.get("/admin/config?category=PAYMENT");
+      const configs = response.data as SystemConfig[];
+      setPaymentConfigs(configs);
+
+      // Initialize configValues state
+      const values: Record<string, string> = {};
+      configs.forEach((c) => {
+        values[c.key] = c.value || "";
+      });
+      setConfigValues(values);
+    } catch (error) {
+      console.error("Failed to load payment configs:", error);
+    }
+  };
+
+  const handleInitializeConfigs = async () => {
+    try {
+      setIsInitializing(true);
+      await api.post("/admin/config/initialize");
+      await loadPaymentConfigs();
+      toast.success("Configurations initialisées avec succès");
+    } catch (error) {
+      toast.error("Erreur lors de l'initialisation");
+      console.error(error);
+    } finally {
+      setIsInitializing(false);
+    }
+  };
+
+  const handleSaveConfig = async (key: string) => {
+    try {
+      const value = configValues[key];
+      await api.put("/admin/config", { key, value });
+      toast.success("Configuration mise à jour");
+      setEditingConfig(null);
+      await loadPaymentConfigs();
+    } catch (error) {
+      toast.error("Erreur lors de la sauvegarde");
+      console.error(error);
+    }
+  };
+
+  const toggleSecretVisibility = (key: string) => {
+    setShowSecrets((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const saveAdminSetting = async (key: AdminSettingKey, val: string) => {
     await setSetting(key, val);
@@ -280,6 +357,173 @@ export default function SettingsPage() {
             />
           </div>
         </div>
+      </section>
+
+      {/* Payment Configuration */}
+      <section className="bg-white/80 backdrop-blur-lg border border-gray-200 rounded-2xl shadow-sm p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center text-white">
+              <MdPayment className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold">Configuration des paiements</h2>
+              <p className="text-sm text-gray-600">
+                Clés API et paramètres Stripe
+              </p>
+            </div>
+          </div>
+          {paymentConfigs.length === 0 && (
+            <button
+              onClick={handleInitializeConfigs}
+              disabled={isInitializing}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50">
+              {isInitializing ? "Initialisation..." : "Initialiser"}
+            </button>
+          )}
+        </div>
+
+        {paymentConfigs.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <p>Aucune configuration trouvée.</p>
+            <p className="text-sm mt-2">
+              Cliquez sur "Initialiser" pour créer les configurations par
+              défaut.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {paymentConfigs.map((config) => (
+              <div
+                key={config.key}
+                className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm font-semibold text-gray-900">
+                        {config.key}
+                      </span>
+                      {config.type === "SECRET" && (
+                        <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full font-semibold">
+                          SECRET
+                        </span>
+                      )}
+                    </div>
+                    {config.description && (
+                      <p className="text-xs text-gray-600 mt-1">
+                        {config.description}
+                      </p>
+                    )}
+                  </div>
+
+                  {editingConfig === config.key ? (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleSaveConfig(config.key)}
+                        className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                        Sauvegarder
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingConfig(null);
+                          setConfigValues((prev) => ({
+                            ...prev,
+                            [config.key]: config.value || "",
+                          }));
+                        }}
+                        className="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600">
+                        Annuler
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setEditingConfig(config.key)}
+                      className="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">
+                      Modifier
+                    </button>
+                  )}
+                </div>
+
+                <div className="mt-3">
+                  {editingConfig === config.key ? (
+                    <div className="flex gap-2">
+                      <input
+                        type={
+                          config.type === "SECRET" && !showSecrets[config.key]
+                            ? "password"
+                            : "text"
+                        }
+                        value={configValues[config.key] || ""}
+                        onChange={(e) =>
+                          setConfigValues((prev) => ({
+                            ...prev,
+                            [config.key]: e.target.value,
+                          }))
+                        }
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono text-sm"
+                        placeholder={
+                          config.type === "SECRET"
+                            ? "sk_test_..."
+                            : "Entrez la valeur"
+                        }
+                      />
+                      {config.type === "SECRET" && (
+                        <button
+                          onClick={() => toggleSecretVisibility(config.key)}
+                          className="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+                          {showSecrets[config.key] ? (
+                            <MdVisibilityOff className="w-5 h-5" />
+                          ) : (
+                            <MdVisibility className="w-5 h-5" />
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="px-3 py-2 bg-white rounded border border-gray-200 font-mono text-sm">
+                      {config.value && config.value !== "••••••••" ? (
+                        config.value
+                      ) : (
+                        <span className="text-gray-400 italic">
+                          Non configuré
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <MdSecurity className="text-yellow-600 text-xl flex-shrink-0 mt-0.5" />
+            <div className="text-xs text-yellow-800">
+              <p className="font-semibold mb-1">Sécurité</p>
+              <p>
+                Les clés secrètes (SECRET) sont chiffrées en base de données.
+                Ne partagez jamais vos clés Stripe avec qui que ce soit.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Asset Tags Management */}
+      <section className="bg-white/80 backdrop-blur-lg border border-gray-200 rounded-2xl shadow-sm p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-xl flex items-center justify-center text-white">
+            <MdLabel className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold">Tags d'Assets</h2>
+            <p className="text-sm text-gray-600">
+              Organisez vos images et coloriages avec des tags colorés
+            </p>
+          </div>
+        </div>
+        <TagManager />
       </section>
 
       {/* User settings */}
