@@ -14,9 +14,9 @@ export default async function assetTagsRoutes(fastify: FastifyInstance) {
   fastify.post(
     "/admin/asset-tags",
     {
-      schema: {
-        body: createTagSchema,
-      },
+      // schema: {
+      //   body: createTagSchema,
+      // },
     },
     assetTagsController.createTag.bind(assetTagsController)
   );
@@ -24,9 +24,9 @@ export default async function assetTagsRoutes(fastify: FastifyInstance) {
   fastify.patch(
     "/admin/asset-tags/:id",
     {
-      schema: {
-        body: updateTagSchema,
-      },
+      // schema: {
+      //   body: updateTagSchema,
+      // },
     },
     assetTagsController.updateTag.bind(assetTagsController)
   );
@@ -45,9 +45,9 @@ export default async function assetTagsRoutes(fastify: FastifyInstance) {
   fastify.post(
     "/admin/assets/:assetId/tags",
     {
-      schema: {
-        body: tagAssetSchema,
-      },
+      // schema: {
+      //   body: tagAssetSchema,
+      // },
     },
     assetTagsController.tagAsset.bind(assetTagsController)
   );
@@ -61,9 +61,9 @@ export default async function assetTagsRoutes(fastify: FastifyInstance) {
   fastify.post(
     "/admin/assets/tags/bulk-tag",
     {
-      schema: {
-        body: bulkTagSchema,
-      },
+      // schema: {
+      //   body: bulkTagSchema,
+      // },
     },
     assetTagsController.bulkTag.bind(assetTagsController)
   );
@@ -71,9 +71,9 @@ export default async function assetTagsRoutes(fastify: FastifyInstance) {
   fastify.post(
     "/admin/assets/tags/bulk-untag",
     {
-      schema: {
-        body: bulkTagSchema,
-      },
+      // schema: {
+      //   body: bulkTagSchema,
+      // },
     },
     assetTagsController.bulkUntag.bind(assetTagsController)
   );
