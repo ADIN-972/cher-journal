@@ -460,7 +460,7 @@ export default function ChapterImageGallery({
               <p className="text-sm font-medium text-gray-700 mb-2">
                 Ajouter un tag:
               </p>
-              {availableTags.length === 0 ? (
+              {!availableTags || availableTags.length === 0 ? (
                 <p className="text-sm text-gray-500">
                   Aucun tag disponible. Créez des tags dans les paramètres.
                 </p>
