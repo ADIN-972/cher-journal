@@ -1,15 +1,28 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { AssetsService } from "./assets.service";
 import { AssetKind } from "@prisma/client";
+import { ListAssetsQuery } from "./assets.schemas";
 
 const service = new AssetsService();
 
 export class AssetsController {
   async list(
-    request: FastifyRequest<{ Params: { chapterId: string } }>,
+    request: FastifyRequest<{
+      Params: { chapterId: string };
+      Querystring: ListAssetsQuery;
+    }>,
     reply: FastifyReply
   ) {
-    const assets = await service.list(request.params.chapterId);
+    const { kind, search, tagIds, showDuplicates } = request.query;
+
+    const filters = {
+      kind: kind as AssetKind | undefined,
+      search,
+      tagIds: tagIds ? tagIds.split(",") : undefined,
+      showDuplicates: showDuplicates === "true",
+    };
+
+    const assets = await service.list(request.params.chapterId, filters);
     return reply.send({
       success: true,
       data: assets,
@@ -250,6 +263,123 @@ export class AssetsController {
         success: true,
         data: result,
         message: `Image assigned to volume ${result.volumeNumber}`,
+      });
+    } catch (error: any) {
+      if (error.message === "ASSET_NOT_FOUND") {
+        return reply.status(404).send({
+          success: false,
+          error: { code: "ASSET_NOT_FOUND", message: "Asset not found" },
+        });
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * GET /admin/chapters/:chapterId/assets/duplicates
+   */
+  async findDuplicates(
+    request: FastifyRequest<{ Params: { chapterId: string } }>,
+    reply: FastifyReply
+  ) {
+    try {
+      const duplicates = await service.findDuplicates(request.params.chapterId);
+      return reply.send({
+        success: true,
+        data: duplicates,
+      });
+    } catch (error: any) {
+      return reply.status(500).send({
+        success: false,
+        error: { code: "INTERNAL_ERROR", message: error.message },
+      });
+    }
+  }
+
+  /**
+   * POST /admin/chapters/:chapterId/assets/:assetId/create-version
+   */
+  async createVersion(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      let assetId: string | undefined;
+      let label: string | undefined;
+      let fileData:
+        | { filename: string; mimetype: string; buffer: Buffer }
+        | undefined;
+
+      const parts = request.parts();
+
+      for await (const part of parts) {
+        if (part.type === "file") {
+          fileData = {
+            filename: part.filename,
+            mimetype: part.mimetype,
+            buffer: await part.toBuffer(),
+          };
+        } else {
+          const value = (part as any).value;
+          if (part.fieldname === "assetId") {
+            assetId = value;
+          } else if (part.fieldname === "label") {
+            label = value;
+          }
+        }
+      }
+
+      // Get assetId from URL params
+      assetId = (request.params as any).assetId;
+
+      if (!fileData) {
+        return reply.status(400).send({
+          success: false,
+          error: { code: "NO_FILE", message: "No file uploaded" },
+        });
+      }
+
+      if (!assetId) {
+        return reply.status(400).send({
+          success: false,
+          error: { code: "MISSING_ASSET_ID", message: "Asset ID required" },
+        });
+      }
+
+      const newVersion = await service.createVersion(
+        assetId,
+        {
+          filename: fileData.filename,
+          mimetype: fileData.mimetype,
+          data: fileData.buffer,
+        },
+        label
+      );
+
+      return reply.status(201).send({
+        success: true,
+        data: newVersion,
+      });
+    } catch (error: any) {
+      if (error.message === "ASSET_NOT_FOUND") {
+        return reply.status(404).send({
+          success: false,
+          error: { code: "ASSET_NOT_FOUND", message: "Asset not found" },
+        });
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * GET /admin/assets/:assetId/versions
+   */
+  async getAssetVersions(
+    request: FastifyRequest<{ Params: { assetId: string } }>,
+    reply: FastifyReply
+  ) {
+    try {
+      const versions = await service.getAssetVersions(request.params.assetId);
+      return reply.send({
+        success: true,
+        data: versions,
       });
     } catch (error: any) {
       if (error.message === "ASSET_NOT_FOUND") {

@@ -44,4 +44,20 @@ export async function adminAssetsRoutes(app: FastifyInstance) {
     preHandler: requireAdmin,
     handler: controller.autoAssignImageToVolume.bind(controller),
   });
+
+  // New endpoints for asset library improvements
+  app.get("/admin/chapters/:chapterId/assets/duplicates", {
+    preHandler: requireAdmin,
+    handler: controller.findDuplicates.bind(controller),
+  });
+
+  app.post("/admin/chapters/:chapterId/assets/:assetId/create-version", {
+    preHandler: requireAdmin,
+    handler: controller.createVersion.bind(controller),
+  });
+
+  app.get("/admin/assets/:assetId/versions", {
+    preHandler: requireAdmin,
+    handler: controller.getAssetVersions.bind(controller),
+  });
 }

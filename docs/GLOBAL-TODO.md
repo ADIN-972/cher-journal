@@ -404,21 +404,32 @@ Cette liste recense toutes les fonctionnalités à implémenter pour finaliser l
 
 ---
 
-### ⏳ 17. Planification de publication 🟡
-**Status:** Champ publishDate existe
+### ✅ 17. Planification de publication 🟡
+**Status:** Complété ✅
 **Priorité:** PHASE 2
 
 **Sous-tâches:**
-- [ ] Calendrier éditorial visuel
-- [ ] Drag & drop volumes sur calendrier
-- [ ] Publication différée (scheduled)
-- [ ] Cron job publication automatique
-- [ ] Rappels de deadlines
-- [ ] Workflow de validation (draft → review → published)
+- [x] Système de statuts (DRAFT, IN_PROGRESS, PUBLISHED)
+- [x] Calendrier éditorial visuel groupé par chapitre
+- [x] Publication différée (scheduledFor)
+- [x] Cron job publication automatique
+- [x] Drawer de programmation avec sélection flexible
+- [x] Logique côté lecteur (filtrage volumes accessibles)
+- [x] Scripts de test complets (test-cron.ts, test-reader-access.ts)
+- [x] Documentation exhaustive (17 fichiers + scripts)
+- [ ] Workflow de validation complexe (draft → review → published) - optionnel
+- [ ] Rappels de deadlines - optionnel
 
 **Fichiers concernés:**
-- `apps/admin/src/pages/PublishingCalendar.tsx` (à créer)
-- `apps/backend/src/cron/scheduled-publish.ts` (à créer)
+- ✅ `apps/admin/src/pages/PublishingCalendar.tsx`
+- ✅ `apps/admin/src/components/SchedulePublicationDrawer.tsx`
+- ✅ `apps/backend/src/modules/admin/scheduling/scheduling.service.ts`
+- ✅ `apps/backend/src/modules/reader/reader/reader.service.ts`
+- ✅ `apps/backend/src/modules/reader/catalog/catalog.service.ts`
+- ✅ `apps/backend/src/modules/reader/library/library.service.ts`
+- ✅ `apps/backend/prisma/schema.prisma` (VolumeStatus enum)
+- ✅ `docs/test-cron.ts`, `docs/test-reader-access.ts`
+- ✅ Documentation complète dans `docs/` (17 fichiers)
 
 ---
 
@@ -440,22 +451,41 @@ Cette liste recense toutes les fonctionnalités à implémenter pour finaliser l
 
 ---
 
-### ⏳ 19. Bibliothèque d'assets améliorée 🟡
-**Status:** Upload basique existe
+### ✅ 19. Bibliothèque d'assets améliorée 🟡
+**Status:** Backend complété ✅
 **Priorité:** PHASE 2
 
 **Sous-tâches:**
-- [ ] Table `AssetTag` pour catégorisation
-- [ ] Recherche d'images par nom/tag
-- [ ] Filtres par type (IMAGE, COLORING_PAGE)
-- [ ] Édition basique d'images (crop, resize) avec Canvas API
-- [ ] Détection doublons (SHA256)
-- [ ] Gestion des versions d'image
-- [ ] CDN integration (Cloudflare R2)
+- [x] Table `AssetTag` pour catégorisation
+- [x] Table `AssetTagging` pour relations N:N
+- [x] Recherche d'images par nom/tag
+- [x] Filtres par type (IMAGE, COLORING_PAGE)
+- [x] Détection doublons (SHA256)
+- [x] Gestion des versions d'image
+- [x] Migration Prisma et modèles
+- [x] Services backend (AssetTagsService, AssetsService amélioré)
+- [x] Routes API complètes
+- [x] Documentation ASSET-LIBRARY-V2.md
+- [ ] Interface frontend (TagManager, AssetFilters, etc.) - À venir
+- [ ] Édition basique d'images (crop, resize) avec Canvas API - À venir
+- [ ] CDN integration (Cloudflare R2) - À venir
 
-**Fichiers concernés:**
-- `apps/admin/src/pages/AssetsLibrary.tsx` (à créer)
-- `apps/backend/src/modules/admin/assets/assets.service.ts`
+**Fichiers créés/modifiés:**
+- ✅ `apps/backend/prisma/schema.prisma` (AssetTag, AssetTagging, ChapterAsset amélioré)
+- ✅ `apps/backend/prisma/migrations/20260119023851_add_asset_tags_and_versions/`
+- ✅ `apps/backend/src/modules/admin/asset-tags/asset-tags.service.ts`
+- ✅ `apps/backend/src/modules/admin/asset-tags/asset-tags.controller.ts`
+- ✅ `apps/backend/src/modules/admin/asset-tags/asset-tags.routes.ts`
+- ✅ `apps/backend/src/modules/admin/asset-tags/asset-tags.schemas.ts`
+- ✅ `apps/backend/src/modules/admin/assets/assets.service.ts` (amélioré)
+- ✅ `apps/backend/src/modules/admin/assets/assets.controller.ts` (amélioré)
+- ✅ `apps/backend/src/modules/admin/assets/assets.routes.ts` (amélioré)
+- ✅ `apps/backend/src/modules/admin/assets/assets.schemas.ts` (amélioré)
+- ✅ `apps/backend/src/app.ts` (routes enregistrées)
+- ✅ `docs/ASSET-LIBRARY-V2.md`
+- ⏳ `apps/admin/src/pages/AssetsLibrary.tsx` (à créer)
+- ⏳ `apps/admin/src/components/TagManager.tsx` (à créer)
+- ⏳ `apps/admin/src/components/AssetFilters.tsx` (à créer)
 
 ---
 

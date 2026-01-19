@@ -234,14 +234,22 @@ model ChapterAsset {
   width               Int?
   height              Int?
   sha256              String?
+  version             Int         @default(1)       // Version de l'asset
+  originalAssetId     String?                       // Si c'est une version, référence à l'original
+  originalAsset       ChapterAsset? @relation("AssetVersions", fields: [originalAssetId], references: [id], onDelete: SetNull)
+  versions            ChapterAsset[] @relation("AssetVersions")
   createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @default(now()) @updatedAt
   chapter             Chapter     @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   coverFor            Chapter[]   @relation("ChapterCover")
   illustrationFor     Volume[]    @relation("VolumeIllustration")
   versionIllustrationFor VolumeVersion[] @relation("VersionIllustration")
   versionAssets       VersionAsset[]
+  tags                AssetTagging[]
 
   @@index([chapterId])
+  @@index([sha256])
+  @@index([originalAssetId])
   @@map("chapter_assets")
 }
 
@@ -547,4 +555,32 @@ model SystemConfig {
 
   @@index([category])
   @@map("system_configs")
+}
+
+// ============= ASSET MANAGEMENT SYSTEM =============
+
+model AssetTag {
+  id          String         @id @default(uuid())
+  name        String         @unique
+  description String?
+  color       String?        // Couleur hexadécimale pour l'affichage (ex: #FF5733)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  assets      AssetTagging[]
+
+  @@map("asset_tags")
+}
+
+model AssetTagging {
+  id        String       @id @default(uuid())
+  assetId   String
+  tagId     String
+  createdAt DateTime     @default(now())
+  asset     ChapterAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  tag       AssetTag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([assetId, tagId])
+  @@index([assetId])
+  @@index([tagId])
+  @@map("asset_tagging")
 }

@@ -18,10 +18,16 @@ import { adminAssetsRoutes } from "./modules/admin/assets/assets.routes";
 import { adminPagesRoutes } from "./modules/admin/pages/pages.routes";
 import { adminUsersRoutes } from "./modules/admin/users/users.routes";
 import { adminOrdersRoutes } from "./modules/admin/orders/orders.routes";
+import { refundsRoutes } from "./modules/admin/orders/refunds.routes";
+import { schedulingRoutes } from "./modules/admin/scheduling/scheduling.routes";
 import { adminDashboardRoutes } from "./modules/admin/dashboard/dashboard.routes";
 import { adminSettingsRoutes } from "./modules/admin/settings/settings.routes";
 import { promotionsRoutes } from "./modules/admin/promotions/promotions.routes";
+import { priceHistoryRoutes } from "./modules/admin/prices/price-history.routes";
 import { priceSchemaRoutes } from "./modules/admin/price-schemas/price-schemas.routes";
+import { adminAuditRoutes } from "./modules/admin/audit/audit.routes";
+import { adminConfigRoutes } from "./modules/admin/config/config.routes";
+import assetTagsRoutes from "./modules/admin/asset-tags/asset-tags.routes";
 import { libraryRoutes } from "./modules/reader/library/library.routes";
 import { catalogRoutes } from "./modules/reader/catalog/catalog.routes";
 import { waitRoutes } from "./modules/reader/wait/wait.routes";
@@ -153,12 +159,18 @@ export async function createApp(): Promise<FastifyInstance> {
     adminChaptersRoutes,
     adminVolumesRoutes,
     adminAssetsRoutes,
+    assetTagsRoutes,
     adminPagesRoutes,
     adminUsersRoutes,
     adminOrdersRoutes,
+    refundsRoutes,
+    schedulingRoutes,
     adminDashboardRoutes,
     adminSettingsRoutes,
+    adminAuditRoutes,
+    adminConfigRoutes,
     promotionsRoutes,
+    priceHistoryRoutes,
     priceSchemaRoutes,
   ];
 
