@@ -295,7 +295,17 @@
     }
   },
   "chapters": {
-    "edit_chapter": "Modifier le chapitre"
+    "edit_chapter": "Modifier le chapitre",
+    "create_chapter": "Créer un chapitre",
+    "delete_chapter": "Supprimer le chapitre"
+  },
+  "chapter_detail": {
+    "modal": {
+      "bootstrap_title": "Créer des tomes",
+      "bootstrap_description": "Combien de tomes souhaitez-vous créer pour ce chapitre ?",
+      "volumes_count": "Nombre de tomes",
+      "create": "Créer les tomes"
+    }
   },
   "chapters_page": {
     "include_archived": {

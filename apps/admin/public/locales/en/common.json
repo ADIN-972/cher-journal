@@ -295,7 +295,17 @@
     }
   },
   "chapters": {
-    "edit_chapter": "Edit Chapter"
+    "edit_chapter": "Edit Chapter",
+    "create_chapter": "Create Chapter",
+    "delete_chapter": "Delete Chapter"
+  },
+  "chapter_detail": {
+    "modal": {
+      "bootstrap_title": "Create Volumes",
+      "bootstrap_description": "How many volumes would you like to create for this chapter?",
+      "volumes_count": "Number of volumes",
+      "create": "Create Volumes"
+    }
   },
   "chapters_page": {
     "include_archived": {
