@@ -300,11 +300,18 @@
     "delete_chapter": "Delete Chapter"
   },
   "chapter_detail": {
+    "volumes_title": "Volumes",
+    "chapter_images": "Chapter Images",
     "modal": {
       "bootstrap_title": "Create Volumes",
       "bootstrap_description": "How many volumes would you like to create for this chapter?",
       "volumes_count": "Number of volumes",
       "create": "Create Volumes"
+    },
+    "buttons": {
+      "edit_titles": "Edit Titles",
+      "bulk_import": "Bulk Import",
+      "add_volume": "Add Volume"
     }
   },
   "chapters_page": {

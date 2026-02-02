@@ -300,11 +300,18 @@
     "delete_chapter": "Supprimer le chapitre"
   },
   "chapter_detail": {
+    "volumes_title": "Tomes",
+    "chapter_images": "Images du Chapitre",
     "modal": {
       "bootstrap_title": "Créer des tomes",
       "bootstrap_description": "Combien de tomes souhaitez-vous créer pour ce chapitre ?",
       "volumes_count": "Nombre de tomes",
       "create": "Créer les tomes"
+    },
+    "buttons": {
+      "edit_titles": "Modifier les Titres",
+      "bulk_import": "Importation en Masse",
+      "add_volume": "Ajouter un Tome"
     }
   },
   "chapters_page": {
