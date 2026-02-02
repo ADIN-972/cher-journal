@@ -271,7 +271,10 @@
     "minutes": "{{count}} minute",
     "minutes_plural": "{{count}} minutes",
     "seconds": "{{count}} second",
-    "seconds_plural": "{{count}} seconds"
+    "seconds_plural": "{{count}} seconds",
+    "card_view": "Card View",
+    "list_view": "List View",
+    "calendar_view": "Calendar View"
   },
   "messages": {
     "loading": "Loading...",
@@ -312,6 +315,11 @@
       "edit_titles": "Edit Titles",
       "bulk_import": "Bulk Import",
       "add_volume": "Add Volume"
+    },
+    "context_menu": {
+      "display": "Display",
+      "selection": "Selection",
+      "select_all": "Select All"
     }
   },
   "chapters_page": {

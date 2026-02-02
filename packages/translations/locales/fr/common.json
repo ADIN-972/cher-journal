@@ -271,7 +271,10 @@
     "minutes": "{{count}} minute",
     "minutes_plural": "{{count}} minutes",
     "seconds": "{{count}} seconde",
-    "seconds_plural": "{{count}} secondes"
+    "seconds_plural": "{{count}} secondes",
+    "card_view": "Vue Carte",
+    "list_view": "Vue Liste",
+    "calendar_view": "Vue Calendrier"
   },
   "messages": {
     "loading": "Chargement...",
@@ -312,6 +315,11 @@
       "edit_titles": "Modifier les Titres",
       "bulk_import": "Importation en Masse",
       "add_volume": "Ajouter un Tome"
+    },
+    "context_menu": {
+      "display": "Affichage",
+      "selection": "Sélection",
+      "select_all": "Sélectionner tout"
     }
   },
   "chapters_page": {
