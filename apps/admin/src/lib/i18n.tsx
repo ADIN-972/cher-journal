@@ -111,3 +111,36 @@ export function useI18n() {
   }
   return context;
 }
+
+export function useGenreLabels() {
+  const { t } = useI18n();
+
+  const GENRES = [
+    "PASSIONS_CHARNELLES",
+    "ROMANCES_TENDRES",
+    "MYSTERIES_SENSUELS",
+    "INTERDITS",
+    "CONQUETES",
+    "REVES_SECRETS",
+    "PASSION_BRUTALE",
+    "AMOUR_COMPLIQUE",
+    "DESIR_NOCTURNE",
+    "LIBERATION",
+    "DECOUVERTE_DE_SOI",
+    "INTIMITE_PSYCHOLOGIQUE",
+    "EVEIL_DU_DESIR",
+    "RELATIONS_TRANSFORMATRICES",
+    "MEMOIRE_DU_CORPS"
+  ];
+
+  // Return object with genre keys mapped to translated labels
+  const labels: Record<string, string> = {};
+  GENRES.forEach((genre) => {
+    labels[genre] = t(`genres.${genre}`, genre);
+  });
+
+  return {
+    labels,
+    genres: GENRES
+  };
+}

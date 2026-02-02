@@ -1,6 +1,6 @@
 import type { Chapter } from "@cher-journal/types";
 import { getImageUrl } from "../lib/imageUtils";
-import { useI18n } from "../lib/i18n";
+import { useI18n, useGenreLabels } from "../lib/i18n";
 
 interface ChapterSummaryProps {
   chapter: Chapter;
@@ -16,6 +16,7 @@ export default function ChapterSummary({
   onPreview,
 }: ChapterSummaryProps) {
   const { t } = useI18n();
+  const { labels: genreLabels } = useGenreLabels();
   const coverImageUrl = chapter.coverAsset
     ? getImageUrl(chapter.coverAsset)
     : "https://lh3.googleusercontent.com/aida-public/AB6AXuBwD3Uf_xFzfOpOf8PolvO0cBnN_tCAVXsbrogLHwEmWFpHSxMXZd5tl_KTkBjoJpjUndp2Fps69jP1Gs5hfB61vHjzsWgLKeO7yB2C7O78Mztx9pBrAp97NnErQqbvaCVxyP-tVvZUXHvjjkkI9_qMV0IBT2_a4y9gWARfNBjNx_B55AZwdhKjCYJr6fAd_9HHvUqIDg5hoWxTA0C0EGsTZ4TZOl7NPpq1ys2qs9WMHyd33QOD-4Vm7IreLiszSfEPBH_7nu6_C0E";
@@ -155,7 +156,7 @@ export default function ChapterSummary({
                     <span
                       key={genreKey}
                       className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
-                      {t(`genres.${genreKey}`, genreKey)}
+                      {genreLabels[genreKey] || genreKey}
                     </span>
                   );
                 })}

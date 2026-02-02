@@ -1,28 +1,9 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { MdImage, MdClose } from "react-icons/md";
-import { useI18n } from "../lib/i18n";
+import { useI18n, useGenreLabels } from "../lib/i18n";
 import Modal from "./Modal";
 import ImageGallery from "./ImageGallery";
-
-// Available genres (enum values from Prisma)
-const AVAILABLE_GENRES = [
-  "PASSIONS_CHARNELLES",
-  "ROMANCES_TENDRES",
-  "MYSTERIES_SENSUELS",
-  "INTERDITS",
-  "CONQUETES",
-  "REVES_SECRETS",
-  "PASSION_BRUTALE",
-  "AMOUR_COMPLIQUE",
-  "DESIR_NOCTURNE",
-  "LIBERATION",
-  "DECOUVERTE_DE_SOI",
-  "INTIMITE_PSYCHOLOGIQUE",
-  "EVEIL_DU_DESIR",
-  "RELATIONS_TRANSFORMATRICES",
-  "MEMOIRE_DU_CORPS"
-];
 
 interface ChapterFormData {
   title: string;
@@ -48,6 +29,7 @@ export default function ChapterForm({
   onCancel,
 }: ChapterFormProps) {
   const { t } = useI18n();
+  const { labels: genreLabels, genres: availableGenres } = useGenreLabels();
   const [formData, setFormData] = useState<ChapterFormData>({
     title: initialData?.title || "",
     protagonistName: initialData?.protagonistName || "",
@@ -208,7 +190,7 @@ export default function ChapterForm({
           {t("chapter_form.genres", "Genres")}
         </label>
         <div className="flex flex-wrap gap-2">
-          {AVAILABLE_GENRES.map((genre) => (
+          {availableGenres.map((genre) => (
             <button
               key={genre}
               type="button"
@@ -225,7 +207,7 @@ export default function ChapterForm({
                   ? "bg-indigo-600 text-white shadow-md"
                   : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}>
-              {t(`genres.${genre}`, genre)}
+              {genreLabels[genre]}
             </button>
           ))}
         </div>
