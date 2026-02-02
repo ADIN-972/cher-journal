@@ -378,6 +378,25 @@
       "updated": "Chapitre modifié avec succès"
     }
   },
+  "genres": {
+    "label": "Genres",
+    "help": "Sélectionnez un ou plusieurs genres qui décrivent ce chapitre",
+    "PASSIONS_CHARNELLES": "Passions Charnelles",
+    "ROMANCES_TENDRES": "Romances Tendres",
+    "MYSTERIES_SENSUELS": "Mystères Sensuels",
+    "INTERDITS": "Interdits",
+    "CONQUETES": "Conquêtes",
+    "REVES_SECRETS": "Rêves Secrets",
+    "PASSION_BRUTALE": "Passion Brute",
+    "AMOUR_COMPLIQUE": "Amour Compliqué",
+    "DESIR_NOCTURNE": "Désir Nocturne",
+    "LIBERATION": "Libération",
+    "DECOUVERTE_DE_SOI": "Découverte de soi",
+    "INTIMITE_PSYCHOLOGIQUE": "Intimité Psychologique",
+    "EVEIL_DU_DESIR": "Éveil du Désir",
+    "RELATIONS_TRANSFORMATRICES": "Relations Transformatrices",
+    "MEMOIRE_DU_CORPS": "Mémoire du Corps"
+  },
   "components": {
     "asset_filters": {
       "loading_tags": "Chargement des tags..."

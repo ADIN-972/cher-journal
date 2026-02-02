@@ -5,13 +5,31 @@ import { useI18n } from "../lib/i18n";
 import Modal from "./Modal";
 import ImageGallery from "./ImageGallery";
 
+// Available genres (enum values from Prisma)
+const AVAILABLE_GENRES = [
+  "PASSIONS_CHARNELLES",
+  "ROMANCES_TENDRES",
+  "MYSTERIES_SENSUELS",
+  "INTERDITS",
+  "CONQUETES",
+  "REVES_SECRETS",
+  "PASSION_BRUTALE",
+  "AMOUR_COMPLIQUE",
+  "DESIR_NOCTURNE",
+  "LIBERATION",
+  "DECOUVERTE_DE_SOI",
+  "INTIMITE_PSYCHOLOGIQUE",
+  "EVEIL_DU_DESIR",
+  "RELATIONS_TRANSFORMATRICES",
+  "MEMOIRE_DU_CORPS"
+];
+
 interface ChapterFormData {
   title: string;
   protagonistName: string;
+  description: string | null;
+  genres: string[];
   status: "DRAFT" | "IN_PROGRESS" | "PUBLISHED";
-  priceFreeToRead: number;
-  pricePaywall: number;
-  priceEpilogue: number;
   publishedAt: string | null;
   coverAssetId: string | null;
 }
@@ -33,10 +51,9 @@ export default function ChapterForm({
   const [formData, setFormData] = useState<ChapterFormData>({
     title: initialData?.title || "",
     protagonistName: initialData?.protagonistName || "",
+    description: (initialData?.description as string | null) || null,
+    genres: (initialData?.genres as string[]) || [],
     status: initialData?.status || "DRAFT",
-    priceFreeToRead: initialData?.priceFreeToRead || 0,
-    pricePaywall: initialData?.pricePaywall || 0,
-    priceEpilogue: initialData?.priceEpilogue || 0,
     publishedAt: initialData?.publishedAt
       ? new Date(initialData.publishedAt as any).toISOString().slice(0, 16)
       : null,
@@ -57,6 +74,17 @@ export default function ChapterForm({
       );
     }
   }, [initialData]);
+
+  // Initialize genres correctly when initialData changes
+  useEffect(() => {
+    if (initialData?.genres) {
+      const genreArray = initialData.genres as any[];
+      const genreStrings = Array.isArray(genreArray)
+        ? genreArray.map((g) => (typeof g === "string" ? g : g.genre))
+        : [];
+      setFormData((prev) => ({ ...prev, genres: genreStrings }));
+    }
+  }, [initialData?.genres]);
 
   const handleSelectCover = (asset: any) => {
     setFormData({ ...formData, coverAssetId: asset.id });
@@ -92,7 +120,15 @@ export default function ChapterForm({
 
     setLoading(true);
     try {
-      await onSubmit(formData);
+      // Convert datetime-local format to ISO 8601 if publishedAt is set
+      const dataToSubmit = {
+        ...formData,
+        publishedAt: formData.publishedAt
+          ? new Date(formData.publishedAt).toISOString()
+          : null,
+      };
+
+      await onSubmit(dataToSubmit);
       toast.success(
         chapterId
           ? t("chapter_form.toast.updated", "Chapitre modifié avec succès")
@@ -141,6 +177,64 @@ export default function ChapterForm({
           placeholder={t("chapter_form.protagonist_placeholder", "Ex: Emma")}
           required
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {t("chapter_form.description", "Préface / Description")}
+        </label>
+        <textarea
+          value={formData.description || ""}
+          onChange={(e) =>
+            setFormData({ ...formData, description: e.target.value || null })
+          }
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical"
+          rows={4}
+          placeholder={t(
+            "chapter_form.description_placeholder",
+            "Écrivez une préface ou description pour présenter ce chapitre..."
+          )}
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          {t(
+            "chapter_form.description_help",
+            "Cette préface sera affichée aux lecteurs avant le début du chapitre"
+          )}
+        </p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-3">
+          {t("chapter_form.genres", "Genres")}
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {AVAILABLE_GENRES.map((genre) => (
+            <button
+              key={genre}
+              type="button"
+              onClick={() => {
+                setFormData({
+                  ...formData,
+                  genres: formData.genres.includes(genre)
+                    ? formData.genres.filter((g) => g !== genre)
+                    : [...formData.genres, genre],
+                });
+              }}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                formData.genres.includes(genre)
+                  ? "bg-indigo-600 text-white shadow-md"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}>
+              {t(`genres.${genre}`, genre)}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-gray-500 mt-2">
+          {t(
+            "chapter_form.genres_help",
+            "Sélectionnez un ou plusieurs genres qui décrivent ce chapitre"
+          )}
+        </p>
       </div>
 
       <div>
@@ -227,89 +321,6 @@ export default function ChapterForm({
         <p className="text-xs text-gray-500 mt-1">
           {t("chapter_form.cover_desc", "Image affichée pour ce chapitre")}
         </p>
-      </div>
-
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t("chapter_form.price_free_to_read", "Prix free-to-read (€)")}
-          </label>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            value={(formData.priceFreeToRead / 100).toFixed(2)}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                priceFreeToRead: Math.round(
-                  parseFloat(e.target.value || "0") * 100
-                ),
-              })
-            }
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            {t(
-              "chapter_form.price_free_to_read_desc",
-              "Prix pour volumes standards (après timer)"
-            )}
-          </p>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t("chapter_form.price_paywall", "Prix paywall (€)")}
-          </label>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            value={(formData.pricePaywall / 100).toFixed(2)}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                pricePaywall: Math.round(
-                  parseFloat(e.target.value || "0") * 100
-                ),
-              })
-            }
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            {t(
-              "chapter_form.price_paywall_desc",
-              "Prix pour volumes paywall (finaux)"
-            )}
-          </p>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t("chapter_form.price_epilogue", "Prix épilogue (€)")}
-          </label>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            value={(formData.priceEpilogue / 100).toFixed(2)}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                priceEpilogue: Math.round(
-                  parseFloat(e.target.value || "0") * 100
-                ),
-              })
-            }
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            {t(
-              "chapter_form.price_epilogue_desc",
-              "Prix pour volumes &gt;10 (0 = timer uniquement)"
-            )}
-          </p>
-        </div>
       </div>
 
       <div>

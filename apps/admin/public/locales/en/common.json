@@ -378,6 +378,25 @@
       "updated": "Chapter updated successfully"
     }
   },
+  "genres": {
+    "label": "Genres",
+    "help": "Select one or more genres that describe this chapter",
+    "PASSIONS_CHARNELLES": "Passionate Desires",
+    "ROMANCES_TENDRES": "Sweet Romance",
+    "MYSTERIES_SENSUELS": "Sensual Mystery",
+    "INTERDITS": "Forbidden",
+    "CONQUETES": "Seduction & Conquest",
+    "REVES_SECRETS": "Secret Dreams",
+    "PASSION_BRUTALE": "Raw Passion",
+    "AMOUR_COMPLIQUE": "Complicated Love",
+    "DESIR_NOCTURNE": "Nocturnal Desire",
+    "LIBERATION": "Liberation",
+    "DECOUVERTE_DE_SOI": "Self-Discovery",
+    "INTIMITE_PSYCHOLOGIQUE": "Psychological Intimacy",
+    "EVEIL_DU_DESIR": "Awakening of Desire",
+    "RELATIONS_TRANSFORMATRICES": "Transformative Relations",
+    "MEMOIRE_DU_CORPS": "Body Memory"
+  },
   "components": {
     "asset_filters": {
       "loading_tags": "Loading tags..."
