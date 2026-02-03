@@ -319,13 +319,12 @@
     "context_menu": {
       "display": "Display",
       "selection": "Selection",
-      "select_all": "Select All",
-      "deselect_all": "Deselect All",
-      "bulk_actions": "Bulk Actions",
-      "bulk_edit": "Bulk Edit"
+      "select_all": "Select All"
     }
   },
   "chapters_page": {
+    "title": "Catalog Management",
+    "description": "Manage your erotic stories and track their editorial progress.",
     "include_archived": {
       "off": "Hide archived"
     },
@@ -335,6 +334,48 @@
       "in_progress": "In Progress",
       "draft": "Draft",
       "archived": "Archived"
+    },
+    "fab": {
+      "title": "Create Chapter"
+    },
+    "actions": {
+      "create": "Create",
+      "select_all": "Select All"
+    },
+    "context": {
+      "chapter_actions": "Chapter Actions",
+      "view_volumes": "View Volumes",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "publish": "Publish",
+      "publish_now": "Publish Now",
+      "draft": "Draft",
+      "in_progress": "In Progress",
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "actions": "Actions",
+      "delete": "Delete",
+      "global_actions": "Global Actions",
+      "create": "Create",
+      "select_visible": "Select Visible",
+      "deselect_visible": "Deselect Visible",
+      "selection": "Selection",
+      "bulk_edit": "Bulk Edit ({{count}})",
+      "sort": "Sort",
+      "sort_az": "A-Z",
+      "sort_za": "Z-A",
+      "sort_date_recent": "Most Recent",
+      "sort_date_old": "Oldest First",
+      "view": "View",
+      "view_card": "Card View",
+      "view_list": "List View",
+      "view_calendar": "Calendar View",
+      "filter": "Filter",
+      "filter_all": "All",
+      "filter_published": "Published",
+      "filter_in_progress": "In Progress",
+      "filter_draft": "Draft",
+      "filter_archived": "Archived"
     }
   },
   "login": {
@@ -454,22 +495,6 @@
       "loading": "Loading..."
     }
   },
-  "volume_form": {
-    "edit_title": "Edit Volume",
-    "chapter_with_volume": "Chapter with Volume",
-    "illustration_label": "Illustration",
-    "illustration_alt": "Volume illustration",
-    "illustration_help": "Image displayed for this volume",
-    "title_label": "Title",
-    "publish_date_label": "Publication Date",
-    "publish_date_help": "When this volume becomes available",
-    "wait_label": "Wait Time",
-    "wait_help": "Time users must wait to unlock this volume",
-    "final_paywall_label": "Final Paywall",
-    "final_paywall_help": "Users must purchase to unlock this volume",
-    "free_label": "Free",
-    "free_help": "This volume is free to read"
-  },
   "bundles": {
     "page_title_create": "Create Bundle",
     "page_title_edit": "Edit Bundle",
@@ -547,5 +572,55 @@
     "success_created": "Bundle created successfully",
     "success_updated": "Bundle updated successfully",
     "untitled": "Untitled Bundle"
+  },
+  "auth": {
+    "login": {
+      "page_title": "Cher Journal",
+      "page_subtitle": "Welcome to our sensual world",
+      "brand_name": "Cher Journal",
+      "tagline": "Welcome to our sensual world",
+      "email_label": "Email Address",
+      "email_placeholder": "your@email.com",
+      "password_label": "Password",
+      "password_placeholder": "••••••••",
+      "loading": "Signing in...",
+      "button_login": "Sign In",
+      "divider": "New?",
+      "no_account": "Don't have an account?",
+      "register_link": "Sign up now"
+    },
+    "register": {
+      "page_title": "Join Us",
+      "page_subtitle": "Create your account to access our sensual world",
+      "heading": "Join Us",
+      "tagline": "Create your account to access our sensual world",
+      "firstname_label": "First Name",
+      "firstname_placeholder": "John",
+      "lastname_label": "Last Name",
+      "lastname_placeholder": "Doe",
+      "fullname_label": "Full Name",
+      "fullname_placeholder": "John Doe",
+      "email_label": "Email Address",
+      "email_placeholder": "your@email.com",
+      "password_label": "Password",
+      "password_placeholder": "••••••••",
+      "confirm_password_label": "Confirm Password",
+      "confirm_password_placeholder": "••••••••",
+      "terms_checkbox": "I agree to the terms and conditions",
+      "password_helper": "At least 6 characters",
+      "loading": "Creating account...",
+      "button_register": "Sign Up Now",
+      "divider": "Already have an account?",
+      "login_prompt": "Already have an account?",
+      "login_link": "Sign in here",
+      "validation_email_required": "Email is required",
+      "validation_email_invalid": "Email must be valid",
+      "validation_password_weak": "Password must be at least 6 characters",
+      "validation_password_mismatch": "Passwords do not match",
+      "validation_password_required": "Password is required",
+      "validation_firstname_required": "First name is required",
+      "validation_lastname_required": "Last name is required",
+      "validation_fullname_required": "Full name is required"
+    }
   }
 }

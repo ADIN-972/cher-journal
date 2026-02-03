@@ -319,13 +319,12 @@
     "context_menu": {
       "display": "Affichage",
       "selection": "Sélection",
-      "select_all": "Sélectionner tout",
-      "deselect_all": "Désélectionner tout",
-      "bulk_actions": "Actions en Masse",
-      "bulk_edit": "Modifier en Masse"
+      "select_all": "Sélectionner tout"
     }
   },
   "chapters_page": {
+    "title": "Gestion du Catalogue",
+    "description": "Gérez vos contes érotiques et suivez leur progression éditoriale.",
     "include_archived": {
       "off": "Masquer les archivés"
     },
@@ -335,6 +334,48 @@
       "in_progress": "En cours",
       "draft": "Brouillons",
       "archived": "Archivés"
+    },
+    "fab": {
+      "title": "Créer un chapitre"
+    },
+    "actions": {
+      "create": "Créer",
+      "select_all": "Sélectionner tout"
+    },
+    "context": {
+      "chapter_actions": "Actions du chapitre",
+      "view_volumes": "Voir les tomes",
+      "edit": "Modifier",
+      "duplicate": "Dupliquer",
+      "publish": "Publier",
+      "publish_now": "Publier maintenant",
+      "draft": "Brouillon",
+      "in_progress": "En cours",
+      "archive": "Archiver",
+      "unarchive": "Désarchiver",
+      "actions": "Actions",
+      "delete": "Supprimer",
+      "global_actions": "Actions globales",
+      "create": "Créer",
+      "select_visible": "Sélectionner les visibles",
+      "deselect_visible": "Désélectionner les visibles",
+      "selection": "Sélection",
+      "bulk_edit": "Modifier en masse ({{count}})",
+      "sort": "Trier",
+      "sort_az": "A-Z",
+      "sort_za": "Z-A",
+      "sort_date_recent": "Les plus récents",
+      "sort_date_old": "Les plus anciens",
+      "view": "Affichage",
+      "view_card": "Vue Carte",
+      "view_list": "Vue Liste",
+      "view_calendar": "Vue Calendrier",
+      "filter": "Filtrer",
+      "filter_all": "Tous",
+      "filter_published": "Publiés",
+      "filter_in_progress": "En cours",
+      "filter_draft": "Brouillons",
+      "filter_archived": "Archivés"
     }
   },
   "login": {
@@ -454,22 +495,6 @@
       "loading": "Chargement..."
     }
   },
-  "volume_form": {
-    "edit_title": "Modifier le tome",
-    "chapter_with_volume": "Chapitre avec tome",
-    "illustration_label": "Illustration",
-    "illustration_alt": "Illustration du tome",
-    "illustration_help": "Image affichée pour ce tome",
-    "title_label": "Titre",
-    "publish_date_label": "Date de publication",
-    "publish_date_help": "Quand ce tome devient disponible",
-    "wait_label": "Temps d'attente",
-    "wait_help": "Temps que les utilisateurs doivent attendre pour déverrouiller ce tome",
-    "final_paywall_label": "Paywall final",
-    "final_paywall_help": "Les utilisateurs doivent acheter pour déverrouiller ce tome",
-    "free_label": "Gratuit",
-    "free_help": "Ce tome est gratuit à lire"
-  },
   "bundles": {
     "page_title_create": "Créer un bundle",
     "page_title_edit": "Modifier le bundle",
@@ -547,5 +572,55 @@
     "success_created": "Bundle créé avec succès",
     "success_updated": "Bundle modifié avec succès",
     "untitled": "Bundle sans titre"
+  },
+  "auth": {
+    "login": {
+      "page_title": "Cher Journal",
+      "page_subtitle": "Bienvenue dans notre univers sensuel",
+      "brand_name": "Cher Journal",
+      "tagline": "Bienvenue dans notre univers sensuel",
+      "email_label": "Adresse Email",
+      "email_placeholder": "votre@email.com",
+      "password_label": "Mot de passe",
+      "password_placeholder": "••••••••",
+      "loading": "Connexion en cours...",
+      "button_login": "Se connecter",
+      "divider": "Nouveau?",
+      "no_account": "Pas encore de compte?",
+      "register_link": "S'inscrire maintenant"
+    },
+    "register": {
+      "page_title": "Rejoins-nous",
+      "page_subtitle": "Crée ton compte pour accéder à notre univers sensuel",
+      "heading": "Rejoins-nous",
+      "tagline": "Crée ton compte pour accéder à notre univers sensuel",
+      "firstname_label": "Prénom",
+      "firstname_placeholder": "Jean",
+      "lastname_label": "Nom",
+      "lastname_placeholder": "Dupont",
+      "fullname_label": "Nom Complet",
+      "fullname_placeholder": "Jean Dupont",
+      "email_label": "Adresse Email",
+      "email_placeholder": "votre@email.com",
+      "password_label": "Mot de passe",
+      "password_placeholder": "••••••••",
+      "confirm_password_label": "Confirmer le mot de passe",
+      "confirm_password_placeholder": "••••••••",
+      "terms_checkbox": "J'accepte les conditions d'utilisation",
+      "password_helper": "Au moins 6 caractères",
+      "loading": "Création en cours...",
+      "button_register": "S'inscrire maintenant",
+      "divider": "Déjà un compte?",
+      "login_prompt": "Tu as déjà un compte?",
+      "login_link": "Connecte-toi ici",
+      "validation_email_required": "L'email est requis",
+      "validation_email_invalid": "L'email doit être valide",
+      "validation_password_weak": "Le mot de passe doit contenir au moins 6 caractères",
+      "validation_password_mismatch": "Les mots de passe ne correspondent pas",
+      "validation_password_required": "Le mot de passe est requis",
+      "validation_firstname_required": "Le prénom est requis",
+      "validation_lastname_required": "Le nom est requis",
+      "validation_fullname_required": "Le nom complet est requis"
+    }
   }
 }
