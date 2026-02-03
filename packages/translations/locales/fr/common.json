@@ -45,7 +45,21 @@
     "popular": "Les plus lus",
     "categories": "Catégories",
     "explore": "Explorer le catalogue",
-    "my_library": "Ma bibliothèque"
+    "my_library": "Ma bibliothèque",
+    "brand_name": "CHER JOURNAL",
+    "badge_text": "LA SÉLECTION DU MOMENT",
+    "hero_prefix": "L'Univers des",
+    "hero_highlight": "Désirs",
+    "hero_subtitle": "Une immersion artistique au cœur de l'intime. Découvrez des récits qui redéfinissent l'élégance de la passion.",
+    "cta_explore": "Explorer le catalogue",
+    "cta_library": "Ma bibliothèque",
+    "stats_stories": "Histoires",
+    "stats_chapters": "Chapitres",
+    "stats_access": "Accès illimité",
+    "quote_text": "La passion n'est pas une émotion qui se vit, c'est une atmosphère qui se respire, un parfum qui s'imprègne sur la peau et dans l'âme.",
+    "quote_author": "— L'ÉCRIN DES DÉSIRS",
+    "footer_copyright": "© 2026 Cher Journal. Tous droits réservés. 🌹",
+    "footer_credit": "Conçu avec ✨ pour les amoureux de la romance"
   },
   "catalog": {
     "title": "Catalogue",

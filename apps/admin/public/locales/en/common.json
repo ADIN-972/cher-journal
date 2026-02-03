@@ -45,7 +45,21 @@
     "popular": "Most Read",
     "categories": "Categories",
     "explore": "Explore Catalog",
-    "my_library": "My Library"
+    "my_library": "My Library",
+    "brand_name": "CHER JOURNAL",
+    "badge_text": "CURRENT SELECTION",
+    "hero_prefix": "The Universe of",
+    "hero_highlight": "Desires",
+    "hero_subtitle": "An artistic immersion into intimacy. Discover stories that redefine the elegance of passion.",
+    "cta_explore": "Explore Catalog",
+    "cta_library": "My Library",
+    "stats_stories": "Stories",
+    "stats_chapters": "Chapters",
+    "stats_access": "Unlimited Access",
+    "quote_text": "Passion is not an emotion that is lived, it is an atmosphere that is breathed, a fragrance that permeates the skin and the soul.",
+    "quote_author": "— THE VAULT OF DESIRES",
+    "footer_copyright": "© 2026 Cher Journal. All rights reserved. 🌹",
+    "footer_credit": "Designed with ✨ for romance lovers"
   },
   "catalog": {
     "title": "Catalog",
@@ -323,8 +337,6 @@
     }
   },
   "chapters_page": {
-    "title": "Catalog Management",
-    "description": "Manage your erotic stories and track their editorial progress.",
     "include_archived": {
       "off": "Hide archived"
     },
@@ -334,48 +346,6 @@
       "in_progress": "In Progress",
       "draft": "Draft",
       "archived": "Archived"
-    },
-    "fab": {
-      "title": "Create Chapter"
-    },
-    "actions": {
-      "create": "Create",
-      "select_all": "Select All"
-    },
-    "context": {
-      "chapter_actions": "Chapter Actions",
-      "view_volumes": "View Volumes",
-      "edit": "Edit",
-      "duplicate": "Duplicate",
-      "publish": "Publish",
-      "publish_now": "Publish Now",
-      "draft": "Draft",
-      "in_progress": "In Progress",
-      "archive": "Archive",
-      "unarchive": "Unarchive",
-      "actions": "Actions",
-      "delete": "Delete",
-      "global_actions": "Global Actions",
-      "create": "Create",
-      "select_visible": "Select Visible",
-      "deselect_visible": "Deselect Visible",
-      "selection": "Selection",
-      "bulk_edit": "Bulk Edit ({{count}})",
-      "sort": "Sort",
-      "sort_az": "A-Z",
-      "sort_za": "Z-A",
-      "sort_date_recent": "Most Recent",
-      "sort_date_old": "Oldest First",
-      "view": "View",
-      "view_card": "Card View",
-      "view_list": "List View",
-      "view_calendar": "Calendar View",
-      "filter": "Filter",
-      "filter_all": "All",
-      "filter_published": "Published",
-      "filter_in_progress": "In Progress",
-      "filter_draft": "Draft",
-      "filter_archived": "Archived"
     }
   },
   "login": {

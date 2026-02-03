@@ -45,7 +45,21 @@
     "popular": "Most Read",
     "categories": "Categories",
     "explore": "Explore Catalog",
-    "my_library": "My Library"
+    "my_library": "My Library",
+    "brand_name": "CHER JOURNAL",
+    "badge_text": "CURRENT SELECTION",
+    "hero_prefix": "The Universe of",
+    "hero_highlight": "Desires",
+    "hero_subtitle": "An artistic immersion into intimacy. Discover stories that redefine the elegance of passion.",
+    "cta_explore": "Explore Catalog",
+    "cta_library": "My Library",
+    "stats_stories": "Stories",
+    "stats_chapters": "Chapters",
+    "stats_access": "Unlimited Access",
+    "quote_text": "Passion is not an emotion that is lived, it is an atmosphere that is breathed, a fragrance that permeates the skin and the soul.",
+    "quote_author": "— THE VAULT OF DESIRES",
+    "footer_copyright": "© 2026 Cher Journal. All rights reserved. 🌹",
+    "footer_credit": "Designed with ✨ for romance lovers"
   },
   "catalog": {
     "title": "Catalog",
