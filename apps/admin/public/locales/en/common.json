@@ -592,5 +592,33 @@
       "validation_lastname_required": "Last name is required",
       "validation_fullname_required": "Full name is required"
     }
+  },
+  "account": {
+    "page_title": "My Personal Space",
+    "welcome_message": "Welcome {firstName}, manage your account and preferences",
+    "menu": {
+      "my_books": "My Books",
+      "my_books_desc": "My personal library",
+      "purchases": "My Purchases",
+      "purchases_desc": "Transaction history",
+      "claims": "Claims & Support",
+      "claims_desc": "Support and assistance",
+      "reviews": "My Reviews",
+      "reviews_desc": "Reviews and impressions",
+      "subscription": "Subscription Info",
+      "subscription_desc": "Manage my subscription",
+      "preferences": "Preferences",
+      "preferences_desc": "Customization",
+      "notifications": "Notifications",
+      "notifications_desc": "Notification settings",
+      "devices": "Connected Devices",
+      "devices_desc": "Device management",
+      "account_info": "Account Info",
+      "account_info_desc": "Security and password",
+      "payment_info": "Payment Methods",
+      "payment_info_desc": "Cards and payments"
+    },
+    "logout": "Sign Out",
+    "logout_title": "Sign Out"
   }
 }

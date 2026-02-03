@@ -592,5 +592,33 @@
       "validation_lastname_required": "Le nom est requis",
       "validation_fullname_required": "Le nom complet est requis"
     }
+  },
+  "account": {
+    "page_title": "Mon Espace Personnel",
+    "welcome_message": "Bienvenue {firstName}, gérez votre compte et vos préférences",
+    "menu": {
+      "my_books": "Mes Livres",
+      "my_books_desc": "Ma bibliothèque personnelle",
+      "purchases": "Mes Achats",
+      "purchases_desc": "Historique des transactions",
+      "claims": "Réclamations",
+      "claims_desc": "Support et assistance",
+      "reviews": "Mes Commentaires",
+      "reviews_desc": "Avis et impressions",
+      "subscription": "Informations d'Abonnement",
+      "subscription_desc": "Gérer mon abonnement",
+      "preferences": "Préférences",
+      "preferences_desc": "Personnalisation",
+      "notifications": "Notifications",
+      "notifications_desc": "Paramètres de notifications",
+      "devices": "Appareils Connectés",
+      "devices_desc": "Gestion des appareils",
+      "account_info": "Informations de Compte",
+      "account_info_desc": "Sécurité et mot de passe",
+      "payment_info": "Moyens de Paiement",
+      "payment_info_desc": "Cartes et paiements"
+    },
+    "logout": "Déconnexion",
+    "logout_title": "Se Déconnecter"
   }
 }
