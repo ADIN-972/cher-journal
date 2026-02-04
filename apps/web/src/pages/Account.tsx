@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../lib/i18n";
 import Library from "./Library";
 import PurchaseHistory from "../components/account/PurchaseHistory";
 import SupportClaims from "../components/account/SupportClaims";
