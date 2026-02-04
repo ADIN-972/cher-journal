@@ -9,11 +9,11 @@
   ],
   "scripts": {
     "install": "npm install",
-    "dev": "npm run dev --workspaces --if-present",
+    "dev": "npm run dev --workspaces --if-present --host",
     "dev:backend": "npm run dev -w apps/backend",
-    "dev:admin": "npm run dev -w apps/admin",
-    "dev:web": "npm run dev -w apps/web",
-    "dev:mobile": "npm run dev -w apps/mobile",
+    "dev:admin": "npm run dev -w apps/admin --host",
+    "dev:web": "npm run dev -w apps/web --host",
+    "dev:mobile": "npm run dev -w apps/mobile --host",
     "build": "npm run build --workspaces --if-present",
     "build:backend": "npm run build -w apps/backend",
     "build:admin": "npm run build -w apps/admin",
@@ -27,11 +27,16 @@
     "api:sync": "tsx scripts/sync-api.ts",
     "api:generate": "tsx scripts/generate-routes.ts",
     "api:security": "tsx scripts/api-inventory.ts",
-    "admin:check-menus": "tsx scripts/check-context-menus.ts"
+    "admin:check-menus": "tsx scripts/check-context-menus.ts",
+    "verify:api": "tsx verify-api-calls.ts",
+    "verify:translations": "tsx verify-translations.ts",
+    "sync:translations": "tsx scripts/sync-translations.ts"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
+    "chalk": "^5.6.2",
     "glob": "^10.3.10",
+    "node-fetch": "^3.3.2",
     "prettier": "^3.7.4",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3"
