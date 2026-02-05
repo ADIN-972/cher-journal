@@ -666,5 +666,42 @@
     "upload_success_singular": "1 image téléchargée avec succès",
     "upload_success_plural": "{{count}} images téléchargées avec succès",
     "no_preview": "Aucun aperçu"
+  },
+  "volume_form": {
+    "edit_title": "Modifier le Volume",
+    "create_title": "Créer un Volume",
+    "chapter_label": "Chapitre: {{title}}",
+    "chapter_with_volume": "Chapitre: {{title}} - Volume {{number}}",
+    "illustration_label": "Illustration du Volume",
+    "illustration_alt": "Illustration du volume",
+    "choose_illustration": "Choisir une illustration",
+    "illustration_help": "Sélectionnez une image pour représenter ce volume",
+    "remove_illustration": "Retirer l'illustration",
+    "title_label": "Titre du Volume *",
+    "title_placeholder": "Entrez le titre du volume",
+    "title_required": "Le titre est obligatoire",
+    "publish_date_label": "Date de Publication",
+    "publish_date_help": "Laissez vide pour publier immédiatement",
+    "wait_label": "Durée d'Attente (heures)",
+    "wait_help": "Temps que les utilisateurs doivent attendre pour lire ce volume gratuitement",
+    "final_paywall_label": "Paywall Final",
+    "final_paywall_help": "Si coché, ce volume sera le dernier accessible gratuitement avant le paywall",
+    "free_label": "Volume Gratuit",
+    "free_help": "Si coché, ce volume sera accessible gratuitement à tous",
+    "save_create": "Créer le Volume",
+    "save_edit": "Enregistrer les Modifications",
+    "saving": "Enregistrement...",
+    "modal_title": "Sélectionner une Illustration",
+    "errors": {
+      "title_required": "Le titre du volume est obligatoire",
+      "negative_wait": "La durée d'attente ne peut pas être négative",
+      "load_volume": "Erreur lors du chargement du volume",
+      "load_chapter": "Erreur lors du chargement du chapitre",
+      "save": "Erreur lors de l'enregistrement du volume"
+    },
+    "success": {
+      "created": "Volume créé avec succès",
+      "updated": "Volume modifié avec succès"
+    }
   }
 }
