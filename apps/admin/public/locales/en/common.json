@@ -103,7 +103,11 @@
     "unlock_now": "Unlock Now",
     "unlock_in": "Unlock in {{time}}",
     "owned": "You own this",
-    "requires_purchase": "This requires purchase"
+    "requires_purchase": "This requires purchase",
+    "status_draft": "Draft",
+    "status_in_progress": "In Progress",
+    "status_published": "Published",
+    "status_archived": "For this volume"
   },
   "library": {
     "title": "My Library",
@@ -280,6 +284,10 @@
       "edit_titles": "Edit Titles",
       "bulk_import": "Bulk Import",
       "add_volume": "Add Volume"
+    },
+    "fab": {
+      "add_volume": "Add Volume",
+      "select_all": "Select All"
     },
     "context_menu": {
       "display": "Display",

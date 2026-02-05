@@ -103,7 +103,11 @@
     "unlock_now": "Déverrouiller maintenant",
     "unlock_in": "Déverrouillage dans {{time}}",
     "owned": "Vous possédez ceci",
-    "requires_purchase": "Cela nécessite un achat"
+    "requires_purchase": "Cela nécessite un achat",
+    "status_draft": "Brouillon",
+    "status_in_progress": "En cours",
+    "status_published": "Publié",
+    "status_archived": "Pour ce volume"
   },
   "library": {
     "title": "Ma Bibliothèque",
@@ -280,6 +284,10 @@
       "edit_titles": "Modifier les Titres",
       "bulk_import": "Importation en Masse",
       "add_volume": "Ajouter un Tome"
+    },
+    "fab": {
+      "add_volume": "Ajouter un Tome",
+      "select_all": "Sélectionner tout"
     },
     "context_menu": {
       "display": "Affichage",
