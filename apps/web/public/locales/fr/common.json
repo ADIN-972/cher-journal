@@ -394,6 +394,7 @@
     "status_draft": "Brouillon",
     "status_in_progress": "En cours",
     "status_published": "Publié",
+    "status_archived": "Archivé",
     "cover_image": "Image de couverture",
     "cover_create_first": "Créez d'abord le chapitre pour pouvoir ajouter une image de couverture",
     "remove_image": "Retirer l'image",

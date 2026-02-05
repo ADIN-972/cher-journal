@@ -394,6 +394,7 @@
     "status_draft": "Draft",
     "status_in_progress": "In Progress",
     "status_published": "Published",
+    "status_archived": "Archived",
     "cover_image": "Cover Image",
     "cover_create_first": "Create the chapter first to add a cover image",
     "remove_image": "Remove image",
