@@ -8,6 +8,7 @@ import {
   MdCheck,
 } from "react-icons/md";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import { api } from "../lib/api";
 
 interface Tag {
@@ -27,6 +28,7 @@ interface TagManagerProps {
 }
 
 export default function TagManager({ onTagsChange }: TagManagerProps) {
+  const { t } = useTranslation();
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -48,9 +50,11 @@ export default function TagManager({ onTagsChange }: TagManagerProps) {
     setLoading(true);
     try {
       const response = await api.get("/admin/asset-tags");
-      setTags(response.data);
+      console.log("Tags loaded:", response);
+      setTags(response as any);
     } catch (error: any) {
-      toast.error("Erreur lors du chargement des tags");
+      console.error("Error loading tags:", error);
+      toast.error(t('tag_manager.error_loading'));
     } finally {
       setLoading(false);
     }
@@ -63,11 +67,11 @@ export default function TagManager({ onTagsChange }: TagManagerProps) {
       if (editingTag) {
         // Update existing tag
         await api.patch(`/admin/asset-tags/${editingTag.id}`, formData);
-        toast.success("Tag modifié avec succès");
+        toast.success(t('tag_manager.success_updated'));
       } else {
         // Create new tag
         await api.post("/admin/asset-tags", formData);
-        toast.success("Tag créé avec succès");
+        toast.success(t('tag_manager.success_created'));
       }
 
       setShowForm(false);
@@ -78,8 +82,8 @@ export default function TagManager({ onTagsChange }: TagManagerProps) {
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.error?.code === "TAG_ALREADY_EXISTS"
-          ? "Un tag avec ce nom existe déjà"
-          : "Erreur lors de l'enregistrement du tag";
+          ? t('tag_manager.error_duplicate')
+          : t('tag_manager.error_loading');
       toast.error(errorMessage);
     }
   };
@@ -99,12 +103,12 @@ export default function TagManager({ onTagsChange }: TagManagerProps) {
 
     try {
       await api.delete(`/admin/asset-tags/${deletingTag.id}`);
-      toast.success("Tag supprimé avec succès");
+      toast.success(t('tag_manager.success_deleted'));
       setDeletingTag(null);
       await loadTags();
       onTagsChange?.();
     } catch (error: any) {
-      toast.error("Erreur lors de la suppression du tag");
+      toast.error(t('tag_manager.error_delete'));
     }
   };
 
@@ -136,7 +140,7 @@ export default function TagManager({ onTagsChange }: TagManagerProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="text-gray-500">Chargement des tags...</div>
+        <div className="text-gray-500">{t('tag_manager.no_tags')}</div>
       </div>
     );
   }
@@ -149,10 +153,10 @@ export default function TagManager({ onTagsChange }: TagManagerProps) {
           <MdLabel className="w-6 h-6 text-blue-600" />
           <div>
             <h3 className="text-lg font-semibold text-gray-900">
-              Gestion des Tags
+              {t('tag_manager.title')}
             </h3>
             <p className="text-sm text-gray-500">
-              Organisez vos assets avec des tags colorés
+              {t('tag_manager.section_title')}
             </p>
           </div>
         </div>
@@ -160,7 +164,7 @@ export default function TagManager({ onTagsChange }: TagManagerProps) {
           onClick={() => setShowForm(!showForm)}
           className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
           <MdAdd className="w-5 h-5" />
-          <span>Nouveau Tag</span>
+          <span>{t('tag_manager.create_new')}</span>
         </button>
       </div>
 
@@ -168,14 +172,14 @@ export default function TagManager({ onTagsChange }: TagManagerProps) {
       {showForm && (
         <div className="bg-white border-2 border-blue-200 rounded-lg p-6 space-y-4">
           <h4 className="font-semibold text-gray-900">
-            {editingTag ? "Modifier le tag" : "Créer un nouveau tag"}
+            {editingTag ? t('tag_manager.edit_tag') : t('tag_manager.create_new')}
           </h4>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nom du tag *
+                {t('tag_manager.label_name')}
               </label>
               <input
                 type="text"
@@ -184,7 +188,7 @@ export default function TagManager({ onTagsChange }: TagManagerProps) {
                   setFormData({ ...formData, name: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Ex: Chapitre 1, Paysage, Brouillon..."
+                placeholder={t('tag_manager.placeholder_name')}
                 required
                 maxLength={50}
               />
@@ -193,7 +197,7 @@ export default function TagManager({ onTagsChange }: TagManagerProps) {
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description (optionnelle)
+                {t('tag_manager.label_description')}
               </label>
               <input
                 type="text"
@@ -202,14 +206,14 @@ export default function TagManager({ onTagsChange }: TagManagerProps) {
                   setFormData({ ...formData, description: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Description du tag..."
+                placeholder={t('tag_manager.placeholder_description')}
               />
             </div>
 
             {/* Color Picker */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Couleur
+                {t('tag_manager.label_color')}
               </label>
               <div className="flex items-center space-x-4">
                 {/* Current color preview */}
@@ -257,14 +261,14 @@ export default function TagManager({ onTagsChange }: TagManagerProps) {
                 type="submit"
                 className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <MdCheck className="w-5 h-5" />
-                <span>{editingTag ? "Enregistrer" : "Créer"}</span>
+                <span>{editingTag ? t('tag_manager.button_save') : t('tag_manager.button_create')}</span>
               </button>
               <button
                 type="button"
                 onClick={handleCancel}
                 className="inline-flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
                 <MdClose className="w-5 h-5" />
-                <span>Annuler</span>
+                <span>{t('tag_manager.button_cancel')}</span>
               </button>
             </div>
           </form>
@@ -276,9 +280,9 @@ export default function TagManager({ onTagsChange }: TagManagerProps) {
         {!tags || tags.length === 0 ? (
           <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
             <MdLabel className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-500">Aucun tag créé</p>
+            <p className="text-gray-500">{t('tag_manager.no_tags')}</p>
             <p className="text-sm text-gray-400 mt-1">
-              Créez votre premier tag pour organiser vos assets
+              {t('tag_manager.no_tags_description')}
             </p>
           </div>
         ) : (
@@ -299,8 +303,9 @@ export default function TagManager({ onTagsChange }: TagManagerProps) {
                   <div className="flex items-center space-x-3">
                     <h4 className="font-semibold text-gray-900">{tag.name}</h4>
                     <span className="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs font-medium">
-                      {tag._count?.assets || 0} asset
-                      {(tag._count?.assets || 0) > 1 ? "s" : ""}
+                      {(tag._count?.assets || 0) > 1
+                        ? t('tag_manager.asset_count_plural', { count: tag._count?.assets || 0 })
+                        : t('tag_manager.asset_count_singular')}
                     </span>
                   </div>
                   {tag.description && (
@@ -316,13 +321,13 @@ export default function TagManager({ onTagsChange }: TagManagerProps) {
                 <button
                   onClick={() => handleEdit(tag)}
                   className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                  title="Modifier">
+                  title={t('tag_manager.button_edit')}>
                   <MdEdit className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setDeletingTag(tag)}
                   className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  title="Supprimer">
+                  title={t('tag_manager.button_delete')}>
                   <MdDelete className="w-5 h-5" />
                 </button>
               </div>
@@ -336,16 +341,13 @@ export default function TagManager({ onTagsChange }: TagManagerProps) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Supprimer le tag
+              {t('tag_manager.delete_confirmation_title')}
             </h3>
             <p className="text-gray-600 mb-6">
-              Êtes-vous sûr de vouloir supprimer le tag{" "}
-              <strong>{deletingTag.name}</strong> ?
+              {t('tag_manager.delete_confirmation_message')}
               {deletingTag._count && deletingTag._count.assets > 0 && (
                 <span className="block mt-2 text-sm text-amber-600">
-                  ⚠️ Ce tag est utilisé par {deletingTag._count.assets} asset
-                  {deletingTag._count.assets > 1 ? "s" : ""}. Il sera retiré de
-                  tous ces assets.
+                  ⚠️ {t('tag_manager.asset_count_plural', { count: deletingTag._count.assets })}
                 </span>
               )}
             </p>
@@ -353,12 +355,12 @@ export default function TagManager({ onTagsChange }: TagManagerProps) {
               <button
                 onClick={handleDelete}
                 className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                Supprimer
+                {t('tag_manager.button_delete')}
               </button>
               <button
                 onClick={() => setDeletingTag(null)}
                 className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                Annuler
+                {t('tag_manager.button_cancel')}
               </button>
             </div>
           </div>

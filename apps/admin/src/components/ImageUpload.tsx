@@ -1,6 +1,7 @@
 import { useState, useRef, ChangeEvent } from "react";
 import { MdCloudUpload, MdImage, MdClose } from "react-icons/md";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 interface ImageUploadProps {
   onUploadSuccess?: (asset: any | any[]) => void;
@@ -25,6 +26,7 @@ export default function ImageUpload({
   className = "",
   multiple = false,
 }: ImageUploadProps) {
+  const { t } = useTranslation();
   const [uploading, setUploading] = useState(false);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);
@@ -34,13 +36,13 @@ export default function ImageUpload({
     // Check file type
     const acceptedTypes = accept.split(",").map((t) => t.trim());
     if (!acceptedTypes.includes(file.type)) {
-      return `Type de fichier non accepté. Formats acceptés : ${accept}`;
+      return t('upload.file_type_error', { formats: accept });
     }
 
     // Check file size
     const maxSizeBytes = maxSizeMB * 1024 * 1024;
     if (file.size > maxSizeBytes) {
-      return `Le fichier est trop volumineux. Taille maximale : ${maxSizeMB} MB`;
+      return t('upload.file_size_error', { maxSize: maxSizeMB });
     }
 
     return null;
@@ -48,7 +50,7 @@ export default function ImageUpload({
 
   const handleUpload = async (files: File[]) => {
     if (!chapterId) {
-      toast.error("ID du chapitre requis");
+      toast.error(t('upload.chapter_required'));
       return;
     }
 
@@ -106,7 +108,7 @@ export default function ImageUpload({
         if (!response.ok) {
           const errorData = await response.json();
           toast.error(
-            `${file.name}: ${errorData.error?.message || "Erreur lors de l'upload"}`
+            `${file.name}: ${errorData.error?.message || t('upload.upload_error')}`
           );
           continue;
         }
@@ -117,8 +119,11 @@ export default function ImageUpload({
 
       if (uploadedAssets.length > 0) {
         toast.success(
-          `${uploadedAssets.length} image(s) uploadée(s) avec succès`
+          uploadedAssets.length > 1
+            ? t('upload.upload_success_plural', { count: uploadedAssets.length })
+            : t('upload.upload_success_singular')
         );
+        setPreviewUrls([]);
         if (onUploadSuccess) {
           onUploadSuccess(multiple ? uploadedAssets : uploadedAssets[0]);
         }
@@ -130,7 +135,7 @@ export default function ImageUpload({
           : uploadedAssets[0]
         : null;
     } catch (error: any) {
-      toast.error(error.message || "Erreur lors de l'upload");
+      toast.error(error.message || t('upload.upload_error'));
       setPreviewUrls([]);
     } finally {
       setUploading(false);
@@ -190,7 +195,7 @@ export default function ImageUpload({
         className="hidden"
         disabled={uploading}
         multiple={multiple}
-        title="Sélectionner des fichiers"
+        title={t('upload.select_files')}
       />
 
       {previewUrls.length > 0 ? (
@@ -209,7 +214,7 @@ export default function ImageUpload({
                   <button
                     onClick={() => handleClearPreview(index)}
                     className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full hover:bg-red-700"
-                    title="Supprimer cette image"
+                    title={t('upload.remove_image')}
                     disabled={uploading}>
                     <MdClose className="w-3 h-3" />
                   </button>
@@ -226,7 +231,7 @@ export default function ImageUpload({
               <button
                 onClick={() => handleClearPreview()}
                 className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700"
-                title="Supprimer l'aperçu">
+                title={t('upload.remove_preview')}>
                 <MdClose className="w-4 h-4" />
               </button>
             </div>
@@ -235,7 +240,7 @@ export default function ImageUpload({
             <div className="mt-4 bg-black bg-opacity-50 flex items-center justify-center rounded-lg p-4">
               <div className="bg-white px-4 py-2 rounded-lg flex items-center space-x-2">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-                <span className="text-sm font-medium">Upload en cours...</span>
+                <span className="text-sm font-medium">{t('upload.uploading')}</span>
               </div>
             </div>
           )}
@@ -255,7 +260,7 @@ export default function ImageUpload({
           {uploading ? (
             <div className="flex flex-col items-center space-y-3">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-              <p className="text-gray-600 font-medium">Upload en cours...</p>
+              <p className="text-gray-600 font-medium">{t('upload.uploading')}</p>
             </div>
           ) : (
             <div className="flex flex-col items-center space-y-3">
@@ -266,7 +271,7 @@ export default function ImageUpload({
               )}
               <div>
                 <p className="text-gray-700 font-medium mb-1">
-                  Cliquez pour sélectionner ou glissez-déposez
+                  {t('upload.click_or_drag')}
                 </p>
                 <p className="text-sm text-gray-500">
                   {accept

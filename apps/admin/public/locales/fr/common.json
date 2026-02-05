@@ -146,29 +146,6 @@
     "zoom_in": "Agrandir",
     "zoom_out": "Réduire"
   },
-  "account": {
-    "title": "Mon Compte",
-    "profile": "Profil",
-    "settings": "Paramètres",
-    "purchases": "Achats",
-    "wishlist": "Liste de souhaits",
-    "preferences": "Préférences",
-    "security": "Sécurité",
-    "email": "Email",
-    "username": "Nom d'utilisateur",
-    "name": "Nom",
-    "edit_profile": "Éditer le profil",
-    "change_password": "Changer le mot de passe",
-    "password": "Mot de passe",
-    "current_password": "Mot de passe actuel",
-    "new_password": "Nouveau mot de passe",
-    "confirm_password": "Confirmer le mot de passe",
-    "language": "Langue",
-    "notifications": "Notifications",
-    "theme": "Thème",
-    "save_changes": "Enregistrer les modifications",
-    "profile_updated": "Profil mis à jour avec succès"
-  },
   "purchase": {
     "title": "Achat",
     "checkout": "Passer la commande",
@@ -191,32 +168,6 @@
     "order_number": "Commande #{{number}}",
     "download_receipt": "Télécharger le reçu",
     "back_to_library": "Retour à la bibliothèque"
-  },
-  "auth": {
-    "title": "Authentification",
-    "login": "Connexion",
-    "register": "Inscription",
-    "email": "Email",
-    "password": "Mot de passe",
-    "confirm_password": "Confirmer le mot de passe",
-    "remember_me": "Se souvenir de moi",
-    "forgot_password": "Mot de passe oublié ?",
-    "no_account_yet": "Pas encore de compte ?",
-    "create_account": "Créer un compte",
-    "dont_have_account": "Pas encore de compte ?",
-    "already_have_account": "Vous avez déjà un compte ?",
-    "sign_up": "S'inscrire",
-    "sign_in": "Se connecter",
-    "or": "Ou",
-    "with_google": "avec Google",
-    "with_facebook": "avec Facebook",
-    "with_apple": "avec Apple",
-    "login_success": "Connexion réussie",
-    "register_success": "Inscription réussie",
-    "check_email": "Veuillez vérifier votre email pour confirmer votre compte",
-    "reset_password": "Réinitialiser le mot de passe",
-    "reset_link_sent": "Lien de réinitialisation du mot de passe envoyé à votre email",
-    "reset_success": "Mot de passe réinitialisé avec succès"
   },
   "errors": {
     "title": "Erreur",
@@ -337,6 +288,8 @@
     }
   },
   "chapters_page": {
+    "title": "Gestion du Catalogue",
+    "description": "Gérez vos chapitres et vos tomes",
     "include_archived": {
       "off": "Masquer les archivés"
     },
@@ -346,6 +299,41 @@
       "in_progress": "En cours",
       "draft": "Brouillons",
       "archived": "Archivés"
+    },
+    "fab": {
+      "title": "Créer un Chapitre"
+    },
+    "actions": {
+      "create": "Créer un Nouveau Chapitre",
+      "select_all": "Sélectionner Tout"
+    },
+    "context": {
+      "deselect_all": "Désélectionner Tout",
+      "bulk_actions": "Actions en Masse",
+      "bulk_edit": "Édition en Masse",
+      "delete": "Supprimer",
+      "archive": "Archiver",
+      "unarchive": "Dés-archiver",
+      "export": "Exporter",
+      "import": "Importer",
+      "global_actions": "Actions Globales",
+      "create": "Créer",
+      "select_visible": "Sélectionner les Visibles",
+      "sort": "Trier",
+      "sort_az": "Trier A-Z",
+      "sort_za": "Trier Z-A",
+      "sort_date_recent": "Trier par Récent",
+      "sort_date_old": "Trier par Ancien",
+      "view": "Vue",
+      "view_card": "Vue Carte",
+      "view_list": "Vue Liste",
+      "view_calendar": "Vue Calendrier",
+      "filter": "Filtrer",
+      "filter_all": "Tous",
+      "filter_published": "Publiés",
+      "filter_in_progress": "En Cours",
+      "filter_draft": "Brouillons",
+      "filter_archived": "Archivés"
     }
   },
   "login": {
@@ -379,10 +367,6 @@
     "welcome_message": "Bienvenue dans votre espace d'administration",
     "theme_dark": "Passer en mode sombre",
     "theme_light": "Passer en mode clair"
-  },
-  "account": {
-    "settings": "Paramètres",
-    "settings_subtitle": "Configuration du compte"
   },
   "debug": {
     "interface_mode": "Mode Debug Interface"
@@ -553,6 +537,7 @@
       "email_placeholder": "votre@email.com",
       "password_label": "Mot de passe",
       "password_placeholder": "••••••••",
+      "forgot_password": "Mot de passe oublié?",
       "loading": "Connexion en cours...",
       "button_login": "Se connecter",
       "divider": "Nouveau?",
@@ -560,6 +545,7 @@
       "register_link": "S'inscrire maintenant"
     },
     "register": {
+      "brand_name": "Cher Journal",
       "page_title": "Rejoins-nous",
       "page_subtitle": "Crée ton compte pour accéder à notre univers sensuel",
       "heading": "Rejoins-nous",
@@ -620,5 +606,49 @@
     },
     "logout": "Déconnexion",
     "logout_title": "Se Déconnecter"
+  },
+  "tag_manager": {
+    "title": "Gestion des Tags",
+    "section_title": "Gérer les Tags des Assets",
+    "create_new": "Créer un nouveau tag",
+    "edit_tag": "Modifier le tag",
+    "delete_confirmation_title": "Supprimer le tag",
+    "delete_confirmation_message": "Êtes-vous sûr de vouloir supprimer ce tag ? Cette action ne peut pas être annulée.",
+    "no_tags": "Aucun Tag Créé",
+    "no_tags_description": "Créez votre premier tag pour organiser vos assets",
+    "label_name": "Nom du tag *",
+    "label_description": "Description (optionnelle)",
+    "label_color": "Couleur",
+    "placeholder_name": "Ex: Chapitre 1, Paysage, Brouillon...",
+    "placeholder_description": "Description du tag...",
+    "button_save": "Enregistrer",
+    "button_create": "Créer",
+    "button_cancel": "Annuler",
+    "button_delete": "Supprimer",
+    "button_edit": "Modifier",
+    "error_loading": "Erreur lors du chargement des tags",
+    "error_delete": "Erreur lors de la suppression du tag",
+    "error_duplicate": "Un tag avec ce nom existe déjà",
+    "success_created": "Tag créé avec succès",
+    "success_updated": "Tag modifié avec succès",
+    "success_deleted": "Tag supprimé avec succès",
+    "asset_count_singular": "1 asset",
+    "asset_count_plural": "{{count}} assets",
+    "empty_message": "Aucun asset avec ce tag"
+  },
+  "upload": {
+    "title": "Télécharger des Images",
+    "select_files": "Sélectionner des fichiers",
+    "click_or_drag": "Cliquez pour sélectionner ou glissez-déposez",
+    "uploading": "Téléchargement en cours...",
+    "remove_image": "Supprimer cette image",
+    "remove_preview": "Supprimer l'aperçu",
+    "file_type_error": "Type de fichier non accepté. Formats acceptés : {{formats}}",
+    "file_size_error": "Le fichier est trop volumineux. Taille maximale : {{maxSize}} MB",
+    "chapter_required": "ID du chapitre requis",
+    "upload_error": "Erreur lors du téléchargement du fichier",
+    "upload_success_singular": "1 image téléchargée avec succès",
+    "upload_success_plural": "{{count}} images téléchargées avec succès",
+    "no_preview": "Aucun aperçu"
   }
 }
