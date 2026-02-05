@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { api } from "../lib/api";
+import { useI18n } from "../lib/i18n";
 import {
   MdCalendarToday,
   MdAdd,
@@ -25,6 +26,7 @@ interface ScheduledItem {
 }
 
 export default function PublishingCalendar() {
+  const { t } = useI18n();
   const [scheduledItems, setScheduledItems] = useState<ScheduledItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showScheduleDrawer, setShowScheduleDrawer] = useState(false);
@@ -146,18 +148,17 @@ export default function PublishingCalendar() {
       <main className="flex-1 p-6">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-gray-100 dark:text-gray-800 flex items-center gap-3">
               <MdCalendarToday className="w-8 h-8 text-indigo-600" />
               Calendrier de Publication
             </h1>
-            <p className="text-gray-600 mt-2">
+            <p className="text-gray-400 dark:text-gray-600 mt-2">
               Planifiez la publication de vos chapitres et volumes
             </p>
           </div>
           <button
             onClick={() => setShowScheduleDrawer(true)}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
-          >
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2">
             <MdAdd className="w-5 h-5" />
             Programmer une publication
           </button>
@@ -212,8 +213,7 @@ export default function PublishingCalendar() {
                     setExpandedChapters(new Set(sortedChapters));
                   }
                 }}
-                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-2"
-              >
+                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-2">
                 {expandedChapters.size === sortedChapters.length ? (
                   <>
                     <MdExpandLess className="w-5 h-5" />
@@ -237,7 +237,7 @@ export default function PublishingCalendar() {
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-200">
+            <div className="divide-y divide-gray-200 dark:divide-[#4d252f]">
               {sortedChapters.map((chapterTitle) => {
                 const items = groupedItems[chapterTitle];
                 const chapterItem = items.find((i) => i.type === "chapter");
@@ -246,11 +246,12 @@ export default function PublishingCalendar() {
                 const isExpanded = expandedChapters.has(chapterTitle);
 
                 return (
-                  <div key={chapterTitle} className="p-6">
+                  <div
+                    key={chapterTitle}
+                    className="p-1">
                     <div
                       className="mb-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition"
-                      onClick={() => toggleChapter(chapterTitle)}
-                    >
+                      onClick={() => toggleChapter(chapterTitle)}>
                       <div className="flex items-center gap-3">
                         {isExpanded ? (
                           <MdExpandLess className="w-6 h-6 text-gray-600" />
@@ -258,11 +259,11 @@ export default function PublishingCalendar() {
                           <MdExpandMore className="w-6 h-6 text-gray-600" />
                         )}
                         <MdBook className="w-6 h-6 text-purple-600" />
-                        <h3 className="text-lg font-bold text-gray-800">
+                        <h3 className="text-lg font-bold text-gray-100 dark:text-gray-800">
                           {chapterTitle}
                         </h3>
                         <span className="text-sm text-gray-500">
-                          ({items.length} élément{items.length > 1 ? 's' : ''})
+                          ({items.length} élément{items.length > 1 ? "s" : ""})
                         </span>
                       </div>
                       {chapterItem?.scheduledFor && (
@@ -276,69 +277,81 @@ export default function PublishingCalendar() {
                     </div>
 
                     {isExpanded && (
-                      <div className="space-y-2 ml-8">
-                      {chapterItem && (
-                        <div
-                          key={chapterItem.id}
-                          className="border-l-4 border-purple-400 bg-purple-50 rounded-lg p-4 hover:shadow-md transition flex items-center justify-between"
-                        >
-                          <div className="flex items-center gap-3 flex-1">
-                            <MdBook className="w-5 h-5 text-purple-600" />
-                            <div>
-                              <h4 className="font-semibold text-gray-800">
-                                Chapitre complet
-                              </h4>
-                              {chapterItem.scheduledFor && (
-                                <p className="text-sm text-purple-600 mt-1">
-                                  <MdSchedule className="inline w-4 h-4 mr-1" />
-                                  {formatDate(chapterItem.scheduledFor)}
-                                </p>
-                              )}
+                      <div className="space-y-2 ml-8 mr-3 mb-3">
+                        {chapterItem && (
+                          <div
+                            key={chapterItem.id}
+                            className="border-l-4 border-purple-400 bg-purple-50 rounded-lg p-4 hover:shadow-md transition flex items-center justify-between">
+                            <div className="flex items-center gap-3 flex-1">
+                              <MdBook className="w-5 h-5 text-purple-600" />
+                              <div>
+                                <h4 className="font-semibold text-gray-100 dark:text-gray-800">
+                                  Chapitre complet
+                                </h4>
+                                {chapterItem.scheduledFor && (
+                                  <p className="text-sm text-purple-600 mt-1">
+                                    <MdSchedule className="inline w-4 h-4 mr-1" />
+                                    {formatDate(chapterItem.scheduledFor)}
+                                  </p>
+                                )}
+                              </div>
                             </div>
+                            <button
+                              onClick={() => handleCancelSchedule(chapterItem)}
+                              className="ml-4 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                              title="Annuler">
+                              <MdDelete className="w-5 h-5" />
+                            </button>
                           </div>
-                          <button
-                            onClick={() => handleCancelSchedule(chapterItem)}
-                            className="ml-4 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition"
-                            title="Annuler"
-                          >
-                            <MdDelete className="w-5 h-5" />
-                          </button>
-                        </div>
-                      )}
+                        )}
 
-                      {volumeItems.map((item) => (
-                        <div
-                          key={item.id}
-                          className="border-l-4 border-green-400 bg-green-50 rounded-lg p-4 hover:shadow-md transition flex items-center justify-between"
-                        >
-                          <div className="flex items-center gap-3 flex-1">
-                            <MdLibraryBooks className="w-5 h-5 text-green-600" />
-                            <div>
-                              <h4 className="font-semibold text-gray-800">
-                                Volume {item.volumeNumber}: {item.title}
-                              </h4>
-                              {item.scheduledFor && (
-                                <p className="text-sm text-green-600 mt-1">
-                                  <MdSchedule className="inline w-4 h-4 mr-1" />
-                                  {formatDate(item.scheduledFor)}
-                                </p>
-                              )}
-                              {item.status && (
-                                <span className="inline-block mt-1 px-2 py-1 bg-white text-xs rounded">
-                                  Statut: {item.status}
-                                </span>
-                              )}
+                        {volumeItems.map((item) => {
+                          const isPublished = item.status === "PUBLISHED";
+                          const isInProgress = item.status === "IN_PROGRESS";
+                          const isDraft = item.status === "DRAFT";
+                          return (
+                            <div
+                              key={item.id}
+                              className="border-l-4 border-green-400 bg-green-50 rounded-lg p-4 hover:shadow-md transition flex items-center justify-between">
+                              <div className="flex flex-row items-center gap-3 flex-1">
+                                <MdLibraryBooks className="w-5 h-5 text-green-600" />
+
+                                <div className="font-semibold text-gray-100 dark:text-gray-800">
+                                  Volume {item.volumeNumber}: {item.title}
+                                </div>
+
+                                {item.scheduledFor && (
+                                  <div className="flex text-sm text-green-600 items-center gap-3 ml-auto">
+                                    <MdSchedule className="inline w-4 h-4" />
+                                    {formatDate(item.scheduledFor)}
+                                  </div>
+                                )}
+
+                                {isPublished && (
+                                  <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">
+                                    Publié
+                                  </span>
+                                )}
+                                {isInProgress && (
+                                  <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs font-medium rounded">
+                                    En cours
+                                  </span>
+                                )}
+                                {isDraft && (
+                                  <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded">
+                                    Brouillon
+                                  </span>
+                                )}
+                              </div>
+                              <button
+                                onClick={() => handleCancelSchedule(item)}
+                                className="ml-4 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                                title="Annuler">
+                                <MdDelete className="w-5 h-5" />
+                              </button>
                             </div>
-                          </div>
-                          <button
-                            onClick={() => handleCancelSchedule(item)}
-                            className="ml-4 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition"
-                            title="Annuler"
-                          >
-                            <MdDelete className="w-5 h-5" />
-                          </button>
-                        </div>
-                      ))}
+                          );
+                        })}
                       </div>
                     )}
                   </div>

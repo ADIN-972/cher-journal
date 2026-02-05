@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { api } from "../lib/api";
+import { useI18n } from "../lib/i18n";
 import {
   MdClose,
   MdSchedule,
@@ -36,6 +37,7 @@ export default function SchedulePublicationDrawer({
   onClose,
   onScheduled,
 }: SchedulePublicationDrawerProps) {
+  const { t } = useI18n();
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [selectedChapterId, setSelectedChapterId] = useState<string>("");
   const [volumes, setVolumes] = useState<Volume[]>([]);
