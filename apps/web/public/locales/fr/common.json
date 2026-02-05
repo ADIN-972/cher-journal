@@ -284,8 +284,15 @@
     "context_menu": {
       "display": "Affichage",
       "selection": "Sélection",
-      "select_all": "Sélectionner tout"
-    }
+      "select_all": "Sélectionner tout",
+      "volume_actions": "Actions sur les Tomes",
+      "manage_perspectives": "Gérer les Perspectives",
+      "select": "Sélectionner",
+      "danger": "Zone Danger",
+      "bulk_actions": "Actions en Masse",
+      "bulk_edit": "Édition en Masse"
+    },
+    "selected_count": "{{count}} sélectionnés"
   },
   "chapters_page": {
     "title": "Gestion du Catalogue",
