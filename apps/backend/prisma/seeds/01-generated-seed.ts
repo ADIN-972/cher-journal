@@ -42,8 +42,10 @@ export async function seedGeneratedData() {
       console.log("ℹ️  Admin user already exists, skipping creation");
     }
 
-    // Create test chapters with volumes
-    const chapterData = [
+    // DISABLED: Create test chapters with volumes
+    // To re-enable generated test data, uncomment the code below
+    /*
+    const chapterData =  [
       { title: "Le Secret de la Forêt", hasEpilogue: true, protagonist: "Léa", genres: ["PASSIONS_CHARNELLES", "REVES_SECRETS"] },
       { title: "L'Énigme du Manoir", hasEpilogue: false, protagonist: "Jasmine", genres: ["MYSTERIES_SENSUELS", "INTERDITS"] },
       { title: "Le Voyage Interdit", hasEpilogue: true, protagonist: "Emma", genres: ["INTERDITS", "PASSION_BRUTALE"] },
@@ -99,8 +101,9 @@ export async function seedGeneratedData() {
         });
       }
     }
+    */
 
-    console.log("✅ Generated test data created (14 chapters with volumes)");
+    console.log("ℹ️  Generated test data disabled (only production data will be used)");
   } catch (error) {
     console.error("❌ Error seeding generated data:", error);
     throw error;
