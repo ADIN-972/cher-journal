@@ -43,7 +43,39 @@ npm run backup:db
 - Volumes
 - Volume Versions
 - Chapter Genre Tags
-- Assets
+- Asset metadata (ChapterAsset, VersionAsset)
+
+### Backup Assets (Images)
+
+Exports image files and metadata to compressed archive `assets-backup.tar.gz`:
+
+```bash
+npm run backup:assets
+```
+
+**What it exports:**
+- All image files from chapters
+- Asset metadata (ChapterAsset, VersionAsset)
+- Manifest with backup date and versioning
+
+**Archive contents:**
+```
+assets-backup.tar.gz
+├── chapter-1-id/image1.jpg
+├── chapter-1-id/image2.jpg
+├── chapter-2-id/image3.jpg
+└── assets-manifest.json (metadata)
+```
+
+### Backup Everything
+
+Backup both database and assets in one command:
+
+```bash
+npm run backup:all
+```
+
+This runs `backup:db` and `backup:assets` sequentially.
 
 ### Restore Database
 
@@ -54,6 +86,19 @@ npm run restore:db
 ```
 
 ⚠️ **Note:** This clears related tables first!
+
+### Restore Assets (Images)
+
+Restores image files and metadata from archive:
+
+```bash
+npm run restore:assets
+```
+
+**What it restores:**
+- Extracts all image files to `config.uploadDir`
+- Imports asset metadata to database
+- Verifies references in chapters/volumes
 
 ### Seed Database
 
@@ -67,6 +112,26 @@ npm run prisma:seed
 1. Cleans all content tables
 2. Creates generated/test data
 3. Imports production data from backup
+4. (Asset files are restored separately - see below)
+
+### Restore Assets Separately
+
+Assets (images) are restored separately since they're file-based:
+
+```bash
+npm run restore:assets
+```
+
+**Complete restore workflow:**
+```bash
+npm run prisma:seed      # Restore DB data
+npm run restore:assets   # Restore images
+```
+
+Or use the combined command:
+```bash
+npm run restore:all      # Restores both DB and assets
+```
 
 ### Migrate & Backup
 
@@ -78,20 +143,33 @@ npm run prisma:migrate:dev
 
 This automatically calls `backup:db` after migration.
 
+⚠️ **Important:** Remember to backup assets separately:
+```bash
+npm run backup:assets
+```
+
 ## Workflow
 
-### When Modifying Production Data
+### When Modifying Production Data & Images
 
 1. Make changes in the admin panel or database
 2. Export the data:
    ```bash
    npm run backup:db
    ```
-3. Commit the updated `production-data.json`
+3. If you added/modified images, also backup assets:
+   ```bash
+   npm run backup:assets
+   ```
+4. Commit the updated files:
+   ```bash
+   git add production-data.json assets-backup.tar.gz
+   git commit -m "data: Update production content with new chapters and images"
+   ```
 
 ### When Deploying to Production
 
-1. Run migrations (automatically backs up):
+1. Run migrations (automatically backs up DB):
    ```bash
    npm run prisma:migrate:dev
    ```
@@ -99,19 +177,28 @@ This automatically calls `backup:db` after migration.
    ```bash
    npm run prisma:seed
    ```
-3. Verify data:
+3. Restore images:
+   ```bash
+   npm run restore:assets
+   ```
+4. Verify data:
    ```bash
    npm run prisma:studio
    ```
 
 ### When Setting Up a New Environment
 
-1. Pull the latest code
-2. Seed the database:
+1. Pull the latest code (includes backups)
+2. Complete restore:
    ```bash
-   npm run prisma:seed
+   npm run restore:all
    ```
-3. All test and production data will be loaded automatically
+   Or step by step:
+   ```bash
+   npm run prisma:seed         # Load DB data
+   npm run restore:assets      # Load images
+   ```
+3. All test and production data + images will be loaded automatically
 
 ## Data Preservation
 

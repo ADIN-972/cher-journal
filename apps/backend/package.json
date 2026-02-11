@@ -14,7 +14,11 @@
     "migrate:text-data": "tsx prisma/migrate-text-data.ts",
     "migrate:thumbnails": "tsx scripts/migrate-thumbnails.ts",
     "backup:db": "tsx prisma/scripts/backup-database.ts",
-    "restore:db": "tsx prisma/scripts/restore-database.ts"
+    "restore:db": "tsx prisma/scripts/restore-database.ts",
+    "backup:assets": "tsx prisma/scripts/backup-assets.ts",
+    "restore:assets": "tsx prisma/scripts/restore-assets.ts",
+    "backup:all": "npm run backup:db && npm run backup:assets",
+    "restore:all": "npm run restore:db && npm run restore:assets"
   },
   "dependencies": {
     "@cher-journal/config": "*",
