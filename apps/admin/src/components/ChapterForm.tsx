@@ -102,6 +102,9 @@ export default function ChapterForm({
           ? `/uploads/${asset.thumbnailObjectKey}`
           : `/uploads/${asset.objectKey}`
       );
+    } else {
+      // Clear preview if no cover asset
+      setCoverPreview(null);
     }
   }, [initialData]);
 
