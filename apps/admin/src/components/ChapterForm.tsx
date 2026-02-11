@@ -13,6 +13,15 @@ interface ChapterFormData {
   status: "DRAFT" | "IN_PROGRESS" | "PUBLISHED";
   publishedAt: string | null;
   coverAssetId: string | null;
+  accroche_classic: string | null;
+  accroche_dark: string | null;
+  accroche_love: string | null;
+  accroche_marketing: string | null;
+  accroche_dark_collection: string | null;
+  niveau_intensite: number;
+  niveau_douceur: number;
+  niveau_danger: number;
+  niveau_transformation: number;
 }
 
 interface ChapterFormProps {
@@ -40,15 +49,54 @@ export default function ChapterForm({
       ? new Date(initialData.publishedAt as any).toISOString().slice(0, 16)
       : null,
     coverAssetId: (initialData?.coverAssetId as string | null) || null,
+    accroche_classic: (initialData as any)?.accroche_classic || null,
+    accroche_dark: (initialData as any)?.accroche_dark || null,
+    accroche_love: (initialData as any)?.accroche_love || null,
+    accroche_marketing: (initialData as any)?.accroche_marketing || null,
+    accroche_dark_collection: (initialData as any)?.accroche_dark_collection || null,
+    niveau_intensite: (initialData as any)?.niveau_intensite || 3,
+    niveau_douceur: (initialData as any)?.niveau_douceur || 3,
+    niveau_danger: (initialData as any)?.niveau_danger || 3,
+    niveau_transformation: (initialData as any)?.niveau_transformation || 3,
   });
   const [loading, setLoading] = useState(false);
   const [showImageSelector, setShowImageSelector] = useState(false);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
+  // Sync form data when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        title: initialData?.title || "",
+        protagonistName: initialData?.protagonistName || "",
+        description: (initialData?.description as string | null) || null,
+        genres: Array.isArray(initialData?.genres)
+          ? (initialData.genres as any[]).map((g) =>
+              typeof g === "string" ? g : g.genre
+            )
+          : [],
+        status: initialData?.status || "DRAFT",
+        publishedAt: initialData?.publishedAt
+          ? new Date(initialData.publishedAt as any).toISOString().slice(0, 16)
+          : null,
+        coverAssetId: (initialData?.coverAssetId as string | null) || null,
+        accroche_classic: (initialData as any)?.accroche_classic || null,
+        accroche_dark: (initialData as any)?.accroche_dark || null,
+        accroche_love: (initialData as any)?.accroche_love || null,
+        accroche_marketing: (initialData as any)?.accroche_marketing || null,
+        accroche_dark_collection: (initialData as any)?.accroche_dark_collection || null,
+        niveau_intensite: (initialData as any)?.niveau_intensite || 3,
+        niveau_douceur: (initialData as any)?.niveau_douceur || 3,
+        niveau_danger: (initialData as any)?.niveau_danger || 3,
+        niveau_transformation: (initialData as any)?.niveau_transformation || 3,
+      });
+    }
+  }, [initialData]);
+
   // Load cover preview when initialData changes
   useEffect(() => {
-    if (initialData?.coverAsset) {
-      const asset = initialData.coverAsset as any;
+    if ((initialData as any)?.coverAsset) {
+      const asset = (initialData as any).coverAsset as any;
       setCoverPreview(
         asset.thumbnailObjectKey
           ? `/uploads/${asset.thumbnailObjectKey}`
@@ -56,17 +104,6 @@ export default function ChapterForm({
       );
     }
   }, [initialData]);
-
-  // Initialize genres correctly when initialData changes
-  useEffect(() => {
-    if (initialData?.genres) {
-      const genreArray = initialData.genres as any[];
-      const genreStrings = Array.isArray(genreArray)
-        ? genreArray.map((g) => (typeof g === "string" ? g : g.genre))
-        : [];
-      setFormData((prev) => ({ ...prev, genres: genreStrings }));
-    }
-  }, [initialData?.genres]);
 
   const handleSelectCover = (asset: any) => {
     setFormData({ ...formData, coverAssetId: asset.id });
@@ -232,7 +269,7 @@ export default function ChapterForm({
                 ? "bg-gray-500 text-white shadow-md"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}>
-            {t("chapter_form.status_draft", "Brouillon")}
+            {t("chapter_form.status_draft", t("chapter.status_draft"))}
           </button>
           <button
             type="button"
@@ -242,7 +279,7 @@ export default function ChapterForm({
                 ? "bg-blue-500 text-white shadow-md"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}>
-            {t("chapter_form.status_in_progress", "En cours")}
+            {t("chapter_form.status_in_progress", t("chapter.status_in_progress"))}
           </button>
           <button
             type="button"
@@ -252,7 +289,7 @@ export default function ChapterForm({
                 ? "bg-green-500 text-white shadow-md"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}>
-            {t("chapter_form.status_published", "Publié")}
+            {t("chapter_form.status_published", t("chapter.status_published"))}
           </button>
         </div>
       </div>
@@ -323,6 +360,227 @@ export default function ChapterForm({
             "Si définie, les volumes de ce chapitre ne pourront pas démarrer leur décompte avant cette date"
           )}
         </p>
+      </div>
+
+      {/* Accroches Section */}
+      <div className="pt-6 border-t border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          {t("chapter_form.accroches", "Accroches")}
+        </h3>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t("chapter_form.accroche_classic", "Accroche Classique")}
+          </label>
+          <textarea
+            value={formData.accroche_classic || ""}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                accroche_classic: e.target.value || null,
+              })
+            }
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical"
+            rows={2}
+            placeholder={t(
+              "chapter_form.accroche_classic_placeholder",
+              "Accroche classique pour cette histoire..."
+            )}
+          />
+        </div>
+
+        <div className="mt-3">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t("chapter_form.accroche_dark", "Accroche Sombre")}
+          </label>
+          <textarea
+            value={formData.accroche_dark || ""}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                accroche_dark: e.target.value || null,
+              })
+            }
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical"
+            rows={2}
+            placeholder={t(
+              "chapter_form.accroche_dark_placeholder",
+              "Accroche sombre et intense..."
+            )}
+          />
+        </div>
+
+        <div className="mt-3">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t("chapter_form.accroche_love", "Accroche Amour")}
+          </label>
+          <textarea
+            value={formData.accroche_love || ""}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                accroche_love: e.target.value || null,
+              })
+            }
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical"
+            rows={2}
+            placeholder={t(
+              "chapter_form.accroche_love_placeholder",
+              "Accroche romantique..."
+            )}
+          />
+        </div>
+
+        <div className="mt-3">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t("chapter_form.accroche_marketing", "Accroche Marketing")}
+          </label>
+          <textarea
+            value={formData.accroche_marketing || ""}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                accroche_marketing: e.target.value || null,
+              })
+            }
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical"
+            rows={2}
+            placeholder={t(
+              "chapter_form.accroche_marketing_placeholder",
+              "Accroche pour la promotion..."
+            )}
+          />
+        </div>
+
+        <div className="mt-3">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t("chapter_form.accroche_dark_collection", "Accroche Collection Sombre")}
+          </label>
+          <textarea
+            value={formData.accroche_dark_collection || ""}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                accroche_dark_collection: e.target.value || null,
+              })
+            }
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical"
+            rows={2}
+            placeholder={t(
+              "chapter_form.accroche_dark_collection_placeholder",
+              "Accroche pour la collection sombre..."
+            )}
+          />
+        </div>
+      </div>
+
+      {/* Emotional Levels Section */}
+      <div className="pt-6 border-t border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          {t("chapter_form.emotional_levels", "Niveaux Émotionnels")}
+        </h3>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t("chapter_form.niveau_intensite", "Intensité")}
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="range"
+                min="1"
+                max="5"
+                value={formData.niveau_intensite}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    niveau_intensite: parseInt(e.target.value),
+                  })
+                }
+                className="flex-1"
+                title={t("chapter_form.niveau_intensite", "Intensité")}
+              />
+              <span className="text-lg font-bold text-gray-700 w-8">
+                {formData.niveau_intensite}
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t("chapter_form.niveau_douceur", "Douceur")}
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="range"
+                min="1"
+                max="5"
+                value={formData.niveau_douceur}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    niveau_douceur: parseInt(e.target.value),
+                  })
+                }
+                className="flex-1"
+                title={t("chapter_form.niveau_douceur", "Douceur")}
+              />
+              <span className="text-lg font-bold text-gray-700 w-8">
+                {formData.niveau_douceur}
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t("chapter_form.niveau_danger", "Danger")}
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="range"
+                min="1"
+                max="5"
+                value={formData.niveau_danger}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    niveau_danger: parseInt(e.target.value),
+                  })
+                }
+                className="flex-1"
+                title={t("chapter_form.niveau_danger", "Danger")}
+              />
+              <span className="text-lg font-bold text-gray-700 w-8">
+                {formData.niveau_danger}
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t("chapter_form.niveau_transformation", "Transformation")}
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="range"
+                min="1"
+                max="5"
+                value={formData.niveau_transformation}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    niveau_transformation: parseInt(e.target.value),
+                  })
+                }
+                className="flex-1"
+                title={t("chapter_form.niveau_transformation", "Transformation")}
+              />
+              <span className="text-lg font-bold text-gray-700 w-8">
+                {formData.niveau_transformation}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="flex justify-end space-x-3 pt-4">

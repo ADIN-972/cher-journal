@@ -22,6 +22,7 @@ import { api } from "../lib/api";
 import type { Chapter } from "@cher-journal/types";
 import { ChapterStatus } from "@cher-journal/types";
 import Modal from "../components/Modal";
+import Drawer from "../components/Drawer";
 import ChapterForm from "../components/ChapterForm";
 import ConfirmDialog from "../components/ConfirmDialog";
 import BulkEditChapterModal, {
@@ -31,13 +32,25 @@ import ContextMenu from "../components/ContextMenu";
 import { useContextMenu } from "../hooks/useContextMenu";
 import ChapterView, { ChapterViewMode } from "../components/ChapterView";
 import FloatingActionButton from "../components/FloatingActionButton";
+import ChapterStats from "../components/ChapterStats";
 import type { ContextMenuSection } from "../components/ContextMenu";
+
+interface ChapterStats {
+  total: number;
+  published: number;
+  draft: number;
+  inProgress: number;
+  publishedPercentage: number;
+  draftPercentage: number;
+  inProgressPercentage: number;
+}
 
 export default function Chapters() {
   const { t } = useI18n();
   const navigate = useNavigate();
   const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu();
   const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [stats, setStats] = useState<ChapterStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingChapter, setEditingChapter] = useState<Chapter | null>(null);
@@ -73,6 +86,7 @@ export default function Chapters() {
 
   useEffect(() => {
     loadChapters();
+    loadStats();
   }, []);
 
   useEffect(() => {
@@ -86,6 +100,15 @@ export default function Chapters() {
   useEffect(() => {
     localStorage.setItem("chapterStatusFilter", statusFilter);
   }, [statusFilter]);
+
+  const loadStats = async () => {
+    try {
+      const response = await api.get("/admin/chapters/stats");
+      setStats(response.data);
+    } catch (error) {
+      console.error("Failed to load chapter stats:", error);
+    }
+  };
 
   const loadChapters = async () => {
     try {
@@ -125,6 +148,7 @@ export default function Chapters() {
     try {
       await api.post("/admin/chapters", data);
       await loadChapters();
+      await loadStats();
       setShowModal(false);
       toast.success(t("messages.success.chapter_created"));
     } catch (error: any) {
@@ -138,6 +162,7 @@ export default function Chapters() {
     try {
       await api.patch(`/admin/chapters/${editingChapter.id}`, data);
       await loadChapters();
+      await loadStats();
       setEditingChapter(null);
       setShowModal(false);
       toast.success(t("messages.success.chapter_updated"));
@@ -158,6 +183,7 @@ export default function Chapters() {
       await api.delete(`/admin/chapters/${deletingChapter.id}`);
       toast.success(t("messages.success.chapter_deleted"));
       await loadChapters();
+      await loadStats();
     } catch (error: any) {
       toast.error(error.message || t("messages.error.load_chapters"));
     }
@@ -168,9 +194,41 @@ export default function Chapters() {
     setShowModal(true);
   };
 
-  const openEditModal = (chapter: Chapter) => {
-    setEditingChapter(chapter);
-    setShowModal(true);
+  const openEditModal = async (chapter: Chapter) => {
+    try {
+      // Clear previous data immediately
+      setEditingChapter(null);
+      setShowModal(true);
+
+      // Fetch full chapter data with all fields
+      const response = await api.get(`/admin/chapters/${chapter.id}`);
+      console.log("Chapter data from API:", response.data);
+      console.log("Title:", response.data?.title);
+      console.log("Protagonist:", response.data?.protagonistName);
+      console.log("Genres:", response.data?.genres);
+      console.log("Accroches:", {
+        classic: response.data?.accroche_classic,
+        dark: response.data?.accroche_dark,
+        love: response.data?.accroche_love,
+        marketing: response.data?.accroche_marketing,
+        dark_collection: response.data?.accroche_dark_collection,
+      });
+      console.log("Emotional levels:", {
+        intensite: response.data?.niveau_intensite,
+        douceur: response.data?.niveau_douceur,
+        danger: response.data?.niveau_danger,
+        transformation: response.data?.niveau_transformation,
+      });
+      console.log("Cover asset:", {
+        coverAssetId: response.data?.coverAssetId,
+        coverAsset: response.data?.coverAsset,
+      });
+      setEditingChapter(response.data);
+    } catch (error: any) {
+      console.error("Error loading chapter:", error);
+      setShowModal(false);
+      toast.error(error.message || t("messages.error.load_chapter"));
+    }
   };
 
   const closeModal = () => {
@@ -231,6 +289,7 @@ export default function Chapters() {
       setShowBulkEditModal(false);
       setSelectedChapterIds(new Set());
       await loadChapters();
+      await loadStats();
     } catch (error: any) {
       toast.error(error.message || t("chapters_page.bulk.update_error"));
     }
@@ -241,6 +300,7 @@ export default function Chapters() {
       await api.post(`/admin/chapters/${chapter.id}/duplicate`);
       toast.success(t("chapters_page.duplicate.success"));
       await loadChapters();
+      await loadStats();
     } catch (error: any) {
       toast.error(error.message || t("chapters_page.duplicate.error"));
     }
@@ -257,6 +317,7 @@ export default function Chapters() {
           : t("chapters_page.archive.archived")
       );
       await loadChapters();
+      await loadStats();
     } catch (error: any) {
       toast.error(error.message || t("chapters_page.archive.error"));
     }
@@ -281,6 +342,7 @@ export default function Chapters() {
         })
       );
       await loadChapters();
+      await loadStats();
     } catch (error: any) {
       toast.error(error.message || t("chapters_page.status.error"));
     }
@@ -565,6 +627,15 @@ export default function Chapters() {
     <div
       onContextMenu={handleBackgroundContextMenu}
       className="p-6">
+      <div className="flex flex-col gap-1 mb-8">
+        <h1 className="text-3xl font-bold text-charcoal dark:text-gray-100 flex items-center gap-3">
+          {t("chapters_page.title")}
+        </h1>
+        <p className="text-charcoal dark:text-gray-400 text-lg font-light">
+          {t("chapters_page.description")}
+        </p>
+      </div>
+      <ChapterStats stats={stats} />
       <div className="flex justify-between items-center mb-6">
         <div>
           {/* <h1 className="text-3xl font-bold">Chapitres</h1> */}
@@ -746,6 +817,7 @@ export default function Chapters() {
             onViewChapter={(chapterId) => navigate(`/chapters/${chapterId}`)}
             onEditChapter={(chapter) => openEditModal(chapter)}
             onDeleteChapter={(chapter) => handleDelete(chapter)}
+            onToggleArchive={(chapter) => handleToggleArchive(chapter)}
             onChapterContextMenu={handleChapterContextMenu}
             onBackgroundContextMenu={handleBackgroundContextMenu}
           />
@@ -805,21 +877,22 @@ export default function Chapters() {
         ]}
       />
 
-      <Modal
+      <Drawer
         isOpen={showModal}
         onClose={closeModal}
         title={
           editingChapter
             ? t("chapters.edit_chapter")
             : t("chapters.create_chapter")
-        }>
+        }
+        width="lg">
         <ChapterForm
           chapterId={editingChapter?.id}
-          initialData={editingChapter || undefined}
+          initialData={editingChapter ? (editingChapter as any) : undefined}
           onSubmit={editingChapter ? handleEdit : handleCreate}
           onCancel={closeModal}
         />
-      </Modal>
+      </Drawer>
 
       <ConfirmDialog
         isOpen={!!deletingChapter}
