@@ -3,16 +3,18 @@
   "version": "1.0.0",
   "type": "commonjs",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch --env-file=.env src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
-    "prisma:migrate:dev": "prisma migrate dev",
-    "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:migrate:dev": "prisma migrate dev && npm run backup:db",
+    "prisma:seed": "tsx prisma/seeds/index.ts",
     "prisma:studio": "prisma studio",
     "migrate:text-data": "tsx prisma/migrate-text-data.ts",
-    "migrate:thumbnails": "tsx scripts/migrate-thumbnails.ts"
+    "migrate:thumbnails": "tsx scripts/migrate-thumbnails.ts",
+    "backup:db": "tsx prisma/scripts/backup-database.ts",
+    "restore:db": "tsx prisma/scripts/restore-database.ts"
   },
   "dependencies": {
     "@cher-journal/config": "*",
