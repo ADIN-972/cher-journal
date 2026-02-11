@@ -586,17 +586,17 @@ export default function ChapterForm({
         </div>
       </div>
 
-      <div className="flex justify-end space-x-3 pt-4">
+      <div className="sticky bottom-0 bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800 -mx-6 -mb-4 px-6 py-4 flex justify-end space-x-3">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+          className="px-4 py-2 text-gray-700 bg-gray-100 dark:bg-zinc-800 rounded-md hover:bg-gray-200 dark:hover:bg-zinc-700"
           disabled={loading}>
           {t("common.cancel", "Annuler")}
         </button>
         <button
           type="submit"
-          className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
+          className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-700"
           disabled={loading}>
           {loading
             ? t("common.loading_ellipsis", "Enregistrement...")
