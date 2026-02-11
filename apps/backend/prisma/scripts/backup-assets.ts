@@ -19,8 +19,9 @@ async function backupAssets() {
     console.log("📷 Starting assets backup...");
 
     // Check if upload directory exists
-    if (!fs.existsSync(config.uploadDir)) {
-      console.log(`ℹ️  Upload directory not found at ${config.uploadDir}`);
+    const uploadDirPath = path.resolve(config.uploadDir);
+    if (!fs.existsSync(uploadDirPath)) {
+      console.log(`ℹ️  Upload directory not found at ${uploadDirPath}`);
       console.log(`ℹ️  Skipping assets backup (no images to backup)`);
       return;
     }
@@ -39,64 +40,47 @@ async function backupAssets() {
       backupDate: new Date().toISOString(),
     };
 
-    // Create temp directory for backup
-    const tempDir = path.join(config.uploadDir, ".backup");
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir, { recursive: true });
-    }
-
-    // Write metadata
-    const metadataPath = path.join(tempDir, "assets-manifest.json");
-    fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2), "utf-8");
-
     // Create tar.gz archive
     const backupPath = path.join(
       __dirname,
       "../seeds/data/assets-backup.tar.gz"
     );
 
-    console.log(`📦 Creating archive (${chapterAssets.length} assets)...`);
+    // Get list of files to include (all subdirectories)
+    const filesToArchive = fs
+      .readdirSync(uploadDirPath)
+      .filter((f) => {
+        const fullPath = path.join(uploadDirPath, f);
+        const stat = fs.statSync(fullPath);
+        // Include all directories except hidden ones
+        return stat.isDirectory() && !f.startsWith(".");
+      });
+
+    console.log(
+      `📦 Creating archive with ${filesToArchive.length} chapter directories...`
+    );
 
     // Create archive with all image files
-    await tar.create(
-      {
-        gzip: true,
-        file: backupPath,
-        cwd: config.uploadDir,
-        filter: (p) => {
-          // Include only image files and metadata, exclude backup directory itself
-          return !p.includes(".backup");
+    if (filesToArchive.length > 0) {
+      await tar.create(
+        {
+          gzip: true,
+          file: backupPath,
+          cwd: uploadDirPath,
         },
-      },
-      fs.readdirSync(config.uploadDir).filter((f) => {
-        // Include all chapter subdirectories (containing images)
-        const fullPath = path.join(config.uploadDir, f);
-        return (
-          fs.statSync(fullPath).isDirectory() && !f.startsWith(".") && f !== "backup"
-        );
-      })
-    );
+        filesToArchive
+      );
 
-    // Also copy metadata
-    await tar.create(
-      {
-        gzip: false,
-        file: backupPath,
-        cwd: tempDir,
-        mode: "w",
-      },
-      ["assets-manifest.json"]
-    );
-
-    // Cleanup temp directory
-    fs.unlinkSync(metadataPath);
-    fs.rmdirSync(tempDir);
-
-    console.log(`✅ Assets backed up successfully`);
-    console.log(`📁 Location: ${backupPath}`);
-    console.log(`   - Chapter Assets: ${chapterAssets.length}`);
-    console.log(`   - Version Assets: ${versionAssets.length}`);
-    console.log(`💾 Archive size: ${fs.statSync(backupPath).size / 1024 / 1024} MB`);
+      const archiveSize = fs.statSync(backupPath).size / (1024 * 1024);
+      console.log(`✅ Assets backed up successfully`);
+      console.log(`📁 Location: ${backupPath}`);
+      console.log(`   - Chapter Directories: ${filesToArchive.length}`);
+      console.log(`   - Chapter Assets (metadata): ${chapterAssets.length}`);
+      console.log(`   - Version Assets (metadata): ${versionAssets.length}`);
+      console.log(`💾 Archive size: ${archiveSize.toFixed(2)} MB`);
+    } else {
+      console.log(`ℹ️  No image directories found to backup`);
+    }
   } catch (error) {
     console.error("❌ Assets backup failed:", error);
     process.exit(1);
