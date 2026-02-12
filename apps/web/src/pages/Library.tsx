@@ -13,6 +13,12 @@ export default function Library() {
   const [selectedChapter, setSelectedChapter] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+  const TABS = [
+    { id: "all" as const, label: "Tous mes trésors" },
+    { id: "inProgress" as const, label: "En cours" },
+    { id: "completed" as const, label: "Terminés" },
+  ];
+
   useEffect(() => {
     fetchLibrary();
   }, [fetchLibrary]);
@@ -59,14 +65,14 @@ export default function Library() {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-y-auto px-10 py-8">
+    <div className="flex-1 flex flex-col overflow-y-auto">
       {/* Header */}
       <div className="flex flex-wrap justify-between items-end gap-3 mb-8">
-        <div className="flex min-w-72 flex-col gap-2">
-          <p className="text-[#c5a059] text-5xl font-display italic font-black leading-tight tracking-tight">
+        <div className="flex min-w-72 flex-col gap-1">
+          <p className="text-xl md:text-3xl font-display italic text-[#c5a059] mb-2 leading-tight tracking-tight">
             Bienvenue dans votre sanctuaire
           </p>
-          <p className="text-white/60 text-lg font-display italic leading-normal">
+          <p className="text-white/60 text-sm md:text-lg font-display italic leading-normal">
             Retrouvez vos récits et partagez vos émotions les plus intimes.
           </p>
         </div>
@@ -75,48 +81,27 @@ export default function Library() {
       {/* Tabs */}
       <div className="mb-12">
         <div className="flex border-b border-[#c5a059]/20 gap-10">
-          <button
-            type="button"
-            onClick={() => setSelectedTab("all")}
-            className={`flex flex-col items-center justify-center border-b-2 pb-4 px-2 transition-colors ${
-              selectedTab === "all"
-                ? "border-[#c5a059] text-[#c5a059]"
-                : "border-transparent text-white/40 hover:text-white/80"
-            }`}>
-            <p className="text-sm font-bold leading-normal tracking-wider uppercase">
-              Tous mes trésors
-            </p>
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedTab("inProgress")}
-            className={`flex flex-col items-center justify-center border-b-2 pb-4 px-2 transition-colors ${
-              selectedTab === "inProgress"
-                ? "border-[#c5a059] text-[#c5a059]"
-                : "border-transparent text-white/40 hover:text-white/80"
-            }`}>
-            <p className="text-sm font-bold leading-normal tracking-wider uppercase">
-              En cours
-            </p>
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedTab("completed")}
-            className={`flex flex-col items-center justify-center border-b-2 pb-4 px-2 transition-colors ${
-              selectedTab === "completed"
-                ? "border-[#c5a059] text-[#c5a059]"
-                : "border-transparent text-white/40 hover:text-white/80"
-            }`}>
-            <p className="text-sm font-bold leading-normal tracking-wider uppercase">
-              Terminés
-            </p>
-          </button>
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setSelectedTab(tab.id)}
+              className={`flex flex-col items-center justify-center border-b-2 pb-4 px-2 transition-colors ${
+                selectedTab === tab.id
+                  ? "border-[#c5a059] text-[#c5a059]"
+                  : "border-transparent text-white/40 hover:text-white/80"
+              }`}>
+              <p className="text-sm font-bold leading-normal tracking-wider uppercase">
+                {tab.label}
+              </p>
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="mb-8 bg-gradient-to-br from-[#2d1620]/40 to-[#1a0f14]/60 border border-[#ee2b5b]/30 rounded-2xl p-8 backdrop-blur-sm">
+        <div className="mb-8 bg-gradient-to-br from-[#2d1620]/40 to-[#1a0f14]/60 border border-[#ee2b5b]/30 rounded-2xl backdrop-blur-sm">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-full bg-[#ee2b5b]/20 flex items-center justify-center flex-shrink-0">
               <span className="material-symbols-outlined text-2xl text-[#ee2b5b]">
