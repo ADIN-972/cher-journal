@@ -92,6 +92,17 @@ export default function Catalogue() {
 
   const isFiltered = selectedGenre !== "all";
 
+  // Calculate available genres (genres that have at least one chapter)
+  const availableGenres = Object.entries(GENRES).filter(([genre]) =>
+    genre === "all" ||
+    chapters.some(ch => ch.genres?.some(g => g.genre === genre))
+  );
+
+  // Reset filter if selected genre has no chapters
+  if (isFiltered && !chapters.some(ch => ch.genres?.some(g => g.genre === selectedGenre))) {
+    setSelectedGenre("all");
+  }
+
   return (
     <div className="min-h-screen">
       {/* Sticky Filter Section */}
@@ -104,9 +115,7 @@ export default function Catalogue() {
                 Filtrer par :
               </span>
               <div className="flex gap-2 flex-wrap">
-                {(
-                  Object.entries(GENRES) as [Genre, (typeof GENRES)[Genre]][]
-                ).map(([genre, config]) => (
+                {(availableGenres as [Genre, (typeof GENRES)[Genre]][]).map(([genre, config]) => (
                   <button
                     key={genre}
                     type="button"
