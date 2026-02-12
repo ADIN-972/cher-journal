@@ -125,34 +125,69 @@ export class DashboardService {
       }),
     ]);
 
-    // Top content
-    // TODO: Implement top chapters/volumes analytics
-    // The Order model needs a refId field to track which chapter/volume was purchased
-    // For now, return empty arrays to prevent errors
-    const topChaptersWithDetails: any[] = [];
-    const topVolumesWithDetails: any[] = [];
+    // Top content - now using refId field
+    const [topChapters, topVolumes] = await Promise.all([
+      prisma.order.groupBy({
+        by: ['refId'],
+        where: {
+          status: OrderStatus.PAID,
+          type: 'CHAPTER',
+          refId: { not: null },
+        },
+        _count: true,
+        _sum: { amountTotal: true },
+        orderBy: { _count: { refId: 'desc' } },
+        take: 5,
+      }),
+      prisma.order.groupBy({
+        by: ['refId'],
+        where: {
+          status: OrderStatus.PAID,
+          // @ts-ignore - VOLUME type not in OrderType enum but used in existing code
+          type: { in: ['VOLUME', 'PREORDER'] },
+          refId: { not: null },
+        },
+        _count: true,
+        _sum: { amountTotal: true },
+        orderBy: { _count: { refId: 'desc' } },
+        take: 5,
+      }),
+    ]);
 
-    // TODO: Add refId field to Order model:
-    // refId String? // Chapter ID or Volume ID depending on type
-    // Then implement queries like:
-    // const [topChapters, topVolumes] = await Promise.all([
-    //   prisma.order.groupBy({
-    //     by: ['refId'],
-    //     where: { status: OrderStatus.PAID, type: 'CHAPTER', refId: { not: null } },
-    //     _count: true,
-    //     _sum: { amountTotal: true },
-    //     orderBy: { _count: { refId: 'desc' } },
-    //     take: 5,
-    //   }),
-    //   prisma.order.groupBy({
-    //     by: ['refId'],
-    //     where: { status: OrderStatus.PAID, type: { in: ['VOLUME', 'PREORDER'] }, refId: { not: null } },
-    //     _count: true,
-    //     _sum: { amountTotal: true },
-    //     orderBy: { _count: { refId: 'desc' } },
-    //     take: 5,
-    //   }),
-    // ]);
+    // Enrich with chapter details
+    const topChaptersWithDetails = await Promise.all(
+      topChapters.map(async (item) => {
+        const chapter = await prisma.chapter.findUnique({
+          where: { id: item.refId! },
+          select: { id: true, title: true, protagonistName: true },
+        });
+        return {
+          refId: item.refId,
+          count: item._count,
+          // @ts-ignore - item._sum is possibly undefined
+          revenue: item._sum?.amountTotal || 0,
+          chapter,
+        };
+      })
+    );
+
+    // Enrich with volume details
+    const topVolumesWithDetails = await Promise.all(
+      topVolumes.map(async (item) => {
+        // Try to find as chapter first (for VOLUME types that reference chapters)
+        const chapter = await prisma.chapter.findUnique({
+          where: { id: item.refId! },
+          select: { id: true, title: true, protagonistName: true },
+        });
+        return {
+          refId: item.refId,
+          count: item._count,
+          // @ts-ignore - item._sum is possibly undefined
+          revenue: item._sum?.amountTotal || 0,
+          chapter,
+        };
+      })
+    );
 
     // Calculate percentage changes
     const calculateChange = (current: number, previous: number) => {

@@ -13,10 +13,14 @@ export class LibraryService {
             volumes: {
               where: {
                 // Only include volumes that are published and accessible
-                status: VolumeStatus.PUBLISHED,
-                OR: [
-                  { scheduledFor: null },
-                  { scheduledFor: { lte: new Date() } }
+                AND: [
+                  { status: VolumeStatus.PUBLISHED },
+                  {
+                    OR: [
+                      { scheduledFor: null },
+                      { scheduledFor: { lte: new Date() } }
+                    ]
+                  }
                 ]
               },
               orderBy: { volumeNumber: 'asc' },
@@ -39,12 +43,12 @@ export class LibraryService {
     const library = entitlements.map(ent => {
       const chapterUnlocks = unlocks.filter(u => u.chapterId === ent.chapterId);
       const chapterReads = reads.filter(r => r.chapterId === ent.chapterId);
-      
+
       // Find current volume (last read or first)
-      const lastRead = chapterReads.sort((a, b) => 
+      const lastRead = chapterReads.sort((a, b) =>
         b.firstOpenedAt.getTime() - a.firstOpenedAt.getTime()
       )[0];
-      
+
       const currentVolume = lastRead ? lastRead.volumeNumber : ent.volumeFrom;
 
       // Available volumes (within entitlement range or unlocked)
@@ -61,8 +65,35 @@ export class LibraryService {
         u => u.unlocksAt > new Date()
       );
 
+      // Serialize chapter data and convert BigInt to string
+      const serializedChapter = {
+        id: ent.chapter.id,
+        title: ent.chapter.title,
+        protagonistName: ent.chapter.protagonistName,
+        status: ent.chapter.status,
+        publishedAt: ent.chapter.publishedAt,
+        scheduledFor: ent.chapter.scheduledFor,
+        coverAssetId: ent.chapter.coverAssetId,
+        isArchived: ent.chapter.isArchived,
+        createdAt: ent.chapter.createdAt,
+        coverAsset: ent.chapter.coverAsset,
+        volumes: ent.chapter.volumes.map(vol => ({
+          id: vol.id,
+          volumeNumber: vol.volumeNumber,
+          title: vol.title,
+          status: vol.status,
+          waitDuration: vol.waitDuration ? vol.waitDuration.toString() : null,
+          isFinalPaywall: vol.isFinalPaywall,
+          isFree: vol.isFree,
+          publishedAt: vol.publishedAt,
+          scheduledFor: vol.scheduledFor,
+          illustrationAssetId: vol.illustrationAssetId,
+          createdAt: vol.createdAt,
+        })),
+      };
+
       return {
-        chapter: ent.chapter,
+        chapter: serializedChapter,
         availableVolumes,
         currentVolume,
         versionScope: ent.versionScope,

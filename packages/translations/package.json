@@ -1,0 +1,28 @@
+{
+  "name": "@cher-journal/translations",
+  "version": "1.0.0",
+  "description": "Shared translation files for all Cher Journal applications",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "src",
+    "locales"
+  ],
+  "scripts": {
+    "verify": "echo 'Use npm run verify:translations from root'"
+  },
+  "keywords": [
+    "i18n",
+    "translations",
+    "locales",
+    "cher-journal"
+  ],
+  "author": "Cher Journal Team",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    },
+    "./locales/*": "./locales/*"
+  }
+}

@@ -2,33 +2,66 @@ import prisma from '../../../lib/prisma';
 import { config } from '@cher-journal/config';
 import { UnlockTriggeredBy } from '@prisma/client';
 import { StartWaitInput, GetWaitStatusInput } from './wait.schemas';
+import { ConfigService } from '../../admin/config/config.service';
 
 export class WaitService {
+  private configService: ConfigService;
+
+  constructor() {
+    this.configService = new ConfigService();
+  }
   async startWait(userId: string, data: StartWaitInput) {
-    // Check if volume exists
-    const volume = await prisma.volume.findFirst({
-      where: {
-        chapterId: data.chapterId,
-        volumeNumber: data.volumeNumber,
-      },
+    // Check if chapter exists and get all volumes
+    const chapter = await prisma.chapter.findUnique({
+      where: { id: data.chapterId },
+      include: { volumes: true },
     });
+
+    if (!chapter || chapter.volumes.length === 0) {
+      throw new Error('CHAPTER_NOT_FOUND');
+    }
+
+    // Check if volumeNumber is valid (default to 1 if not provided)
+    const volumeNumber = data.volumeNumber || 1;
+    const volume = chapter.volumes.find(v => v.volumeNumber === volumeNumber);
 
     if (!volume) {
       throw new Error('VOLUME_NOT_FOUND');
     }
 
-    // Check if user has entitlement to this chapter
-    const entitlement = await prisma.entitlement.findFirst({
+    // If volume is free, no wait needed - it's already accessible
+    if (volume.isFree) {
+      throw new Error('VOLUME_IS_FREE');
+    }
+
+    // If volume has final paywall, user needs to upgrade
+    if (volume.isFinalPaywall) {
+      throw new Error('REQUIRES_UPGRADE');
+    }
+
+    // Check if user already has an entitlement (purchased or free)
+    let entitlement = await prisma.entitlement.findFirst({
       where: {
         userId,
         chapterId: data.chapterId,
-        volumeFrom: { lte: data.volumeNumber },
-        volumeTo: { gte: data.volumeNumber },
       },
     });
 
+    // If no entitlement, create a FREE one via wait-to-read
     if (!entitlement) {
-      throw new Error('NO_ACCESS');
+      const minVolume = Math.min(...chapter.volumes.map(v => v.volumeNumber));
+      const maxVolume = Math.max(...chapter.volumes.map(v => v.volumeNumber));
+
+      entitlement = await prisma.entitlement.create({
+        data: {
+          userId,
+          chapterId: data.chapterId,
+          volumeFrom: minVolume,
+          volumeTo: maxVolume,
+          versionScope: 'BASE', // Free users get only narrator perspective
+          source: 'SUBSCRIPTION', // Using SUBSCRIPTION as a proxy for "free wait-to-read"
+        },
+      });
     }
 
     // Check if wait already exists
@@ -50,8 +83,8 @@ export class WaitService {
       };
     }
 
-    // Check if there's an active wait for this chapter
-    const activeWait = await prisma.unlock.findFirst({
+    // Check if there's an active wait for this chapter (1 volume per chapter)
+    const activeWaitInChapter = await prisma.unlock.findFirst({
       where: {
         userId,
         chapterId: data.chapterId,
@@ -60,13 +93,36 @@ export class WaitService {
       },
     });
 
-    if (activeWait) {
+    if (activeWaitInChapter) {
       throw new Error('WAIT_ALREADY_ACTIVE');
     }
 
-    // Create unlock with wait duration
-    const unlocksAt = new Date(Date.now() + config.waitDuration);
-    
+    // Get max simultaneous timers from config
+    const waitConfig = await this.configService.getWaitConfig();
+    const maxSimultaneousTimers = waitConfig.maxSimultaneousTimers;
+
+    // Check how many DIFFERENT chapters have active waits
+    const activeWaitsInOtherChapters = await prisma.unlock.groupBy({
+      by: ['chapterId'],
+      where: {
+        userId,
+        chapterId: { not: data.chapterId }, // Exclude current chapter
+        triggeredBy: UnlockTriggeredBy.WAIT,
+        unlocksAt: { gt: new Date() },
+      },
+    });
+
+    if (activeWaitsInOtherChapters.length >= maxSimultaneousTimers) {
+      throw new Error('MAX_PENDING_CHAPTERS_REACHED');
+    }
+
+    // Calculate unlock time based on NOW + current volume's waitDuration
+    // The timer starts when the user clicks the button, regardless of previous volumes
+    const waitDurationMs = Number(volume.waitDuration);
+
+    // Timer starts at the moment of the click + waitDuration
+    const unlocksAt = new Date(Date.now() + waitDurationMs);
+
     const unlock = await prisma.unlock.create({
       data: {
         userId,
@@ -98,7 +154,7 @@ export class WaitService {
 
     return {
       unlocksAt: unlock.unlocksAt,
-      remainingMs: config.waitDuration,
+      remainingMs: Math.max(0, unlock.unlocksAt.getTime() - Date.now()),
     };
   }
 
@@ -148,5 +204,57 @@ export class WaitService {
       unlocksAt: unlock.unlocksAt,
       remainingMs: unlock.unlocksAt.getTime() - Date.now(),
     }));
+  }
+
+  async listCompletedWaits(userId: string) {
+    const unlocks = await prisma.unlock.findMany({
+      where: {
+        userId,
+        triggeredBy: UnlockTriggeredBy.WAIT,
+        unlocksAt: { lte: new Date() },
+      },
+      include: {
+        chapter: true,
+      },
+      orderBy: {
+        unlocksAt: 'desc',
+      },
+      take: 50, // Limit to last 50 completed timers
+    });
+
+    return unlocks.map(unlock => ({
+      chapterId: unlock.chapterId,
+      chapterTitle: unlock.chapter.title,
+      volumeNumber: unlock.volumeNumber,
+      unlocksAt: unlock.unlocksAt,
+      completedAt: unlock.unlocksAt,
+    }));
+  }
+
+  async listAllWaits(userId: string) {
+    const unlocks = await prisma.unlock.findMany({
+      where: {
+        userId,
+        triggeredBy: UnlockTriggeredBy.WAIT,
+      },
+      include: {
+        chapter: true,
+      },
+      orderBy: {
+        unlocksAt: 'desc',
+      },
+    });
+
+    return unlocks.map(unlock => {
+      const isCompleted = unlock.unlocksAt <= new Date();
+      return {
+        chapterId: unlock.chapterId,
+        chapterTitle: unlock.chapter.title,
+        volumeNumber: unlock.volumeNumber,
+        unlocksAt: unlock.unlocksAt,
+        remainingMs: isCompleted ? 0 : unlock.unlocksAt.getTime() - Date.now(),
+        isCompleted,
+      };
+    });
   }
 }

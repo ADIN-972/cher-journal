@@ -47,4 +47,14 @@ export class WaitController {
     const waits = await service.listActiveWaits(request.user!.id);
     return reply.send({ success: true, data: waits });
   }
+
+  async listCompletedWaits(request: FastifyRequest, reply: FastifyReply) {
+    const waits = await service.listCompletedWaits(request.user!.id);
+    return reply.send({ success: true, data: waits });
+  }
+
+  async listAllWaits(request: FastifyRequest, reply: FastifyReply) {
+    const waits = await service.listAllWaits(request.user!.id);
+    return reply.send({ success: true, data: waits });
+  }
 }

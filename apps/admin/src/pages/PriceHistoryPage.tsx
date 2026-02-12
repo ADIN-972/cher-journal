@@ -1,290 +1,316 @@
-import { useEffect, useMemo, useState } from "react";
-import { MdVisibility } from "react-icons/md";
-import ActionButton from "../components/ActionButton";
-import HistoryTimeline, {
-  HistoryTimelineNode,
-} from "../components/HistoryTimeline";
-import { useApi } from "../hooks/useApi";
-import SmartTableGrid from "../components/SmartTableGrid";
+import { useState, useEffect } from "react";
+import { api } from "../lib/api";
+import { useI18n } from "../lib/i18n";
+import { MdHistory, MdTrendingUp, MdTrendingDown, MdRefresh } from "react-icons/md";
 
-interface PriceHistory {
+interface PriceChange {
   id: string;
-  entityType: "SCHEMA" | "OVERRIDE";
-  entityId: string;
-  previousValues: Record<string, any> | null;
-  newValues: Record<string, any> | null;
-  changeReason?: string;
-  changedBy: string;
+  priceId: string;
+  oldAmountCents: number;
+  newAmountCents: number;
+  currency: string;
   changedAt: string;
+  changedBy?: string;
+  reason?: string;
+  price: {
+    id: string;
+    scope: string;
+    refId?: string;
+    amountCents: number;
+  };
+}
+
+interface PriceHistoryData {
+  items: PriceChange[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export default function PriceHistoryPage() {
-  const api = useApi();
-  const [history, setHistory] = useState<PriceHistory[]>([]);
+  const { t, language } = useI18n();
+  const locale = language === "en" ? "en-US" : "fr-FR";
+
+  const [history, setHistory] = useState<PriceHistoryData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"SCHEMA" | "OVERRIDE" | "ALL">("ALL");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [align, setAlign] = useState<"left" | "right" | "alternate">("left");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filter, setFilter] = useState({
+    priceId: "",
+    startDate: "",
+    endDate: "",
+  });
 
   useEffect(() => {
-    fetchHistory();
-  }, [filter]);
+    loadHistory();
+  }, [currentPage, filter]);
 
-  const fetchHistory = async () => {
+  const loadHistory = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/admin/price-history");
-      // Handle both formats: array directly or { data: [...] }
-      const data = Array.isArray(response) ? response : response.data || [];
-      const filtered =
-        filter === "ALL"
-          ? data
-          : data.filter((h: PriceHistory) => h.entityType === filter);
-      setHistory(filtered);
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: "20",
+      });
+
+      if (filter.priceId) params.append("priceId", filter.priceId);
+      if (filter.startDate) params.append("startDate", filter.startDate);
+      if (filter.endDate) params.append("endDate", filter.endDate);
+
+      const res = await api.get(`/admin/price-history?${params.toString()}`);
+      setHistory(res.data);
     } catch (error) {
-      console.error("Failed to fetch history:", error);
+      console.error("Failed to load price history:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleString();
+  const formatPrice = (cents: number, currency: string = "EUR") => {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency,
+    }).format(cents / 100);
   };
 
-  const columns = useMemo(
-    () => [
-      {
-        id: "type",
-        header: "Type",
-        render: (item: PriceHistory) => (
-          <span
-            className={`px-2 py-1 rounded text-sm font-medium ${
-              item.entityType === "SCHEMA"
-                ? "bg-blue-100 text-blue-800"
-                : "bg-yellow-100 text-yellow-800"
-            }`}>
-            {item.entityType}
-          </span>
-        ),
-        align: "center" as const,
-      },
-      {
-        id: "reason",
-        header: "Reason",
-        render: (item: PriceHistory) =>
-          item.changeReason || "No reason provided",
-      },
-      {
-        id: "who",
-        header: "Changed By",
-        render: (item: PriceHistory) => item.changedBy,
-      },
-      {
-        id: "when",
-        header: "Date",
-        render: (item: PriceHistory) => formatDate(item.changedAt),
-      },
-      {
-        id: "entity",
-        header: "Entity Id",
-        render: (item: PriceHistory) => item.entityId,
-        defaultVisible: false,
-      },
-    ],
-    []
-  );
+  const formatDate = (dateString: string) => {
+    return new Intl.DateTimeFormat(locale, {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(new Date(dateString));
+  };
 
-  const actions = useMemo(
-    () => [
-      {
-        onClick: (item: PriceHistory) =>
-          setExpandedId((prev) => (prev === item.id ? null : item.id)),
-        render: (item: PriceHistory) => (
-          <ActionButton
-            icon={<MdVisibility />}
-            onClick={() =>
-              setExpandedId((prev) => (prev === item.id ? null : item.id))
-            }
-            ariaLabel="Voir les détails"
-            variant="indigo"
-          />
-        ),
-      },
-    ],
-    []
-  );
+  const getPriceChangePercentage = (oldPrice: number, newPrice: number) => {
+    if (oldPrice === 0) return 0;
+    return ((newPrice - oldPrice) / oldPrice) * 100;
+  };
 
-  // Utility function for future use displaying formatted values
-  // const formatValue = (value: any) => {
-  //   if (value === null) return "null";
-  //   if (typeof value === "object") return JSON.stringify(value, null, 2);
-  //   if (typeof value === "number" && value < 1000) {
-  //     // Likely a price in cents
-  //     return `$${(value / 100).toFixed(2)}`;
-  //   }
-  //   return String(value);
-  // };
+  const getScopeLabel = (scope: string) => {
+    const labels: Record<string, string> = {
+      VOLUME: "Tome",
+      CHAPTER: "Chapitre",
+      EPILOGUE: "Épilogue",
+      POV: "Point de vue",
+      BUNDLE: "Pack",
+      COLORING: "Coloriage",
+      SUBSCRIPTION: "Abonnement",
+    };
+    return labels[scope] || scope;
+  };
 
-  if (loading) {
-    return <div className="p-4">Loading...</div>;
+  if (loading && !history) {
+    return (
+      <div className="p-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div className="space-y-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-20 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
-
-  // Regrouper par entityId + entityType et ne garder que la dernière modif pour l'affichage principal
-  const latestByEntity = Object.values(
-    history.reduce(
-      (acc, h) => {
-        const key = h.entityId + "-" + h.entityType;
-        if (!acc[key] || new Date(h.changedAt) > new Date(acc[key].changedAt)) {
-          acc[key] = h;
-        }
-        return acc;
-      },
-      {} as Record<string, PriceHistory>
-    )
-  );
-
-  // Pour le détail, regrouper toutes les modifs du même entityId+entityType, triées par date ASC
-  const getTimelineNodes = (
-    entityId: string,
-    entityType: string
-  ): HistoryTimelineNode[] => {
-    return history
-      .filter((h) => h.entityId === entityId && h.entityType === entityType)
-      .sort(
-        (a, b) =>
-          new Date(b.changedAt).getTime() - new Date(a.changedAt).getTime()
-      )
-      .map((h) => ({
-        label:
-          h.entityType === "SCHEMA"
-            ? "Modification du schéma"
-            : "Override de chapitre",
-        date: formatDate(h.changedAt),
-        before: h.previousValues ?? undefined,
-        after: h.newValues ?? undefined,
-      }));
-  };
 
   return (
     <div className="p-6">
-      {/* Panneau d'information explicatif */}
-      <div className="bg-purple-50 border-l-4 border-purple-500 p-4 mb-6 rounded">
-        <div className="flex items-start">
-          <div className="flex-shrink-0">
-            <svg
-              className="h-5 w-5 text-purple-500"
-              viewBox="0 0 20 20"
-              fill="currentColor">
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                clipRule="evenodd"
-              />
-            </svg>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <MdHistory className="w-8 h-8 text-indigo-600" />
+          <h1 className="text-2xl font-bold text-gray-900">
+            Historique des prix
+          </h1>
+        </div>
+        <button
+          onClick={loadHistory}
+          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+          <MdRefresh className="w-5 h-5" />
+          Actualiser
+        </button>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              ID Prix (optionnel)
+            </label>
+            <input
+              type="text"
+              value={filter.priceId}
+              onChange={(e) =>
+                setFilter({ ...filter, priceId: e.target.value })
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              placeholder="uuid..."
+            />
           </div>
-          <div className="ml-3 flex-1">
-            <h3 className="text-sm font-medium text-purple-800 mb-1">
-              Historique des prix - Audit complet
-            </h3>
-            <div className="text-sm text-purple-700 space-y-1">
-              <p>
-                <strong>Fonction :</strong> Traçabilité totale de tous les
-                changements de prix (schémas et overrides).
-              </p>
-              <p>
-                <strong>Usage :</strong> Vérifier qui a modifié quoi et quand,
-                utile pour audit et réconciliation.
-              </p>
-              <p>
-                <strong>Impact :</strong> Lecture seule - aucune modification
-                possible. Les entrées sont immuables.
-              </p>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Date début
+            </label>
+            <input
+              type="date"
+              value={filter.startDate}
+              onChange={(e) =>
+                setFilter({ ...filter, startDate: e.target.value })
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Date fin
+            </label>
+            <input
+              type="date"
+              value={filter.endDate}
+              onChange={(e) =>
+                setFilter({ ...filter, endDate: e.target.value })
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* History Timeline */}
+      <div className="bg-white rounded-lg shadow-sm">
+        {history && history.items.length === 0 ? (
+          <div className="p-12 text-center text-gray-500">
+            <MdHistory className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <p className="text-lg font-medium">Aucun changement de prix</p>
+            <p className="text-sm mt-2">
+              L'historique des modifications de prix apparaîtra ici
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-200 dark:divide-[#4d252f]">
+            {history?.items.map((change) => {
+              const diff = change.newAmountCents - change.oldAmountCents;
+              const percentage = getPriceChangePercentage(
+                change.oldAmountCents,
+                change.newAmountCents
+              );
+              const isIncrease = diff > 0;
+
+              return (
+                <div
+                  key={change.id}
+                  className="p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div
+                          className={`p-2 rounded-full ${
+                            isIncrease ? "bg-green-100" : "bg-red-100"
+                          }`}>
+                          {isIncrease ? (
+                            <MdTrendingUp className="w-5 h-5 text-green-600" />
+                          ) : (
+                            <MdTrendingDown className="w-5 h-5 text-red-600" />
+                          )}
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">
+                            {getScopeLabel(change.price.scope)}
+                            {change.price.refId && (
+                              <span className="text-gray-500 text-sm ml-2">
+                                (ID: {change.price.refId.substring(0, 8)}...)
+                              </span>
+                            )}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            {formatDate(change.changedAt)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="ml-12 space-y-1">
+                        <div className="flex items-center gap-4">
+                          <span className="text-sm text-gray-600">
+                            Ancien prix:
+                          </span>
+                          <span className="font-medium line-through text-gray-500">
+                            {formatPrice(change.oldAmountCents, change.currency)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className="text-sm text-gray-600">
+                            Nouveau prix:
+                          </span>
+                          <span className="font-bold text-gray-900">
+                            {formatPrice(change.newAmountCents, change.currency)}
+                          </span>
+                        </div>
+                        {change.reason && (
+                          <div className="flex items-center gap-4 mt-2">
+                            <span className="text-sm text-gray-600">
+                              Raison:
+                            </span>
+                            <span className="text-sm text-gray-700">
+                              {change.reason}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      <div
+                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${
+                          isIncrease
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}>
+                        {isIncrease ? "+" : ""}
+                        {percentage.toFixed(1)}%
+                      </div>
+                      <div className="text-sm text-gray-500 mt-2">
+                        {formatPrice(Math.abs(diff), change.currency)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {history && history.pagination.totalPages > 1 && (
+          <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
+            <div className="text-sm text-gray-700">
+              Page {history.pagination.page} sur{" "}
+              {history.pagination.totalPages} ({history.pagination.total}{" "}
+              changements)
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                Précédent
+              </button>
+              <button
+                onClick={() =>
+                  setCurrentPage((p) =>
+                    Math.min(history.pagination.totalPages, p + 1)
+                  )
+                }
+                disabled={currentPage === history.pagination.totalPages}
+                className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                Suivant
+              </button>
             </div>
           </div>
-        </div>
+        )}
       </div>
-
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-4">Price Change History</h1>
-
-        {/* Explication des filtres */}
-        <div className="text-sm text-gray-600 mb-3">
-          <strong>Filtrer par :</strong> Afficher uniquement les changements de
-          schémas, d'overrides, ou tout voir.
-        </div>
-
-        <div className="flex gap-2 mb-4">
-          <button
-            onClick={() => setFilter("ALL")}
-            className={`px-4 py-2 rounded ${
-              filter === "ALL"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-            }`}
-            title="Afficher tous les changements (schémas + overrides)">
-            All ({history.length})
-          </button>
-          <button
-            onClick={() => setFilter("SCHEMA")}
-            className={`px-4 py-2 rounded ${
-              filter === "SCHEMA"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-            }`}
-            title="Afficher uniquement les changements de schémas de prix">
-            Schema Changes
-          </button>
-          <button
-            onClick={() => setFilter("OVERRIDE")}
-            className={`px-4 py-2 rounded ${
-              filter === "OVERRIDE"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-            }`}
-            title="Afficher uniquement les changements d'overrides de chapitres">
-            Override Changes
-          </button>
-        </div>
-      </div>
-
-      {/* Légende explicative */}
-      <div className="bg-gray-50 border border-gray-200 p-3 mb-4 rounded text-sm">
-        <p className="text-gray-700">
-          <strong>📋 Lecture :</strong> Cliquez sur une entrée pour voir le
-          détail des changements (avant/après). Les valeurs sont en centimes
-          pour les prix.
-        </p>
-      </div>
-
-      <SmartTableGrid
-        listName="price-history"
-        data={latestByEntity}
-        columns={columns}
-        actions={actions}
-        getItemId={(item) => item.id}
-        loading={loading}
-        emptyMessage="No price history found"
-      />
-
-      {expandedId && (
-        <div className="mt-4 border border-gray-300 rounded-lg bg-white">
-          {(() => {
-            const entry = history.find((h) => h.id === expandedId);
-            if (!entry) return null;
-            const nodes = getTimelineNodes(entry.entityId, entry.entityType);
-            return (
-              <div className="p-4">
-                <div className="mb-3 text-sm text-gray-700">
-                  <strong>Détails :</strong>{" "}
-                  {entry.changeReason || "No reason provided"}
-                </div>
-                <HistoryTimeline nodes={nodes} />
-              </div>
-            );
-          })()}
-        </div>
-      )}
     </div>
   );
 }

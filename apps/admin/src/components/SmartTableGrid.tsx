@@ -44,6 +44,7 @@ interface SmartTableGridProps<T> {
    * Optional override: if provided, called for each row to determine if it's active.
    * Takes precedence over isActiveField.
    */
+  isActive?: (item: T) => boolean;
 }
 
 /**
@@ -67,6 +68,7 @@ export function SmartTableGrid<T>({
   onBackgroundContextMenu,
   toggleConfig,
   isActiveField,
+  isActive,
 }: SmartTableGridProps<T>) {
   const storageKey = `table-columns-${listName}`;
   const [visibleColumns, setVisibleColumns] = useState<VisibleColumnsState>({});

@@ -1,6 +1,17 @@
 # 🔧 TODO: Ajouter le champ refId au modèle Order
 
-## 📋 Problème
+## ✅ Status: Core Implementation Completed
+
+**Date d'implémentation:** 2026-01-21
+
+L'implémentation du champ `refId` est maintenant terminée et fonctionnelle:
+- ✅ Schéma Prisma modifié avec indexes pour les performances
+- ✅ Migration appliquée (20260121011940_add_order_refid)
+- ✅ Service Stripe mis à jour pour inclure refId lors de la création de commandes
+- ✅ Analytics dashboard réactivées (top chapters et top volumes)
+- ⏳ Tests restants à effectuer (voir Phase 4 ci-dessous)
+
+## 📋 Problème Original
 
 Le modèle `Order` ne contient actuellement pas de champ pour référencer le contenu acheté (chapitre ou volume). Cela empêche l'implémentation des analytics "Top Chapitres" et "Top Volumes" dans le dashboard.
 
@@ -152,26 +163,28 @@ Si des commandes existent déjà, il faudra peut-être migrer les données:
 
 ## 🚀 Plan d'Implémentation
 
-### Phase 1: Préparation
-- [ ] Analyser les commandes existantes pour comprendre comment le contenu est actuellement tracké
-- [ ] Vérifier si des métadonnées Stripe contiennent ces informations
-- [ ] Créer un plan de migration de données si nécessaire
+### Phase 1: Préparation ✅
+- [x] Analyser les commandes existantes pour comprendre comment le contenu est actuellement tracké
+- [x] Vérifier si des métadonnées Stripe contiennent ces informations
+- [x] Créer un plan de migration de données si nécessaire
 
-### Phase 2: Implémentation
-- [ ] Modifier le schéma Prisma
-- [ ] Créer et appliquer la migration
-- [ ] Mettre à jour stripe.service.ts pour inclure refId à la création
-- [ ] Migrer les données existantes (si applicable)
+### Phase 2: Implémentation ✅
+- [x] Modifier le schéma Prisma (ajout du champ refId avec indexes)
+- [x] Créer et appliquer la migration (20260121011940_add_order_refid)
+- [x] Mettre à jour stripe.service.ts pour inclure refId à la création
+- [x] Migration des données existantes (NULL pour anciennes commandes - acceptable)
 
-### Phase 3: Analytics
-- [ ] Réactiver les requêtes dans dashboard.service.ts
-- [ ] Créer de nouveaux endpoints analytics si nécessaire
-- [ ] Ajouter des graphiques dans le frontend
+### Phase 3: Analytics ✅
+- [x] Réactiver les requêtes dans dashboard.service.ts
+- [x] Implémenter top chapters analytics avec enrichissement des détails
+- [x] Implémenter top volumes analytics avec enrichissement des détails
+- [ ] Créer de nouveaux endpoints analytics si nécessaire (optionnel)
+- [ ] Ajouter des graphiques dans le frontend (optionnel)
 
 ### Phase 4: Tests
-- [ ] Tester la création de nouvelles commandes
-- [ ] Vérifier que les analytics fonctionnent
-- [ ] Valider les exports CSV
+- [ ] Tester la création de nouvelles commandes avec refId
+- [ ] Vérifier que les analytics fonctionnent dans le dashboard
+- [ ] Valider les exports CSV avec refId
 - [ ] Tests de performance sur les requêtes groupBy
 
 ## 🔍 Considérations Alternatives
@@ -235,5 +248,6 @@ Utiliser un seul champ `refId` comme proposé initialement.
 ---
 
 **Créé:** 2026-01-19
+**Dernière mise à jour:** 2026-01-21
 **Priorité:** PHASE 2 - Important
-**Status:** ⏳ À faire
+**Status:** ✅ Core implementation completed (tests pending)

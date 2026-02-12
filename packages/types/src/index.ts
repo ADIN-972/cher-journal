@@ -16,6 +16,24 @@ export enum ChapterStatus {
   PUBLISHED = "PUBLISHED",
 }
 
+export enum ChapterGenre {
+  PASSIONS_CHARNELLES = "PASSIONS_CHARNELLES",
+  ROMANCES_TENDRES = "ROMANCES_TENDRES",
+  MYSTERIES_SENSUELS = "MYSTERIES_SENSUELS",
+  INTERDITS = "INTERDITS",
+  CONQUETES = "CONQUETES",
+  REVES_SECRETS = "REVES_SECRETS",
+  PASSION_BRUTALE = "PASSION_BRUTALE",
+  AMOUR_COMPLIQUE = "AMOUR_COMPLIQUE",
+  DESIR_NOCTURNE = "DESIR_NOCTURNE",
+  LIBERATION = "LIBERATION",
+  DECOUVERTE_DE_SOI = "DECOUVERTE_DE_SOI",
+  INTIMITE_PSYCHOLOGIQUE = "INTIMITE_PSYCHOLOGIQUE",
+  EVEIL_DU_DESIR = "EVEIL_DU_DESIR",
+  RELATIONS_TRANSFORMATRICES = "RELATIONS_TRANSFORMATRICES",
+  MEMOIRE_DU_CORPS = "MEMOIRE_DU_CORPS",
+}
+
 export enum Perspective {
   NARRATOR = "NARRATOR",
   PROTAGONIST = "PROTAGONIST",
@@ -96,13 +114,30 @@ export interface Chapter {
   title: string;
   protagonistName: string;
   status: ChapterStatus;
+  description?: string | null;
   publishedAt?: Date | null;
   coverAssetId: string | null;
   coverAsset?: ChapterAsset | null;
   isArchived: boolean;
   createdAt: Date;
   volumes?: Volume[];
+  genres?: ChapterGenreTag[];
   stats?: ChapterStats;
+  pricing?: {
+    priceFreeToRead: number;
+    pricePaywall: number;
+    priceEpilogue: number;
+  };
+  totalCharacterCount?: number;
+  accroche_classic?: string | null;
+  accroche_dark?: string | null;
+  accroche_love?: string | null;
+  accroche_marketing?: string | null;
+  accroche_dark_collection?: string | null;
+  niveau_intensite?: number;
+  niveau_douceur?: number;
+  niveau_danger?: number;
+  niveau_transformation?: number;
 }
 
 export interface ChapterStats {
@@ -111,6 +146,13 @@ export interface ChapterStats {
   volumesWithIllustration: number;
   volumesWithProtagonist: number;
   coloringPagesCount: number;
+}
+
+export interface ChapterGenreTag {
+  id: string;
+  chapterId: string;
+  genre: ChapterGenre;
+  createdAt: Date;
 }
 
 export interface Volume {

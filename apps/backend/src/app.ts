@@ -28,11 +28,14 @@ import { priceSchemaRoutes } from "./modules/admin/price-schemas/price-schemas.r
 import { adminAuditRoutes } from "./modules/admin/audit/audit.routes";
 import { adminConfigRoutes } from "./modules/admin/config/config.routes";
 import assetTagsRoutes from "./modules/admin/asset-tags/asset-tags.routes";
+import { bundlesRoutes } from "./modules/admin/bundles/bundles.routes";
+import { adminReviewsRoutes } from "./modules/admin/reviews/reviews.routes";
 import { libraryRoutes } from "./modules/reader/library/library.routes";
 import { catalogRoutes } from "./modules/reader/catalog/catalog.routes";
 import { waitRoutes } from "./modules/reader/wait/wait.routes";
 import { readerRoutes } from "./modules/reader/reader/reader.routes";
 import { pricingRoutes } from "./modules/reader/pricing/pricing.routes";
+import { reviewsRoutes } from "./modules/reader/reviews/reviews.routes";
 import { stripeRoutes } from "./modules/stripe/stripe.routes";
 import { publicAssetsRoutes } from "./modules/public/assets.routes";
 
@@ -58,7 +61,7 @@ export async function createApp(): Promise<FastifyInstance> {
   });
 
   await app.register(fastifyCors, {
-    origin: config.corsOrigins,
+    origin: config.isDev ? true : config.corsOrigins,
     credentials: true,
   });
 
@@ -155,6 +158,7 @@ export async function createApp(): Promise<FastifyInstance> {
     waitRoutes,
     readerRoutes,
     pricingRoutes,
+    reviewsRoutes,
     stripeRoutes,
     adminChaptersRoutes,
     adminVolumesRoutes,
@@ -162,6 +166,7 @@ export async function createApp(): Promise<FastifyInstance> {
     assetTagsRoutes,
     adminPagesRoutes,
     adminUsersRoutes,
+    adminReviewsRoutes,
     adminOrdersRoutes,
     refundsRoutes,
     schedulingRoutes,
@@ -169,6 +174,7 @@ export async function createApp(): Promise<FastifyInstance> {
     adminSettingsRoutes,
     adminAuditRoutes,
     adminConfigRoutes,
+    bundlesRoutes,
     promotionsRoutes,
     priceHistoryRoutes,
     priceSchemaRoutes,

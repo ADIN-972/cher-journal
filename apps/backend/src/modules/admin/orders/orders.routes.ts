@@ -10,6 +10,11 @@ export async function adminOrdersRoutes(app: FastifyInstance) {
     handler: controller.list.bind(controller),
   });
 
+  app.get('/admin/orders/export', {
+    preHandler: requireAdmin,
+    handler: controller.exportCSV.bind(controller),
+  });
+
   app.get('/admin/orders/:id', {
     preHandler: requireAdmin,
     handler: controller.getById.bind(controller),

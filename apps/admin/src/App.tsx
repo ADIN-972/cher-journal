@@ -11,13 +11,21 @@ import VolumeForm from "./pages/VolumeForm";
 import Users from "./pages/Users";
 import UserDetail from "./pages/UserDetailImproved";
 import Orders from "./pages/Orders";
+import OrderDetail from "./pages/OrderDetail";
 import SettingsPage from "./pages/Settings";
 import { PromotionsPage } from "./pages/PromotionsPage";
 import { PromotionForm } from "./pages/PromotionForm";
 import { PricesPage } from "./pages/PricesPage";
+import { PriceForm } from "./pages/PriceForm";
 import PriceSchemasPage from "./pages/PriceSchemasPage";
 import ChapterPricesPage from "./pages/ChapterPricesPage";
 import PriceHistoryPage from "./pages/PriceHistoryPage";
+import AuditLogs from "./pages/AuditLogs";
+import PublishingCalendar from "./pages/PublishingCalendar";
+import Bundles from "./pages/Bundles";
+import BundleForm from "./pages/BundleForm";
+import SystemConfig from "./pages/SystemConfig";
+import Reviews from "./pages/Reviews";
 import PricingLayout from "./components/PricingLayout";
 import Layout from "./components/Layout";
 
@@ -29,13 +37,20 @@ function App() {
   }, [checkAuth]);
 
   if (loading) {
+    const defaultT = (key: string) => {
+      const translations: { [key: string]: string } = {
+        "common.loading": "Loading...",
+      };
+      return translations[key] || key;
+    };
+
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl mb-4 shadow-lg animate-pulse">
             <span className="text-white text-2xl font-bold">CJ</span>
           </div>
-          <div className="text-lg text-gray-700 font-medium">Chargement...</div>
+          <div className="text-lg text-gray-700 font-medium">{defaultT("common.loading")}</div>
         </div>
       </div>
     );
@@ -146,6 +161,14 @@ function App() {
             element={<SettingsPage />}
           />
           <Route
+            path="/system-config"
+            element={<SystemConfig />}
+          />
+          <Route
+            path="/publishing-calendar"
+            element={<PublishingCalendar />}
+          />
+          <Route
             path="/users"
             element={<Users />}
           />
@@ -156,6 +179,10 @@ function App() {
           <Route
             path="/orders"
             element={<Orders />}
+          />
+          <Route
+            path="/orders/:id"
+            element={<OrderDetail />}
           />
           <Route
             path="/promotions"
@@ -172,6 +199,34 @@ function App() {
           <Route
             path="/prices"
             element={<PricesPage />}
+          />
+          <Route
+            path="/prices/new"
+            element={<PriceForm />}
+          />
+          <Route
+            path="/prices/:id"
+            element={<PriceForm />}
+          />
+          <Route
+            path="/audit-logs"
+            element={<AuditLogs />}
+          />
+          <Route
+            path="/reviews"
+            element={<Reviews />}
+          />
+          <Route
+            path="/bundles"
+            element={<Bundles />}
+          />
+          <Route
+            path="/bundles/new"
+            element={<BundleForm />}
+          />
+          <Route
+            path="/bundles/:id"
+            element={<BundleForm />}
           />
           <Route
             path="/pricing"

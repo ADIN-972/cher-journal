@@ -9,4 +9,9 @@ export async function adminDashboardRoutes(app: FastifyInstance) {
     preHandler: requireAdmin,
     handler: controller.getStats.bind(controller),
   });
+
+  app.get('/admin/dashboard/kpis', {
+    preHandler: requireAdmin,
+    handler: controller.getKPIs.bind(controller),
+  });
 }

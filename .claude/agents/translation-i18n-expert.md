@@ -224,14 +224,53 @@ export function MyFeature() {
 
 ## Tools & Resources
 
-### Verification Script
-- **Location**: `apps/admin/scripts/verify-i18n.ts`
-- **Purpose**: Automated verification of translation completeness
-- **Command**: `npm run i18n:check`
-- **Output**: Missing keys by language and file
+### Verification Script (Automated)
+- **Location**: `verify-translations.ts` (racine du projet)
+- **Purpose**: Automated scanning of all components for translation completeness
+- **Command**: `npm run verify:translations`
+- **Output**: Comprehensive report with missing keys, unused keys, and file references
+
+**Features**:
+- 🔍 Scans all `src/pages/**/*.tsx` and `src/components/**/*.tsx`
+- 📋 Extracts translation keys (format: `t('key')`)
+- ✅ Verifies keys exist in both `en/common.json` and `fr/common.json`
+- ⚠️ Identifies unused translation keys
+- 📊 Generates detailed HTML-friendly report
+
+**Usage**:
+```bash
+# Run complete translation audit
+npm run verify:translations
+
+# Output example:
+# 🌍 Translation Verification
+#
+# 📱 Verifying Admin Panel
+#   Found 81 component files
+#   Found 463 unique translation keys
+#
+#   ✅ All used keys are translated!
+#
+# 📊 Overall Summary
+# ✅ Complete: 463 / Total: 463
+# ✨ All translations are complete and in use!
+```
+
+### Integration with Verification System
+
+This script is part of the comprehensive verification workflow:
+
+```bash
+# After completing a feature with translations:
+npm run verify:translations    # ← Verify translations are complete
+npm run verify:api             # ← Verify APIs work
+npm run test:all               # ← Run all tests
+```
 
 ### Package Dependencies
 - `tsx`: TypeScript executor for running verification script
+- `chalk`: Colored console output for better readability
+- `glob`: Fast file pattern matching
 - `react`: For UI component integration
 - No external i18n libraries needed (custom lightweight solution)
 

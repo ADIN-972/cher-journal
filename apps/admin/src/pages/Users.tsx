@@ -29,6 +29,7 @@ import {
 } from "react-icons/md";
 
 import ActionButton from "../components/ActionButton";
+import UserFilters, { UserFilterCriteria } from "../components/UserFilters";
 
 interface Order {
   id: string;
@@ -44,18 +45,27 @@ export default function Users() {
   const [users, setUsers] = useState<User[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"ALL" | "ADMIN" | "USER">("ALL");
+  const [filters, setFilters] = useState<UserFilterCriteria>({
+    role: "ALL",
+    status: "ALL",
+  });
   const [viewMode, setViewMode] = useState<"list" | "card" | "calendar">(() => {
     const saved = localStorage.getItem("userViewMode");
     return (saved as "list" | "card" | "calendar") || "card";
   });
+  const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
+  const [showBulkConfirm, setShowBulkConfirm] = useState(false);
+  const [bulkAction, setBulkAction] = useState<{
+    type: "suspend" | "activate" | "promote" | "demote";
+    label: string;
+  } | null>(null);
 
   const { t } = useI18n();
 
   useEffect(() => {
     loadUsers();
     loadOrders();
-  }, []);
+  }, [filters]);
 
   useEffect(() => {
     localStorage.setItem("userViewMode", viewMode);
@@ -63,7 +73,20 @@ export default function Users() {
 
   const loadUsers = async () => {
     try {
-      const response = await api.get("/admin/users");
+      setLoading(true);
+      const params = new URLSearchParams();
+
+      if (filters.role && filters.role !== "ALL") params.append("role", filters.role);
+      if (filters.status && filters.status !== "ALL") params.append("status", filters.status);
+      if (filters.registeredAfter) params.append("registeredAfter", filters.registeredAfter);
+      if (filters.registeredBefore) params.append("registeredBefore", filters.registeredBefore);
+      if (filters.minTotalSpent !== undefined) params.append("minTotalSpent", filters.minTotalSpent.toString());
+      if (filters.maxTotalSpent !== undefined) params.append("maxTotalSpent", filters.maxTotalSpent.toString());
+      if (filters.minOrderCount !== undefined) params.append("minOrderCount", filters.minOrderCount.toString());
+      if (filters.maxOrderCount !== undefined) params.append("maxOrderCount", filters.maxOrderCount.toString());
+      if (filters.searchQuery) params.append("searchQuery", filters.searchQuery);
+
+      const response = await api.get(`/admin/users?${params.toString()}`);
       setUsers(response.data);
     } catch (error) {
       toast.error(t("messages.error.load_users"));
@@ -97,10 +120,76 @@ export default function Users() {
     }
   };
 
-  const filteredUsers = users.filter((user) => {
-    if (filter === "ALL") return true;
-    return user.role === filter;
-  });
+  const handleToggleSelection = (userId: string) => {
+    const newSelection = new Set(selectedUserIds);
+    if (newSelection.has(userId)) {
+      newSelection.delete(userId);
+    } else {
+      newSelection.add(userId);
+    }
+    setSelectedUserIds(newSelection);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedUserIds.size === users.length) {
+      setSelectedUserIds(new Set());
+    } else {
+      setSelectedUserIds(new Set(users.map((u) => u.id)));
+    }
+  };
+
+  const handleBulkAction = (type: "suspend" | "activate" | "promote" | "demote") => {
+    const labels = {
+      suspend: "Suspendre les utilisateurs sélectionnés",
+      activate: "Activer les utilisateurs sélectionnés",
+      promote: "Promouvoir en Admin",
+      demote: "Rétrograder en User",
+    };
+    setBulkAction({ type, label: labels[type] });
+    setShowBulkConfirm(true);
+  };
+
+  const executeBulkAction = async () => {
+    if (!bulkAction) return;
+
+    try {
+      const userIds = Array.from(selectedUserIds);
+      const payload = { userIds };
+
+      switch (bulkAction.type) {
+        case "suspend":
+          await api.post("/admin/users/bulk/suspend", payload);
+          toast.success(`${userIds.length} utilisateur(s) suspendu(s)`);
+          break;
+        case "activate":
+          await api.post("/admin/users/bulk/activate", payload);
+          toast.success(`${userIds.length} utilisateur(s) activé(s)`);
+          break;
+        case "promote":
+          await api.post("/admin/users/bulk/promote", payload);
+          toast.success(`${userIds.length} utilisateur(s) promu(s)`);
+          break;
+        case "demote":
+          await api.post("/admin/users/bulk/demote", payload);
+          toast.success(`${userIds.length} utilisateur(s) rétrogradé(s)`);
+          break;
+      }
+
+      setSelectedUserIds(new Set());
+      setShowBulkConfirm(false);
+      setBulkAction(null);
+      await loadUsers();
+    } catch (error: any) {
+      toast.error(error.message || "Erreur lors de l'action groupée");
+    }
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      role: "ALL",
+      status: "ALL",
+    });
+  };
 
   const getStatusBadge = (status: string) => {
     return status === "ACTIVE" ? (
@@ -128,6 +217,28 @@ export default function Users() {
 
   const columns: SmartTableColumn<User>[] = useMemo(
     () => [
+      {
+        id: "select",
+        header: () => (
+          <input
+            type="checkbox"
+            checked={users.length > 0 && selectedUserIds.size === users.length}
+            onChange={handleSelectAll}
+            className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer"
+          />
+        ),
+        render: (user) => (
+          <input
+            type="checkbox"
+            checked={selectedUserIds.has(user.id)}
+            onChange={() => handleToggleSelection(user.id)}
+            className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer"
+          />
+        ),
+        width: "50px",
+        align: "center",
+        defaultVisible: true,
+      },
       {
         id: "email",
         header: "Email",
@@ -238,10 +349,93 @@ export default function Users() {
         </div>
       </div>
 
+      {/* User Filters */}
+      <div className="mb-6">
+        <UserFilters
+          filters={filters}
+          onChange={setFilters}
+          onClear={handleClearFilters}
+        />
+      </div>
+
+      {/* Bulk Actions Bar */}
+      {selectedUserIds.size > 0 && (
+        <div className="mb-6 bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-3">
+              <MdCheckBox className="w-6 h-6 text-indigo-600" />
+              <span className="font-semibold text-indigo-900">
+                {selectedUserIds.size} utilisateur(s) sélectionné(s)
+              </span>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => handleBulkAction("activate")}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
+                Activer
+              </button>
+              <button
+                onClick={() => handleBulkAction("suspend")}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium">
+                Suspendre
+              </button>
+              <button
+                onClick={() => handleBulkAction("promote")}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium">
+                Promouvoir (Admin)
+              </button>
+              <button
+                onClick={() => handleBulkAction("demote")}
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium">
+                Rétrograder (User)
+              </button>
+              <button
+                onClick={() => setSelectedUserIds(new Set())}
+                className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
+                Annuler la sélection
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Confirmation Modal */}
+      {showBulkConfirm && bulkAction && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">
+              Confirmer l'action
+            </h3>
+            <p className="text-gray-700 mb-6">
+              Êtes-vous sûr de vouloir <strong>{bulkAction.label}</strong> ?
+              <br />
+              <span className="text-sm text-gray-500">
+                Cette action concernera {selectedUserIds.size} utilisateur(s).
+              </span>
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowBulkConfirm(false);
+                  setBulkAction(null);
+                }}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                Annuler
+              </button>
+              <button
+                onClick={executeBulkAction}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                Confirmer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {viewMode === "list" ? (
         <SmartTableGrid
           listName="users"
-          data={filteredUsers}
+          data={users}
           columns={columns}
           actions={actions}
           getItemId={(user) => user.id}
@@ -251,12 +445,12 @@ export default function Users() {
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredUsers.length === 0 ? (
+          {users.length === 0 ? (
             <div className="col-span-full text-center text-gray-500">
               Aucun utilisateur trouvé
             </div>
           ) : (
-            filteredUsers.map((user) => (
+            users.map((user) => (
               <UserCard
                 key={user.id}
                 user={user}
@@ -279,36 +473,6 @@ export default function Users() {
       </div>
 
       {/* Floating Action Button */}
-      <FloatingActionButton
-        sections={[
-          {
-            title: "Filtrer",
-            actions: [
-              {
-                label: "Tous les utilisateurs",
-                icon: <MdPeople />,
-                onClick: () => setFilter("ALL"),
-                variant: filter === "ALL" ? "primary" : "secondary",
-                badge: users.length,
-              },
-              {
-                label: "Administrateurs",
-                icon: <MdAdminPanelSettings />,
-                onClick: () => setFilter("ADMIN"),
-                variant: filter === "ADMIN" ? "primary" : "secondary",
-                badge: users.filter((u) => u.role === "ADMIN").length,
-              },
-              {
-                label: "Utilisateurs",
-                icon: <MdPeople />,
-                onClick: () => setFilter("USER"),
-                variant: filter === "USER" ? "primary" : "secondary",
-                badge: users.filter((u) => u.role === "USER").length,
-              },
-            ],
-          },
-        ]}
-      />
     </div>
   );
 }

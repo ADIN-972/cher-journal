@@ -257,6 +257,7 @@ class ApiClient {
     volumeNumber: number;
     perspective: string;
     content: string;
+    illustrationUrl: string | null;
   }> {
     const response = await this.get<{ success: boolean; data: any }>(`/reader/volumes/${volumeId}/text?perspective=${perspective}`);
     return response.data;

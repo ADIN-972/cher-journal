@@ -34,4 +34,25 @@ export async function adminUsersRoutes(app: FastifyInstance) {
     preHandler: requireAdmin,
     handler: controller.revokeSession.bind(controller),
   });
+
+  // Bulk actions
+  app.post("/admin/users/bulk/suspend", {
+    preHandler: requireAdmin,
+    handler: controller.bulkSuspend.bind(controller),
+  });
+
+  app.post("/admin/users/bulk/activate", {
+    preHandler: requireAdmin,
+    handler: controller.bulkActivate.bind(controller),
+  });
+
+  app.post("/admin/users/bulk/promote", {
+    preHandler: requireAdmin,
+    handler: controller.bulkPromote.bind(controller),
+  });
+
+  app.post("/admin/users/bulk/demote", {
+    preHandler: requireAdmin,
+    handler: controller.bulkDemote.bind(controller),
+  });
 }

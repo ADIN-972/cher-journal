@@ -76,12 +76,41 @@ export class ChaptersService {
     };
   }
 
+  async getStats() {
+    // Get counts for each status (excluding archived)
+    const [total, published, draft, inProgress] = await Promise.all([
+      prisma.chapter.count({
+        where: { isArchived: false },
+      }),
+      prisma.chapter.count({
+        where: { status: "PUBLISHED", isArchived: false },
+      }),
+      prisma.chapter.count({
+        where: { status: "DRAFT", isArchived: false },
+      }),
+      prisma.chapter.count({
+        where: { status: "IN_PROGRESS", isArchived: false },
+      }),
+    ]);
+
+    return {
+      total,
+      published,
+      draft,
+      inProgress,
+      publishedPercentage: total > 0 ? Math.round((published / total) * 100) : 0,
+      draftPercentage: total > 0 ? Math.round((draft / total) * 100) : 0,
+      inProgressPercentage: total > 0 ? Math.round((inProgress / total) * 100) : 0,
+    };
+  }
+
   async list(includeArchived: boolean = false) {
     const where: any = includeArchived ? undefined : { isArchived: false };
     const chapters = await prisma.chapter.findMany({
       where,
       include: {
         coverAsset: true,
+        genres: true,
         volumes: {
           include: {
             illustrationAsset: true,
@@ -154,6 +183,7 @@ export class ChaptersService {
       where: { id },
       include: {
         coverAsset: true,
+        genres: true,
         volumes: {
           include: {
             illustrationAsset: true,
@@ -180,6 +210,10 @@ export class ChaptersService {
 
   async create(data: CreateChapterInput) {
     const createData: any = { ...data };
+    const genres = data.genres || [];
+
+    // Remove genres from create data (will handle separately)
+    delete createData.genres;
 
     // Convert publishedAt string to Date if provided
     if (data.publishedAt !== undefined) {
@@ -188,12 +222,26 @@ export class ChaptersService {
         : null;
     }
 
-    // Create chapter with initial data
-    const chapter = await prisma.chapter.create({
-      data: createData,
-      include: {
-        coverAsset: true,
-      },
+    // Create chapter with initial data and genres in transaction
+    const chapter = await prisma.$transaction(async (tx) => {
+      const newChapter = await tx.chapter.create({
+        data: createData,
+        include: {
+          coverAsset: true,
+        },
+      });
+
+      // Add genres if provided
+      if (genres.length > 0) {
+        await tx.chapterGenreTag.createMany({
+          data: genres.map((genre) => ({
+            chapterId: newChapter.id,
+            genre,
+          })),
+        });
+      }
+
+      return newChapter;
     });
 
     // Automatically create 10 volumes with both perspectives
@@ -289,6 +337,10 @@ export class ChaptersService {
 
   async update(id: string, data: UpdateChapterInput) {
     const updateData: any = { ...data };
+    const genres = data.genres;
+
+    // Remove genres from update data (will handle separately)
+    delete updateData.genres;
 
     // Convert publishedAt string to Date if provided
     if (data.publishedAt !== undefined) {
@@ -297,12 +349,34 @@ export class ChaptersService {
         : null;
     }
 
-    return prisma.chapter.update({
-      where: { id },
-      data: updateData,
-      include: {
-        coverAsset: true,
-      },
+    return prisma.$transaction(async (tx) => {
+      const updatedChapter = await tx.chapter.update({
+        where: { id },
+        data: updateData,
+        include: {
+          coverAsset: true,
+        },
+      });
+
+      // Update genres if provided
+      if (genres !== undefined) {
+        // Delete existing genres
+        await tx.chapterGenreTag.deleteMany({
+          where: { chapterId: id },
+        });
+
+        // Add new genres if provided
+        if (genres.length > 0) {
+          await tx.chapterGenreTag.createMany({
+            data: genres.map((genre) => ({
+              chapterId: id,
+              genre,
+            })),
+          });
+        }
+      }
+
+      return updatedChapter;
     });
   }
 

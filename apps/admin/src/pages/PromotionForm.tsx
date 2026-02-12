@@ -11,19 +11,8 @@ import {
   MdCancel,
 } from "react-icons/md";
 import ToggleButton from "../components/ToggleButton";
-
-interface FormData {
-  scope: PriceScope;
-  refId?: string;
-  type: PromotionType;
-  value?: number;
-  startsAt: string;
-  endsAt: string;
-  maxUses?: number;
-  perUserLimit?: number;
-  isActive: boolean;
-  priceId?: string;
-}
+import PromotionOverallImpact, { PromotionOverallData } from "../components/PromotionOverallImpact";
+import TargetingSelector from "../components/TargetingSelector";
 
 export function PromotionForm() {
   const navigate = useNavigate();
@@ -32,19 +21,31 @@ export function PromotionForm() {
   const { t, language } = useI18n();
   const locale = language === "en" ? "en-US" : "fr-FR";
 
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<PromotionOverallData>({
+    name: "",
+    description: "",
     scope: "VOLUME",
     type: "PERCENT",
     value: 0,
     startsAt: new Date().toISOString().split("T")[0],
     endsAt: new Date(Date.now() + 24 * 3600000).toISOString().split("T")[0],
     isActive: true,
+    code: undefined,
+    priceId: undefined,
+    maxUses: undefined,
+    perUserLimit: undefined,
+    refId: undefined,
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [prices, setPrices] = useState<any[]>([]);
   const [previewPrice, setPreviewPrice] = useState<number | null>(null);
+  const [targeting, setTargeting] = useState({
+    targetType: "ALL_USERS" as "ALL_USERS" | "SPECIFIC_USERS" | "CRITERIA_BASED",
+    targetUserIds: [] as string[],
+    targetCriteria: {} as any,
+  });
 
   useEffect(() => {
     if (isEdit) {
@@ -57,23 +58,47 @@ export function PromotionForm() {
     if (!id) return;
     try {
       const res = await api.get(`/admin/promotions/${id}`);
-      const promo = res.data.data;
+      console.log("API Response:", res);
+      console.log("API Response data:", res.data);
+
+      // Check if data is nested under res.data.data or directly in res.data
+      const promo = res.data.data || res.data;
+      console.log("Loading promotion data:", promo);
+
+      if (!promo || !promo.name) {
+        throw new Error("Invalid promotion data structure");
+      }
 
       setFormData({
+        name: promo.name || "",
+        description: promo.description || "",
         scope: promo.scope,
         refId: promo.refId || undefined,
         type: promo.type,
-        value: promo.value || undefined,
+        value: promo.value !== null ? promo.value : undefined,
         startsAt: new Date(promo.startsAt).toISOString().split("T")[0],
         endsAt: new Date(promo.endsAt).toISOString().split("T")[0],
-        maxUses: promo.maxUses || undefined,
-        perUserLimit: promo.perUserLimit || undefined,
+        maxUses: promo.maxUses !== null ? promo.maxUses : undefined,
+        perUserLimit: promo.perUserLimit !== null ? promo.perUserLimit : undefined,
         isActive: promo.isActive,
+        code: promo.code || undefined,
         priceId: promo.priceId || undefined,
       });
+
+      // Load targeting data
+      if (promo.targetType || promo.targetUserIds || promo.targetCriteria) {
+        setTargeting({
+          targetType: promo.targetType || "ALL_USERS",
+          targetUserIds: promo.targetUserIds || [],
+          targetCriteria: promo.targetCriteria || {},
+        });
+      }
+
+      console.log("FormData set successfully");
     } catch (err) {
+      console.error("Error loading promotion:", err);
       setError(
-        t("promotions.form.error_load", t("messages.error.load_orders"))
+        t("promotions.form.error_load", "Error loading promotion")
       );
     }
   };
@@ -117,6 +142,9 @@ export function PromotionForm() {
         ...formData,
         startsAt: new Date(formData.startsAt),
         endsAt: new Date(formData.endsAt),
+        targetType: targeting.targetType,
+        targetUserIds: targeting.targetUserIds,
+        targetCriteria: targeting.targetCriteria,
       };
 
       if (isEdit) {
@@ -233,6 +261,46 @@ export function PromotionForm() {
         className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main form */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Name and Description */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-900 mb-3">
+                {t("promotions.form.name_label", "Nom de la promotion")} *
+              </label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                placeholder={t("promotions.form.name_placeholder", "Ex: Soldes d'été -20%")}
+                required
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                {t("promotions.form.explanation_name", "Ce nom sera visible par les administrateurs uniquement")}
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-3">
+                {t("promotions.form.description_label", "Description")}
+              </label>
+              <textarea
+                value={formData.description || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                rows={3}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                placeholder={t("promotions.form.description_placeholder", "Description optionnelle de la promotion...")}
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                {t("promotions.form.explanation_description", "Description interne pour vous aider à identifier cette promotion")}
+              </p>
+            </div>
+          </div>
+
           {/* Scope, Type, Value - 3 columns on large screens, 1 on small */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
@@ -300,13 +368,13 @@ export function PromotionForm() {
                 <label className="block text-sm font-semibold text-gray-900 mb-3">
                   {formData.type === "PERCENT"
                     ? t("promotions.form.percent")
-                    : t("promotions.form.amount")}
+                    : t("promotions.form.amount") + " (en centimes)"}
                 </label>
                 <input
                   type="number"
                   min="0"
-                  max={formData.type === "PERCENT" ? "100" : "999"}
-                  step={formData.type === "PERCENT" ? "1" : "0.01"}
+                  max={formData.type === "PERCENT" ? "100" : "99999"}
+                  step="1"
                   value={formData.value || ""}
                   onChange={(e) =>
                     setFormData({
@@ -320,13 +388,13 @@ export function PromotionForm() {
                   placeholder={
                     formData.type === "PERCENT"
                       ? t("promotions.form.example_percent", "Ex: 20")
-                      : t("promotions.form.example_amount", "Ex: 0.50")
+                      : "Ex: 50 (pour 0.50€)"
                   }
                 />
                 <p className="text-xs text-gray-500 mt-2">
                   {formData.type === "PERCENT"
                     ? t("promotions.form.explanation_value_percent")
-                    : t("promotions.form.explanation_value_fixed")}
+                    : "Entrez la valeur en centimes (ex: 50 pour 0.50€, 200 pour 2.00€)"}
                 </p>
               </div>
             )}
@@ -473,6 +541,79 @@ export function PromotionForm() {
             </div>
           </div>
 
+          {/* Promo Code */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-4">
+              Code Promo
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                  Code (optionnel)
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={formData.code || ""}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        code: e.target.value.toUpperCase() || undefined,
+                      })
+                    }
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent uppercase"
+                    placeholder="EX: SUMMER2024"
+                  />
+                  {isEdit && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          const res = await api.post(
+                            `/admin/promotions/${id}/generate-code`
+                          );
+                          setFormData({
+                            ...formData,
+                            code: res.data.code,
+                          });
+                        } catch (err) {
+                          console.error("Failed to generate code:", err);
+                        }
+                      }}
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                      Générer
+                    </button>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Laissez vide pour ne pas utiliser de code. Le code sera
+                  automatiquement converti en majuscules.
+                </p>
+              </div>
+              {formData.code && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-sm font-medium text-green-800">
+                    Code actif: <span className="font-bold">{formData.code}</span>
+                  </p>
+                  <p className="text-xs text-green-600 mt-1">
+                    Les utilisateurs pourront utiliser ce code lors du paiement
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* User Targeting */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-4">
+              Ciblage Utilisateurs
+            </p>
+            <TargetingSelector value={targeting} onChange={setTargeting} />
+            <p className="text-xs text-gray-500 mt-3">
+              Définissez quels utilisateurs peuvent bénéficier de cette promotion. Par défaut, tous les utilisateurs actifs sont ciblés.
+            </p>
+          </div>
+
           {/* Status */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-4">
@@ -516,50 +657,7 @@ export function PromotionForm() {
             </h3>
 
             {/* Overall impact */}
-            <div className="mt-4 p-3 bg-blue-50 border border-l-8 border-blue-400 rounded-lg text-xs text-blue-800">
-              <p>
-                {t("promotions.form.summary_intro", undefined, {
-                  scope: getScopeLabel(formData.scope),
-                })}{" "}
-                <strong>
-                  {formData.type === "FREE"
-                    ? t("promotions.form.free_access")
-                    : formData.type === "PERCENT"
-                      ? t("promotions.form.reduction_percent", undefined, {
-                          value: formData.value ?? 0,
-                        })
-                      : t("promotions.form.reduction_amount", undefined, {
-                          value: formatPrice((formData.value || 0) * 100),
-                        })}
-                </strong>
-                {formData.maxUses || formData.perUserLimit ? (
-                  <>
-                    {" "}
-                    {t("promotions.form.summary_for", undefined, {
-                      audience: formData.perUserLimit
-                        ? t("promotions.form.max_clients", undefined, {
-                            value: formData.perUserLimit,
-                          })
-                        : t("promotions.form.unlimited_clients"),
-                    })}
-                    {formData.maxUses && (
-                      <>
-                        {" "}
-                        {t("promotions.form.summary_total_uses", undefined, {
-                          value: formData.maxUses,
-                        })}
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <> {t("promotions.form.all_clients")} </>
-                )}{" "}
-                {t("promotions.form.summary_period", undefined, {
-                  start: formatDate(formData.startsAt),
-                  end: formatDate(formData.endsAt),
-                })}
-              </p>
-            </div>
+            <PromotionOverallImpact promotion={formData} />
 
             <h2 className="text-lg font-bold text-gray-900 my-6">
               {t("promotions.form.details")}
@@ -619,10 +717,10 @@ export function PromotionForm() {
                     {formData.type === "PERCENT"
                       ? t("promotions.form.reduction_percent", undefined, {
                           value: formData.value ?? 0,
-                        })
+                        }) || `-${formData.value ?? 0}%`
                       : t("promotions.form.reduction_amount", undefined, {
-                          value: formatPrice((formData.value || 0) * 100),
-                        })}
+                          value: formatPrice(formData.value || 0),
+                        }) || `-${formatPrice(formData.value || 0)}`}
                   </p>
                   <p className="text-xs text-gray-600 leading-relaxed">
                     {formData.type === "PERCENT"
@@ -632,14 +730,14 @@ export function PromotionForm() {
                           {
                             value: formData.value ?? 0,
                           }
-                        )
+                        ) || `Réduction de ${formData.value ?? 0}% sur le prix`
                       : t(
                           "promotions.form.explanation_value_fixed",
                           undefined,
                           {
-                            value: formatPrice((formData.value || 0) * 100),
+                            value: formatPrice(formData.value || 0),
                           }
-                        )}
+                        ) || `Réduction de ${formatPrice(formData.value || 0)} sur le prix`}
                   </p>
                   {formData.value === 0 && (
                     <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
@@ -675,7 +773,7 @@ export function PromotionForm() {
                         <p className="text-xs font-medium text-gray-700">
                           {t("promotions.form.summary_total_uses", undefined, {
                             value: formData.maxUses,
-                          })}
+                          }) || `${formData.maxUses} utilisations maximum au total`}
                         </p>
                         <p className="text-xs text-gray-600">
                           {t(
@@ -684,7 +782,7 @@ export function PromotionForm() {
                             {
                               value: formData.maxUses,
                             }
-                          )}
+                          ) || `Cette promotion peut être utilisée ${formData.maxUses} fois au total par tous les utilisateurs`}
                         </p>
                       </div>
                     )}
@@ -693,7 +791,7 @@ export function PromotionForm() {
                         <p className="text-xs font-medium text-gray-700">
                           {t("promotions.form.max_clients", undefined, {
                             value: formData.perUserLimit,
-                          })}
+                          }) || `Maximum ${formData.perUserLimit} fois par client`}
                         </p>
                         <p className="text-xs text-gray-600">
                           {t(
@@ -702,7 +800,7 @@ export function PromotionForm() {
                             {
                               value: formData.perUserLimit,
                             }
-                          )}
+                          ) || `Chaque utilisateur peut utiliser cette promotion ${formData.perUserLimit} fois maximum`}
                         </p>
                       </div>
                     )}

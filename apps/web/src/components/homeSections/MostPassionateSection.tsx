@@ -8,7 +8,7 @@ interface PopularItem {
   badge: string;
   badgeColor: string;
   subtitle: string;
-  description?: string;
+  description?: string | null;
   genres: any[];
   imageUrl?: string;
 }

@@ -1,20 +1,14 @@
 import type { Chapter, Volume } from "@cher-journal/types";
 import { useI18n } from "../lib/i18n";
-import {
-  MdCalendarMonth,
-  MdCheckBox,
-  MdCheckBoxOutlineBlank,
-  MdDelete,
-  MdEdit,
-  MdTune,
-} from "react-icons/md";
-import { PiClockCountdownBold } from "react-icons/pi";
+import { MdCalendarMonth, MdDelete, MdEdit, MdTune } from "react-icons/md";
 import { useState, useEffect, useRef, useMemo } from "react";
 import toast from "react-hot-toast";
-import BookPreview from "./BookPreview";
 import { getImageUrl } from "../lib/imageUtils";
 import SmartTableGrid, { SmartTableColumn } from "./SmartTableGrid";
 import { TableAction } from "./TableGrid";
+import VolumeCard from "./VolumeCard";
+import VolumeCardV2 from "./VolumeCardV2";
+import VolumeCardV3 from "./VolumeCardV3";
 
 type VolumeViewProps = {
   viewMode: "grid" | "card" | "calendar";
@@ -28,7 +22,7 @@ type VolumeViewProps = {
   onManagePerspectives?: (volume: Volume) => void;
   onEditPerspective?: (
     volume: Volume,
-    perspective: "NARRATOR" | "PROTAGONIST"
+    perspective: "NARRATOR" | "PROTAGONIST",
   ) => void;
   versionsMap?: Record<
     string,
@@ -191,7 +185,7 @@ function VolumeGridView({
         id: "volumeNumber",
         header: "#",
         render: (volume) => (
-          <span className="font-medium">{volume.volumeNumber}</span>
+          <span className={`font-medium`}>{volume.volumeNumber}</span>
         ),
         className: "w-16",
         defaultVisible: true,
@@ -213,10 +207,10 @@ function VolumeGridView({
               <img
                 src={getImageUrl(volume.illustrationAsset)}
                 alt="Illustration"
-                className="w-12 h-12 object-cover rounded border border-gray-200"
+                className="w-12 h-12 object-cover rounded border border-gray-200 dark:border-gray-600"
               />
             ) : (
-              <div className="w-12 h-12 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
+              <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600 flex items-center justify-center">
                 <span className="text-xs text-gray-400">
                   {t("volume_view.table.image")}
                 </span>
@@ -263,7 +257,7 @@ function VolumeGridView({
               {t("volume_view.free")}
             </span>
           ) : (
-            <span className="px-2 py-1 text-xs rounded bg-gray-100 text-gray-600">
+            <span className="px-2 py-1 text-xs rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
               {t("chapter_detail.table.price") || "Payant"}
             </span>
           ),
@@ -271,7 +265,7 @@ function VolumeGridView({
         defaultVisible: true,
       },
     ],
-    [t, chapter, volumes, dragOverVolume]
+    [t, chapter, volumes, dragOverVolume],
   );
 
   const actions: TableAction<Volume>[] = useMemo(
@@ -299,7 +293,7 @@ function VolumeGridView({
         icon: <MdDelete className="w-5 h-5" />,
       },
     ],
-    [onManagePerspectives, onEditVolume, onDeleteVolume]
+    [onManagePerspectives, onEditVolume, onDeleteVolume],
   );
 
   return (
@@ -310,6 +304,7 @@ function VolumeGridView({
         columns={columns}
         actions={actions}
         selectable
+        isActive={(volume) => volume.status === "PUBLISHED"}
         selectedIds={selectedVolumeIds}
         onToggleSelection={toggleVolumeSelection}
         onToggleSelectAll={toggleSelectAll}
@@ -408,168 +403,30 @@ function VolumeCardView({
 
   return (
     <div
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 p-6"
+      className="grid grid-cols-1  xl:grid-cols-2  gap-4 p-6"
       onContextMenu={(e) => {
         if (e.target === e.currentTarget) {
           onBackgroundContextMenu?.(e);
         }
       }}>
       {volumes.map((volume, index) => (
-        <div
+        <VolumeCardV3
           key={volume.id}
-          className={`w-full h-full grid grid-rows-[1fr_auto_auto]  rounded-lg overflow-hidden hover:shadow-lg transition-shadow ${
-            selectedVolumeIds.has(volume.id)
-              ? "border-blue-500 ring-2 ring-blue-200"
-              : volume.volumeNumber > 10
-                ? "border-[#E4AB66]"
-                : "border-gray-200"
-          }
-              
-          ${volume.volumeNumber > 10 ? "border-4 border-[#E4AB66]  bg-gradient-to-b from-[#FFCE8220] to-[#EBAA5C20] shadow-lg shadow-[#FFCE8220]/50  " : "bg-white border-2"}
-         
-          `}
-          onContextMenu={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onVolumeContextMenu?.(e, volume);
-          }}>
-          <div className="flex items-center justify-center font-bold text-gray-900 mb-4 p-4 line-clamp-2 text-sm text-center uppercase bg-black/5">
-            {volume.title || `Volume ${volume.volumeNumber}`}
-          </div>
-          <div
-            className={`relative flex flex-1 justify-center  transition-all ${
-              dragOverVolume === volume.id
-                ? "ring-4 ring-blue-500 bg-blue-50"
-                : ""
-            }`}
-            onDragOver={(e) => handleDragOver(e, volume.id)}
-            onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, volume.id)}>
-            <>
-              {/* <div className="absolute w-48 h-48 bg-gradient-to-br from-gray-100/40 to-gray-200/40 flex items-center justify-center m-4 rounded-md">
-                  <span className="text-4xl font-bold text-gray-900">
-                    #{volume.volumeNumber}
-                  </span>
-                </div> */}
-              <BookPreview
-                type="square"
-                imageSrc={
-                  volume.illustrationAsset
-                    ? getImageUrl(volume.illustrationAsset)
-                    : undefined
-                }
-                title={volume.title}
-                isopen={true}
-              />
-            </>
-
-            <button
-              onClick={() => toggleVolumeSelection(volume.id)}
-              className="absolute top-2 left-2 bg-white rounded-lg p-2 shadow-md hover:shadow-lg transition-shadow">
-              {selectedVolumeIds.has(volume.id) ? (
-                <MdCheckBox className="w-5 h-5 text-blue-600" />
-              ) : (
-                <MdCheckBoxOutlineBlank className="w-5 h-5 text-gray-400" />
-              )}
-            </button>
-            <div className="absolute top-2 right-2">
-              {volume.isFree ? (
-                <span className="px-2 py-1 text-xs rounded bg-green-500 text-white font-medium shadow-md">
-                  Gratuit
-                </span>
-              ) : (
-                <span className="px-2 py-1 text-xs rounded bg-blue-500 text-white font-medium shadow-md">
-                  {(getVolumePriceCents(chapter, volume, index) / 100).toFixed(
-                    2
-                  )}{" "}
-                  €
-                </span>
-              )}
-            </div>
-            <div className="absolute bottom-0 right-2 flex flex-col items-center text-xs text-gray-400 border border-gray-300 bg-gray-50 shadow-md rounded-md p-2">
-              <PiClockCountdownBold className="h-6 w-6" />
-              <div>{getWaitDurationHours(volume)}h</div>
-            </div>
-          </div>
-          <div className="grid grid-rows-[1fr_auto] p-4">
-            {/* Perspectives Indicators */}
-            <div className="flex flex-col gap-2 justify-center mb-3 py-2">
-              <div
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onEditPerspective?.(volume, "NARRATOR");
-                }}
-                className={`flex items-center justify-between gap-2 p-3 rounded text-xs font-medium cursor-pointer transition-all hover:shadow-md ${volume.versions?.some((v) => v.perspective === "NARRATOR") ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-400"}`}>
-                <div className="flex items-center gap-1">
-                  <span>📖</span>
-                  <span>Narrateur</span>
-                </div>
-                {volume.versions?.find((v) => v.perspective === "NARRATOR")
-                  ?.hasText && (
-                  <svg
-                    className="w-3.5 h-3.5 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                )}
-              </div>
-              <div
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onEditPerspective?.(volume, "PROTAGONIST");
-                }}
-                className={`flex items-center justify-between gap-2 p-3 rounded text-xs font-medium cursor-pointer transition-all hover:shadow-md ${volume.versions?.some((v) => v.perspective === "PROTAGONIST") ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-400"}`}>
-                <div className="flex items-center gap-1">
-                  <span>👤</span>
-                  <span>Protagoniste</span>
-                </div>
-                {volume.versions?.find((v) => v.perspective === "PROTAGONIST")
-                  ?.hasText && (
-                  <svg
-                    className="w-3.5 h-3.5 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end space-x-2 pt-3 border-t border-gray-100">
-              {onManagePerspectives && (
-                <button
-                  onClick={() => onManagePerspectives(volume)}
-                  className="text-green-600 hover:text-green-800 p-2 rounded hover:bg-green-50"
-                  title={t("volume_view.manage_perspectives")}>
-                  <MdTune className="w-5 h-5" />
-                </button>
-              )}
-              <button
-                onClick={() => onEditVolume(volume.id)}
-                className="text-blue-600 hover:text-blue-800 p-2 rounded hover:bg-blue-50"
-                title={t("chapter_detail.buttons.edit_titles", "Modifier")}>
-                <MdEdit className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => onDeleteVolume(volume)}
-                className="text-red-600 hover:text-red-800 p-2 rounded hover:bg-red-50"
-                title={t("chapter_detail.dialog.delete_title", "Supprimer")}>
-                <MdDelete className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
+          volume={volume}
+          chapter={chapter}
+          index={index}
+          isSelected={selectedVolumeIds.has(volume.id)}
+          isDragOver={dragOverVolume === volume.id}
+          onContextMenu={(e) => onVolumeContextMenu?.(e, volume)}
+          onToggleSelection={() => toggleVolumeSelection(volume.id)}
+          onDragOver={(e) => handleDragOver(e, volume.id)}
+          onDragLeave={handleDragLeave}
+          onDrop={(e) => handleDrop(e, volume.id)}
+          onEditVolume={onEditVolume}
+          onDeleteVolume={onDeleteVolume}
+          onManagePerspectives={onManagePerspectives}
+          onEditPerspective={onEditPerspective}
+        />
       ))}
     </div>
   );
@@ -591,14 +448,17 @@ function VolumeCalendarView({
   );
 }
 
-function getVolumePriceCents(
-  _chapter: Chapter,
-  volume: Volume,
-  _index: number
-) {
-  // Prices are now managed via PriceSchema system
-  // This function kept for compatibility but returns 0
-  return volume.isFinalPaywall ? 299 : 199; // Default placeholder values
+function getVolumePriceCents(chapter: Chapter, volume: Volume, _index: number) {
+  // Volumes 9-10: use pricePaywall
+  if (volume.volumeNumber === 9 || volume.volumeNumber === 10) {
+    return chapter.pricing?.pricePaywall ?? 299;
+  }
+  // Volume 11+: use priceEpilogue
+  if (volume.volumeNumber >= 11) {
+    return chapter.pricing?.priceEpilogue ?? 399;
+  }
+  // Volumes 1-8: use priceFreeToRead
+  return chapter.pricing?.priceFreeToRead ?? 199;
 }
 
 function getWaitDurationHours(volume: Volume) {

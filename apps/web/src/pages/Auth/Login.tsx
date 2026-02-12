@@ -34,9 +34,7 @@ export default function Login() {
       <div className="w-full max-w-md">
         {/* Brand Section */}
         <div className="flex flex-col items-center gap-4 mb-12">
-          <div className="text-amber-600">
-            
-          </div>
+          <div className="text-amber-600"></div>
           <h1 className="text-4xl font-display font-medium tracking-tight text-gold handwriting">
             {t("auth.login.brand_name")}
           </h1>
@@ -127,7 +125,7 @@ export default function Login() {
               <Link
                 to="#"
                 className="text-sm text-gray-400 hover:text-amber-600 transition-colors font-serif italic">
-                {t("auth.forgot_password")}
+                {t("auth.login.forgot_password")}
               </Link>
               <p className="text-[11px] text-gray-500 uppercase tracking-widest">
                 {t("auth.login.no_account")}{" "}

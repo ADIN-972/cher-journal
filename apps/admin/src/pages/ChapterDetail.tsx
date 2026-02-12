@@ -15,8 +15,9 @@ import {
   MdArrowBack,
 } from "react-icons/md";
 import { api } from "../lib/api";
-import type { Chapter, Volume } from "@cher-journal/types";
+import type { Chapter, Volume, ChapterAsset } from "@cher-journal/types";
 import Modal from "../components/Modal";
+import Drawer from "../components/Drawer";
 import ConfirmDialog from "../components/ConfirmDialog";
 import BulkEditVolumeModal, {
   BulkVolumeUpdates,
@@ -24,12 +25,14 @@ import BulkEditVolumeModal, {
 import BulkEditTitlesDrawer from "../components/BulkEditTitlesDrawer";
 import BulkTextImportModal from "../components/BulkTextImportModal";
 import ChapterImageGallery from "../components/ChapterImageGallery";
+import ChapterForm from "../components/ChapterForm";
 import VolumeView from "../components/VolumeView";
 import VolumePerspectiverDrawer from "../components/VolumePerspectiverDrawer";
 import DragDropOverlay from "../components/DragDropOverlay";
 import FloatingActionButton from "../components/FloatingActionButton";
 import ContextMenu from "../components/ContextMenu";
 import { useContextMenu } from "../hooks/useContextMenu";
+import ChapterSummary from "../components/ChapterSummary";
 
 export default function ChapterDetail() {
   const { id } = useParams<{ id: string }>();
@@ -43,7 +46,7 @@ export default function ChapterDetail() {
   const [bootstrapCount, setBootstrapCount] = useState(10);
   const [deletingVolume, setDeletingVolume] = useState<Volume | null>(null);
   const [selectedVolumeIds, setSelectedVolumeIds] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
   const [showBulkEditModal, setShowBulkEditModal] = useState(false);
   const [perspectiveDrawerVolume, setPerspectiveDrawerVolume] =
@@ -66,6 +69,7 @@ export default function ChapterDetail() {
   const [showBulkEditTitlesDrawer, setShowBulkEditTitlesDrawer] =
     useState(false);
   const [showBulkTextImportModal, setShowBulkTextImportModal] = useState(false);
+  const [showChapterEditDrawer, setShowChapterEditDrawer] = useState(false);
 
   useEffect(() => {
     loadChapterDetail();
@@ -104,7 +108,9 @@ export default function ChapterDetail() {
         count: bootstrapCount,
       });
       toast.success(
-        t("chapter_detail.toast.volumes_created", "", { count: bootstrapCount })
+        t("chapter_detail.toast.volumes_created", "", {
+          count: bootstrapCount,
+        }),
       );
       setShowBootstrapModal(false);
       await loadChapterDetail();
@@ -115,7 +121,7 @@ export default function ChapterDetail() {
 
   const handleEditPerspective = (
     volume: Volume,
-    perspective: "NARRATOR" | "PROTAGONIST"
+    perspective: "NARRATOR" | "PROTAGONIST",
   ) => {
     setPerspectiveDrawerVolume(volume);
     setSelectedPerspective(perspective);
@@ -288,7 +294,7 @@ export default function ChapterDetail() {
       toast.success(
         t("chapter_detail.toast.bulk_update_success", "", {
           count: selectedIds.length,
-        })
+        }),
       );
       setShowBulkEditModal(false);
       setSelectedVolumeIds(new Set());
@@ -301,28 +307,28 @@ export default function ChapterDetail() {
   const handleBulkEditTitles = async (updates: Record<string, string>) => {
     try {
       const updatePromises = Object.entries(updates).map(([volumeId, title]) =>
-        api.patch(`/admin/volumes/${volumeId}`, { title })
+        api.patch(`/admin/volumes/${volumeId}`, { title }),
       );
       await Promise.all(updatePromises);
       await loadChapterDetail();
       toast.success(
         t("chapter_detail.toast.titles_update_success", "", {
           count: Object.keys(updates).length,
-        })
+        }),
       );
     } catch (error: any) {
       toast.error(
-        error.message || t("chapter_detail.toast.titles_update_error")
+        error.message || t("chapter_detail.toast.titles_update_error"),
       );
       throw new Error(
-        error.message || t("chapter_detail.toast.titles_update_error")
+        error.message || t("chapter_detail.toast.titles_update_error"),
       );
     }
   };
 
   const handleAssignImageToChapter = async (
     volumeId: string | null,
-    assetId: string
+    assetId: string,
   ) => {
     try {
       if (volumeId === null) {
@@ -341,11 +347,26 @@ export default function ChapterDetail() {
       await loadChapterDetail();
     } catch (error: any) {
       toast.error(
-        error.message || t("chapter_detail.toast.image_assign_error")
+        error.message || t("chapter_detail.toast.image_assign_error"),
       );
       throw new Error(
-        error.message || t("chapter_detail.toast.image_assign_error")
+        error.message || t("chapter_detail.toast.image_assign_error"),
       );
+    }
+  };
+
+  const handleEditChapter = () => {
+    setShowChapterEditDrawer(true);
+  };
+
+  const handleChapterUpdate = async (updatedChapter: any) => {
+    try {
+      await api.patch(`/admin/chapters/${id}`, updatedChapter);
+      toast.success(t("chapter_detail.toast.chapter_updated"));
+      setShowChapterEditDrawer(false);
+      await loadChapterDetail();
+    } catch (error: any) {
+      toast.error(error.message || t("chapter_detail.toast.update_error"));
     }
   };
 
@@ -377,35 +398,89 @@ export default function ChapterDetail() {
           className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 transition mb-4">
           <MdArrowBack className="text-xl text-gray-600" />
         </button>
-
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">{chapter.title}</h1>
-            <p className="text-gray-600">
-              {t("chapter_detail.protagonist")}: {chapter.protagonistName}
-            </p>
-          </div>
-          <span
-            className={`px-3 py-1 text-sm rounded ${
-              chapter.status === "PUBLISHED"
-                ? "bg-green-100 text-green-800"
-                : chapter.status === "IN_PROGRESS"
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-gray-100 text-gray-800"
-            }`}>
-            {chapter.status === "PUBLISHED"
-              ? t("chapters.published")
-              : chapter.status === "IN_PROGRESS"
-                ? t("chapters.in_progress")
-                : t("chapters.drafts")}
-          </span>
-        </div>
       </div>
+      <ChapterSummary
+        chapter={chapter}
+        onEditCover={handleEditChapter}
+        onAddChapter={() => setShowBootstrapModal(true)}
+        onPreview={() => {
+          /* TODO: implement preview */
+        }}
+      />
+
+      {chapter && (
+        <section className="mb-10">
+          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+            <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+              <h3 className="font-bold flex items-center gap-2">
+                <span className="material-symbols-outlined text-boudoir-gold">
+                  campaign
+                </span>
+                Marketing Accroches
+              </h3>
+              <button type="button" className="text-xs font-bold text-primary hover:underline">
+                Edit Variations
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
+              {/* Classic */}
+              <div className="p-6 border-r border-b border-zinc-200 dark:border-zinc-800">
+                <p className="text-[10px] font-bold text-zinc-400 uppercase mb-3">
+                  Classic
+                </p>
+                <p className="text-sm italic text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                  {chapter.accroche_classic ? `"${chapter.accroche_classic}"` : "—"}
+                </p>
+              </div>
+
+              {/* Dark / Erotic */}
+              <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/20">
+                <p className="text-[10px] font-bold text-zinc-400 uppercase mb-3">
+                  Dark / Erotic
+                </p>
+                <p className="text-sm italic text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                  {chapter.accroche_dark ? `"${chapter.accroche_dark}"` : "—"}
+                </p>
+              </div>
+
+              {/* Love / Romance */}
+              <div className="p-6 border-r border-b border-zinc-200 dark:border-zinc-800">
+                <p className="text-[10px] font-bold text-zinc-400 uppercase mb-3">
+                  Love / Romance
+                </p>
+                <p className="text-sm italic text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                  {chapter.accroche_love ? `"${chapter.accroche_love}"` : "—"}
+                </p>
+              </div>
+
+              {/* Marketing / Hook */}
+              <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/20">
+                <p className="text-[10px] font-bold text-zinc-400 uppercase mb-3">
+                  Marketing / Hook
+                </p>
+                <p className="text-sm italic text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                  {chapter.accroche_marketing ? `"${chapter.accroche_marketing}"` : "—"}
+                </p>
+              </div>
+
+              {/* Dark Collection */}
+              <div className="p-6 border-r border-zinc-200 dark:border-zinc-800">
+                <p className="text-[10px] font-bold text-zinc-400 uppercase mb-3">
+                  Dark Collection
+                </p>
+                <p className="text-sm italic text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                  {chapter.accroche_dark_collection ? `"${chapter.accroche_dark_collection}"` : "—"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Volumes Section */}
-      <div className="bg-white rounded-lg shadow">
+      <div className="border bg-white dark:bg-white/5  border-slate-200 dark:border-white/10 rounded-lg shadow">
         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-          <h2 className="text-xl font-semibold">
+          <h2 className="text-xl text-slate-900 dark:text-white font-semibold">
             {t("chapter_detail.volumes_title", "", { count: volumes.length })}
             {selectedVolumeIds.size > 0 && (
               <span className="ml-2 text-sm text-blue-600">
@@ -490,8 +565,8 @@ export default function ChapterDetail() {
       </div>
 
       {/* Images Section */}
-      <div className="bg-white rounded-lg shadow mt-6 p-6">
-        <h2 className="text-2xl font-bold mb-6">
+      <div className="bg-white dark:bg-white/5  border border-slate-200 dark:border-white/10 rounded-lg shadow mt-6 p-6">
+        <h2 className="text-2xl text-slate-900 dark:text-white font-bold mb-6">
           {t("chapter_detail.chapter_images")}
         </h2>
         <ChapterImageGallery
@@ -683,6 +758,22 @@ export default function ChapterDetail() {
           }}
         />
       )}
+
+      {/* Chapter Edit Drawer */}
+      <Drawer
+        isOpen={showChapterEditDrawer}
+        onClose={() => setShowChapterEditDrawer(false)}
+        title={t("chapters.edit_chapter")}
+        width="lg">
+        {chapter && (
+          <ChapterForm
+            chapterId={id}
+            initialData={chapter as any}
+            onSubmit={handleChapterUpdate}
+            onCancel={() => setShowChapterEditDrawer(false)}
+          />
+        )}
+      </Drawer>
     </div>
   );
 }

@@ -226,7 +226,7 @@ export default function PurchaseTimeline({ orders, entitlements, locale = 'fr' }
                 {/* Amount */}
                 <div className="text-right ml-4">
                   <div className="text-lg font-bold text-gray-900">
-                    {formatAmount(order.amountTotal, order.currency)}
+                    {formatAmount(order.amountTotal, order.currency || 'EUR')}
                   </div>
                   {order.provider && (
                     <div className="text-xs text-gray-400 mt-1">

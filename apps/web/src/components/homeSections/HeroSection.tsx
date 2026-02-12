@@ -49,18 +49,20 @@ export default function HeroSection({ chapters, heroData }: HeroSectionProps) {
             </div>
             <div>
               {/* Main Title */}
-              <h2 className="text-4xl md:text-7xl leading-none text-white handwriting">
-                <span className="text-white italic">{heroData.title}</span>
+              <h2 className="text-4xl md:text-7xl leading-none text-charcoal dark:text-white handwriting">
+                <span className="text-charcoal dark:text-white italic">
+                  {heroData.title}
+                </span>
               </h2>
 
               {/* Subtitle */}
-              <p className="text-xl text-white/70 max-w-md font-light leading-relaxed mt-4 italic Newsreader">
+              <p className="text-xl text-charcoal dark:text-white/70 max-w-md leading-relaxed mt-4 italic Newsreader">
                 {heroData.description}
               </p>
             </div>
           </div>
           {/* CTA Buttons */}
-          <div className="flex items-center gap-6 pt-2">
+          <div className="flex items-center gap-4 pt-2">
             <Link
               to={`/chapters/${heroData.id}`}
               className="bg-primary hover:bg-primary/80 text-white px-8 py-4 rounded-lg font-bold tracking-wide transition-all transform hover:scale-105">
@@ -68,8 +70,8 @@ export default function HeroSection({ chapters, heroData }: HeroSectionProps) {
             </Link>
             <Link
               to="/catalogue"
-              className="border border-white/20 hover:bg-white/5 text-white px-8 py-4 rounded-lg font-bold tracking-wide transition-all">
-              <span className="w-8 h-px bg-white/50"></span>
+              className="border border-charcoal dark:border-white/20 hover:bg-white/5 text-charcoal dark:text-white px-8 py-4 rounded-lg font-bold tracking-wide transition-all">
+              <span className="w-8 h-px bg-white/80"></span>
               LE CATALOGUE
             </Link>
           </div>

@@ -12,10 +12,13 @@ import {
   MdPersonAdd,
   MdCheckCircle,
   MdMenuBook,
+  MdTrendingUp,
+  MdTrendingDown,
 } from "react-icons/md";
 import { ImAddressBook } from "react-icons/im";
 import PurchaseTimelineChart from "../components/PurchaseTimelineChart";
-import PurchaseDistributionChart from "../components/PurchaseDistributionChart";
+import SalesDistributionChart from "../components/SalesDistributionChart";
+import RevenueEvolutionChart, { Period } from "../components/RevenueEvolutionChart";
 
 interface Stats {
   totalUsers: number;
@@ -33,14 +36,55 @@ interface Order {
   createdAt: string;
 }
 
+interface KPIRevenuePeriod {
+  amount: number;
+  count: number;
+  change: number;
+}
+
+interface KPIData {
+  revenue: {
+    today: KPIRevenuePeriod;
+    week: KPIRevenuePeriod;
+    month: KPIRevenuePeriod;
+    year: KPIRevenuePeriod;
+  };
+  topChapters: Array<{
+    refId: string;
+    count: number;
+    revenue: number;
+    chapter?: { id: string; title: string; protagonistName: string };
+  }>;
+  topVolumes: Array<{
+    refId: string;
+    count: number;
+    revenue: number;
+    chapter?: { id: string; title: string; protagonistName: string };
+  }>;
+}
+
 export default function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
+  const [kpis, setKpis] = useState<KPIData | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  const locale = language === "en" ? "en-US" : "fr-FR";
+
+  // Shared period state for revenue evolution and sales distribution
+  const [selectedPeriod, setSelectedPeriod] = useState<Period>(() => {
+    const saved = localStorage.getItem("revenueEvolutionPeriod");
+    return (saved as Period) || "30days";
+  });
+
+  const handlePeriodChange = (period: Period) => {
+    setSelectedPeriod(period);
+    localStorage.setItem("revenueEvolutionPeriod", period);
+  };
 
   useEffect(() => {
     loadStats();
+    loadKPIs();
     loadOrders();
   }, []);
 
@@ -56,6 +100,15 @@ export default function Dashboard() {
     }
   };
 
+  const loadKPIs = async () => {
+    try {
+      const response = await api.get("/admin/dashboard/kpis");
+      setKpis(response.data);
+    } catch (error) {
+      console.error("Failed to load KPIs:", error);
+    }
+  };
+
   const loadOrders = async () => {
     try {
       const response = await api.get("/admin/orders");
@@ -63,6 +116,13 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Failed to load orders:", error);
     }
+  };
+
+  const formatPrice = (cents: number) => {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: "EUR",
+    }).format(cents / 100);
   };
 
   if (loading) {
@@ -78,7 +138,7 @@ export default function Dashboard() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Utilisateurs */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-card-dark dark:border-[#4d252f] rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -100,7 +160,7 @@ export default function Dashboard() {
               </span>
             </div>
           </div>
-          <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
+          <div className="bg-gray-50  dark:bg-black/30 dark:border-[#4d252f] px-6 py-3 border-t border-gray-200">
             <a
               href="/users"
               className="text-sm text-blue-600 hover:text-blue-700 font-medium">
@@ -110,7 +170,7 @@ export default function Dashboard() {
         </div>
 
         {/* Chapitres */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-card-dark dark:border-[#4d252f] rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -134,7 +194,7 @@ export default function Dashboard() {
               </span>
             </div>
           </div>
-          <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
+          <div className="bg-gray-50 dark:bg-black/30 dark:border-[#4d252f] px-6 py-3 border-t border-gray-200">
             <a
               href="/chapters"
               className="text-sm text-blue-600 hover:text-blue-700 font-medium">
@@ -144,7 +204,7 @@ export default function Dashboard() {
         </div>
 
         {/* Commandes */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-card-dark dark:border-[#4d252f] rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -166,7 +226,7 @@ export default function Dashboard() {
               </span>
             </div>
           </div>
-          <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
+          <div className="bg-gray-50 dark:bg-black/30 dark:border-[#4d252f] px-6 py-3 border-t border-gray-200">
             <a
               href="/orders"
               className="text-sm text-blue-600 hover:text-blue-700 font-medium">
@@ -176,7 +236,7 @@ export default function Dashboard() {
         </div>
 
         {/* Revenus */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-card-dark dark:border-[#4d252f] rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -198,7 +258,7 @@ export default function Dashboard() {
               </span>
             </div>
           </div>
-          <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
+          <div className="bg-gray-50 dark:bg-black/30 dark:border-[#4d252f] px-6 py-3 border-t border-gray-200">
             <a
               href="/orders"
               className="text-sm text-blue-600 hover:text-blue-700 font-medium">
@@ -208,24 +268,256 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Temporal Chart */}
-        <PurchaseTimelineChart orders={orders} locale="fr" />
+      {/* KPI Cards - Real-time Revenue */}
+      {kpis && (
+        <div className="bg-white dark:bg-card-dark dark:border-[#4d252f] rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <MdShowChart className="w-6 h-6 text-indigo-600" />
+            <h2 className="text-xl font-bold text-gray-900">
+              Revenus en temps réel
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Today */}
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-blue-900">
+                  Aujourd'hui
+                </span>
+                {kpis.revenue.today.change !== 0 && (
+                  <div
+                    className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                      kpis.revenue.today.change > 0
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}>
+                    {kpis.revenue.today.change > 0 ? (
+                      <MdTrendingUp className="w-3 h-3" />
+                    ) : (
+                      <MdTrendingDown className="w-3 h-3" />
+                    )}
+                    {Math.abs(kpis.revenue.today.change).toFixed(1)}%
+                  </div>
+                )}
+              </div>
+              <div className="text-2xl font-bold text-blue-900 mb-1">
+                {formatPrice(kpis.revenue.today.amount)}
+              </div>
+              <div className="text-xs text-blue-700">
+                {kpis.revenue.today.count} commande(s)
+              </div>
+            </div>
 
-        {/* Distribution Chart */}
-        <PurchaseDistributionChart orders={orders} locale="fr" />
+            {/* Week */}
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-purple-900">
+                  Cette semaine
+                </span>
+                {kpis.revenue.week.change !== 0 && (
+                  <div
+                    className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                      kpis.revenue.week.change > 0
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}>
+                    {kpis.revenue.week.change > 0 ? (
+                      <MdTrendingUp className="w-3 h-3" />
+                    ) : (
+                      <MdTrendingDown className="w-3 h-3" />
+                    )}
+                    {Math.abs(kpis.revenue.week.change).toFixed(1)}%
+                  </div>
+                )}
+              </div>
+              <div className="text-2xl font-bold text-purple-900 mb-1">
+                {formatPrice(kpis.revenue.week.amount)}
+              </div>
+              <div className="text-xs text-purple-700">
+                {kpis.revenue.week.count} commande(s)
+              </div>
+            </div>
+
+            {/* Month */}
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-green-900">
+                  Ce mois
+                </span>
+                {kpis.revenue.month.change !== 0 && (
+                  <div
+                    className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                      kpis.revenue.month.change > 0
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}>
+                    {kpis.revenue.month.change > 0 ? (
+                      <MdTrendingUp className="w-3 h-3" />
+                    ) : (
+                      <MdTrendingDown className="w-3 h-3" />
+                    )}
+                    {Math.abs(kpis.revenue.month.change).toFixed(1)}%
+                  </div>
+                )}
+              </div>
+              <div className="text-2xl font-bold text-green-900 mb-1">
+                {formatPrice(kpis.revenue.month.amount)}
+              </div>
+              <div className="text-xs text-green-700">
+                {kpis.revenue.month.count} commande(s)
+              </div>
+            </div>
+
+            {/* Year */}
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-orange-900">
+                  Cette année
+                </span>
+                {kpis.revenue.year.change !== 0 && (
+                  <div
+                    className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                      kpis.revenue.year.change > 0
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}>
+                    {kpis.revenue.year.change > 0 ? (
+                      <MdTrendingUp className="w-3 h-3" />
+                    ) : (
+                      <MdTrendingDown className="w-3 h-3" />
+                    )}
+                    {Math.abs(kpis.revenue.year.change).toFixed(1)}%
+                  </div>
+                )}
+              </div>
+              <div className="text-2xl font-bold text-orange-900 mb-1">
+                {formatPrice(kpis.revenue.year.amount)}
+              </div>
+              <div className="text-xs text-orange-700">
+                {kpis.revenue.year.count} commande(s)
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Top Content */}
+      {kpis && (kpis.topChapters.length > 0 || kpis.topVolumes.length > 0) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Top Chapters */}
+          {kpis.topChapters.length > 0 && (
+            <div className="bg-white dark:bg-card-dark dark:border-[#4d252f] rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <MdBarChart className="w-6 h-6 text-purple-600" />
+                <h3 className="text-lg font-bold text-gray-900">
+                  Top 5 Chapitres
+                </h3>
+              </div>
+              <div className="space-y-3">
+                {kpis.topChapters.map((item, index) => (
+                  <div
+                    key={item.refId}
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-black/30 dark:border-[#4d252f] rounded-lg hover:bg-gray-100 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-700 font-bold text-sm">
+                        {index + 1}
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {item.chapter?.title || "Chapitre inconnu"}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {item.count} achat(s)
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-gray-900">
+                        {formatPrice(item.revenue)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Top Volumes */}
+          {kpis.topVolumes.length > 0 && (
+            <div className="bg-white dark:bg-card-dark dark:border-[#4d252f] rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <MdBarChart className="w-6 h-6 text-indigo-600" />
+                <h3 className="text-lg font-bold text-gray-900">
+                  Top 5 Volumes
+                </h3>
+              </div>
+              <div className="space-y-3">
+                {kpis.topVolumes.map((item, index) => (
+                  <div
+                    key={item.refId}
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-black/30 dark:border-[#4d252f] rounded-lg hover:bg-gray-100 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold text-sm">
+                        {index + 1}
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {item.chapter?.title || "Volume inconnu"}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {item.count} achat(s)
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-gray-900">
+                        {formatPrice(item.revenue)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Combined Revenue Evolution & Sales Distribution Chart */}
+      <div className="bg-white dark:bg-card-dark dark:border-[#4d252f] rounded-lg shadow-sm border border-gray-200">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
+          {/* Revenue Evolution Chart - Left side (2/3 width) */}
+          <div className="lg:col-span-2 border-r border-gray-200  dark:border-[#4d252f]">
+            <RevenueEvolutionChart
+              orders={orders}
+              locale={locale}
+              selectedPeriod={selectedPeriod}
+              onPeriodChange={handlePeriodChange}
+            />
+          </div>
+
+          {/* Sales Distribution Chart - Right side (1/3 width) */}
+          <div className="lg:col-span-1">
+            <SalesDistributionChart
+              orders={orders}
+              locale={locale}
+              selectedPeriod={selectedPeriod}
+            />
+          </div>
+        </div>
       </div>
 
+      {/* Temporal Chart - Full Width */}
+      {/* <PurchaseTimelineChart orders={orders} locale="fr" /> */}
+
       {/* Recent Activity */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
+      <div className="bg-white dark:bg-card-dark dark:border-[#4d252f] rounded-lg shadow-sm border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-[#4d252f]">
           <h3 className="text-lg font-semibold text-gray-900">
             {t("dashboard.recent_activities")}
           </h3>
         </div>
-        <div className="divide-y divide-gray-200">
-          <div className="px-6 py-4 hover:bg-gray-50 transition-colors">
+        <div className="divide-y divide-gray-200 dark:divide-[#4d252f]">
+          <div className="px-6 py-4 hover:bg-gray-50 dark:bg-black/30 dark:border-[#4d252f] transition-colors">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                 <MdPersonAdd className="w-5 h-5 text-blue-600" />
@@ -245,7 +537,7 @@ export default function Dashboard() {
               </span>
             </div>
           </div>
-          <div className="px-6 py-4 hover:bg-gray-50 transition-colors">
+          <div className="px-6 py-4 hover:bg-gray-50 dark:bg-black/30 dark:border-[#4d252f] transition-colors">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                 <MdCheckCircle className="w-5 h-5 text-green-600" />
@@ -266,7 +558,7 @@ export default function Dashboard() {
               </span>
             </div>
           </div>
-          <div className="px-6 py-4 hover:bg-gray-50 transition-colors">
+          <div className="px-6 py-4 hover:bg-gray-50 dark:bg-black/30 dark:border-[#4d252f] transition-colors">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                 <MdMenuBook className="w-5 h-5 text-purple-600" />
@@ -281,7 +573,7 @@ export default function Dashboard() {
                     undefined,
                     {
                       title: "Le Mystère",
-                    }
+                    },
                   )}
                 </p>
               </div>

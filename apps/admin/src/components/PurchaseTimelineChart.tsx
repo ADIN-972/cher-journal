@@ -1,5 +1,15 @@
 import { useState, useMemo } from "react";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
+import {
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Line,
+  LineChart,
+  Legend,
+} from "recharts";
 
 interface Order {
   id: string;
@@ -48,29 +58,24 @@ export default function PurchaseTimelineChart({
     ];
 
     // Initialize data structure
-    const dataByMonth: Record<
-      number,
-      {
-        month: string;
-        CHAPTER: number;
-        VERSION_PACK: number;
-        COLORING: number;
-        BUNDLE: number;
-        PREORDER: number;
-        total: number;
-      }
-    > = {};
+    const dataByMonth: Array<{
+      month: string;
+      Chapitres: number;
+      Perspectives: number;
+      Coloriage: number;
+      Bundles: number;
+      Précommandes: number;
+    }> = [];
 
     for (let i = 0; i < 12; i++) {
-      dataByMonth[i] = {
+      dataByMonth.push({
         month: monthNames[i],
-        CHAPTER: 0,
-        VERSION_PACK: 0,
-        COLORING: 0,
-        BUNDLE: 0,
-        PREORDER: 0,
-        total: 0,
-      };
+        Chapitres: 0,
+        Perspectives: 0,
+        Coloriage: 0,
+        Bundles: 0,
+        Précommandes: 0,
+      });
     }
 
     // Filter orders for selected year and aggregate by month/type
@@ -79,55 +84,52 @@ export default function PurchaseTimelineChart({
       return orderYear === selectedYear && order.status === "PAID";
     });
 
-    console.log(`[PurchaseTimelineChart] Year ${selectedYear}: ${yearOrders.length} paid orders`);
-
     yearOrders.forEach((order) => {
       const month = new Date(order.createdAt).getMonth();
-      const type = order.type as keyof typeof dataByMonth[0];
+      const amount = order.amountTotal / 100;
 
-      // Log each order to debug
-      console.log(`[PurchaseTimelineChart] Order: month=${month}, type=${type}, amount=${order.amountTotal}`);
-
-      if (dataByMonth[month] && type in dataByMonth[month]) {
-        dataByMonth[month][type] += order.amountTotal / 100; // Convert cents to euros
-        dataByMonth[month].total += order.amountTotal / 100;
-      } else {
-        console.warn(`[PurchaseTimelineChart] Unknown type: ${type} for month ${month}`);
+      switch (order.type) {
+        case "CHAPTER":
+          dataByMonth[month].Chapitres += amount;
+          break;
+        case "VERSION_PACK":
+          dataByMonth[month].Perspectives += amount;
+          break;
+        case "COLORING":
+          dataByMonth[month].Coloriage += amount;
+          break;
+        case "BUNDLE":
+          dataByMonth[month].Bundles += amount;
+          break;
+        case "PREORDER":
+          dataByMonth[month].Précommandes += amount;
+          break;
       }
     });
 
-    const result = Object.values(dataByMonth);
-    console.log(`[PurchaseTimelineChart] Chart data:`, result);
-    return result;
+    // Round to 2 decimals
+    return dataByMonth.map((month) => ({
+      month: month.month,
+      Chapitres: parseFloat(month.Chapitres.toFixed(2)),
+      Perspectives: parseFloat(month.Perspectives.toFixed(2)),
+      Coloriage: parseFloat(month.Coloriage.toFixed(2)),
+      Bundles: parseFloat(month.Bundles.toFixed(2)),
+      Précommandes: parseFloat(month.Précommandes.toFixed(2)),
+    }));
   }, [orders, selectedYear]);
-
-  // Calculate max value for scaling
-  const maxValue = useMemo(() => {
-    const max = Math.max(...chartData.map((d) => d.total), 1);
-    console.log(`[PurchaseTimelineChart] Max value: ${max}`);
-    return max;
-  }, [chartData]);
-
-  // Type colors
-  const typeColors: Record<string, string> = {
-    CHAPTER: "#3b82f6", // blue
-    VERSION_PACK: "#8b5cf6", // purple
-    COLORING: "#ec4899", // pink
-    BUNDLE: "#10b981", // green
-    PREORDER: "#f97316", // orange
-  };
-
-  const typeLabels: Record<string, string> = {
-    CHAPTER: "Chapitres",
-    VERSION_PACK: "Perspectives",
-    COLORING: "Coloriage",
-    BUNDLE: "Bundles",
-    PREORDER: "Précommandes",
-  };
 
   // Calculate total for the year
   const yearTotal = useMemo(() => {
-    return chartData.reduce((sum, month) => sum + month.total, 0);
+    return chartData.reduce(
+      (sum, month) =>
+        sum +
+        month.Chapitres +
+        month.Perspectives +
+        month.Coloriage +
+        month.Bundles +
+        month.Précommandes,
+      0
+    );
   }, [chartData]);
 
   if (availableYears.length === 0) {
@@ -189,116 +191,104 @@ export default function PurchaseTimelineChart({
       </div>
 
       {/* Chart */}
-      <div className="relative h-64">
-        {/* Y-axis labels */}
-        <div className="absolute left-0 top-0 bottom-8 w-12 flex flex-col justify-between text-xs text-gray-500 text-right pr-2">
-          <span>{maxValue.toFixed(0)}€</span>
-          <span>{(maxValue * 0.75).toFixed(0)}€</span>
-          <span>{(maxValue * 0.5).toFixed(0)}€</span>
-          <span>{(maxValue * 0.25).toFixed(0)}€</span>
-          <span>0€</span>
-        </div>
-
-        {/* Chart area */}
-        <div className="absolute left-12 right-0 top-0 bottom-8">
-          {/* Grid lines */}
-          <div className="absolute inset-0 flex flex-col justify-between">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <div key={i} className="border-t border-gray-100" />
-            ))}
-          </div>
-
-          {/* Bars */}
-          <div className="absolute inset-0 flex items-end justify-between gap-1">
-            {chartData.map((month, index) => {
-              const barHeight = (month.total / maxValue) * 100;
-              console.log(`[PurchaseTimelineChart] ${month.month}: total=${month.total}, maxValue=${maxValue}, barHeight=${barHeight}%`);
-
-              return (
-                <div
-                  key={index}
-                  className="flex-1 flex flex-col justify-end group relative"
-                >
-                  {/* Stacked bar */}
-                  <div
-                    className="w-full rounded-t-md overflow-hidden transition-all hover:opacity-90 cursor-pointer"
-                    style={{ height: `${barHeight}%` }}
-                  >
-                    {(["CHAPTER", "VERSION_PACK", "COLORING", "BUNDLE", "PREORDER"] as const).map(
-                      (type) => {
-                        const typeValue = month[type];
-                        const typeHeight = month.total > 0 ? (typeValue / month.total) * 100 : 0;
-
-                        if (typeValue === 0) return null;
-
-                        return (
-                          <div
-                            key={type}
-                            style={{
-                              height: `${typeHeight}%`,
-                              backgroundColor: typeColors[type],
-                            }}
-                            title={`${typeLabels[type]}: ${typeValue.toFixed(2)}€`}
-                          />
-                        );
-                      }
-                    )}
-                  </div>
-
-                  {/* Tooltip on hover */}
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                    <div className="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-lg">
-                      <div className="font-semibold mb-1">{month.month}</div>
-                      <div className="space-y-1">
-                        {(["CHAPTER", "VERSION_PACK", "COLORING", "BUNDLE", "PREORDER"] as const).map(
-                          (type) => {
-                            if (month[type] === 0) return null;
-                            return (
-                              <div key={type} className="flex items-center gap-2">
-                                <div
-                                  className="w-2 h-2 rounded-full"
-                                  style={{ backgroundColor: typeColors[type] }}
-                                />
-                                <span>
-                                  {typeLabels[type]}: {month[type].toFixed(2)}€
-                                </span>
-                              </div>
-                            );
-                          }
-                        )}
-                      </div>
-                      <div className="border-t border-gray-700 mt-1 pt-1 font-semibold">
-                        Total: {month.total.toFixed(2)}€
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* X-axis labels */}
-        <div className="absolute left-12 right-0 bottom-0 h-8 flex items-center justify-between text-xs text-gray-500">
-          {chartData.map((month, index) => (
-            <span key={index} className="flex-1 text-center">
-              {month.month}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Legend */}
-      <div className="flex flex-wrap gap-3 mt-6 pt-6 border-t border-gray-100">
-        {(Object.keys(typeLabels) as Array<keyof typeof typeLabels>).map((type) => (
-          <div key={type} className="flex items-center gap-2">
-            <div
-              className="w-3 h-3 rounded-sm"
-              style={{ backgroundColor: typeColors[type] }}
+      <div className="h-80">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={chartData}
+            margin={{
+              top: 5,
+              right: 10,
+              left: 0,
+              bottom: 5,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis
+              dataKey="month"
+              axisLine={false}
+              tickLine={false}
+              className="text-xs font-medium"
+              tick={{ fill: "#6b7280" }}
             />
-            <span className="text-sm text-gray-600">{typeLabels[type]}</span>
-          </div>
-        ))}
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              className="text-xs font-medium"
+              tick={{ fill: "#6b7280" }}
+              tickFormatter={(value) => `${value}€`}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "#ffffff",
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+                fontSize: "14px",
+              }}
+              labelStyle={{
+                fontWeight: "700",
+                fontSize: "15px",
+                marginBottom: "8px",
+                padding: "6px 8px",
+                backgroundColor: "#e5e7eb",
+                borderRadius: "4px",
+                display: "block"
+              }}
+              formatter={(value: number, name: string) => [
+                <span key={name}>
+                  <strong>{name} :</strong> {value.toFixed(2)}€
+                </span>,
+                ""
+              ]}
+            />
+            <Legend
+              wrapperStyle={{
+                paddingTop: "20px",
+                fontSize: "12px",
+              }}
+              iconType="line"
+            />
+            <Line
+              type="monotone"
+              dataKey="Chapitres"
+              stroke="#3b82f6"
+              strokeWidth={2}
+              dot={{ fill: "#3b82f6", r: 3 }}
+              activeDot={{ r: 5 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="Perspectives"
+              stroke="#8b5cf6"
+              strokeWidth={2}
+              dot={{ fill: "#8b5cf6", r: 3 }}
+              activeDot={{ r: 5 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="Coloriage"
+              stroke="#ec4899"
+              strokeWidth={2}
+              dot={{ fill: "#ec4899", r: 3 }}
+              activeDot={{ r: 5 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="Bundles"
+              stroke="#10b981"
+              strokeWidth={2}
+              dot={{ fill: "#10b981", r: 3 }}
+              activeDot={{ r: 5 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="Précommandes"
+              stroke="#f97316"
+              strokeWidth={2}
+              dot={{ fill: "#f97316", r: 3 }}
+              activeDot={{ r: 5 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );

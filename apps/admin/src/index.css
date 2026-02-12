@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Great+Vibes&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap&family=Manrope:wght@200..800");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -9,6 +10,19 @@ body {
     "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.Newsreader,
+.newsreader {
+  font-family: "Newsreader", serif;
+}
+.handwriting {
+  font-family: "Great Vibes", cursive;
+}
+
+.Manrope,
+.manrope {
+  font-family: "Manrope", sans-serif;
 }
 
 .dashed,
@@ -90,4 +104,257 @@ body {
 
 .animate-shake {
   animation: shake 0.5s;
+}
+
+@layer base {
+  .material-symbols-outlined {
+    font-variation-settings:
+      "FILL" 0,
+      "wght" 300,
+      "GRAD" 0,
+      "opsz" 24;
+  }
+  body {
+    scrollbar-width: thin;
+    scrollbar-color: #8b000033 transparent;
+  }
+  .reading-container {
+    max-width: 800px;
+    position: relative;
+    z-index: 10;
+  }
+  ::selection {
+    background: rgba(139, 0, 0, 0.15);
+    color: #8b0000;
+  }
+  .first-letter-ornate::first-letter {
+    float: left;
+    font-family: "Cinzel", serif;
+    font-size: 4.5rem;
+    line-height: 0;
+    margin: 0.3em 0.1em 0 0;
+    color: theme("colors.primary");
+    font-weight: 700;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  .curtain-left,
+  .curtain-right {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    background: linear-gradient(to right, #2a0202, #4a0404, #3a0303);
+    z-index: 20;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+  }
+  .curtain-left {
+    left: 0;
+    border-right: 2px solid #c5a059;
+  }
+  .curtain-right {
+    right: 0;
+    border-left: 2px solid #c5a059;
+  }
+  .frame-top {
+    position: fixed;
+    top: 0;
+    left: 80px;
+    right: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, #c5a059, transparent);
+    z-index: 30;
+  }
+  .font-ornate {
+    font-family: "Playfair Display", "Georgia", serif;
+    font-weight: 500;
+  }
+}
+
+.book-binding-effect::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.1) 20%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(0, 0, 0, 0.1) 80%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  border-right: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.bg-background-light {
+  background-color: rgb(253 250 241 / var(--tw-bg-opacity, 1));
+}
+
+.dark\:bg-background-dark:is(.dark *) {
+  background-color: rgb(26 13 16 / var(--tw-bg-opacity, 1));
+}
+
+.bg-primary {
+  background-color: rgb(236 19 73 / var(--tw-bg-opacity, 1));
+}
+.text-primary {
+  color: rgb(236 19 73 / var(--tw-bg-opacity, 1));
+}
+
+.text-gold,
+.text-accent-gold {
+  /* --tw-text-opacity: 1; */
+  color: rgb(197 160 89 / var(--tw-text-opacity, 1));
+}
+
+.text-umber {
+  /* --tw-text-opacity: 1; */
+  color: rgb(74 55 40 / var(--tw-text-opacity, 1));
+}
+
+.bg-gold {
+  background-color: rgb(197 160 89 / var(--tw-bg-opacity, 1));
+}
+.border-gold {
+  border-color: rgb(197 160 89 / var(--tw-border-opacity, 1));
+}
+.shadow-book {
+  box-shadow:
+    -5px 15px 30px -10px rgba(0, 0, 0, 0.2),
+    5px 15px 30px -10px rgba(0, 0, 0, 0.2);
+}
+.book-card {
+  position: relative;
+  display: grid;
+  min-height: 460px;
+  width: 100%;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 700ms;
+  perspective: 2000px;
+}
+.book-container {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
+  --tw-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+  --tw-shadow-colored: 0 20px 50px var(--tw-shadow-color);
+  box-shadow:
+    var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
+}
+.book-left {
+  position: relative;
+  flex: 1 1 0%;
+  overflow: hidden;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 700ms;
+  background: linear-gradient(to right, #ffffff 0%, #fcfcfc 85%, #e8e8e8 100%);
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+}
+.book-right {
+  position: relative;
+  flex: 1 1 0%;
+  overflow: hidden;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 700ms;
+  background: linear-gradient(to left, #ffffff 0%, #fcfcfc 85%, #e8e8e8 100%);
+  border-left: 1px solid rgba(0, 0, 0, 0.05);
+}
+.inner-binding {
+  pointer-events: none;
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 50%;
+  z-index: 30;
+  width: 4rem;
+  --tw-translate-x: -50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
+    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
+    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.05) 20%,
+    rgba(0, 0, 0, 0.15) 45%,
+    rgba(0, 0, 0, 0.25) 50%,
+    rgba(0, 0, 0, 0.15) 55%,
+    rgba(0, 0, 0, 0.05) 80%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+.binding-lines {
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 50%;
+  z-index: 40;
+  width: 2px;
+  --tw-translate-x: -50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
+    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
+    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  background-color: rgb(0 0 0 / 0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.page-curl-left {
+  pointer-events: none;
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+  width: 2rem;
+  background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.03));
+}
+.page-curl-right {
+  pointer-events: none;
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  width: 2rem;
+  background: linear-gradient(to left, transparent, rgba(0, 0, 0, 0.03));
+}
+.page-texture {
+  pointer-events: none;
+  position: absolute;
+  inset: 0px;
+  opacity: 0.15;
+  background-image: url("https://www.transparenttextures.com/patterns/paper.png");
+}
+.book-illustration {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  -webkit-mask-image: linear-gradient(
+    to left,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 1) 15%
+  );
+  mask-image: linear-gradient(
+    to left,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 1) 15%
+  );
+}
+.is-closed .book-left {
+  transform-origin: right center;
+  transform: rotateY(-160deg);
+  z-index: 50;
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
+}
+.bg-boudoir-purple {
+  --tw-bg-opacity: 1;
+  background-color: rgb(74 29 53 / var(--tw-bg-opacity, 1));
 }

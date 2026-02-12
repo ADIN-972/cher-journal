@@ -18,7 +18,7 @@ export class AssetsController {
     const filters = {
       kind: kind as AssetKind | undefined,
       search,
-      tagIds: tagIds ? tagIds.split(",") : undefined,
+      tagIds: Array.isArray(tagIds) ? tagIds : tagIds ? [tagIds] : undefined,
       showDuplicates: showDuplicates === "true",
     };
 

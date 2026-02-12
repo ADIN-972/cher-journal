@@ -1,5 +1,6 @@
 import { useState } from "react";
-import Modal from "./Modal";
+import Drawer from "./Drawer";
+import { useI18n } from "../lib/i18n";
 
 interface BulkEditChapterModalProps {
   isOpen: boolean;
@@ -10,9 +11,6 @@ interface BulkEditChapterModalProps {
 
 export interface BulkChapterUpdates {
   status?: "DRAFT" | "IN_PROGRESS" | "PUBLISHED";
-  priceFreeToRead?: number;
-  pricePaywall?: number;
-  priceEpilogue?: number;
   publishedAt?: string | null;
 }
 
@@ -22,26 +20,15 @@ export default function BulkEditChapterModal({
   onSubmit,
   selectedCount,
 }: BulkEditChapterModalProps) {
+  const { t } = useI18n();
   const [formData, setFormData] = useState<{
     updateStatus: boolean;
     status: "DRAFT" | "IN_PROGRESS" | "PUBLISHED";
-    updatePriceFreeToRead: boolean;
-    priceFreeToRead: number;
-    updatePricePaywall: boolean;
-    pricePaywall: number;
-    updatePriceEpilogue: boolean;
-    priceEpilogue: number;
     updatePublishedAt: boolean;
     publishedAt: string;
   }>({
     updateStatus: false,
     status: "DRAFT",
-    updatePriceFreeToRead: false,
-    priceFreeToRead: 0,
-    updatePricePaywall: false,
-    pricePaywall: 0,
-    updatePriceEpilogue: false,
-    priceEpilogue: 0,
     updatePublishedAt: false,
     publishedAt: "",
   });
@@ -59,20 +46,10 @@ export default function BulkEditChapterModal({
         updates.status = formData.status;
       }
 
-      if (formData.updatePriceFreeToRead) {
-        updates.priceFreeToRead = Math.round(formData.priceFreeToRead * 100); // Convert to cents
-      }
-
-      if (formData.updatePricePaywall) {
-        updates.pricePaywall = Math.round(formData.pricePaywall * 100);
-      }
-
-      if (formData.updatePriceEpilogue) {
-        updates.priceEpilogue = Math.round(formData.priceEpilogue * 100);
-      }
-
       if (formData.updatePublishedAt) {
-        updates.publishedAt = formData.publishedAt || null;
+        updates.publishedAt = formData.publishedAt
+          ? new Date(formData.publishedAt).toISOString()
+          : null;
       }
 
       await onSubmit(updates);
@@ -88,12 +65,6 @@ export default function BulkEditChapterModal({
     setFormData({
       updateStatus: false,
       status: "DRAFT",
-      updatePriceFreeToRead: false,
-      priceFreeToRead: 0,
-      updatePricePaywall: false,
-      pricePaywall: 0,
-      updatePriceEpilogue: false,
-      priceEpilogue: 0,
       updatePublishedAt: false,
       publishedAt: "",
     });
@@ -101,10 +72,11 @@ export default function BulkEditChapterModal({
   };
 
   return (
-    <Modal
+    <Drawer
       isOpen={isOpen}
       onClose={handleClose}
-      title="Édition en masse des chapitres">
+      title={t("chapters_page.bulk.title", "Édition en masse des chapitres")}
+      width="md">
       <form onSubmit={handleSubmit}>
         <div className="space-y-4">
           <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
@@ -172,126 +144,6 @@ export default function BulkEditChapterModal({
             )}
           </div>
 
-          {/* Price Free to Read */}
-          <div className="border border-gray-200 rounded-md p-3">
-            <label className="flex items-center space-x-2 mb-2">
-              <input
-                type="checkbox"
-                checked={formData.updatePriceFreeToRead}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    updatePriceFreeToRead: e.target.checked,
-                  })
-                }
-                className="h-4 w-4 text-blue-600 rounded"
-              />
-              <span className="text-sm font-medium text-gray-700">
-                Modifier le prix Base
-              </span>
-            </label>
-            {formData.updatePriceFreeToRead && (
-              <div className="flex items-center space-x-2">
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formData.priceFreeToRead}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      priceFreeToRead: parseFloat(e.target.value) || 0,
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <span className="text-sm text-gray-600 whitespace-nowrap">
-                  €
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Price Paywall */}
-          <div className="border border-gray-200 rounded-md p-3">
-            <label className="flex items-center space-x-2 mb-2">
-              <input
-                type="checkbox"
-                checked={formData.updatePricePaywall}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    updatePricePaywall: e.target.checked,
-                  })
-                }
-                className="h-4 w-4 text-blue-600 rounded"
-              />
-              <span className="text-sm font-medium text-gray-700">
-                Modifier le prix Paywall
-              </span>
-            </label>
-            {formData.updatePricePaywall && (
-              <div className="flex items-center space-x-2">
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formData.pricePaywall}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      pricePaywall: parseFloat(e.target.value) || 0,
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <span className="text-sm text-gray-600 whitespace-nowrap">
-                  €
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Price Epilogue */}
-          <div className="border border-gray-200 rounded-md p-3">
-            <label className="flex items-center space-x-2 mb-2">
-              <input
-                type="checkbox"
-                checked={formData.updatePriceEpilogue}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    updatePriceEpilogue: e.target.checked,
-                  })
-                }
-                className="h-4 w-4 text-blue-600 rounded"
-              />
-              <span className="text-sm font-medium text-gray-700">
-                Modifier le prix Épilogue
-              </span>
-            </label>
-            {formData.updatePriceEpilogue && (
-              <div className="flex items-center space-x-2">
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formData.priceEpilogue}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      priceEpilogue: parseFloat(e.target.value) || 0,
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <span className="text-sm text-gray-600 whitespace-nowrap">
-                  €
-                </span>
-              </div>
-            )}
-          </div>
-
           {/* Published At */}
           <div className="border border-gray-200 rounded-md p-3">
             <label className="flex items-center space-x-2 mb-2">
@@ -318,6 +170,7 @@ export default function BulkEditChapterModal({
                   setFormData({ ...formData, publishedAt: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                title={t("chapter_form.publish_date", "Date de publication")}
               />
             )}
           </div>
@@ -339,6 +192,6 @@ export default function BulkEditChapterModal({
           </button>
         </div>
       </form>
-    </Modal>
+    </Drawer>
   );
 }

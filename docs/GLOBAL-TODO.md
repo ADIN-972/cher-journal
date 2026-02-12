@@ -522,24 +522,45 @@ Cette liste recense toutes les fonctionnalités à implémenter pour finaliser l
 
 ## 📦 **BUNDLES & PACKS**
 
-### ⏳ 21. Créateur de Bundles 🟡
-**Status:** OrderType.BUNDLE et PriceScope.BUNDLE existent
+### ✅ 21. Créateur de Bundles 🟡
+**Status:** Complété ✅
 **Priorité:** PHASE 2
 
 **Sous-tâches:**
-- [ ] Table `Bundle` (name, description, items, price)
-- [ ] Table `BundleItem` (bundleId, chapterId?, volumeId?, quantity)
-- [ ] Page `Bundles.tsx`
-- [ ] Interface création bundle
-- [ ] Sélection de chapitres/volumes
-- [ ] Prix réduit vs somme des prix unitaires
-- [ ] Promotions sur bundles
-- [ ] Logique checkout Stripe bundles
+- [x] Table `Bundle` (name, description, slug, prices, validFrom/Until, maxPurchases)
+- [x] Table `BundleItem` (bundleId, type CHAPTER/VOLUME, chapterId, volumeFrom/To)
+- [x] Migration Prisma (20260120093339_add_bundles)
+- [x] Backend: Service complet avec CRUD, validation, calcul prix
+- [x] Backend: Routes API avec requireAdmin middleware
+- [x] Backend: Controller avec gestion erreurs standardisée
+- [x] Backend: Calcul automatique prix basé sur schémas de prix actifs
+- [x] Backend: Support price overrides par chapitre
+- [x] Backend: Helper endpoints (generate-slug, calculate-price)
+- [x] Page `Bundles.tsx` avec liste, recherche, filtres
+- [x] Page `BundleForm.tsx` avec création/édition
+- [x] Sélection dynamique chapitres/volumes
+- [x] Auto-calcul prix théorique vs prix réduit
+- [x] Support bundles pour contenu futur (volumes non créés)
+- [x] Interface avec badges statut (actif/inactif/expiré/épuisé)
+- [x] Gestion images bundle
+- [x] Navigation et routes intégrées
+- [ ] Promotions sur bundles (à venir)
+- [ ] Logique checkout Stripe bundles (à venir)
 
-**Fichiers concernés:**
-- `apps/admin/src/pages/Bundles.tsx` (à créer)
-- `apps/backend/prisma/schema.prisma`
-- `apps/backend/src/modules/bundles/` (à créer)
+**Fichiers créés/modifiés (Backend):**
+- ✅ `apps/backend/prisma/schema.prisma` (Bundle, BundleItem)
+- ✅ `apps/backend/prisma/migrations/20260120093339_add_bundles/`
+- ✅ `apps/backend/src/modules/admin/bundles/bundles.service.ts`
+- ✅ `apps/backend/src/modules/admin/bundles/bundles.controller.ts`
+- ✅ `apps/backend/src/modules/admin/bundles/bundles.routes.ts`
+- ✅ `apps/backend/src/modules/admin/bundles/bundles.schemas.ts`
+- ✅ `apps/backend/src/app.ts` (routes enregistrées)
+
+**Fichiers créés/modifiés (Frontend):**
+- ✅ `apps/admin/src/pages/Bundles.tsx` (liste complète)
+- ✅ `apps/admin/src/pages/BundleForm.tsx` (formulaire complet)
+- ✅ `apps/admin/src/App.tsx` (routes /bundles)
+- ✅ `apps/admin/src/components/Layout.tsx` (navigation)
 
 ---
 

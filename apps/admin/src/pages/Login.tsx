@@ -3,12 +3,10 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../store/auth";
 import { useI18n } from "../lib/i18n";
-import { MdEmail, MdLock, MdVisibility, MdVisibilityOff } from "react-icons/md";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { t } = useI18n();
@@ -32,177 +30,155 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-gray-950 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl" />
 
-      <div className="relative bg-white/80 backdrop-blur-lg p-8 rounded-2xl shadow-2xl w-full max-w-md border border-white/20">
-        {/* Logo or Brand */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl mb-4 shadow-lg">
-            <span className="text-white text-2xl font-bold">CJ</span>
+      <div className="w-full max-w-md">
+        {/* Brand Section */}
+        <div className="flex flex-col items-center gap-4 mb-12">
+          <div className="text-amber-600">
+            <span className="material-symbols-outlined text-6xl">fluid</span>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            {t("login.title")}
+          <h1 className="text-4xl font-display font-bold tracking-tight text-gray-50">
+            Éros &amp; Plume
           </h1>
-          <p className="text-gray-600 mt-2 text-sm">
-            Bienvenue dans l'administration
-          </p>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-start gap-3 animate-shake">
-            <svg
-              className="w-5 h-5 mt-0.5 flex-shrink-0"
-              fill="currentColor"
-              viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="text-sm">{error}</span>
-          </div>
-        )}
+        {/* Login Card with Glow Effect */}
+        <div className="relative group">
+          <div className="absolute -inset-0.5 bg-amber-600/20 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000"></div>
+          <div className="relative bg-gray-950/80 backdrop-blur-2xl border border-amber-600/30 p-10 rounded-2xl shadow-2xl">
+            <h2 className="text-2xl font-display italic text-center mb-8 text-gray-50/90">
+              {t("login.welcome_subtitle")}
+            </h2>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-5">
-          {/* Email Input */}
-          <div className="group">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              {t("login.email_label")}
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <MdEmail className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
-              </div>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-200 bg-white/50"
-                placeholder="admin@cherjournal.com"
-                required
-              />
-            </div>
-          </div>
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              {/* Error Message */}
+              {error && (
+                <div className="bg-rose-500/20 border border-rose-400/50 text-rose-200 px-4 py-3 rounded-lg flex items-start gap-3">
+                  <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm">{error}</span>
+                </div>
+              )}
 
-          {/* Password Input */}
-          <div className="group">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              {t("login.password_label")}
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <MdLock className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+              {/* Email Field */}
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-amber-600/80 mb-2 uppercase tracking-widest text-[10px]">
+                  {t("login.email_label")}
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-gray-900/50 border border-amber-600/20 rounded-lg py-3 px-4 text-gray-50 focus:ring-1 focus:ring-amber-600 focus:border-amber-600 transition-all font-serif outline-none placeholder-gray-500"
+                  placeholder="admin@cherjournal.com"
+                />
               </div>
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-200 bg-white/50"
-                placeholder="••••••••"
-                required
-              />
+
+              {/* Password Field */}
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-amber-600/80 mb-2 uppercase tracking-widest text-[10px]">
+                  {t("login.password_label")}
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-gray-900/50 border border-amber-600/20 rounded-lg py-3 px-4 text-gray-50 focus:ring-1 focus:ring-amber-600 focus:border-amber-600 transition-all font-serif outline-none placeholder-gray-500"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              {/* Submit Button */}
               <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
-                {showPassword ? (
-                  <MdVisibilityOff className="h-5 w-5" />
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white py-4 rounded-lg font-bold text-lg transition-all active:scale-[0.98] shadow-xl shadow-rose-600/20 flex items-center justify-center gap-3 mt-8 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="material-symbols-outlined text-xl">key</span>
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <svg
+                      className="animate-spin h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24">
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {t("messages.loading")}
+                  </span>
                 ) : (
-                  <MdVisibility className="h-5 w-5" />
+                  t("login.submit_button")
                 )}
               </button>
+            </form>
+
+            {/* Footer Links */}
+            <div className="mt-8 pt-8 border-t border-gray-700/50 flex flex-col items-center gap-4">
+              <Link to="#" className="text-sm text-gray-400 hover:text-amber-600 transition-colors font-serif italic">
+                {t("auth.login.forgot_password")}
+              </Link>
+              <p className="text-[11px] text-gray-500 uppercase tracking-widest">
+                {t("auth.no_account_yet")}{' '}
+                <Link to="/register" className="text-amber-600/60 hover:text-amber-600 transition-colors">
+                  {t("auth.create_account")}
+                </Link>
+              </p>
             </div>
           </div>
-
-          {/* Remember me & Forgot password */}
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <input
-                type="checkbox"
-                className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 focus:ring-2 cursor-pointer"
-              />
-              <span className="text-gray-600 group-hover:text-gray-900 transition-colors">
-                Se souvenir de moi
-              </span>
-            </label>
-            <a
-              href="#"
-              className="text-indigo-600 hover:text-indigo-700 font-semibold transition-colors">
-              Mot de passe oublié?
-            </a>
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg
-                  className="animate-spin h-5 w-5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                {t("messages.loading")}
-              </span>
-            ) : (
-              t("login.submit_button")
-            )}
-          </button>
-        </form>
-
-        {/* Register Link */}
-        <div className="mt-6 text-center">
-          <p className="text-gray-600 text-sm">
-            Pas encore de compte?{" "}
-            <Link
-              to="/register"
-              className="text-indigo-600 hover:text-indigo-700 font-semibold transition-colors">
-              Créer un compte
-            </Link>
-          </p>
         </div>
 
-        {/* Demo credentials */}
-        <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
-          <p className="text-xs text-gray-500 text-center mb-2 font-semibold">
-            Compte de test
+        {/* Demo Credentials */}
+        <div className="mt-8 p-4 bg-gray-900/50 rounded-xl border border-gray-800/50">
+          <p className="text-xs text-gray-400 text-center mb-3 font-semibold uppercase tracking-widest">
+            {t("login.test_account_title")}
           </p>
-          <div className="text-xs text-gray-600 space-y-1">
+          <div className="text-xs text-gray-500 space-y-2">
             <p className="text-center">
-              <span className="font-mono bg-white px-2 py-1 rounded">
+              <span className="font-mono bg-gray-950 px-3 py-2 rounded text-amber-600/80">
                 admin@cherjournal.com
               </span>
             </p>
             <p className="text-center">
-              <span className="font-mono bg-white px-2 py-1 rounded">
+              <span className="font-mono bg-gray-950 px-3 py-2 rounded text-amber-600/80">
                 admin123
               </span>
             </p>
           </div>
         </div>
+
+        {/* Footer */}
+        <footer className="mt-12 text-center">
+          <div className="flex justify-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-gray-600 hover:text-gray-500">
+            <a href="#" className="hover:text-amber-600 transition-colors">
+              Privacy
+            </a>
+            <a href="#" className="hover:text-amber-600 transition-colors">
+              Terms
+            </a>
+            <a href="#" className="hover:text-amber-600 transition-colors">
+              Help
+            </a>
+          </div>
+        </footer>
       </div>
     </div>
   );

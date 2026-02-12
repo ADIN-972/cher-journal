@@ -68,16 +68,4 @@ export async function priceSchemaRoutes(app: FastifyInstance) {
     { preHandler: requireAuth },
     (req, reply) => priceSchemaController.deleteChapterOverride(req, reply)
   );
-
-  // ============= PRICE HISTORY / AUDIT =============
-
-  app.get("/admin/price-history", { preHandler: requireAuth }, (req, reply) =>
-    priceSchemaController.getPriceHistory(req, reply)
-  );
-
-  app.get(
-    "/admin/price-history/:entityId",
-    { preHandler: requireAuth },
-    (req, reply) => priceSchemaController.getPriceHistoryDetail(req, reply)
-  );
 }

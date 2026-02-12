@@ -93,7 +93,6 @@ export class AssetsService {
       isChapterCover: asset.coverFor.length > 0,
       usedByVolumes: asset.illustrationFor.map((v) => v.id),
       usedByVersions: asset.versionIllustrationFor.map((v) => v.id),
-      tags: asset.tags.map((t) => t.tag),
     }));
   }
 

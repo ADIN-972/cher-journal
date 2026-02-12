@@ -11,7 +11,18 @@ const service = new UsersService();
 
 export class UsersController {
   async list(request: FastifyRequest, reply: FastifyReply) {
-    const users = await service.list();
+    const filters = request.query as any;
+
+    // Convert string numbers to actual numbers
+    const parsedFilters = {
+      ...filters,
+      minTotalSpent: filters.minTotalSpent ? parseInt(filters.minTotalSpent) : undefined,
+      maxTotalSpent: filters.maxTotalSpent ? parseInt(filters.maxTotalSpent) : undefined,
+      minOrderCount: filters.minOrderCount ? parseInt(filters.minOrderCount) : undefined,
+      maxOrderCount: filters.maxOrderCount ? parseInt(filters.maxOrderCount) : undefined,
+    };
+
+    const users = await service.list(parsedFilters);
     return reply.send({ success: true, data: users });
   }
 
@@ -181,6 +192,94 @@ export class UsersController {
         });
       }
       throw error;
+    }
+  }
+
+  async bulkSuspend(
+    request: FastifyRequest<{ Body: { userIds: string[] } }>,
+    reply: FastifyReply
+  ) {
+    try {
+      const { userIds } = request.body;
+      if (!Array.isArray(userIds) || userIds.length === 0) {
+        return reply.status(400).send({
+          success: false,
+          error: { code: "INVALID_INPUT", message: "userIds must be a non-empty array" },
+        });
+      }
+      const result = await service.bulkSuspend(userIds);
+      return reply.send({ success: true, data: result });
+    } catch (error: any) {
+      return reply.status(500).send({
+        success: false,
+        error: { code: "BULK_ACTION_FAILED", message: error.message || "Bulk suspend failed" },
+      });
+    }
+  }
+
+  async bulkActivate(
+    request: FastifyRequest<{ Body: { userIds: string[] } }>,
+    reply: FastifyReply
+  ) {
+    try {
+      const { userIds } = request.body;
+      if (!Array.isArray(userIds) || userIds.length === 0) {
+        return reply.status(400).send({
+          success: false,
+          error: { code: "INVALID_INPUT", message: "userIds must be a non-empty array" },
+        });
+      }
+      const result = await service.bulkActivate(userIds);
+      return reply.send({ success: true, data: result });
+    } catch (error: any) {
+      return reply.status(500).send({
+        success: false,
+        error: { code: "BULK_ACTION_FAILED", message: error.message || "Bulk activate failed" },
+      });
+    }
+  }
+
+  async bulkPromote(
+    request: FastifyRequest<{ Body: { userIds: string[] } }>,
+    reply: FastifyReply
+  ) {
+    try {
+      const { userIds } = request.body;
+      if (!Array.isArray(userIds) || userIds.length === 0) {
+        return reply.status(400).send({
+          success: false,
+          error: { code: "INVALID_INPUT", message: "userIds must be a non-empty array" },
+        });
+      }
+      const result = await service.bulkPromote(userIds);
+      return reply.send({ success: true, data: result });
+    } catch (error: any) {
+      return reply.status(500).send({
+        success: false,
+        error: { code: "BULK_ACTION_FAILED", message: error.message || "Bulk promote failed" },
+      });
+    }
+  }
+
+  async bulkDemote(
+    request: FastifyRequest<{ Body: { userIds: string[] } }>,
+    reply: FastifyReply
+  ) {
+    try {
+      const { userIds } = request.body;
+      if (!Array.isArray(userIds) || userIds.length === 0) {
+        return reply.status(400).send({
+          success: false,
+          error: { code: "INVALID_INPUT", message: "userIds must be a non-empty array" },
+        });
+      }
+      const result = await service.bulkDemote(userIds);
+      return reply.send({ success: true, data: result });
+    } catch (error: any) {
+      return reply.status(500).send({
+        success: false,
+        error: { code: "BULK_ACTION_FAILED", message: error.message || "Bulk demote failed" },
+      });
     }
   }
 }

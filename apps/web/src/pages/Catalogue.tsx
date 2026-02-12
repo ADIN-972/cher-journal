@@ -6,12 +6,31 @@ import ChapterCover from "../components/common/ChapterCover";
 import ReviewStars from "../components/common/ReviewStars";
 import { getReadingTime } from "../lib/functions";
 
-type Genre = "all" | "PASSIONS_CHARNELLES" | "ROMANCES_TENDRES" | "MYSTERIES_SENSUELS" | "INTERDITS" | "CONQUETES" | "REVES_SECRETS" | "PASSION_BRUTALE" | "AMOUR_COMPLIQUE" | "DESIR_NOCTURNE" | "LIBERATION" | "DECOUVERTE_DE_SOI" | "INTIMITE_PSYCHOLOGIQUE" | "EVEIL_DU_DESIR" | "RELATIONS_TRANSFORMATRICES" | "MEMOIRE_DU_CORPS";
+type Genre =
+  | "all"
+  | "PASSIONS_CHARNELLES"
+  | "ROMANCES_TENDRES"
+  | "MYSTERIES_SENSUELS"
+  | "INTERDITS"
+  | "CONQUETES"
+  | "REVES_SECRETS"
+  | "PASSION_BRUTALE"
+  | "AMOUR_COMPLIQUE"
+  | "DESIR_NOCTURNE"
+  | "LIBERATION"
+  | "DECOUVERTE_DE_SOI"
+  | "INTIMITE_PSYCHOLOGIQUE"
+  | "EVEIL_DU_DESIR"
+  | "RELATIONS_TRANSFORMATRICES"
+  | "MEMOIRE_DU_CORPS";
 type ViewMode = "grid" | "list";
 
 const GENRES: Record<Genre, { label: string; icon: string }> = {
   all: { label: "Tous les genres", icon: "category" },
-  PASSIONS_CHARNELLES: { label: "Passions Charnelles", icon: "local_fire_department" },
+  PASSIONS_CHARNELLES: {
+    label: "Passions Charnelles",
+    icon: "local_fire_department",
+  },
   ROMANCES_TENDRES: { label: "Romances Tendres", icon: "favorite" },
   MYSTERIES_SENSUELS: { label: "Mystères Sensuels", icon: "nightlife" },
   INTERDITS: { label: "Interdits", icon: "lock" },
@@ -22,9 +41,15 @@ const GENRES: Record<Genre, { label: string; icon: string }> = {
   DESIR_NOCTURNE: { label: "Désir Nocturne", icon: "dark_mode" },
   LIBERATION: { label: "Libération", icon: "flight_takeoff" },
   DECOUVERTE_DE_SOI: { label: "Découverte de Soi", icon: "lightbulb" },
-  INTIMITE_PSYCHOLOGIQUE: { label: "Intimité Psychologique", icon: "psychology" },
+  INTIMITE_PSYCHOLOGIQUE: {
+    label: "Intimité Psychologique",
+    icon: "psychology",
+  },
   EVEIL_DU_DESIR: { label: "Éveil du Désir", icon: "sunrise" },
-  RELATIONS_TRANSFORMATRICES: { label: "Relations Transformatrices", icon: "auto_fix_high" },
+  RELATIONS_TRANSFORMATRICES: {
+    label: "Relations Transformatrices",
+    icon: "auto_fix_high",
+  },
   MEMOIRE_DU_CORPS: { label: "Mémoire du Corps", icon: "self_improvement" },
 };
 
@@ -61,11 +86,12 @@ export default function Catalogue() {
   }, [fetchChapters]);
 
   // Filter chapters by selected genre
-  const filteredChapters = selectedGenre === "all"
-    ? chapters
-    : chapters.filter(chapter =>
-        chapter.genres?.some(g => g.genre === selectedGenre)
-      );
+  const filteredChapters =
+    selectedGenre === "all"
+      ? chapters
+      : chapters.filter((chapter) =>
+          chapter.genres?.some((g) => g.genre === selectedGenre),
+        );
 
   if (isLoading) {
     return (
@@ -93,20 +119,24 @@ export default function Catalogue() {
   const isFiltered = selectedGenre !== "all";
 
   // Calculate available genres (genres that have at least one chapter)
-  const availableGenres = Object.entries(GENRES).filter(([genre]) =>
-    genre === "all" ||
-    chapters.some(ch => ch.genres?.some(g => g.genre === genre))
+  const availableGenres = Object.entries(GENRES).filter(
+    ([genre]) =>
+      genre === "all" ||
+      chapters.some((ch) => ch.genres?.some((g) => g.genre === genre)),
   );
 
   // Reset filter if selected genre has no chapters
-  if (isFiltered && !chapters.some(ch => ch.genres?.some(g => g.genre === selectedGenre))) {
+  if (
+    isFiltered &&
+    !chapters.some((ch) => ch.genres?.some((g) => g.genre === selectedGenre))
+  ) {
     setSelectedGenre("all");
   }
 
   return (
     <div className="min-h-screen">
       {/* Sticky Filter Section */}
-      <section className="sticky top-0 z-40 bg-boudoir-950/95 backdrop-blur-sm border-b border-boudoir-800">
+      <section className="sticky top-12 z-40 bg-boudoir-950/95 backdrop-blur-xl border-b border-boudoir-800">
         <div className="max-w-[1280px] mx-auto px-6 py-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             {/* Filters */}
@@ -115,22 +145,24 @@ export default function Catalogue() {
                 Filtrer par :
               </span>
               <div className="flex gap-2 flex-wrap">
-                {(availableGenres as [Genre, (typeof GENRES)[Genre]][]).map(([genre, config]) => (
-                  <button
-                    key={genre}
-                    type="button"
-                    onClick={() => setSelectedGenre(genre)}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
-                      selectedGenre === genre
-                        ? "bg-primary text-white"
-                        : "bg-boudoir-300/50 dark:bg-boudoir-900/50 border border-boudoir-800 text-charcoal dark:text-white/70 hover:border-gold/50"
-                    }`}>
-                    <span className="material-symbols-outlined text-sm">
-                      {config.icon}
-                    </span>
-                    <span className="hidden sm:inline">{config.label}</span>
-                  </button>
-                ))}
+                {(availableGenres as [Genre, (typeof GENRES)[Genre]][]).map(
+                  ([genre, config]) => (
+                    <button
+                      key={genre}
+                      type="button"
+                      onClick={() => setSelectedGenre(genre)}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                        selectedGenre === genre
+                          ? "bg-primary text-white"
+                          : "bg-boudoir-300/50 dark:bg-boudoir-900/50 border border-boudoir-800 text-charcoal dark:text-white/70 hover:border-gold/50"
+                      }`}>
+                      <span className="material-symbols-outlined text-sm">
+                        {config.icon}
+                      </span>
+                      <span className="hidden sm:inline">{config.label}</span>
+                    </button>
+                  ),
+                )}
               </div>
             </div>
 
@@ -145,7 +177,9 @@ export default function Catalogue() {
                     : "text-charcoal dark:text-white/70 hover:text-charcoal dark:text-white/70"
                 }`}
                 title="Grid view">
-                <div className="material-symbols-outlined m-auto">grid_view</div>
+                <div className="material-symbols-outlined m-auto">
+                  grid_view
+                </div>
               </button>
               <button
                 type="button"
@@ -207,46 +241,44 @@ export default function Catalogue() {
                 {GENRES[selectedGenre].label}
               </h2>
               <p className="text-sm text-charcoal dark:text-white/70">
-                {filteredChapters.length} œuvre{filteredChapters.length > 1 ? "s" : ""} disponible{filteredChapters.length > 1 ? "s" : ""}
+                {filteredChapters.length} œuvre
+                {filteredChapters.length > 1 ? "s" : ""} disponible
+                {filteredChapters.length > 1 ? "s" : ""}
               </p>
             </div>
 
             <div
               className={
                 viewMode === "grid"
-                  ? "grid grid-cols-2 md:grid-cols-4 gap-6"
+                  ? "grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                   : "space-y-4"
               }>
               {filteredChapters.map((chapter, index) => (
                 <Link
                   key={chapter.id}
                   to={`/chapters/${chapter.id}`}
-                  className={viewMode === "grid" ? "group" : "flex gap-4 group"}>
+                  className={
+                    viewMode === "grid" ? "group" : "flex gap-4 group"
+                  }>
                   <div
                     className={
                       viewMode === "grid"
-                        ? "aspect-[1/1] overflow-hidden rounded-lg mb-3 relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
+                        ? "aspect-[3/4] !text-md overflow-hidden rounded-lg mb-3 relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
                         : "w-20 h-28 shrink-0 rounded-lg overflow-hidden relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
                     }>
-                    {chapter.coverAsset?.objectKey ? (
+                    {chapter.coverAsset?.url ? (
                       <ChapterCover
-                        imageUrl={`${import.meta.env.VITE_API_URL ?? ""}/uploads/${chapter.coverAsset.objectKey}`}
+                        imageUrl={`${import.meta.env.VITE_API_URL ?? ""}${chapter.coverAsset.url}`}
                         title={chapter.title}
                         showPremiumBadge={false}
                         showLimitedEditionBadge={false}
+                        textSize="md"
                       />
                     ) : (
                       <div
                         className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700"
                         style={{
-                          backgroundImage: `url('https://images.unsplash.com/photo-${
-                            [
-                              "1507003211169-0a1dd7228f2d",
-                              "1518531933037-91b2f5f229cc",
-                              "1544457070-4cd773b4d71e",
-                              "1516450360452-9312f5e86fc7",
-                            ][index % 4]
-                          }?w=400&q=80')`,
+                          backgroundImage: `url('assets/images/404_bg.png')`,
                         }}
                       />
                     )}
@@ -361,9 +393,9 @@ export default function Catalogue() {
                               ? "aspect-[1/1] overflow-hidden rounded-lg mb-3 relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
                               : "w-20 h-28 shrink-0 rounded-lg overflow-hidden relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
                           }>
-                          {chapter.coverAsset?.objectKey ? (
+                          {chapter.coverAsset?.url ? (
                             <ChapterCover
-                              imageUrl={`${import.meta.env.VITE_API_URL ?? ""}/uploads/${chapter.coverAsset.objectKey}`}
+                              imageUrl={`${import.meta.env.VITE_API_URL ?? ""}${chapter.coverAsset.url}`}
                               title={chapter.title}
                               showPremiumBadge={false}
                               showLimitedEditionBadge={false}
@@ -372,14 +404,7 @@ export default function Catalogue() {
                             <div
                               className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700"
                               style={{
-                                backgroundImage: `url('https://images.unsplash.com/photo-${
-                                  [
-                                    "1507003211169-0a1dd7228f2d",
-                                    "1518531933037-91b2f5f229cc",
-                                    "1544457070-4cd773b4d71e",
-                                    "1516450360452-9312f5e86fc7",
-                                  ][index % 4]
-                                }?w=400&q=80')`,
+                                backgroundImage: `url('assets/images/404_bg.png')`,
                               }}
                             />
                           )}

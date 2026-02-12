@@ -1,9 +1,13 @@
 import { PrismaClient } from "@prisma/client";
 import type { PriceScope, PromotionType } from "@cher-journal/types";
+import { targetingService } from "./targeting.service.js";
+import { priceHistoryService } from "../prices/price-history.service.js";
 
 const prisma = new PrismaClient();
 
 interface CreatePromotionDto {
+  name: string;
+  description?: string;
   scope: PriceScope;
   refId?: string;
   type: PromotionType;
@@ -12,10 +16,17 @@ interface CreatePromotionDto {
   endsAt: Date;
   maxUses?: number;
   perUserLimit?: number;
+  isActive?: boolean;
+  code?: string;
+  targetType?: string;
+  targetUserIds?: string[];
+  targetCriteria?: any;
   priceId?: string;
 }
 
 interface UpdatePromotionDto {
+  name?: string;
+  description?: string;
   type?: PromotionType;
   value?: number;
   startsAt?: Date;
@@ -23,6 +34,10 @@ interface UpdatePromotionDto {
   maxUses?: number;
   perUserLimit?: number;
   isActive?: boolean;
+  code?: string;
+  targetType?: string;
+  targetUserIds?: string[];
+  targetCriteria?: any;
 }
 
 interface ListPromotionsQuery {
@@ -43,8 +58,10 @@ interface CreatePriceDto {
 export const promotionsService = {
   // Promotions
   async createPromotion(data: CreatePromotionDto) {
-    return prisma.promotion.create({
+    const promotion = await prisma.promotion.create({
       data: {
+        name: data.name,
+        description: data.description,
         scope: data.scope,
         refId: data.refId,
         type: data.type,
@@ -53,12 +70,31 @@ export const promotionsService = {
         endsAt: data.endsAt,
         maxUses: data.maxUses,
         perUserLimit: data.perUserLimit,
+        isActive: data.isActive ?? true,
+        targetType: data.targetType as any,
+        targetUserIds: data.targetUserIds || [],
+        targetCriteria: data.targetCriteria,
         priceId: data.priceId,
       },
       include: {
         price: true,
+        _count: {
+          select: { applied: true },
+        },
       },
     });
+
+    // Calculate targetedUsersCount
+    const targetedUsersCount = await targetingService.calculateTargetedUsersCount({
+      targetType: promotion.targetType as any,
+      targetUserIds: promotion.targetUserIds,
+      targetCriteria: promotion.targetCriteria as any,
+    });
+
+    return {
+      ...promotion,
+      targetedUsersCount,
+    };
   },
 
   async listPromotions(query: ListPromotionsQuery = {}) {
@@ -92,8 +128,24 @@ export const promotionsService = {
 
       console.log("[listPromotions] Found promotions:", promotions.length);
 
+      // Calculate targetedUsersCount for each promotion
+      const promotionsWithTargeting = await Promise.all(
+        promotions.map(async (promo) => {
+          const targetedUsersCount = await targetingService.calculateTargetedUsersCount({
+            targetType: promo.targetType as any,
+            targetUserIds: promo.targetUserIds,
+            targetCriteria: promo.targetCriteria as any,
+          });
+
+          return {
+            ...promo,
+            targetedUsersCount,
+          };
+        })
+      );
+
       return {
-        promotions,
+        promotions: promotionsWithTargeting,
         pagination: {
           page,
           limit,
@@ -108,7 +160,7 @@ export const promotionsService = {
   },
 
   async getPromotionById(id: string) {
-    return prisma.promotion.findUnique({
+    const promotion = await prisma.promotion.findUnique({
       where: { id },
       include: {
         price: true,
@@ -117,16 +169,47 @@ export const promotionsService = {
         },
       },
     });
+
+    if (!promotion) {
+      return null;
+    }
+
+    // Calculate targetedUsersCount
+    const targetedUsersCount = await targetingService.calculateTargetedUsersCount({
+      targetType: promotion.targetType as any,
+      targetUserIds: promotion.targetUserIds,
+      targetCriteria: promotion.targetCriteria as any,
+    });
+
+    return {
+      ...promotion,
+      targetedUsersCount,
+    };
   },
 
   async updatePromotion(id: string, data: UpdatePromotionDto) {
-    return prisma.promotion.update({
+    const promotion = await prisma.promotion.update({
       where: { id },
-      data,
+      data: data as any,
       include: {
         price: true,
+        _count: {
+          select: { applied: true },
+        },
       },
     });
+
+    // Calculate targetedUsersCount
+    const targetedUsersCount = await targetingService.calculateTargetedUsersCount({
+      targetType: promotion.targetType as any,
+      targetUserIds: promotion.targetUserIds,
+      targetCriteria: promotion.targetCriteria as any,
+    });
+
+    return {
+      ...promotion,
+      targetedUsersCount,
+    };
   },
 
   async deletePromotion(id: string) {
@@ -253,20 +336,49 @@ export const promotionsService = {
 
   async updatePrice(
     id: string,
-    data: { amountCents?: number; currency?: string }
+    data: { amountCents?: number; currency?: string },
+    changedBy?: string,
+    reason?: string
   ) {
+    // Get current price before update
+    const currentPrice = await prisma.price.findUnique({
+      where: { id },
+    });
+
+    if (!currentPrice) {
+      throw new Error("Price not found");
+    }
+
     const updateData: any = {};
     if (data.amountCents !== undefined)
       updateData.amountCents = data.amountCents;
     if (data.currency !== undefined) updateData.currency = data.currency;
 
-    return prisma.price.update({
+    // Update price
+    const updatedPrice = await prisma.price.update({
       where: { id },
       data: updateData,
       include: {
         promotions: true,
       },
     });
+
+    // Record history if amount changed
+    if (
+      data.amountCents !== undefined &&
+      data.amountCents !== currentPrice.amountCents
+    ) {
+      await priceHistoryService.createHistoryEntry({
+        priceId: id,
+        oldAmountCents: currentPrice.amountCents,
+        newAmountCents: data.amountCents,
+        currency: updatedPrice.currency,
+        changedBy,
+        reason,
+      });
+    }
+
+    return updatedPrice;
   },
 
   async deletePrice(id: string) {
@@ -331,5 +443,94 @@ export const promotionsService = {
     }
 
     return finalPrice;
+  },
+
+  // Promo codes methods
+  generatePromoCode(length: number = 8): string {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "";
+    for (let i = 0; i < length; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+  },
+
+  async isCodeUnique(code: string): Promise<boolean> {
+    const existing = await prisma.promotion.findFirst({
+      where: {
+        code: {
+          equals: code,
+          mode: "insensitive",
+        },
+      },
+    });
+    return !existing;
+  },
+
+  async generateUniqueCode(
+    length: number = 8,
+    maxAttempts: number = 10
+  ): Promise<string> {
+    for (let i = 0; i < maxAttempts; i++) {
+      const code = this.generatePromoCode(length);
+      if (await this.isCodeUnique(code)) {
+        return code;
+      }
+    }
+    throw new Error("Failed to generate unique promo code");
+  },
+
+  async validatePromoCode(code: string): Promise<any | null> {
+    const promotion = await prisma.promotion.findFirst({
+      where: {
+        code: {
+          equals: code,
+          mode: "insensitive",
+        },
+        isActive: true,
+        startsAt: {
+          lte: new Date(),
+        },
+        endsAt: {
+          gte: new Date(),
+        },
+      },
+      include: {
+        price: true,
+      },
+    });
+
+    if (!promotion) {
+      return null;
+    }
+
+    // Check if max uses reached
+    if (promotion.maxUses) {
+      const usageCount = await prisma.appliedPromotion.count({
+        where: {
+          promotionId: promotion.id,
+        },
+      });
+      if (usageCount >= promotion.maxUses) {
+        return null;
+      }
+    }
+
+    return promotion;
+  },
+
+  async getPromotionByCode(code: string): Promise<any | null> {
+    return await prisma.promotion.findFirst({
+      where: {
+        code: {
+          equals: code,
+          mode: "insensitive",
+        },
+      },
+      include: {
+        price: true,
+        applied: true,
+      },
+    });
   },
 };

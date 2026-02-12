@@ -9,6 +9,7 @@ import {
   MdContentCopy,
 } from "react-icons/md";
 import { api } from "../lib/api";
+import { useI18n } from "../lib/i18n";
 
 interface Tag {
   id: string;
@@ -32,6 +33,7 @@ export default function AssetFilters({
   onFilterChange,
   initialFilters,
 }: AssetFiltersProps) {
+  const { t } = useI18n();
   const [filters, setFilters] = useState<FilterState>(initialFilters || {});
   const [tags, setTags] = useState<Tag[]>([]);
   const [loadingTags, setLoadingTags] = useState(true);
@@ -186,8 +188,8 @@ export default function AssetFilters({
             </div>
 
             {loadingTags ? (
-              <div className="text-sm text-gray-500">Chargement des tags...</div>
-            ) : tags.length === 0 ? (
+              <div className="text-sm text-gray-500">{t("components.asset_filters.loading_tags")}</div>
+            ) : !tags || tags.length === 0 ? (
               <div className="text-sm text-gray-500">
                 Aucun tag disponible. Créez des tags pour organiser vos assets.
               </div>

@@ -14,6 +14,7 @@ interface VolumeFormData {
   isFree: boolean;
   publishedAt: string | null;
   illustrationAssetId: string | null;
+  status: 'DRAFT' | 'SCHEDULED' | 'PUBLISHED';
 }
 
 export default function VolumeForm() {
@@ -39,6 +40,7 @@ export default function VolumeForm() {
     isFree: false,
     publishedAt: null,
     illustrationAssetId: null,
+    status: 'PUBLISHED',
   });
 
   useEffect(() => {
@@ -62,6 +64,7 @@ export default function VolumeForm() {
           ? new Date(volume.publishedAt).toISOString().slice(0, 16)
           : null,
         illustrationAssetId: volume.illustrationAssetId || null,
+        status: volume.status || 'PUBLISHED',
       });
       setVolumeNumber(volume.volumeNumber);
       setVolumeChapterId(volume.chapterId);
@@ -109,7 +112,9 @@ export default function VolumeForm() {
     try {
       const payload = {
         ...formData,
-        publishedAt: formData.publishedAt || null,
+        publishedAt: formData.publishedAt
+          ? new Date(formData.publishedAt).toISOString()
+          : null,
       };
 
       if (volumeId) {
@@ -323,6 +328,51 @@ export default function VolumeForm() {
                 </p>
               </div>
             </label>
+          </div>
+
+          {/* Status */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Statut de publication
+            </label>
+            <div className="inline-flex rounded-md shadow-sm" role="group">
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, status: 'DRAFT' })}
+                className={`px-4 py-2 text-sm font-medium border ${
+                  formData.status === 'DRAFT'
+                    ? 'bg-gray-700 text-white border-gray-700'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                } rounded-l-md`}
+              >
+                Brouillon
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, status: 'SCHEDULED' })}
+                className={`px-4 py-2 text-sm font-medium border-t border-b ${
+                  formData.status === 'SCHEDULED'
+                    ? 'bg-orange-600 text-white border-orange-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                Planifié
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, status: 'PUBLISHED' })}
+                className={`px-4 py-2 text-sm font-medium border ${
+                  formData.status === 'PUBLISHED'
+                    ? 'bg-green-600 text-white border-green-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                } rounded-r-md`}
+              >
+                Publié
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Les volumes en brouillon ou planifiés ne seront pas visibles par les lecteurs
+            </p>
           </div>
 
           {/* Boutons */}

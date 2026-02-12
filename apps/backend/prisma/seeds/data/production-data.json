@@ -10,7 +10,16 @@
       "scheduledFor": null,
       "coverAssetId": null,
       "isArchived": false,
-      "createdAt": "2026-01-21T06:50:54.804Z"
+      "createdAt": "2026-01-21T06:50:54.804Z",
+      "accroche_classic": "Laissez-vous surprendre par une sensualité naissante, fragile et lumineuse, où le cœur bat plus fort que la raison et où le monde s'élargit à chaque frisson.",
+      "accroche_dark": "Entre innocence et vertige, suivez le frisson d'une femme qui apprend à transformer ses hésitations en feu, et ses silences en aveux brûlants.",
+      "accroche_love": "Assistez à la naissance d'un désir délicat, où chaque geste est une découverte et chaque émotion une fleur qui s'ouvre lentement.",
+      "accroche_marketing": "Fragile en apparence, intense en profondeur. Un récit d'éveil où chaque émotion devient une découverte brûlante.",
+      "accroche_dark_collection": "L'innocence se fissure, le vertige s'installe. Elle découvre que le feu ne détruit pas toujours, parfois il révèle.",
+      "niveau_intensite": 3,
+      "niveau_douceur": 4,
+      "niveau_danger": 2,
+      "niveau_transformation": 4
     },
     {
       "id": "57245f89-05e0-49f9-a3b1-3b83fdf16ea5",
@@ -22,7 +31,16 @@
       "scheduledFor": null,
       "coverAssetId": null,
       "isArchived": false,
-      "createdAt": "2026-01-21T06:50:54.951Z"
+      "createdAt": "2026-01-21T06:50:54.951Z",
+      "accroche_classic": "Dans la nature sauvage, sous la pluie ou dans la nuit, deux âmes s'embrasent sans retenue, portées par une passion instinctive.",
+      "accroche_dark": "Sous la pluie ou dans la nuit des bois, la passion s'écrit en gestes instinctifs, puissants, indomptés.",
+      "accroche_love": "Au cœur de la nature, l'amour devient souffle partagé, et chaque instant prend la couleur d'un souvenir éternel.",
+      "accroche_marketing": "Libre, intense, sauvage. Aurore incarne l'amour qui s'écrit dans le vent, la pluie et la peau.",
+      "accroche_dark_collection": "Sauvage, instinctive, indomptée. Sous la pluie ou dans la forêt, la passion devient primitive, presque animale.",
+      "niveau_intensite": 5,
+      "niveau_douceur": 2,
+      "niveau_danger": 4,
+      "niveau_transformation": 4
     },
     {
       "id": "63dc403d-7f17-4dc2-8f72-a0afcd36ecbb",
@@ -34,7 +52,16 @@
       "scheduledFor": null,
       "coverAssetId": null,
       "isArchived": false,
-      "createdAt": "2026-01-21T06:50:54.827Z"
+      "createdAt": "2026-01-21T06:50:54.827Z",
+      "accroche_classic": "Glissez dans une atmosphère feutrée de secrets et de regards troublés, où la lumière filtre à travers les feuilles et où le désir s'installe sans bruit, mais sans retour.",
+      "accroche_dark": "Sous l'ombre des feuilles, le silence devient tension. Une lenteur brûlante s'installe, où chaque souffle trop proche menace de faire céder la retenue.",
+      "accroche_love": "Dans la douceur d'un instant suspendu, laissez-vous toucher par une sensualité discrète, faite de regards timides et d'émotions qui s'éveillent comme au premier jour.",
+      "accroche_marketing": "Sous un figuier, dans l'ombre chaude d'un après-midi suspendu, une passion lente et troublante prend racine. Un récit sensuel et lumineux à découvrir.",
+      "accroche_dark_collection": "Sous l'ombre des feuilles, elle apprend que le désir peut être lent… et implacable. Avec elle, la tension est un poison délicieux.",
+      "niveau_intensite": 3,
+      "niveau_douceur": 4,
+      "niveau_danger": 2,
+      "niveau_transformation": 3
     },
     {
       "id": "54691301-7da9-465a-a442-69f57a4af1ca",
@@ -46,7 +73,16 @@
       "scheduledFor": null,
       "coverAssetId": null,
       "isArchived": false,
-      "createdAt": "2026-01-21T06:50:54.962Z"
+      "createdAt": "2026-01-21T06:50:54.962Z",
+      "accroche_classic": "Plongez dans une atmosphère envoûtante où l'ombre devient langage et où la sensualité prend la forme d'un rituel intime et magnétique.",
+      "accroche_dark": "Entre ombre et lumière, le corps devient rituel. L'étreinte prend la forme d'une cérémonie secrète, magnétique et troublante.",
+      "accroche_love": "Dans un univers chargé de symboles, l'amour s'exprime avec intensité et délicatesse, comme une œuvre que l'on contemple et que l'on ressent.",
+      "accroche_marketing": "Mystique, intense, magnétique. Luna vous entraîne dans un univers où le corps devient cérémonie et le désir, une invocation.",
+      "accroche_dark_collection": "Rituelle. Magnétique. Troublante. Avec Luna, l'amour devient cérémonie obscure, où l'abandon frôle la transe.",
+      "niveau_intensite": 4,
+      "niveau_douceur": 3,
+      "niveau_danger": 3,
+      "niveau_transformation": 4
     },
     {
       "id": "45021368-26d8-4b47-8938-3702f407535c",
@@ -58,7 +94,16 @@
       "scheduledFor": null,
       "coverAssetId": null,
       "isArchived": false,
-      "createdAt": "2026-01-21T06:50:54.873Z"
+      "createdAt": "2026-01-21T06:50:54.873Z",
+      "accroche_classic": "Vivez une aventure ardente et imprévisible, où le plaisir s'assume sans détour et où la liberté se savoure à pleine peau.",
+      "accroche_dark": "Entrez dans une fièvre sans détour, où les corps se cherchent sans permission et où chaque regard contient une promesse dangereuse. Avec elle, le désir ne demande pas à être apprivoisé — il exige.",
+      "accroche_love": "Approchez une âme vive et solaire, dont la sensualité naît d'un rire franc et d'un cœur ouvert, et découvrez comment une passion peut éclore dans la lumière la plus simple.",
+      "accroche_marketing": "Audacieuse, imprévisible, incendiaire. Avec Fany, le plaisir n'attend pas, il s'impose.",
+      "accroche_dark_collection": "Elle ne demande pas la permission. Elle prend, provoque, entraîne. Avec Fany, la passion n'est jamais tendre, elle est incendie public.",
+      "niveau_intensite": 5,
+      "niveau_douceur": 1,
+      "niveau_danger": 4,
+      "niveau_transformation": 3
     },
     {
       "id": "14216778-f5cf-4e36-b45a-a6604fb0408b",
@@ -70,7 +115,16 @@
       "scheduledFor": null,
       "coverAssetId": null,
       "isArchived": false,
-      "createdAt": "2026-01-21T06:50:54.816Z"
+      "createdAt": "2026-01-21T06:50:54.816Z",
+      "accroche_classic": "Osez descendre dans les profondeurs d'un désir incandescent, où l'ombre séduit, où la tentation ensorcelle, et où aimer signifie parfois affronter la part la plus obscure de soi-même.",
+      "accroche_dark": "Descendez là où la mer se fait noire. Là où l'amour se mêle au pouvoir, et où l'ombre enlace avec une douceur aussi dangereuse qu'irrésistible.",
+      "accroche_love": "Sous la surface des apparences, découvrez un cœur que même les abysses n'ont pas entièrement englouti, une passion profonde, fragile derrière sa force.",
+      "accroche_marketing": "Plongez dans une passion abyssale où la tentation a le goût du sel et du pouvoir. Une histoire magnétique, dangereuse, inoubliable, là où aimer signifie risquer de se perdre.",
+      "accroche_dark_collection": "Dans les abysses, elle ne séduit pas, elle réclame. Chaque étreinte est une morsure, chaque regard une promesse de chute. Aimer Ursula, c'est accepter de se noyer volontairement.",
+      "niveau_intensite": 5,
+      "niveau_douceur": 2,
+      "niveau_danger": 5,
+      "niveau_transformation": 4
     },
     {
       "id": "c264a35f-228a-468d-8076-301e45d59bd4",
@@ -82,7 +136,16 @@
       "scheduledFor": null,
       "coverAssetId": null,
       "isArchived": false,
-      "createdAt": "2026-01-21T06:50:54.925Z"
+      "createdAt": "2026-01-21T06:50:54.925Z",
+      "accroche_classic": "Explorez un éveil délicat et vibrant, là où les premiers frissons ouvrent des portes intérieures et où chaque geste devient une révélation.",
+      "accroche_dark": "Ce qui semblait fragile devient audace. La douceur se mue en faim assumée, et la renaissance passe par la peau.",
+      "accroche_love": "Un parcours intime où l'on apprend à s'aimer à travers l'autre, et où chaque caresse devient une affirmation de soi.",
+      "accroche_marketing": "Laissez-vous emporter par un éveil vibrant, intime et sincère, une histoire où chaque frisson ouvre une nouvelle porte vers soi-même.",
+      "accroche_dark_collection": "Ce qui semblait fragile devient faim. Chaque hésitation se transforme en fièvre, chaque frisson en revendication de son propre corps.",
+      "niveau_intensite": 3,
+      "niveau_douceur": 4,
+      "niveau_danger": 1,
+      "niveau_transformation": 4
     },
     {
       "id": "69e73d7f-690b-479c-bdae-1255603e67c1",
@@ -94,7 +157,16 @@
       "scheduledFor": null,
       "coverAssetId": null,
       "isArchived": false,
-      "createdAt": "2026-01-21T06:50:54.778Z"
+      "createdAt": "2026-01-21T06:50:54.778Z",
+      "accroche_classic": "Avec Valérie, l'intimité ne commence pas par la douceur, mais par l'intensité. Elle avance, sûre d'elle, impose le rythme, teste les limites. Ce n'est pas une histoire d'équilibre fragile, c'est une danse volontaire entre deux volontés fortes.",
+      "accroche_dark": "Valérie ne joue pas. Elle provoque. Elle pousse, résiste, exige qu'on la contienne sans jamais l'éteindre. La passion devient affrontement charnel, lutte magnétique où le désir naît dans la friction et l'insolence.",
+      "accroche_love": "Derrière son audace se cache une femme qui choisit enfin de faire confiance. Son abandon n'est jamais subi, il est offert. Et dans ce choix libre naît une intimité plus profonde qu'elle ne l'aurait cru possible.",
+      "accroche_marketing": "Indomptable, intense, imprévisible. Avec Valérie, le désir n'est jamais tiède, il brûle, il défie, il marque. Entrez dans une histoire où la passion a du caractère.",
+      "accroche_dark_collection": "Elle provoque, elle résiste, elle défie. La tension est électrique, les rôles se renversent, et le plaisir naît dans le bras de fer.",
+      "niveau_intensite": 5,
+      "niveau_douceur": 1,
+      "niveau_danger": 5,
+      "niveau_transformation": 3
     },
     {
       "id": "74729bcd-dd1b-42bd-9deb-4a2301db6cc9",
@@ -106,7 +178,16 @@
       "scheduledFor": null,
       "coverAssetId": null,
       "isArchived": false,
-      "createdAt": "2026-01-24T04:46:10.309Z"
+      "createdAt": "2026-01-24T04:46:10.309Z",
+      "accroche_classic": "Plongez dans une histoire d'attente et de tension retenue, où chaque frôlement compte et où l'amour s'écrit dans les gestes que l'on n'ose pas toujours nommer.",
+      "accroche_dark": "Les regards se chargent, les silences deviennent lourds, et la lenteur précède une intensité qui consume tout sur son passage.",
+      "accroche_love": "Une passion patiente, faite de gestes retenus et de promesses murmurées, où l'émotion précède toujours la fièvre.",
+      "accroche_marketing": "Une tension qui monte, des silences chargés d'électricité, une attente délicieusement insupportable. Vanil incarne la passion qui brûle lentement… jusqu'à l'explosion.",
+      "accroche_dark_collection": "La retenue est une illusion. Sous ses silences se cache une tempête prête à tout renverser. Elle attend qu'on la fasse tomber sans la briser.",
+      "niveau_intensite": 4,
+      "niveau_douceur": 3,
+      "niveau_danger": 3,
+      "niveau_transformation": 3
     },
     {
       "id": "953a873d-f592-439c-b4eb-444719ec1d6c",
@@ -118,7 +199,16 @@
       "scheduledFor": null,
       "coverAssetId": null,
       "isArchived": false,
-      "createdAt": "2026-01-21T06:50:54.887Z"
+      "createdAt": "2026-01-21T06:50:54.887Z",
+      "accroche_classic": "Plongez dans une histoire où les mots deviennent caresses et les silences des promesses, là où, entre les rayonnages d'une bibliothèque oubliée, deux esprits libres apprennent à se reconnaître avant même de s'aimer.",
+      "accroche_dark": "Entre les rayonnages feutrés, le silence cache une tension vibrante. Le désir se glisse entre les pages, interdit mais inévitable.",
+      "accroche_love": "Dans la lumière d'une bibliothèque, deux esprits se reconnaissent avant que les corps n'osent se chercher, une romance née des mots avant les gestes.",
+      "accroche_marketing": "Une bibliothèque, des lettres secrètes, un amour qui naît dans le silence des pages… Entrez dans le récit fondateur où le désir commence par les mots et où chaque regard devient une promesse.",
+      "accroche_dark_collection": "Entre les étagères silencieuses, le désir s'écrit à l'encre interdite. L'innocence n'est qu'une façade : derrière les livres sages, les corps apprennent à brûler en secret.",
+      "niveau_intensite": 3,
+      "niveau_douceur": 4,
+      "niveau_danger": 2,
+      "niveau_transformation": 4
     },
     {
       "id": "7bbadc12-6c54-4c1c-8bb7-7c7261f76405",
@@ -130,7 +220,16 @@
       "scheduledFor": null,
       "coverAssetId": null,
       "isArchived": false,
-      "createdAt": "2026-01-24T04:49:39.829Z"
+      "createdAt": "2026-01-24T04:49:39.829Z",
+      "accroche_classic": "Plongez dans une atmosphère envoûtante où l'ombre devient langage et où la sensualité prend la forme d'un rituel intime et magnétique.",
+      "accroche_dark": "Sous les éclats de rire se cache une tension latente, un désir qui attend le bon moment pour franchir la frontière de l'amitié.",
+      "accroche_love": "Un lien né de la complicité, où la tendresse se transforme doucement en passion, presque sans qu'on s'en aperçoive.",
+      "accroche_marketing": "Quand l'amitié bascule vers le désir… Julia incarne ces instants suspendus où tout peut changer.",
+      "accroche_dark_collection": "Complice en surface, dangereuse en profondeur. Elle sourit… puis s'approche trop près. Et soudain, la frontière n'existe plus.",
+      "niveau_intensite": 4,
+      "niveau_douceur": 3,
+      "niveau_danger": 3,
+      "niveau_transformation": 3
     },
     {
       "id": "cb7956ce-0834-41f1-b9ee-88966425bdf6",
@@ -142,7 +241,16 @@
       "scheduledFor": null,
       "coverAssetId": null,
       "isArchived": false,
-      "createdAt": "2026-01-24T04:45:22.607Z"
+      "createdAt": "2026-01-24T04:45:22.607Z",
+      "accroche_classic": "Entrez dans un univers où la douceur dissimule l'intensité, où les silences sont chargés d'électricité et où le désir s'exprime dans la lenteur d'un regard soutenu.",
+      "accroche_dark": "Sous la retenue apparente, un désir vibrant attend d'être révélé, prêt à franchir la frontière entre contrôle et abandon.",
+      "accroche_love": "Une sensualité subtile, presque murmurée, où chaque contact est un apprentissage de la confiance.",
+      "accroche_marketing": "Derrière la douceur se cache une intensité inattendue. Une romance délicate où le désir s'installe lentement… et ne s'efface plus.",
+      "accroche_dark_collection": "Le silence est son arme. La lenteur, son piège. Quand elle s'ouvre enfin, ce n'est pas pour être sauvée, c'est pour être consumée.",
+      "niveau_intensite": 3,
+      "niveau_douceur": 4,
+      "niveau_danger": 2,
+      "niveau_transformation": 3
     },
     {
       "id": "65996661-6543-46e8-8e4f-605760f329a7",
@@ -154,7 +262,16 @@
       "scheduledFor": null,
       "coverAssetId": null,
       "isArchived": false,
-      "createdAt": "2026-01-21T06:50:54.791Z"
+      "createdAt": "2026-01-21T06:50:54.791Z",	
+      "accroche_classic" : "Entrez dans une danse de feu et de liberté, où les regards brûlent plus fort que les torches et où l’amour naît dans le fracas des interdits et le vertige du danger.",
+      "accroche_dark" :"Danseuse de feu, insoumise et ardente, elle aime comme elle combat : sans plier. La passion devient défi, et l’étreinte un acte de rébellion.",
+      "accroche_love" :"Libre comme le vent, elle porte en elle une flamme qui éclaire autant qu’elle réchauffe, et son amour est un pas de danse offert au destin.",
+      "accroche_marketing": "Dansez au cœur des flammes, entre liberté, danger et passion indomptable. Une romance vibrante où chaque étreinte défie le monde entier.",
+      "accroche_dark_collection": "Elle danse comme on provoque. Elle embrasse comme on défie. Avec elle, la passion n’est jamais tendre, elle est incendie public.",
+      "niveau_intensite": 5,
+      "niveau_douceur": 2,
+      "niveau_danger": 5,
+      "niveau_transformation": 4
     },
     {
       "id": "a77ca88c-a6df-409f-aa12-a5d595130f95",
@@ -166,7 +283,16 @@
       "scheduledFor": null,
       "coverAssetId": null,
       "isArchived": false,
-      "createdAt": "2026-01-21T06:50:54.939Z"
+      "createdAt": "2026-01-21T06:50:54.939Z",
+      "accroche_classic": "Explorez une passion née du contrôle et du lâcher-prise, où la force apparente s'adoucit dans l'intimité d'un regard sincère.",
+      "accroche_dark": "Dans les lieux où l'on n'ose pas regarder trop longtemps, elle découvre l'excitation du risque et la chaleur d'un abandon maîtrisé.",
+      "accroche_love": "Une femme forte qui apprend à laisser tomber les armures, et trouve dans la tendresse un refuge inattendu.",
+      "accroche_marketing": "Élodie, c'est l'excitation du risque et la douceur de l'abandon. Une romance vibrante, entre maîtrise et frisson.",
+      "accroche_dark_collection": "Forte le jour, vulnérable la nuit. Elle découvre l'excitation du risque, le frisson d'être vue… puis possédée par le moment.",
+      "niveau_intensite": 4,
+      "niveau_douceur": 2,
+      "niveau_danger": 4,
+      "niveau_transformation": 3
     }
   ],
   "volumes": [

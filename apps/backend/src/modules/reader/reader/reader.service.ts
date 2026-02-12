@@ -11,7 +11,29 @@ export class ReaderService {
     volumeNumber: number,
     perspective: Perspective
   ): Promise<boolean> {
-    // Check entitlement
+    // Get volume info to check isFree and isFinalPaywall
+    const volume = await prisma.volume.findFirst({
+      where: {
+        chapterId,
+        volumeNumber,
+      },
+    });
+
+    if (!volume) {
+      return false;
+    }
+
+    // Volume 1 is always accessible immediately
+    if (volumeNumber === 1) {
+      return true;
+    }
+
+    // Free volumes are always accessible (no wait, no entitlement required)
+    if (volume.isFree) {
+      return true;
+    }
+
+    // For non-free volumes, check entitlement
     const entitlement = await prisma.entitlement.findFirst({
       where: {
         userId,
@@ -30,6 +52,11 @@ export class ReaderService {
       perspective === Perspective.PROTAGONIST &&
       entitlement.versionScope !== "ALL"
     ) {
+      return false;
+    }
+
+    // Final paywall volumes are blocked (need upgrade)
+    if (volume.isFinalPaywall) {
       return false;
     }
 
@@ -210,5 +237,315 @@ export class ReaderService {
     }
 
     return version;
+  }
+
+  /**
+   * Get volume text by volumeId (automatically finds the right version based on perspective)
+   */
+  async getVolumeTextByVolumeId(
+    volumeId: string,
+    userId: string,
+    perspective: Perspective = Perspective.NARRATOR
+  ): Promise<{
+    id: string;
+    volumeId: string;
+    title: string;
+    chapterId: string;
+    chapterTitle: string;
+    volumeNumber: number;
+    perspective: Perspective;
+    content: string;
+    illustrationUrl: string | null;
+  }> {
+    // Find the volume with its versions
+    const volume = await prisma.volume.findUnique({
+      where: { id: volumeId },
+      include: {
+        chapter: true,
+        versions: {
+          where: { perspective },
+          include: { textBlob: true },
+        },
+      },
+    });
+
+    if (!volume) {
+      throw new Error("VOLUME_NOT_FOUND");
+    }
+
+    if (volume.versions.length === 0) {
+      throw new Error("VERSION_NOT_FOUND");
+    }
+
+    const version = volume.versions[0];
+
+    // Use the existing getVolumeText method with the versionId
+    return this.getVolumeText(version.id, userId);
+  }
+
+  /**
+   * Get decrypted text content for a volume version
+   */
+  async getVolumeText(
+    versionId: string,
+    userId: string
+  ): Promise<{
+    id: string;
+    volumeId: string;
+    title: string;
+    chapterId: string;
+    chapterTitle: string;
+    volumeNumber: number;
+    perspective: Perspective;
+    content: string;
+    illustrationUrl: string | null;
+  }> {
+    // Fetch version with full details
+    const version = await prisma.volumeVersion.findUnique({
+      where: { id: versionId },
+      include: {
+        volume: {
+          include: {
+            chapter: true,
+            illustrationAsset: true,
+          },
+        },
+        textBlob: true,
+        illustrationAsset: true,
+      },
+    });
+
+    if (!version) {
+      throw new Error("VERSION_NOT_FOUND");
+    }
+
+    // Check access
+    const hasAccess = await this.canAccessVolume(
+      userId,
+      version.volume.chapterId,
+      version.volume.volumeNumber,
+      version.perspective
+    );
+
+    if (!hasAccess) {
+      throw new Error("NO_ACCESS");
+    }
+
+    // Track that user is reading this volume (create VolumeRead if first time)
+    await prisma.volumeRead.upsert({
+      where: {
+        userId_chapterId_volumeNumber: {
+          userId,
+          chapterId: version.volume.chapterId,
+          volumeNumber: version.volume.volumeNumber,
+        },
+      },
+      create: {
+        userId,
+        chapterId: version.volume.chapterId,
+        volumeNumber: version.volume.volumeNumber,
+        firstOpenedAt: new Date(),
+      },
+      update: {
+        // Don't update firstOpenedAt - keep the original timestamp
+      },
+    });
+
+    // Get plaintext from encrypted blob
+    let plaintext: string;
+
+    if (version.textBlob) {
+      // Decrypt the blob
+      plaintext = decryptBlob({
+        cipherText: version.textBlob.cipherText,
+        iv: version.textBlob.iv,
+        tag: version.textBlob.tag,
+        wrappedDek: version.textBlob.wrappedDek,
+        alg: version.textBlob.alg,
+        version: version.textBlob.version,
+      });
+    } else if (version.text) {
+      // Fallback for legacy plain text (if exists)
+      plaintext = version.text;
+    } else {
+      throw new Error("NO_TEXT");
+    }
+
+    // Get illustration URL (prioritize version illustration, fallback to volume illustration)
+    const illustrationAsset = version.illustrationAsset || version.volume.illustrationAsset;
+    const illustrationUrl = illustrationAsset
+      ? `/uploads/${illustrationAsset.objectKey}`
+      : null;
+
+    return {
+      id: version.id,
+      volumeId: version.volumeId,
+      title: version.volume.title,
+      chapterId: version.volume.chapterId,
+      chapterTitle: version.volume.chapter.title,
+      volumeNumber: version.volume.volumeNumber,
+      perspective: version.perspective,
+      content: plaintext,
+      illustrationUrl,
+    };
+  }
+
+  /**
+   * Tracks when a user reads a volume
+   * NOTE: This no longer automatically creates unlocks for the next volume.
+   * Users must manually trigger the wait-to-read timer for each volume.
+   */
+  async trackVolumeRead(
+    userId: string,
+    chapterId: string,
+    volumeNumber: number
+  ): Promise<{
+    success: boolean;
+    error?: string;
+  }> {
+    // Check if this is the first time reading this volume
+    const existingRead = await prisma.volumeRead.findUnique({
+      where: {
+        userId_chapterId_volumeNumber: {
+          userId,
+          chapterId,
+          volumeNumber,
+        },
+      },
+    });
+
+    // Create VolumeRead record if first time
+    if (!existingRead) {
+      await prisma.volumeRead.create({
+        data: {
+          userId,
+          chapterId,
+          volumeNumber,
+        },
+      });
+    }
+
+    // No automatic unlock creation - user must manually trigger wait for next volume
+    return { success: true };
+  }
+
+  /**
+   * Mark that user reached 65% scroll on a volume (enables canStartWait for next volume)
+   * This is a security-critical method - validates timing to prevent hacks
+   */
+  async markCanStartWait(
+    userId: string,
+    chapterId: string,
+    volumeNumber: number
+  ): Promise<void> {
+    // Sécurité : Vérifier que l'utilisateur a bien lu le volume
+    const volumeRead = await prisma.volumeRead.findUnique({
+      where: {
+        userId_chapterId_volumeNumber: {
+          userId,
+          chapterId,
+          volumeNumber
+        }
+      }
+    });
+
+    if (!volumeRead) {
+      throw new Error('VOLUME_NOT_READ');
+    }
+
+    // Sécurité : Vérifier timing (au moins 2 minutes de lecture)
+    const timeSinceOpen = Date.now() - volumeRead.firstOpenedAt.getTime();
+    const MIN_READ_TIME = 2 * 60 * 1000; // 2 minutes
+
+    if (timeSinceOpen < MIN_READ_TIME) {
+      throw new Error('READ_TOO_FAST');
+    }
+
+    // Sécurité : Volumes 1-7 uniquement (pour débloquer 2-8)
+    if (volumeNumber < 1 || volumeNumber > 7) {
+      throw new Error('INVALID_VOLUME_FOR_WAIT');
+    }
+
+    // Marquer canStartWaitFrom sur le volume SUIVANT
+    const nextVolumeNumber = volumeNumber + 1;
+
+    await prisma.volumeRead.upsert({
+      where: {
+        userId_chapterId_volumeNumber: {
+          userId,
+          chapterId,
+          volumeNumber: nextVolumeNumber
+        }
+      },
+      create: {
+        userId,
+        chapterId,
+        volumeNumber: nextVolumeNumber,
+        canStartWaitFrom: new Date()
+      },
+      update: {
+        canStartWaitFrom: new Date()
+      }
+    });
+  }
+
+  /**
+   * Update reading progress for a volume (0-100%)
+   * Only updates if new progress is higher than current progress
+   */
+  async updateProgress(
+    userId: string,
+    chapterId: string,
+    volumeNumber: number,
+    progress: number
+  ): Promise<{ success: boolean; progress: number }> {
+    // Validate progress is between 0 and 100
+    if (progress < 0 || progress > 100) {
+      throw new Error('INVALID_PROGRESS');
+    }
+
+    // Get current volume read
+    const volumeRead = await prisma.volumeRead.findUnique({
+      where: {
+        userId_chapterId_volumeNumber: {
+          userId,
+          chapterId,
+          volumeNumber
+        }
+      }
+    });
+
+    if (!volumeRead) {
+      // Create new volume read with progress
+      const newRead = await prisma.volumeRead.create({
+        data: {
+          userId,
+          chapterId,
+          volumeNumber,
+          progress
+        }
+      });
+      return { success: true, progress: newRead.progress };
+    }
+
+    // Only update if new progress is higher
+    if (progress > volumeRead.progress) {
+      const updated = await prisma.volumeRead.update({
+        where: {
+          userId_chapterId_volumeNumber: {
+            userId,
+            chapterId,
+            volumeNumber
+          }
+        },
+        data: {
+          progress
+        }
+      });
+      return { success: true, progress: updated.progress };
+    }
+
+    // Return current progress if new progress is not higher
+    return { success: true, progress: volumeRead.progress };
   }
 }

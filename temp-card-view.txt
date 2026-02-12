@@ -1,0 +1,28 @@
+  if (viewMode === "card") {
+    return (
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-6 gap-6 select-none"
+        onContextMenu={(e) => {
+          // Only trigger background menu if clicked on the container itself
+          if (e.target === e.currentTarget) {
+            onBackgroundContextMenu?.(e);
+          }
+        }}>
+        {chapters.map((chapter) => (
+          <div
+            key={chapter.id}
+            onContextMenu={(e) => {
+              e.stopPropagation();
+              onChapterContextMenu?.(e, chapter);
+            }}>
+            <BookPreviewV2
+              chapter={chapter}
+              onView={() => onViewChapter(chapter.id)}
+              onEdit={() => onEditChapter(chapter)}
+              onArchiveToggle={() => onToggleArchive(chapter)}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  }

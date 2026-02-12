@@ -1,27 +1,25 @@
 import { z } from "zod";
-import { ChapterStatus, Perspective } from "@prisma/client";
+import { ChapterStatus, ChapterGenre, Perspective } from "@prisma/client";
 
 export const createChapterSchema = z.object({
   title: z.string().min(1),
   protagonistName: z.string().min(1),
+  description: z.string().optional().nullable(),
   status: z.nativeEnum(ChapterStatus).optional(),
-  priceFreeToRead: z.number().int().min(0).optional().default(0),
-  pricePaywall: z.number().int().min(0).optional().default(0),
-  priceEpilogue: z.number().int().min(0).optional().default(0),
   publishedAt: z.string().datetime().optional().nullable(),
   coverAssetId: z.string().nullable().optional(),
+  genres: z.array(z.nativeEnum(ChapterGenre)).optional(),
 });
 
 export const updateChapterSchema = z.object({
   title: z.string().min(1).optional(),
   protagonistName: z.string().min(1).optional(),
+  description: z.string().optional().nullable(),
   status: z.nativeEnum(ChapterStatus).optional(),
-  priceFreeToRead: z.number().int().min(0).optional(),
-  pricePaywall: z.number().int().min(0).optional(),
-  priceEpilogue: z.number().int().min(0).optional(),
   publishedAt: z.string().datetime().optional().nullable(),
   coverAssetId: z.string().nullable().optional(),
   isArchived: z.boolean().optional(),
+  genres: z.array(z.nativeEnum(ChapterGenre)).optional(),
 });
 
 export const bootstrapVolumesSchema = z.object({
@@ -33,9 +31,6 @@ export const bulkUpdateChaptersSchema = z.object({
   chapterIds: z.array(z.string()).min(1),
   updates: z.object({
     status: z.nativeEnum(ChapterStatus).optional(),
-    priceFreeToRead: z.number().int().min(0).optional(),
-    pricePaywall: z.number().int().min(0).optional(),
-    priceEpilogue: z.number().int().min(0).optional(),
     publishedAt: z.string().datetime().optional().nullable(),
   }),
 });

@@ -119,7 +119,7 @@ export default function HomeNew() {
       index
     ],
     subtitle: chapter.protagonistName || "",
-    description: chapter.accroche_marketing || chapter.description,
+    description: chapter.accroche_marketing ?? chapter.description ?? undefined,
     genres: chapter.genres || [],
     imageUrl: chapter.coverAsset?.url
       ? `${import.meta.env.VITE_API_URL ?? ""}${chapter.coverAsset.url}`

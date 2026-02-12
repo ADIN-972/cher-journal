@@ -32,7 +32,7 @@ interface TableGridProps<T> {
   onRowContextMenu?: (e: React.MouseEvent, item: T) => void;
   onBackgroundContextMenu?: (e: React.MouseEvent) => void;
   isActiveField?: keyof T;
-  isActive?: boolean;
+  isActive?: (item: T) => boolean;
 }
 
 export default function TableGrid<T>({
@@ -49,6 +49,7 @@ export default function TableGrid<T>({
   onRowContextMenu,
   onBackgroundContextMenu,
   isActiveField,
+  isActive,
 }: TableGridProps<T>) {
   const allSelected = data.length > 0 && selectedIds.size === data.length;
 
@@ -105,7 +106,7 @@ export default function TableGrid<T>({
         }
       }}>
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
+        <table className="min-w-full divide-y divide-gray-200  dark:divide-[#4d252f]">
           <thead className="bg-gray-50">
             <tr>
               {selectable && (
@@ -140,13 +141,15 @@ export default function TableGrid<T>({
               )}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-gray-200 dark:divide-[#4d252f]">
             {data.map((item) => {
               const itemId = getItemId(item);
               const isSelected = selectedIds.has(itemId);
-              const isItemActive = isActiveField
-                ? Boolean(item[isActiveField])
-                : true;
+              const isItemActive = isActive
+                ? isActive(item)
+                : isActiveField
+                  ? Boolean(item[isActiveField])
+                  : true;
               const rowClassName = isItemActive
                 ? "" // "hover:bg-gray-50"
                 : "dashed bg-gray-100"; //"hover:bg-gray-50";
@@ -173,7 +176,7 @@ export default function TableGrid<T>({
                     <td
                       key={colIndex}
                       className={`px-6 py-4 ${column.className || ""} ${getAlignmentClass(
-                        column.align
+                        column.align,
                       )}`}>
                       {getCellValue(item, column)}
                     </td>
@@ -199,7 +202,7 @@ export default function TableGrid<T>({
                               )}
                               {action.label ?? ""}
                             </button>
-                          )
+                          ),
                         )}
                       </div>
                     </td>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Modal from './Modal';
+import { api } from '../lib/api';
 
 interface BulkEditVolumeModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ export interface BulkVolumeUpdates {
   isFinalPaywall?: boolean;
   publishedAt?: string | null;
   isFree?: boolean;
+  status?: 'DRAFT' | 'SCHEDULED' | 'PUBLISHED';
 }
 
 export default function BulkEditVolumeModal({
@@ -22,8 +24,9 @@ export default function BulkEditVolumeModal({
   onSubmit,
   selectedCount,
 }: BulkEditVolumeModalProps) {
+  const [defaultWaitDuration, setDefaultWaitDuration] = useState<number>(24);
   const [formData, setFormData] = useState<{
-   
+
     updateWaitDuration: boolean;
     waitDuration: number;
     updateIsFinalPaywall: boolean;
@@ -32,6 +35,8 @@ export default function BulkEditVolumeModal({
     publishedAt: string;
     updateIsFree: boolean;
     isFree: boolean;
+    updateStatus: boolean;
+    status: 'DRAFT' | 'SCHEDULED' | 'PUBLISHED';
   }>({
     updateWaitDuration: false,
     waitDuration: 24,
@@ -41,9 +46,28 @@ export default function BulkEditVolumeModal({
     publishedAt: '',
     updateIsFree: false,
     isFree: false,
+    updateStatus: false,
+    status: 'PUBLISHED',
   });
 
   const [loading, setLoading] = useState(false);
+
+  // Load default wait duration from config
+  useEffect(() => {
+    const loadWaitConfig = async () => {
+      try {
+        const response = await api.get('/config/wait');
+        if (response.success && response.data?.defaultDurationHours) {
+          const hours = response.data.defaultDurationHours;
+          setDefaultWaitDuration(hours);
+          setFormData(prev => ({ ...prev, waitDuration: hours }));
+        }
+      } catch (error) {
+        console.error('Failed to load wait config:', error);
+      }
+    };
+    loadWaitConfig();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +90,13 @@ export default function BulkEditVolumeModal({
       }
 
       if (formData.updatePublishedAt) {
-        updates.publishedAt = formData.publishedAt || null;
+        updates.publishedAt = formData.publishedAt
+          ? new Date(formData.publishedAt).toISOString()
+          : null;
+      }
+
+      if (formData.updateStatus) {
+        updates.status = formData.status;
       }
 
       await onSubmit(updates);
@@ -81,13 +111,15 @@ export default function BulkEditVolumeModal({
   const handleClose = () => {
     setFormData({
       updateWaitDuration: false,
-      waitDuration: 24,
+      waitDuration: defaultWaitDuration,
       updateIsFinalPaywall: false,
       isFinalPaywall: false,
       updatePublishedAt: false,
       publishedAt: '',
       updateIsFree: false,
       isFree: false,
+      updateStatus: false,
+      status: 'PUBLISHED',
     });
     onClose();
   };
@@ -199,6 +231,56 @@ export default function BulkEditVolumeModal({
               />
             )}
           </div>
+
+          {/* Status */}
+          <div className="border border-gray-200 rounded-md p-3">
+            <label className="flex items-center space-x-2 mb-2">
+              <input
+                type="checkbox"
+                checked={formData.updateStatus}
+                onChange={(e) => setFormData({ ...formData, updateStatus: e.target.checked })}
+                className="h-4 w-4 text-blue-600 rounded"
+              />
+              <span className="text-sm font-medium text-gray-700">Modifier le statut</span>
+            </label>
+            {formData.updateStatus && (
+              <div className="inline-flex rounded-md shadow-sm" role="group">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, status: 'DRAFT' })}
+                  className={`px-4 py-2 text-sm font-medium border ${
+                    formData.status === 'DRAFT'
+                      ? 'bg-gray-700 text-white border-gray-700'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  } rounded-l-md`}
+                >
+                  Brouillon
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, status: 'SCHEDULED' })}
+                  className={`px-4 py-2 text-sm font-medium border-t border-b ${
+                    formData.status === 'SCHEDULED'
+                      ? 'bg-orange-600 text-white border-orange-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  Planifié
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, status: 'PUBLISHED' })}
+                  className={`px-4 py-2 text-sm font-medium border ${
+                    formData.status === 'PUBLISHED'
+                      ? 'bg-green-600 text-white border-green-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  } rounded-r-md`}
+                >
+                  Publié
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
@@ -212,7 +294,7 @@ export default function BulkEditVolumeModal({
           </button>
           <button
             type="submit"
-            disabled={loading || (!formData.updateIsFree && !formData.updateWaitDuration && !formData.updateIsFinalPaywall && !formData.updatePublishedAt)}
+            disabled={loading || (!formData.updateIsFree && !formData.updateWaitDuration && !formData.updateIsFinalPaywall && !formData.updatePublishedAt && !formData.updateStatus)}
             className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Mise à jour...' : `Mettre à jour ${selectedCount} volume(s)`}

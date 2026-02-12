@@ -11,6 +11,8 @@ import { TableAction } from "./TableGrid";
 import type { Chapter } from "@cher-journal/types";
 import { SlUserFemale } from "react-icons/sl";
 import { getImageUrl } from "../lib/imageUtils";
+import BookPreviewV2 from "./BookPreviewV2";
+import BookPreviewV3 from "./BookPreviewV3";
 
 export type ChapterViewMode = "grid" | "card" | "calendar";
 
@@ -51,8 +53,54 @@ export default function ChapterView({
       </div>
     );
   }
-
   if (viewMode === "card") {
+    return (
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-6 gap-6 select-none"
+        onContextMenu={(e) => {
+          // Only trigger background menu if clicked on the container itself
+          if (e.target === e.currentTarget) {
+            onBackgroundContextMenu?.(e);
+          }
+        }}>
+        {chapters.map((chapter) => (
+          <div
+            key={chapter.id}
+            className={`relative  overflow-hidden hover:shadow-lg transition-shadow rounded-md ${
+              selectedChapterIds.has(chapter.id)
+                ? "border-blue-500 ring-2 ring-blue-200 shadow-sm shadow-blue-100  shadow-lg "
+                : "border-gray-200"
+            }
+
+            
+            ${
+              chapter.isArchived
+                ? "bg-rose-100 border-gray-300 dashed"
+                : chapter.status === "PUBLISHED"
+                  ? "bg-green-50 border-green-200"
+                  : chapter.status === "IN_PROGRESS"
+                    ? "bg-yellow-50 border-yellow-200"
+                    : "bg-white border-gray-200"
+            }
+            `}>
+            <BookPreviewV2
+              chapter={chapter}
+              onView={() => onViewChapter(chapter.id)}
+              onEdit={() => onEditChapter(chapter)}
+              onArchiveToggle={() => onDeleteChapter(chapter)}
+            />
+            <button
+              onClick={() => toggleChapterSelection(chapter.id)}
+              className="absolute top-2 left-2 bg-white rounded-lg p-2 shadow-md hover:shadow-lg transition-shadow ">
+              {selectedChapterIds.has(chapter.id) ? "✅" : "⬜"}
+            </button>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (viewMode === "card2") {
     return (
       <div
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-6 gap-3 select-none"
@@ -264,7 +312,7 @@ export default function ChapterView({
                 <div className="text-sm text-gray-600">
                   {t(
                     "chapter_view.see_price_schemas",
-                    "Managed via Price Schemas"
+                    "Managed via Price Schemas",
                   )}
                 </div>
               </div>
@@ -360,10 +408,10 @@ function renderStatusBadge(status: string, t: any) {
 
 function formatStatusLabel(status: string) {
   return status === "PUBLISHED"
-    ? "Publié"
+    ? t("chapter.status_published")
     : status === "IN_PROGRESS"
-      ? "En cours"
-      : "Brouillon";
+      ? t("chapter.status_in_progress")
+      : t("chapter.status_draft");
 }
 
 function formatPrice(cents?: number | null) {

@@ -99,7 +99,7 @@ export default function ChapterImageGallery({
   const loadTags = async () => {
     try {
       const response = await api.get("/admin/asset-tags");
-      setAvailableTags(response.data);
+      setAvailableTags(response as any);
     } catch (error: any) {
       console.error("Error loading tags:", error);
     }
@@ -108,10 +108,9 @@ export default function ChapterImageGallery({
   const confirmDelete = async () => {
     if (!deletingAsset) return;
     try {
-      await api.delete(
-        `/admin/chapters/${chapterId}/assets/${deletingAsset.id}`
-      );
+      await api.delete(`/admin/assets/${deletingAsset.id}`);
       toast.success("Image supprimée avec succès");
+      setDeletingAsset(null);
       await loadAssets();
     } catch (error: any) {
       toast.error("Erreur lors de la suppression");
@@ -135,7 +134,12 @@ export default function ChapterImageGallery({
 
   const handleUploadSuccess = async () => {
     setShowUpload(false);
-    await loadAssets();
+    // Reset filters to show all newly uploaded images
+    setFilters({});
+    // Wait a bit for state to settle, then reload
+    setTimeout(async () => {
+      await loadAssets();
+    }, 100);
   };
 
   const handleTagAsset = async (assetId: string, tagId: string) => {
@@ -245,7 +249,7 @@ export default function ChapterImageGallery({
           {assets.map((asset) => (
             <div
               key={asset.id}
-              className="group relative bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
+              className="group relative bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
               {/* Image Container */}
               <div className="aspect-square bg-gray-100 overflow-hidden flex items-center justify-center">
                 <img
@@ -315,9 +319,9 @@ export default function ChapterImageGallery({
               </button>
 
               {/* Info Section */}
-              <div className="p-3 border-t border-gray-200">
+              <div className="p-3 border-t border-slate-200 dark:border-white/10">
                 {asset.label && (
-                  <p className="text-sm font-medium text-gray-900 truncate mb-1">
+                  <p className="text-sm font-medium text-slate-900 dark:text-white truncate mb-1">
                     {asset.label}
                   </p>
                 )}
@@ -339,15 +343,15 @@ export default function ChapterImageGallery({
                 )}
 
                 <div className="space-y-1">
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-slate-900 dark:text-white/50">
                     {asset.width && asset.height
                       ? `${asset.width}×${asset.height}px`
                       : "Dimension inconnue"}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-slate-900 dark:text-white/50">
                     {formatFileSize(asset.sizeBytes)}
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-slate-900 dark:text-white/50">
                     {new Date(asset.createdAt).toLocaleDateString("fr-FR")}
                   </p>
 
@@ -355,7 +359,7 @@ export default function ChapterImageGallery({
                   {asset.isChapterCover ||
                   asset.usedByVolumes?.length ||
                   asset.usedByVersions?.length ? (
-                    <div className="mt-2 pt-2 border-t border-gray-200 space-y-1">
+                    <div className="mt-2 pt-2 border-t border-slate-200 dark:border-white/10 space-y-1">
                       {asset.isChapterCover && (
                         <p className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded">
                           Illustration chapitre
@@ -365,7 +369,7 @@ export default function ChapterImageGallery({
                         asset.usedByVolumes.length > 0 &&
                         asset.usedByVolumes.map((volumeId) => {
                           const volume = volumes?.find(
-                            (v) => v.id === volumeId
+                            (v) => v.id === volumeId,
                           );
                           return (
                             <p
@@ -469,7 +473,7 @@ export default function ChapterImageGallery({
                   {availableTags
                     .filter(
                       (tag) =>
-                        !taggingAsset.tags?.some((at) => at.tag.id === tag.id)
+                        !taggingAsset.tags?.some((at) => at.tag.id === tag.id),
                     )
                     .map((tag) => (
                       <button

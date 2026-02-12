@@ -22,4 +22,14 @@ export async function waitRoutes(app: FastifyInstance) {
     preHandler: requireAuth,
     handler: controller.listActiveWaits.bind(controller),
   });
+
+  app.get('/wait/completed', {
+    preHandler: requireAuth,
+    handler: controller.listCompletedWaits.bind(controller),
+  });
+
+  app.get('/wait/all', {
+    preHandler: requireAuth,
+    handler: controller.listAllWaits.bind(controller),
+  });
 }

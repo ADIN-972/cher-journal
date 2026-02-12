@@ -11,4 +11,22 @@ export class DashboardController {
       data: stats,
     });
   }
+
+  async getKPIs(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const kpis = await service.getKPIs();
+      return reply.send({
+        success: true,
+        data: kpis,
+      });
+    } catch (error: any) {
+      return reply.status(500).send({
+        success: false,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: error.message || 'Failed to fetch KPIs',
+        },
+      });
+    }
+  }
 }

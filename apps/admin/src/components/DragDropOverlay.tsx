@@ -30,7 +30,7 @@ export default function DragDropOverlay({
     try {
       await onDrop(targetId, assetId);
       toast.success(
-        targetId ? "Image attribuée au volume" : "Image attribuée au chapitre"
+        targetId ? "Image attribuée au volume" : "Image attribuée au chapitre",
       );
       onClose();
     } catch (error) {
@@ -45,10 +45,12 @@ export default function DragDropOverlay({
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}>
       <div
-        className="bg-white rounded-lg shadow-2xl p-8 max-w-2xl w-full max-h-[80vh] overflow-auto"
+        className=" bg-background-light dark:bg-background-dark border border-slate-200 dark:border-white/10  rounded-lg shadow-2xl p-8 max-w-2xl w-full max-h-[80vh] overflow-auto"
         onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Attribuer l'image à:</h2>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            Attribuer l'image à:
+          </h2>
           <button
             onClick={onClose}
             aria-label="Fermer"
@@ -67,12 +69,12 @@ export default function DragDropOverlay({
             className={`w-full p-6 border-2 rounded-lg cursor-pointer transition-all ${
               hoveredId === "chapter"
                 ? "border-blue-500 bg-blue-50 shadow-md"
-                : "border-gray-300 hover:border-gray-400"
+                : " bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10"
             } disabled:opacity-50 disabled:cursor-not-allowed`}>
-            <h3 className="text-xl font-semibold text-gray-900 text-left">
+            <h3 className="text-xl font-semibold text-slate-900 dark:text-white text-left">
               📚 {chapter.title}
             </h3>
-            <p className="text-sm text-gray-600 mt-1 text-left">
+            <p className="text-sm text-slate-900 dark:text-white/50 mt-1 text-left">
               Image de couverture du chapitre
             </p>
           </button>
@@ -80,7 +82,9 @@ export default function DragDropOverlay({
 
         {/* Volumes */}
         <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-3 text-gray-700">Volumes:</h3>
+          <h3 className="text-lg font-semibold mb-3 text-slate-900 dark:text-white">
+            Volumes:
+          </h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {volumes.map((volume) => (
               <button
@@ -92,13 +96,13 @@ export default function DragDropOverlay({
                 className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
                   hoveredId === volume.id
                     ? "border-green-500 bg-green-50 shadow-md"
-                    : "border-gray-300 hover:border-gray-400"
+                    : " bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10"
                 } disabled:opacity-50 disabled:cursor-not-allowed`}>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-800 mb-1">
+                  <div className="text-3xl font-bold text-slate-900 dark:text-white mb-1">
                     #{volume.volumeNumber}
                   </div>
-                  <p className="text-sm font-medium text-gray-600 line-clamp-2">
+                  <p className="text-sm font-medium text-slate-900 dark:text-white/50 line-clamp-2">
                     {volume.title || `Volume ${volume.volumeNumber}`}
                   </p>
                 </div>

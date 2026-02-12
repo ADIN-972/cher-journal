@@ -15,6 +15,7 @@ export const updateVolumeSchema = z.object({
   isFree: z.boolean().optional(),
   publishedAt: z.string().datetime().optional().nullable(),
   illustrationAssetId: z.string().nullable().optional(),
+  status: z.enum(['DRAFT', 'SCHEDULED', 'PUBLISHED']).optional(),
 });
 
 export const updateVolumeVersionSchema = z.object({
@@ -31,6 +32,7 @@ export const bulkUpdateVolumesSchema = z.object({
     isFinalPaywall: z.boolean().optional(),
     isFree: z.boolean().optional(),
     publishedAt: z.string().datetime().optional().nullable(),
+    status: z.enum(['DRAFT', 'SCHEDULED', 'PUBLISHED']).optional(),
   }),
 });
 

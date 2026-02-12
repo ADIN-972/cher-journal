@@ -17,11 +17,13 @@ import { useI18n } from "../lib/i18n";
 import SegmentedToggle from "../components/SegmentedToggle";
 import SmartTableGrid, { SmartTableColumn } from "../components/SmartTableGrid";
 import { TableAction } from "../components/TableGrid";
+import PromotionCard from "../components/PromotionCard";
 
 interface PromotionWithStats extends Promotion {
   _count?: {
     applied: number;
   };
+  targetedUsersCount?: number;
 }
 
 export function PromotionsPage() {
@@ -351,74 +353,15 @@ export function PromotionsPage() {
           <p className="text-gray-500">{t("promotions.no_promotions")}</p>
         </div>
       ) : viewMode === "card" ? (
-        /* Card View */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        /* Card View with PromotionCard component */
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {promotions.map((promo) => (
-            <div
+            <PromotionCard
               key={promo.id}
-              className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-gray-200">
-              <div className="p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 mb-2">
-                      {getScopeLabel(promo.scope)}
-                    </span>
-                    <h3 className="text-sm font-medium text-gray-900">
-                      {getTypeLabel(promo.type)}
-                    </h3>
-                  </div>
-                  <button
-                    onClick={() => togglePromotion(promo.id, promo.isActive)}
-                    className="text-gray-600 hover:text-gray-900">
-                    {promo.isActive ? (
-                      <MdToggleOn className="text-2xl text-green-600" />
-                    ) : (
-                      <MdToggleOff className="text-2xl" />
-                    )}
-                  </button>
-                </div>
-
-                <div className="mb-3">
-                  <div className="text-2xl font-bold text-green-600 mb-1">
-                    {getTypeValue(promo)}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {formatDate(promo.startsAt)} → {formatDate(promo.endsAt)}
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
-                  <span>
-                    {t("promotions.table.usages")}: {promo._count?.applied || 0}
-                    {promo.maxUses && ` / ${promo.maxUses}`}
-                  </span>
-                  {isActive(promo) ? (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      {t("promotions.filters.active")}
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                      {t("promotions.filters.inactive")}
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
-                  <button
-                    onClick={() => navigate(`/promotions/${promo.id}`)}
-                    className="text-rose-600 hover:text-rose-900 p-2 hover:bg-rose-50 rounded"
-                    title={t("promotions.edit")}>
-                    <MdEdit className="text-lg" />
-                  </button>
-                  <button
-                    onClick={() => deletePromotion(promo.id)}
-                    className="text-red-600 hover:text-red-900 p-2 hover:bg-red-50 rounded"
-                    title={t("promotions.delete")}>
-                    <MdDelete className="text-lg" />
-                  </button>
-                </div>
-              </div>
-            </div>
+              promotion={promo}
+              onEdit={(id) => navigate(`/promotions/${id}`)}
+              onDelete={deletePromotion}
+            />
           ))}
         </div>
       ) : (

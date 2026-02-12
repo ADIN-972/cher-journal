@@ -11,7 +11,7 @@ export default function WomenOfCherJournalQuote({
     <section className="py-20 md:py-24 bg-white border-slate-200 dark:bg-white/5 dark:border-white/10 border-y">
       <div className="max-w-3xl mx-auto px-6">
         {/* Script Title */}
-        <h4 className="text-4xl md:text-5xl text-gold mb-8 handwriting">
+        <h4 className="text-3xl md:text-5xl text-gold mb-8 handwriting">
           Les Femmes de Cher Journal...
         </h4>
 
@@ -67,8 +67,8 @@ export default function WomenOfCherJournalQuote({
         {/* Attribution */}
         <div className="flex items-center justify-center gap-4">
           <span className="w-12 h-px bg-boudoir-700"></span>
-          <p className="text-xs uppercase tracking-[0.3em] text-charcoal dark:text-white/70">
-            Stéphane A.
+          <p className="text-xl text-right text-charcoal dark:text-white/70 handwriting">
+            Fifann
           </p>
           <span className="w-12 h-px bg-boudoir-700"></span>
         </div>

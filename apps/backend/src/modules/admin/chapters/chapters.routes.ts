@@ -11,6 +11,11 @@ import {
 const controller = new ChaptersController();
 
 export async function adminChaptersRoutes(app: FastifyInstance) {
+  app.get("/admin/chapters/stats", {
+    preHandler: requireAdmin,
+    handler: controller.getStats.bind(controller),
+  });
+
   app.get("/admin/chapters", {
     preHandler: requireAdmin,
     handler: controller.list.bind(controller),

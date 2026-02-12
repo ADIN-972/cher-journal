@@ -469,6 +469,66 @@ npm test -- --coverage --coverageReporters=html
 - Duplication de logique de test
 - Ignorer les tests qui échouent
 
+## Smoke Tests - Post-Feature Verification
+
+### Purpose
+Quick sanity checks after feature completion to ensure:
+- ✅ Database is accessible and responsive
+- ✅ API is running and healthy
+- ✅ CORS configuration allows frontend access
+- ✅ Authentication flow works
+- ✅ Basic data retrieval works (chapters, volumes)
+- ✅ Data is properly persisted in database
+
+### Smoke Test Script
+- **Location**: `verify-api-calls.ts` (racine du projet)
+- **Command**: `npm run verify:api`
+- **Runtime**: ~5-10 seconds
+- **Output**: PASS/FAIL report with detailed diagnostics
+
+**Example Output**:
+```
+🔍 API Call Verification
+
+Testing API: http://localhost:3000
+Database: PostgreSQL (cherjournal_claude)
+
+✅ Database Connection: PASS
+   └─ PostgreSQL connection successful
+✅ Health Check: PASS
+   └─ API responding with status 200
+✅ CORS Configuration: PASS
+   └─ CORS Allow-Origin: https://app.moncherjournal.com
+✅ Auth Login: PASS
+   └─ API status: 401, User in DB: true
+✅ Get Chapters: PASS
+   └─ API status: 200, DB chapters: 12
+✅ Get Volumes: PASS
+   └─ API status: 200, DB volumes: 5
+
+📊 Summary
+
+✅ Passed: 6 / ❌ Failed: 0 / Total: 6
+
+✨ All tests passed! API is working correctly.
+```
+
+### Integration with Testing Workflow
+
+```
+Feature Implementation
+    ↓
+npm run test:unit                  # Quick unit tests
+    ↓
+npm run test:integration           # API route tests
+    ↓
+npm run verify:api                 # Smoke tests (POST-FEATURE)
+    ↓
+npm run verify:translations        # Translation completeness
+    ↓
+✅ READY FOR COMMIT
+```
+
 ## Scripts
 
 ```json
@@ -477,9 +537,14 @@ npm test -- --coverage --coverageReporters=html
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:unit": "jest --testPathPattern='(?!integration|e2e)'",
     "test:integration": "jest --testPathPattern=integration",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "test:smoke": "npm run verify:api",
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:smoke",
+    "verify:api": "tsx verify-api-calls.ts",
+    "verify:translations": "tsx verify-translations.ts"
   }
 }
 ```

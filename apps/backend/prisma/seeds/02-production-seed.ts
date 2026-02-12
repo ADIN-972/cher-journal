@@ -55,7 +55,53 @@ export async function seedProductionData() {
       return;
     }
 
-    // Restore chapters (without asset references for now due to complex dependencies)
+    // CRITICAL ORDER: Restore assets FIRST (before chapters/volumes that reference them)
+    // Separate base assets from versions to respect self-referencing foreign keys
+    console.log(`🖼️  Restoring chapter assets...`);
+
+    // Step 1: Restore base assets (originalAssetId = null)
+    const baseAssets = data.chapterAssets.filter(a => !a.originalAssetId);
+    for (const asset of baseAssets) {
+      const existing = await prisma.chapterAsset.findUnique({
+        where: { id: asset.id },
+      });
+
+      if (!existing) {
+        await prisma.chapterAsset.create({
+          data: asset,
+        });
+      }
+    }
+
+    // Step 2: Restore asset versions (originalAssetId != null)
+    const assetVersions = data.chapterAssets.filter(a => a.originalAssetId);
+    for (const asset of assetVersions) {
+      const existing = await prisma.chapterAsset.findUnique({
+        where: { id: asset.id },
+      });
+
+      if (!existing) {
+        await prisma.chapterAsset.create({
+          data: asset,
+        });
+      }
+    }
+
+    // Restore version assets (for POV/coloring pages)
+    console.log(`🎨 Restoring version assets...`);
+    for (const asset of data.versionAssets) {
+      const existing = await prisma.versionAsset.findUnique({
+        where: { id: asset.id },
+      });
+
+      if (!existing) {
+        await prisma.versionAsset.create({
+          data: asset,
+        });
+      }
+    }
+
+    // NOW restore chapters with asset references
     console.log(`📝 Restoring ${data.chapters.length} chapters...`);
     for (const chapter of data.chapters) {
       const existing = await prisma.chapter.findUnique({
@@ -63,11 +109,8 @@ export async function seedProductionData() {
       });
 
       if (!existing) {
-        // Remove asset references to avoid foreign key issues
-        const { coverAssetId, ...chapterData } = chapter;
-
         await prisma.chapter.create({
-          data: chapterData,
+          data: chapter,
         });
       }
     }
@@ -91,10 +134,10 @@ export async function seedProductionData() {
       }
     }
 
-    // Restore volumes (removing asset references to avoid foreign key issues)
+    // NOW restore volumes with asset references
     console.log(`📚 Restoring ${data.volumes.length} volumes...`);
     for (const volume of data.volumes) {
-      const { versions, chapter, illustrationAssetId, ...volumeData } = volume;
+      const { versions, chapter, ...volumeData } = volume;
 
       const existing = await prisma.volume.findUnique({
         where: { id: volume.id },
@@ -102,10 +145,7 @@ export async function seedProductionData() {
 
       if (!existing) {
         await prisma.volume.create({
-          data: {
-            ...volumeData,
-            id: volume.id,
-          },
+          data: volumeData,
         });
       }
     }

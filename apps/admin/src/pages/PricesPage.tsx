@@ -21,6 +21,7 @@ interface Price {
 }
 
 export function PricesPage() {
+  const navigate = useNavigate();
   const { t, language } = useI18n();
   const locale = language === "en" ? "en-US" : "fr-FR";
   const [prices, setPrices] = useState<Price[]>([]);
@@ -124,10 +125,7 @@ export function PricesPage() {
           <p className="text-sm text-gray-600 mt-1">{t("prices.subtitle")}</p>
         </div>
         <button
-          onClick={() => {
-            // TODO: Navigate to price form or open modal
-            console.log("Create new price");
-          }}
+          onClick={() => navigate("/prices/new")}
           className="flex items-center gap-2 px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition">
           <MdAdd className="text-xl" />
           {t("prices.new_price")}
@@ -185,7 +183,7 @@ export function PricesPage() {
               </div>
 
               {/* Prices in scope */}
-              <div className="divide-y divide-gray-200">
+              <div className="divide-y divide-gray-200 dark:divide-[#4d252f]">
                 {pricesByScope[scope]?.map((price) => (
                   <div key={price.id}>
                     <div
@@ -210,8 +208,7 @@ export function PricesPage() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            // Edit price - open modal or navigate
-                            console.log("Edit price:", price.id);
+                            navigate(`/prices/${price.id}`);
                           }}
                           className="text-rose-600 hover:text-rose-900 p-2">
                           <MdEdit className="text-xl" />

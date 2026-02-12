@@ -9,9 +9,9 @@ interface VolumeVersion {
   id: string;
   volumeId: string;
   perspective: "NARRATOR" | "PROTAGONIST";
-  textBlobId?: string | null;
   hasText?: boolean;
-  text?: string | null;
+  characterCount?: number;
+  createdAt?: string;
 }
 
 interface VolumePerspectiverDrawerProps {
@@ -48,17 +48,11 @@ export default function VolumePerspectiverDrawer({
         volumeId: volume?.id,
       });
     if (isOpen && volume) {
-      // Utiliser les versions du volume prop au lieu de faire un appel API
-      if (volume.versions && volume.versions.length > 0) {
-        if (canDebug)
-          console.log("Using versions from volume prop:", volume.versions);
-        setVersions(volume.versions);
-      } else {
-        // Fallback: faire un appel API si les versions ne sont pas dans le volume
-        if (canDebug)
-          console.log("No versions in volume prop, calling loadVersions()");
-        loadVersions();
-      }
+      // Always load versions from API to ensure we have real versions (not placeholders)
+      // This will also auto-create missing versions
+      if (canDebug)
+        console.log("Loading versions from API for volume:", volume.id);
+      loadVersions();
     }
   }, [isOpen, volume]);
 
@@ -71,20 +65,18 @@ export default function VolumePerspectiverDrawer({
       const version = versions.find((v) => v.perspective === activeTab);
       if (canDebug) console.log("Found version for tab:", version);
 
-      if (version && !version.id.startsWith("placeholder-")) {
+      if (version) {
         if (canDebug) console.log("Loading text for version:", version.id);
         // Reset text first to avoid showing old text while loading
         setPerspectiveText("");
         setLoadingText(true);
-        // Load text from dedicated endpoint only if it's a real version (not placeholder)
+        // Load text from dedicated endpoint (works even if version has no text yet)
         (async () => {
           await loadPerspectiveText(version.id);
         })();
       } else {
         if (canDebug)
-          console.log(
-            "No real version found (placeholder or missing), clearing text"
-          );
+          console.log("No version found for this perspective, clearing text");
         setPerspectiveText("");
         setLoadingText(false);
       }
@@ -177,48 +169,25 @@ export default function VolumePerspectiverDrawer({
     if (!volume) return;
     const version = versions.find((v) => v.perspective === perspective);
 
-    // Check if version is a placeholder (doesn't exist in database)
-    const isPlaceholder = version?.id.startsWith("placeholder-");
+    if (!version) {
+      toast.error("Version introuvable");
+      return;
+    }
 
     try {
-      if (version && !isPlaceholder) {
-        // Update existing version: use dedicated /text endpoint for saving text
-        await api.patch(`/admin/volume-versions/${version.id}/text`, {
-          text: perspectiveText || "",
-        });
-        toast.success("Perspective mise à jour");
-        // Reload versions to get updated hasText flag
-        await loadVersions();
-      } else {
-        // Create a new version
-        const createResponse = await api.post(
-          `/admin/volumes/${volume.id}/versions`,
-          {
-            perspective,
-          }
-        );
-        const createdVersion = createResponse.data?.data;
-
-        // If there's text to save, save it immediately
-        if (createdVersion && perspectiveText) {
-          await api.patch(`/admin/volume-versions/${createdVersion.id}/text`, {
-            text: perspectiveText,
-          });
-        }
-
-        toast.success("Perspective créée");
-        await loadVersions();
-      }
+      // Update version text using dedicated /text endpoint
+      await api.patch(`/admin/volume-versions/${version.id}/text`, {
+        text: perspectiveText || "",
+      });
+      toast.success("Perspective mise à jour");
+      // Reload versions to get updated hasText flag
+      await loadVersions();
     } catch (error: any) {
-      if (error.response?.status === 409) {
-        toast.error("Cette perspective existe déjà pour ce volume");
-      } else {
-        toast.error(
-          error.response?.data?.error?.message ||
-            error.response?.data?.error ||
-            "Erreur lors de la sauvegarde"
-        );
-      }
+      toast.error(
+        error.response?.data?.error?.message ||
+          error.response?.data?.error ||
+          "Erreur lors de la sauvegarde"
+      );
     }
   };
   if (!isOpen || !volume) return null;
@@ -283,7 +252,7 @@ export default function VolumePerspectiverDrawer({
                     </svg>
                     Perspective créée
                   </div>
-                  {version.hasText || version.textBlobId ? (
+                  {version.hasText ? (
                     <div
                       className={`inline-flex items-center gap-2 px-3 py-1.5 ${isNarrator ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"} rounded-full text-xs font-semibold`}>
                       <svg

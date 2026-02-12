@@ -390,7 +390,7 @@ export default function Chapter() {
               <span className="text-gray-400">|</span>
               <span className="text-sm text-gray-400">
                 Temps de lecture :{" "}
-                {getReadingTime(currentChapter.totalCharacterCount)} min
+                {getReadingTime(currentChapter.totalCharacterCount || 0)} min
               </span>
             </div>
 
@@ -665,9 +665,15 @@ export default function Chapter() {
             chapterId={id!}
             volumeNumber={selectedVolume.volumeNumber}
             nextVolume={
-              currentChapter.volumes?.find(
-                (v) => v.volumeNumber === selectedVolume.volumeNumber + 1,
-              ) || null
+              (() => {
+                const vol = currentChapter.volumes?.find(
+                  (v) => v.volumeNumber === selectedVolume.volumeNumber + 1,
+                );
+                return vol ? {
+                  ...vol,
+                  blockageType: vol.blockageType ?? undefined,
+                } : null;
+              })()
             }
             onReadNext={handleReadNext}
           />

@@ -30,11 +30,23 @@
       "PowerShell(npm:*)",
       "PowerShell(node:*)",
       "PowerShell(npx:*)",
-      "WebSearch"
-    ]
-  },
-  "autoApprove": {
-    "patterns": [
+      "WebSearch",
+      "Bash(timeout /t 5)",
+      "Bash(findstr:*)",
+      "Bash(del update-volume-status.ts)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git rm:*)",
+      "Bash(if [ -f \"nul\" ])",
+      "Bash(then rm -f nul)",
+      "Bash(fi)",
+      "Bash(git mv:*)",
+      "Bash(git reset:*)",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(taskkill:*)",
+      "Bash(tasklist:*)",
+      "Bash(timeout /t 3)",
       "npm install",
       "npm i",
       "npm run dev",
@@ -44,6 +56,33 @@
       "npm run prisma:migrate:dev",
       "npx prisma generate",
       "npx prisma studio",
+      "Bash(npx prisma migrate dev:*)",
+      "Bash(npx prisma db seed)",
+      "Bash(python:*)",
+      "Bash(timeout /t 3 /nobreak)",
+      "Bash(ping:*)",
+      "Bash(CORS_ORIGINS=\"http://localhost:5173,http://localhost:5174,http://localhost:5175,http://192.168.1.23:5173,http://192.168.1.23:5174,http://192.168.1.23:5175\" npm run dev:*)",
+      "Bash(npx prisma studio:*)",
+      "Bash(npx prisma migrate:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(npm run dev:backend:*)",
+      "Bash(taskkill //F //PID 142320)",
+      "Bash(ipconfig:*)",
+      "Bash(netsh advfirewall firewall show rule:*)",
+      "Bash(node -e:*)",
+      "Bash(timeout:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npm run verify:translations:*)",
+      "Bash(npm run dev:web:*)",
+      "Bash(npm run sync:translations:*)",
+      "Bash(npm run backup:db:*)",
+      "Bash(npm run seed:*)",
+      "Bash(npx prisma db seed:*)",
+      "Bash(npx tsc:*)"
+    ]
+  },
+  "autoApprove": {
+    "patterns": [
       "git status",
       "git log",
       "git diff"
@@ -59,5 +98,9 @@
       "rm -rf",
       "Remove-Item -Recurse"
     ]
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "example-skills@anthropic-agent-skills": true
   }
 }

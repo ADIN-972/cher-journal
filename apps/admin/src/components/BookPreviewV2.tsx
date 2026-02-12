@@ -67,7 +67,7 @@ function BookPreviewV2({
 
   const coverImageUrl = chapter.coverAsset
     ? getImageUrl(chapter.coverAsset)
-    : "https://lh3.googleusercontent.com/aida-public/AB6AXuAolRfmVfFKerMY0h6VAt30Ev3wxoFnzMHgYCaWMYMhh6wjtVQJHJ5vFX_SCmtcevI513yKpzHVLhEYhp_yQ8lcnmvTYdiHrgYE-1q7jhKhaD0igguAh3DhyPVs8g7S-PHX0TvhjlvWd2muwU-RpM6QtyKA-wYsptSazPbiNRli7ESSrfBiCL7X9akvkYR_EMxsHplwA9a_yrBPN_s92sXQWSP7fdSQveE0p_L0IpBKTtqFJqj_IRi-LNnOWZXVDH5GoNOC3Q01a0c";
+    : "/assets/images/404_bg.png";
 
   return (
     <div

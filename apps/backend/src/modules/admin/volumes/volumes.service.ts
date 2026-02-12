@@ -9,8 +9,14 @@ import {
 import { Perspective } from "@prisma/client";
 import { config } from "@cher-journal/config";
 import { encrypt, decryptBlob } from "../../../lib/crypto";
+import { ConfigService } from "../config/config.service";
 
 export class VolumesService {
+  private configService: ConfigService;
+
+  constructor() {
+    this.configService = new ConfigService();
+  }
   // Helper to convert BigInt to Number for JSON serialization
   private serializeVolume(volume: any) {
     const serialized: any = {
@@ -333,6 +339,10 @@ export class VolumesService {
         : null;
     }
 
+    if (updates.status !== undefined) {
+      updateData.status = updates.status;
+    }
+
     // Update all volumes
     await prisma.volume.updateMany({
       where: {
@@ -450,6 +460,10 @@ export class VolumesService {
     data: BulkImportVolumeInput
   ): Promise<{ success: boolean; volume?: any; error?: string }> {
     try {
+      // Get default wait duration from config
+      const waitConfig = await this.configService.getWaitConfig();
+      const defaultWaitDurationMs = waitConfig.defaultDurationHours * 60 * 60 * 1000;
+
       // Find or create volume
       let volume = await prisma.volume.findFirst({
         where: {
@@ -468,7 +482,7 @@ export class VolumesService {
             chapterId,
             volumeNumber: data.volumeNumber,
             title: data.title,
-            waitDuration: 0, // Default wait duration
+            waitDuration: defaultWaitDurationMs,
             isFinalPaywall: false,
             isFree: false,
             versions: {
@@ -539,3 +553,4 @@ export class VolumesService {
     }
   }
 }
+

@@ -14,6 +14,14 @@ import {
 const service = new ChaptersService();
 
 export class ChaptersController {
+  async getStats(request: FastifyRequest, reply: FastifyReply) {
+    const stats = await service.getStats();
+    return reply.send({
+      success: true,
+      data: stats,
+    });
+  }
+
   async list(
     request: FastifyRequest<{ Querystring: { includeArchived?: string } }>,
     reply: FastifyReply

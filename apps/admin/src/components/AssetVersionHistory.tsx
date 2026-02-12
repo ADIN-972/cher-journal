@@ -250,7 +250,7 @@ export default function AssetVersionHistory({
                         key={version.id}
                         className="relative bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
                         {/* Image Preview */}
-                        <div className="aspect-square bg-gray-100 overflow-hidden flex items-center justify-center">
+                        <div className="aspect-square bg-gray-100  overflow-hidden flex items-center justify-center">
                           <img
                             src={
                               version.thumbnailObjectKey
@@ -267,7 +267,7 @@ export default function AssetVersionHistory({
                           <span
                             className={`inline-flex items-center space-x-1 px-3 py-1 ${getVersionBadgeColor(
                               version,
-                              index
+                              index,
                             )} text-white rounded-full text-xs font-bold`}>
                             <span>v{version.version}</span>
                           </span>
@@ -331,7 +331,7 @@ export default function AssetVersionHistory({
                                   year: "numeric",
                                   month: "long",
                                   day: "numeric",
-                                }
+                                },
                               )}
                             </p>
                             {version.updatedAt !== version.createdAt && (
@@ -343,7 +343,7 @@ export default function AssetVersionHistory({
                                     year: "numeric",
                                     month: "long",
                                     day: "numeric",
-                                  }
+                                  },
                                 )}
                               </p>
                             )}

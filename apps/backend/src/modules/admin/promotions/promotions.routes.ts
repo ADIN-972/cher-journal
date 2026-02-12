@@ -10,9 +10,15 @@ export async function promotionsRoutes(app: FastifyInstance) {
   app.post("/admin/promotions", promotionsController.createPromotion);
   app.get("/admin/promotions", promotionsController.listPromotions);
   app.get("/admin/promotions/active", promotionsController.getActivePromotions);
+  app.post("/admin/promotions/preview-targeting", promotionsController.previewTargeting);
   app.get("/admin/promotions/:id", promotionsController.getPromotion);
   app.patch("/admin/promotions/:id", promotionsController.updatePromotion);
   app.delete("/admin/promotions/:id", promotionsController.deletePromotion);
+
+  // Promo codes
+  app.post("/admin/promotions/:id/generate-code", promotionsController.generateCode);
+  app.get("/admin/promotions/validate-code/:code", promotionsController.validateCode);
+  app.get("/admin/promotions/check-code", promotionsController.checkCodeUniqueness);
 
   // Prices
   app.post("/admin/prices", promotionsController.createPrice);
