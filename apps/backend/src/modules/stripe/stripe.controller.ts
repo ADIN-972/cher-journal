@@ -10,6 +10,7 @@ export class StripeController {
       Body: {
         chapterId: string;
         type: OrderType;
+        volumeNumber?: number;  // For VOLUME type orders
         versionScope?: EntitlementVersionScope;
         successUrl: string;
         cancelUrl: string;
@@ -29,6 +30,36 @@ export class StripeController {
         return reply.status(404).send({
           success: false,
           error: { code: 'CHAPTER_NOT_FOUND', message: 'Chapter not found' },
+        });
+      }
+      if (error.message === 'VOLUME_NOT_FOUND') {
+        return reply.status(404).send({
+          success: false,
+          error: { code: 'VOLUME_NOT_FOUND', message: 'Volume not found' },
+        });
+      }
+      if (error.message === 'VOLUME_NUMBER_REQUIRED') {
+        return reply.status(400).send({
+          success: false,
+          error: { code: 'VOLUME_NUMBER_REQUIRED', message: 'Volume number is required for VOLUME order type' },
+        });
+      }
+      if (error.message === 'VOLUME_IS_FREE') {
+        return reply.status(400).send({
+          success: false,
+          error: { code: 'VOLUME_IS_FREE', message: 'This volume is free and does not need to be purchased' },
+        });
+      }
+      if (error.message === 'USER_ALREADY_HAS_ACCESS') {
+        return reply.status(400).send({
+          success: false,
+          error: { code: 'USER_ALREADY_HAS_ACCESS', message: 'You already have access to this volume' },
+        });
+      }
+      if (error.message.startsWith('INVALID_AMOUNT')) {
+        return reply.status(400).send({
+          success: false,
+          error: { code: 'INVALID_AMOUNT', message: error.message },
         });
       }
       throw error;

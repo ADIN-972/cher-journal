@@ -10,11 +10,20 @@ export async function stripeRoutes(app: FastifyInstance) {
     handler: controller.createCheckoutSession.bind(controller),
   });
 
-  app.post('/stripe/webhook', {
-    config: {
-      // Need raw body for webhook signature verification
-      rawBody: true,
-    },
-    handler: controller.webhook.bind(controller),
+  // Create a sub-plugin for webhook with custom content parser
+  await app.register(async (webhookPlugin) => {
+    // Add custom content type parser that preserves raw body
+    webhookPlugin.addContentTypeParser('application/json', { parseAs: 'buffer' }, async (req: any, body: Buffer) => {
+      // Store raw body for Stripe webhook verification
+      req.rawBody = body.toString('utf8');
+      // Parse and return JSON for normal handling
+      return JSON.parse(req.rawBody);
+    });
+
+    webhookPlugin.post('/stripe/webhook', {
+      handler: controller.webhook.bind(controller),
+    });
   });
 }
+
+

@@ -41,6 +41,7 @@ enum OrderType {
   BUNDLE
   COLORING
   VERSION_PACK
+  VOLUME
 }
 
 enum OrderStatus {
@@ -106,6 +107,45 @@ enum AssetKind {
   COLORING_PAGE
 }
 
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum BadgeType {
+  PROGRESSION
+  CONSTELLATION
+  STYLE
+  EDITORIAL
+}
+
+enum RewardUnlockType {
+  REVELATION
+  BONUS_EXCERPT
+  ALT_COVER
+  PLAYLIST
+  AUTHOR_NOTE
+}
+
+enum ChapterGenre {
+  PASSIONS_CHARNELLES           // Erotic/Sensual - Explicit sexual content and raw desire
+  ROMANCES_TENDRES              // Sweet Romance - Emotional, tender love stories
+  MYSTERIES_SENSUELS            // Sensual Mystery - Intrigue with sensual undertones
+  INTERDITS                     // Forbidden - Taboo relationships and transgressive themes
+  CONQUETES                     // Seduction/Conquest - Games of seduction and power dynamics
+  REVES_SECRETS                 // Secret Dreams - Fantasy and escapism
+  PASSION_BRUTALE               // Raw Passion - Intense and unfiltered desire
+  AMOUR_COMPLIQUE               // Complicated Love - Complex emotional entanglements
+  DESIR_NOCTURNE                // Nocturnal Desire - Night-themed erotic scenarios
+  LIBERATION                    // Liberation - Themes of sexual freedom and self-discovery
+  DECOUVERTE_DE_SOI             //  "Découverte de soi",
+  INTIMITE_PSYCHOLOGIQUE        //  "Intimité Psychologique",
+  EVEIL_DU_DESIR                //  "Éveil du Désir",
+  RELATIONS_TRANSFORMATRICES    //  "Relations Transformatrices",
+  MEMOIRE_DU_CORPS              //  "Mémoire du Corps"
+}
+
 model User {
   id                  String      @id @default(uuid())
   publicId            String      @unique @default(uuid())
@@ -124,6 +164,13 @@ model User {
   reads               VolumeRead[]
   appliedPromotions   AppliedPromotion[]
   auditLogs           AuditLog[]
+  chapterReviews      ChapterReview[]
+
+  // ===== Cher Journal: progression + badges + rewards =====
+  progress            UserProgress?
+  constellationProgress UserConstellationProgress[]
+  badges              UserBadge[]
+  rewardUnlocks        UserRewardUnlock[]
 
   @@map("users")
 }
@@ -146,6 +193,7 @@ model Chapter {
   id              String         @id @default(uuid())
   title           String
   protagonistName String
+  description     String?        // Paragraphe de préface décrivant l'œuvre
   status          ChapterStatus  @default(DRAFT)
   publishedAt     DateTime?
   scheduledFor    DateTime?      // Date de publication programmée
@@ -159,6 +207,26 @@ model Chapter {
   unlocks         Unlock[]
   reads           VolumeRead[]
   priceOverride   ChapterPriceOverride?
+  bundleItems     BundleItem[]
+  genres          ChapterGenreTag[]
+  reviews         ChapterReview[]
+
+  // ===== Cher Journal: Constellations =====
+  constellations  ChapterConstellation[]
+  rewards         RewardUnlock[]
+
+  // ===== Cher Journal: Accroches & Niveaux =====
+  accroche_classic      String?
+  accroche_dark         String?
+  accroche_love         String?
+  accroche_marketing    String?
+  accroche_dark_collection String?
+
+  // Niveaux émotionnels (1-5)
+  niveau_intensite      Int? @default(3)
+  niveau_douceur        Int? @default(3)
+  niveau_danger         Int? @default(3)
+  niveau_transformation Int? @default(3)
 
   @@index([scheduledFor])
   @@map("chapters")
@@ -180,6 +248,26 @@ model Volume {
   createdAt            DateTime        @default(now())
   chapter              Chapter         @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   versions             VolumeVersion[]
+
+  // ===== Cher Journal: Emotional metrics (0..100) =====
+  intensite        Int @default(0)
+  douceur          Int @default(0)
+  danger           Int @default(0)
+  transformation   Int @default(0)
+  mystere          Int @default(0)
+  charme           Int @default(0)
+
+  // XP base used when the user completes a volume (snapshotting recommended in events)
+  xpFeuBase        Int @default(0)
+  xpAmeBase        Int @default(0)
+  xpOmbreBase      Int @default(0)
+
+  // Editorial switches
+  isDarkCollection Boolean @default(false)
+
+  // Relations (optional per-volume constellation tagging)
+  constellations   VolumeConstellation[]
+  rewards          RewardUnlock[]
 
   @@unique([chapterId, volumeNumber])
   @@index([chapterId])
@@ -258,6 +346,8 @@ model Order {
   userId                  String
   type                    OrderType
   status                  OrderStatus @default(PENDING)
+  refId                   String?     // Reference to purchased content (Chapter ID, Volume ID, or Bundle ID)
+  volumeNumber            Int?        // For VOLUME type orders: which volume number is being purchased
   provider                String?
   providerSessionId       String?
   providerPaymentIntentId String?
@@ -273,6 +363,8 @@ model Order {
   refunds                 Refund[]
 
   @@index([userId])
+  @@index([refId])        // Index for analytics queries
+  @@index([type, refId])  // Composite index for filtered queries
   @@map("orders")
 }
 
@@ -330,18 +422,41 @@ model Unlock {
 }
 
 model VolumeRead {
-  id            String   @id @default(uuid())
-  userId        String
-  chapterId     String
-  volumeNumber  Int
-  firstOpenedAt DateTime @default(now())
-  completedAt   DateTime?
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chapter       Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  id               String    @id @default(uuid())
+  userId           String
+  chapterId        String
+  volumeNumber     Int
+  progress         Int       @default(0) // Reading progress percentage (0-100)
+  firstOpenedAt    DateTime  @default(now())
+  completedAt      DateTime?
+  canStartWaitFrom DateTime? // Timestamp when 65% scroll was reached (for next volume unlock)
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter          Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
   @@unique([userId, chapterId, volumeNumber])
   @@index([userId, chapterId])
   @@map("volume_reads")
+}
+
+model ChapterReview {
+  id          String       @id @default(uuid())
+  userId      String
+  chapterId   String
+  rating      Int          // 1-5 stars
+  reviewText  String       // User's review comment
+  status      ReviewStatus @default(PENDING)
+  reviewedBy  String?      // Admin user ID who reviewed (approved/rejected)
+  reviewedAt  DateTime?    // When it was reviewed by admin
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter     Chapter      @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chapterId]) // One review per user per chapter
+  @@index([userId])
+  @@index([chapterId])
+  @@index([status])
+  @@map("chapter_reviews")
 }
 
 model EncryptedBlob {
@@ -583,4 +698,238 @@ model AssetTagging {
   @@index([assetId])
   @@index([tagId])
   @@map("asset_tagging")
+}
+
+// ============= CHAPTER GENRES SYSTEM =============
+
+model ChapterGenreTag {
+  id        String        @id @default(uuid())
+  chapterId String
+  genre     ChapterGenre
+  createdAt DateTime      @default(now())
+  chapter   Chapter       @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([chapterId, genre])
+  @@index([chapterId])
+  @@index([genre])
+  @@map("chapter_genre_tags")
+}
+
+// ============= BUNDLES SYSTEM =============
+
+model Bundle {
+  id                String       @id @default(uuid())
+  name              String       // Ex: "Pack Intégral Chapitre 1"
+  description       String?      // Description marketing du bundle
+  slug              String       @unique // URL-friendly identifier
+  amountCents       Int          // Prix du bundle en centimes
+  originalAmountCents Int        // Somme des prix unitaires (pour calculer la réduction)
+  currency          String       @default("EUR")
+  isActive          Boolean      @default(true)
+  displayOrder      Int?         // Ordre d'affichage
+  imageUrl          String?      // Image promotionnelle du bundle
+  validFrom         DateTime?    // Date de début de validité
+  validUntil        DateTime?    // Date de fin de validité
+  maxPurchases      Int?         // Limite d'achats (NULL = illimité)
+  purchaseCount     Int          @default(0) // Compteur d'achats
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  createdBy         String?      // ID de l'admin créateur
+
+  items             BundleItem[]
+
+  @@index([isActive, validFrom, validUntil])
+  @@index([slug])
+  @@map("bundles")
+}
+
+model BundleItem {
+  id          String   @id @default(uuid())
+  bundleId    String
+  type        String   // "CHAPTER" ou "VOLUME"
+  chapterId   String?  // ID du chapitre (si type = CHAPTER ou VOLUME)
+  volumeFrom  Int?     // Numéro de volume de départ (si type = VOLUME)
+  volumeTo    Int?     // Numéro de volume de fin (si type = VOLUME, NULL = volumeFrom uniquement)
+  displayOrder Int     @default(0) // Ordre d'affichage dans le bundle
+  createdAt   DateTime @default(now())
+
+  bundle      Bundle   @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  chapter     Chapter? @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@index([bundleId])
+  @@index([chapterId])
+  @@map("bundle_items")
+}
+
+// ============= CONSTELLATIONS SYSTEM =============
+
+model Constellation {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  name        String
+  description String?
+  iconKey     String?
+  colorKey    String?
+  createdAt   DateTime @default(now())
+
+  chapterTags ChapterConstellation[]
+  volumeTags  VolumeConstellation[]
+  badges      Badge[]
+  userProgress UserConstellationProgress[]
+  rewards     RewardUnlock[]
+
+  @@map("constellations")
+}
+
+model ChapterConstellation {
+  id              String @id @default(uuid())
+  chapterId       String
+  constellationId String
+  weight          Int    @default(100) // 0..100
+
+  chapter         Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  constellation   Constellation  @relation(fields: [constellationId], references: [id], onDelete: Cascade)
+
+  @@unique([chapterId, constellationId])
+  @@index([chapterId])
+  @@index([constellationId])
+  @@map("chapter_constellations")
+}
+
+model VolumeConstellation {
+  id              String @id @default(uuid())
+  volumeId        String
+  constellationId String
+  weight          Int    @default(100)
+
+  volume          Volume         @relation(fields: [volumeId], references: [id], onDelete: Cascade)
+  constellation   Constellation  @relation(fields: [constellationId], references: [id], onDelete: Cascade)
+
+  @@unique([volumeId, constellationId])
+  @@index([volumeId])
+  @@index([constellationId])
+  @@map("volume_constellations")
+}
+
+// ============= PROGRESSION SYSTEM =============
+
+model UserProgress {
+  id        String @id @default(uuid())
+  userId    String @unique
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  level     Int @default(1)
+
+  xpFeu     Int @default(0)
+  xpAme     Int @default(0)
+  xpOmbre   Int @default(0)
+
+  feuPct    Int @default(0) // 0..100 (cached)
+  amePct    Int @default(0)
+  ombrePct  Int @default(0)
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@map("user_progress")
+}
+
+model UserConstellationProgress {
+  id              String @id @default(uuid())
+  userId          String
+  constellationId String
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  constellation Constellation @relation(fields: [constellationId], references: [id], onDelete: Cascade)
+
+  percent       Int @default(0) // 0..100
+  reached25     Boolean @default(false)
+  reached50     Boolean @default(false)
+  reached75     Boolean @default(false)
+  reached100    Boolean @default(false)
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@unique([userId, constellationId])
+  @@index([constellationId])
+  @@map("user_constellation_progress")
+}
+
+// ============= BADGES SYSTEM =============
+
+model Badge {
+  id            String    @id @default(uuid())
+  type          BadgeType
+  code          String    @unique
+  name          String
+  description   String?
+  iconKey       String?
+
+  constellationId String?
+  constellation   Constellation? @relation(fields: [constellationId], references: [id], onDelete: SetNull)
+
+  minLevel      Int?
+  thresholdPct  Int? // 25/50/75/100 for constellation milestones
+
+  createdAt     DateTime @default(now())
+
+  users         UserBadge[]
+
+  @@map("badges")
+}
+
+model UserBadge {
+  userId   String
+  badgeId  String
+  awardedAt DateTime @default(now())
+
+  user   User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge  Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, badgeId])
+  @@index([badgeId])
+  @@map("user_badges")
+}
+
+// ============= REWARDS SYSTEM =============
+
+model RewardUnlock {
+  id         String          @id @default(uuid())
+  type       RewardUnlockType
+  code       String          @unique
+  title      String
+  teaser     String?
+  payload    Json?
+
+  // Optional attachment
+  chapterId  String?
+  volumeId   String?
+  constellationId String?
+
+  chapter      Chapter?       @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+  volume       Volume?        @relation(fields: [volumeId], references: [id], onDelete: SetNull)
+  constellation Constellation? @relation(fields: [constellationId], references: [id], onDelete: SetNull)
+
+  createdAt  DateTime @default(now())
+
+  users      UserRewardUnlock[]
+
+  @@index([chapterId])
+  @@index([volumeId])
+  @@index([constellationId])
+  @@map("reward_unlocks")
+}
+
+model UserRewardUnlock {
+  userId     String
+  rewardUnlockId String
+  unlockedAt DateTime @default(now())
+
+  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reward RewardUnlock @relation(fields: [rewardUnlockId], references: [id], onDelete: Cascade)
+
+  @@id([userId, rewardUnlockId])
+  @@index([rewardUnlockId])
+  @@map("user_reward_unlocks")
 }
