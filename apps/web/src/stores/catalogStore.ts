@@ -3,7 +3,7 @@ import api from '../lib/api';
 
 interface CoverAsset {
   id: string;
-  objectKey: string;
+  url: string;
   mimeType: string;
 }
 
@@ -40,6 +40,8 @@ export interface Chapter {
   versionScope?: 'BASE' | 'ALL' | null;
   pricing?: Pricing;
   totalCharacterCount?: number;
+  description?: string | null;
+  accroche_marketing?: string | null;
 }
 
 interface Volume {
