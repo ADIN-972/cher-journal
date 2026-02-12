@@ -436,6 +436,70 @@
     "RELATIONS_TRANSFORMATRICES": "Transformative Relations",
     "MEMOIRE_DU_CORPS": "Body Memory"
   },
+  "genres_definitions": {
+    "intro": "The stories of Cher Journal explore desire as a human, sensory and transformative experience. Each genre is not a fixed category, but an emotional gateway. A single story can belong to multiple genres, because desire is multiple, ever-changing, and never reducible to a single impulse.",
+    "usage": "Genres are used: to guide the reader, to respect the diversity of sensibilities, to affirm a demanding and literary editorial line.",
+    "PASSIONS_CHARNELLES": {
+      "title": "Passionate Desires",
+      "description": "The body is central, present, alive. Desire is expressed through skin, gestures, physical proximity. This genre celebrates sensual intensity and bodily engagement."
+    },
+    "ROMANCES_TENDRES": {
+      "title": "Sweet Romance",
+      "description": "Stories where tenderness, attention and emotion take precedence. Desire is wrapped in delicacy, sometimes fragile, always sincere."
+    },
+    "MYSTERIES_SENSUELS": {
+      "title": "Sensual Mystery",
+      "description": "Trouble, secrets, and the unsaid nurture attraction. Glances matter as much as actions, and silence becomes erotic."
+    },
+    "INTERDITS": {
+      "title": "Forbidden",
+      "description": "Desire arises where it should not. This genre explores social, moral, or personal boundaries without judgment, but with lucidity."
+    },
+    "CONQUETES": {
+      "title": "Seduction & Conquest",
+      "description": "A game of approach, seduction, sometimes power. But here, conquest is mutual, never one-sided."
+    },
+    "REVES_SECRETS": {
+      "title": "Secret Dreams",
+      "description": "Inner stories, almost whispered. Fantasy, memory, and imagination hold essential places here."
+    },
+    "PASSION_BRUTALE": {
+      "title": "Raw Passion",
+      "description": "Direct intensity, sometimes violent in emotion — never gratuitous. This genre explores cruder desires, strong tensions, bodies that clash as much as they seek each other."
+    },
+    "AMOUR_COMPLIQUE": {
+      "title": "Complicated Love",
+      "description": "When loving means hesitating, surrendering, choosing otherwise. Deep bonds traversed by doubt, distance, or the impossible."
+    },
+    "DESIR_NOCTURNE": {
+      "title": "Nocturnal Desire",
+      "description": "Night as territory for letting go. This genre evokes the intimacy that reveals itself when the world sleeps."
+    },
+    "LIBERATION": {
+      "title": "Liberation",
+      "description": "Desire as escape, reconstruction, affirmation. These stories tell what the body allows to untangle."
+    },
+    "DECOUVERTE_DE_SOI": {
+      "title": "Self-Discovery",
+      "description": "An inner journey where desire becomes a tool for knowledge. These stories explore personal transformation through sensual experience."
+    },
+    "INTIMITE_PSYCHOLOGIQUE": {
+      "title": "Psychological Intimacy",
+      "description": "The eroticism of the soul as much as the body. Emotional vulnerability and mental connection are at the heart of these stories."
+    },
+    "EVEIL_DU_DESIR": {
+      "title": "Awakening of Desire",
+      "description": "The first shivers, the discovery, innocence lost. This genre captures the moment when desire awakens for the first time."
+    },
+    "RELATIONS_TRANSFORMATRICES": {
+      "title": "Transformative Relations",
+      "description": "Meetings that change everything. Desire becomes a catalyst for personal and relational transformation."
+    },
+    "MEMOIRE_DU_CORPS": {
+      "title": "Body Memory",
+      "description": "History inscribed in flesh. These stories explore how desire crystallizes memories and inhabits the body timelessly."
+    }
+  },
   "components": {
     "asset_filters": {
       "loading_tags": "Loading tags..."

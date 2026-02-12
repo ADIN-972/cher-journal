@@ -436,6 +436,70 @@
     "RELATIONS_TRANSFORMATRICES": "Relations Transformatrices",
     "MEMOIRE_DU_CORPS": "Mémoire du Corps"
   },
+  "genres_definitions": {
+    "intro": "Les récits de Cher Journal explorent le désir comme une expérience humaine, sensorielle et transformatrice. Chaque genre n'est pas une catégorie figée, mais une porte d'entrée émotionnelle. Un même récit peut appartenir à plusieurs genres, car le désir est multiple, mouvant, et jamais réductible à un seul élan.",
+    "usage": "Les genres sont utilisés : pour orienter le lecteur, pour respecter la diversité des sensibilités, pour affirmer une ligne éditoriale exigeante et littéraire.",
+    "PASSIONS_CHARNELLES": {
+      "title": "Passions Charnelles",
+      "description": "Le corps y est central, présent, vivant. Le désir s'exprime à travers la peau, les gestes, la proximité physique. Ce genre célèbre l'intensité sensuelle et l'engagement corporel."
+    },
+    "ROMANCES_TENDRES": {
+      "title": "Romances Tendres",
+      "description": "Des histoires où la douceur, l'attention et l'émotion priment. Le désir y est enveloppé de délicatesse, parfois fragile, toujours sincère."
+    },
+    "MYSTERIES_SENSUELS": {
+      "title": "Mystères Sensuels",
+      "description": "Le trouble, le secret, le non-dit nourrissent l'attirance. Les regards comptent autant que les actes, et le silence devient érotique."
+    },
+    "INTERDITS": {
+      "title": "Interdits",
+      "description": "Le désir naît là où il ne devrait pas. Ce genre explore les limites sociales, morales ou personnelles, sans jugement, mais avec lucidité."
+    },
+    "CONQUETES": {
+      "title": "Conquêtes",
+      "description": "Un jeu d'approche, de séduction, parfois de pouvoir. Mais ici, la conquête est mutuelle, jamais unilatérale."
+    },
+    "REVES_SECRETS": {
+      "title": "Rêves Secrets",
+      "description": "Des histoires intérieures, presque chuchotées. Le fantasme, le souvenir ou l'imaginaire y tiennent une place essentielle."
+    },
+    "PASSION_BRUTALE": {
+      "title": "Passion Brute",
+      "description": "Une intensité directe, parfois violente dans l'émotion — jamais gratuite. Ce genre explore les désirs plus crus, les tensions fortes, les corps qui s'affrontent autant qu'ils se cherchent."
+    },
+    "AMOUR_COMPLIQUE": {
+      "title": "Amour Compliqué",
+      "description": "Quand aimer signifie hésiter, renoncer, choisir autrement. Des liens profonds, mais traversés par le doute, la distance ou l'impossible."
+    },
+    "DESIR_NOCTURNE": {
+      "title": "Désir Nocturne",
+      "description": "La nuit comme territoire du lâcher-prise. Ce genre évoque l'intimité qui se révèle quand le monde dort."
+    },
+    "LIBERATION": {
+      "title": "Libération",
+      "description": "Le désir comme sortie de soi, reconstruction, affirmation. Ces récits racontent ce que le corps permet de dénouer."
+    },
+    "DECOUVERTE_DE_SOI": {
+      "title": "Découverte de soi",
+      "description": "Un voyage intérieur où le désir devient outil de connaissance. Ces histoires explorent la transformation personnelle à travers l'expérience sensuelle."
+    },
+    "INTIMITE_PSYCHOLOGIQUE": {
+      "title": "Intimité Psychologique",
+      "description": "L'érotisme de l'âme autant que du corps. La vulnérabilité émotionnelle et la connexion mentale sont au cœur de ces récits."
+    },
+    "EVEIL_DU_DESIR": {
+      "title": "Éveil du Désir",
+      "description": "Les premiers frissons, la découverte, l'innocence qui se perd. Ce genre capture le moment où le désir s'éveille pour la première fois."
+    },
+    "RELATIONS_TRANSFORMATRICES": {
+      "title": "Relations Transformatrices",
+      "description": "Des rencontres qui changent tout. Le désir devient catalyseur de transformation personnelle et relationnelle."
+    },
+    "MEMOIRE_DU_CORPS": {
+      "title": "Mémoire du Corps",
+      "description": "L'histoire inscrite dans la chair. Ces récits explorent comment le désir cristallise les souvenirs et habite le corps de manière intemporelle."
+    }
+  },
   "components": {
     "asset_filters": {
       "loading_tags": "Chargement des tags..."
