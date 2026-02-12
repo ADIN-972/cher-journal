@@ -1,9 +1,27 @@
 import prisma from '../../../lib/prisma';
-import { ChapterStatus, VolumeStatus } from '@prisma/client';
+import { ChapterStatus, VolumeStatus, OrderStatus } from '@prisma/client';
+import { priceSchemaService } from '../../admin/price-schemas/price-schemas.service';
+import { resolveAssetUrl } from '../../../lib/assetUtils';
+
+// Helper to convert BigInt to number for JSON serialization
+const convertBigIntToNumber = (obj: any): any => {
+  if (typeof obj === 'bigint') {
+    return Number(obj);
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(convertBigIntToNumber);
+  }
+  if (obj !== null && typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, convertBigIntToNumber(value)])
+    );
+  }
+  return obj;
+};
 
 export class CatalogService {
   async listChapters() {
-    return prisma.chapter.findMany({
+    const chapters = await prisma.chapter.findMany({
       where: {
         status: ChapterStatus.PUBLISHED,
         // Chapter must be either without scheduledFor OR scheduled date has passed
@@ -14,6 +32,11 @@ export class CatalogService {
       },
       include: {
         coverAsset: true,
+        genres: {
+          select: {
+            genre: true,
+          },
+        },
         _count: {
           select: {
             volumes: {
@@ -31,6 +54,46 @@ export class CatalogService {
       },
       orderBy: { createdAt: 'desc' },
     });
+
+    // Calculate totalCharacterCount for each chapter and serialize assets
+    const chaptersWithCharacterCount = await Promise.all(
+      chapters.map(async (chapter) => {
+        // Calculate total character count by aggregating NARRATOR versions
+        const result = await prisma.volumeVersion.aggregate({
+          where: {
+            volume: {
+              chapterId: chapter.id,
+              status: VolumeStatus.PUBLISHED,
+              OR: [
+                { scheduledFor: null },
+                { scheduledFor: { lte: new Date() } }
+              ]
+            },
+            perspective: 'NARRATOR'
+          },
+          _sum: {
+            characterCount: true
+          }
+        });
+
+        // Resolve cover asset URL (use thumbnail if it exists)
+        const coverAssetUrl = await resolveAssetUrl(chapter.coverAsset);
+
+        return {
+          ...chapter,
+          totalCharacterCount: result._sum.characterCount || 0,
+          // Replace coverAsset with serialized version containing the resolved URL
+          coverAsset: chapter.coverAsset ? {
+            id: chapter.coverAsset.id,
+            url: coverAssetUrl,
+            mimeType: chapter.coverAsset.mimeType,
+          } : null,
+        };
+      })
+    );
+
+    // Convert BigInt fields to numbers for JSON serialization
+    return convertBigIntToNumber(chaptersWithCharacterCount);
   }
 
   async getChapter(id: string, userId?: string) {
@@ -38,17 +101,22 @@ export class CatalogService {
       where: { id },
       include: {
         coverAsset: true,
-        volumes: {
-          where: {
-            // Only include volumes that are published and accessible
-            status: VolumeStatus.PUBLISHED,
-            OR: [
-              { scheduledFor: null },
-              { scheduledFor: { lte: new Date() } }
-            ]
+        genres: {
+          select: {
+            genre: true,
           },
+        },
+        // Return ALL volumes so users can see what's coming
+        volumes: {
           include: {
             illustrationAsset: true,
+            versions: {
+              select: {
+                id: true,
+                perspective: true,
+                characterCount: true,
+              },
+            },
           },
           orderBy: { volumeNumber: 'asc' },
         },
@@ -59,12 +127,15 @@ export class CatalogService {
       throw new Error('CHAPTER_NOT_FOUND');
     }
 
-    // If user authenticated, check entitlements
+    // If user authenticated, check entitlements, unlocks, and volume reads
     let hasAccess = false;
     let versionScope = null;
+    let unlocks: { volumeNumber: number; unlocksAt: Date }[] = [];
+    let volumeReads: { volumeNumber: number; firstReadAt: Date; progress: number; canStartWaitFrom: Date | null }[] = [];
+    let entitlement: any = null;
 
     if (userId) {
-      const entitlement = await prisma.entitlement.findFirst({
+      entitlement = await prisma.entitlement.findFirst({
         where: {
           userId,
           chapterId: id,
@@ -74,13 +145,322 @@ export class CatalogService {
       if (entitlement) {
         hasAccess = true;
         versionScope = entitlement.versionScope;
+
+        // Fetch user's unlocks for this chapter
+        const userUnlocks = await prisma.unlock.findMany({
+          where: {
+            userId,
+            chapterId: id,
+          },
+          select: {
+            volumeNumber: true,
+            unlocksAt: true,
+          },
+        });
+
+        unlocks = userUnlocks.map(u => ({
+          volumeNumber: u.volumeNumber,
+          unlocksAt: u.unlocksAt,
+        }));
+
+        // Fetch user's volume reads to track progression
+        const userReads = await prisma.volumeRead.findMany({
+          where: {
+            userId,
+            chapterId: id,
+          },
+          select: {
+            volumeNumber: true,
+            firstOpenedAt: true,
+            progress: true,
+            canStartWaitFrom: true,
+          },
+        });
+
+        volumeReads = userReads.map(r => ({
+          volumeNumber: r.volumeNumber,
+          firstReadAt: r.firstOpenedAt,
+          progress: r.progress,
+          canStartWaitFrom: r.canStartWaitFrom,
+        }));
       }
     }
 
-    return {
+    // Find last read volume number (highest volume that was read)
+    const lastReadVolumeNumber = volumeReads.length > 0
+      ? Math.max(...volumeReads.map(r => r.volumeNumber))
+      : 0;
+
+    // Mark each volume with detailed unlock status
+    // Implementing VOLUME-ACCESSIBILITY-RULES.md
+    const now = new Date();
+    const volumesWithAccessibility = (await Promise.all(chapter.volumes.map(async volume => {
+      // RULE 0: Unpublished volumes don't exist for clients
+      const isPublished = volume.status === VolumeStatus.PUBLISHED &&
+        (volume.scheduledFor === null || volume.scheduledFor <= now);
+
+      if (!isPublished) {
+        return null; // Exclude unpublished volumes
+      }
+
+      // Initialize accessibility state
+      let isAccessible = false;
+      let blockageType: string | null = null;
+      let blockageInfo: any = null;
+
+      // HIERARCHY OF UNLOCKING:
+
+      // 1. Bundle or Chapter Purchase → Full Access
+      const hasFullAccess = entitlement &&
+        entitlement.volumeFrom <= volume.volumeNumber &&
+        entitlement.volumeTo >= volume.volumeNumber &&
+        entitlement.source !== 'SUBSCRIPTION'; // SUBSCRIPTION = free wait-to-read entitlement
+
+      if (hasFullAccess) {
+        isAccessible = true;
+      }
+      // 2. isFree
+      else if (volume.isFree) {
+        isAccessible = true;
+      }
+      // 3. Volumes 1-8: Wait-to-Read System
+      else if (volume.volumeNumber <= 8) {
+        // Check if user paid for freeToRead
+        const hasPaidFreeToRead = await this.checkPaidFreeToRead(userId, volume.id);
+        if (hasPaidFreeToRead) {
+          isAccessible = true;
+        } else {
+          // Check wait unlock
+          const unlock = unlocks.find(u => u.volumeNumber === volume.volumeNumber);
+          if (unlock && unlock.unlocksAt <= now) {
+            isAccessible = true;
+          } else {
+            blockageType = 'WAIT_OR_PAY';
+            blockageInfo = {
+              waitRemaining: unlock ? Math.max(0, unlock.unlocksAt.getTime() - now.getTime()) : null,
+              priceFreeToRead: await this.getPriceFreeToRead(id)
+            };
+          }
+        }
+      }
+      // 4. Volumes 9-10: Paywall
+      else if (volume.volumeNumber <= 10) {
+        const hasPaidPaywall = await this.checkPaidPaywall(userId, id);
+        if (hasPaidPaywall) {
+          isAccessible = true;
+        } else {
+          blockageType = 'PAYWALL';
+          blockageInfo = {
+            pricePaywall: await this.getPricePaywall(id)
+          };
+        }
+      }
+      // 5. Volumes 11+: Épilogues
+      else {
+        const hasPaidEpilogue = await this.checkPaidEpilogue(userId, id);
+        if (hasPaidEpilogue) {
+          isAccessible = true;
+        } else {
+          blockageType = 'EPILOGUE';
+          blockageInfo = {
+            priceEpilogue: await this.getPriceEpilogue(id)
+          };
+        }
+      }
+
+      // canStartWait logic (volumes 1-7 can enable wait for 2-8)
+      let canStartWait = false;
+      if (volume.volumeNumber >= 2 && volume.volumeNumber <= 8 && !isAccessible) {
+        const previousVolumeRead = volumeReads.find(r => r.volumeNumber === volume.volumeNumber - 1);
+        if (previousVolumeRead && previousVolumeRead.canStartWaitFrom) {
+          canStartWait = true;
+        }
+      }
+
+      // Get reading progress for this volume
+      const volumeRead = volumeReads.find(r => r.volumeNumber === volume.volumeNumber);
+      const progress = volumeRead?.progress || 0;
+
+      // Resolve illustration asset URL (use thumbnail if it exists)
+      const illustrationAssetUrl = await resolveAssetUrl(volume.illustrationAsset);
+
+      return {
+        ...volume,
+        isAccessible,
+        blockageType,
+        blockageInfo,
+        canStartWait,
+        progress,
+        // Replace illustrationAsset with serialized version containing the resolved URL
+        illustrationAsset: volume.illustrationAsset ? {
+          id: volume.illustrationAsset.id,
+          url: illustrationAssetUrl,
+          mimeType: volume.illustrationAsset.mimeType,
+        } : null,
+      };
+    }))).filter(v => v !== null); // Remove unpublished volumes
+
+    // Get pricing information for the chapter
+    const priceFreeToRead = await this.getPriceFreeToRead(id);
+    const pricePaywall = await this.getPricePaywall(id);
+    const priceEpilogue = await this.getPriceEpilogue(id);
+
+    // Calculate bundle pricing (sum of all individual volume prices)
+    let bundleOriginalPrice = 0;
+    let alreadyAccessiblePrice = 0;
+    let nextVolumePrice: number | null = null;
+
+    volumesWithAccessibility.forEach((vol: any) => {
+      // Determine individual volume price
+      let volumePrice = 0;
+
+      // Free volumes don't cost anything
+      if (vol.isFree) {
+        volumePrice = 0;
+      } else if (vol.volumeNumber <= 8) {
+        volumePrice = priceFreeToRead;
+      } else if (vol.volumeNumber <= 10) {
+        volumePrice = pricePaywall;
+      } else {
+        volumePrice = priceEpilogue;
+      }
+
+      // Attach price to the volume object
+      vol.price = volumePrice;
+
+      // Add to total bundle price
+      bundleOriginalPrice += volumePrice;
+
+      // If user already has access to this volume, subtract from what they need to pay
+      // (only if the volume isn't free, since free volumes were never part of the cost)
+      if (vol.isAccessible && !vol.isFree) {
+        alreadyAccessiblePrice += volumePrice;
+      }
+
+      // Find the first non-accessible, non-free volume (this is the next volume to purchase)
+      if (!vol.isAccessible && !vol.isFree && nextVolumePrice === null) {
+        nextVolumePrice = volumePrice;
+      }
+    });
+
+    // Subtract already accessible volumes, then apply 25% discount
+    const bundleDiscountedPrice = Math.round((bundleOriginalPrice - alreadyAccessiblePrice) * 0.75);
+
+    const pricing = {
+      priceFreeToRead,
+      pricePaywall,
+      priceEpilogue,
+      totalVolumes: volumesWithAccessibility.length,
+      bundleOriginalPrice,
+      bundleDiscountedPrice,
+      nextVolumePrice,
+    };
+
+    // Calculate total character count (sum of NARRATOR versions)
+    const totalCharacterCount = chapter.volumes.reduce((total, volume) => {
+      const narratorVersion = volume.versions?.find(v => v.perspective === 'NARRATOR');
+      return total + (narratorVersion?.characterCount || 0);
+    }, 0);
+
+    // Resolve chapter cover asset URL (use thumbnail if it exists)
+    const coverAssetUrl = await resolveAssetUrl(chapter.coverAsset);
+
+    const response = {
       ...chapter,
+      volumes: volumesWithAccessibility,
       hasAccess,
       versionScope,
+      pricing,
+      totalCharacterCount,
+      // Replace coverAsset with serialized version containing the resolved URL
+      coverAsset: chapter.coverAsset ? {
+        id: chapter.coverAsset.id,
+        url: coverAssetUrl,
+        mimeType: chapter.coverAsset.mimeType,
+      } : null,
     };
+
+    // Convert BigInt fields (like Volume.waitDuration) to numbers for JSON serialization
+    return convertBigIntToNumber(response);
+  }
+
+  // ============= HELPER METHODS FOR ACCESSIBILITY =============
+
+  /**
+   * Check if user has paid for freeToRead (volumes 1-8)
+   */
+  private async checkPaidFreeToRead(userId: string | undefined, volumeId: string): Promise<boolean> {
+    if (!userId) return false;
+
+    const order = await prisma.order.findFirst({
+      where: {
+        userId,
+        refId: volumeId,
+        status: OrderStatus.PAID,
+        appliedPriceFreeToRead: { gt: 0 }
+      }
+    });
+
+    return !!order;
+  }
+
+  /**
+   * Check if user has paid for paywall (volumes 9-10)
+   */
+  private async checkPaidPaywall(userId: string | undefined, chapterId: string): Promise<boolean> {
+    if (!userId) return false;
+
+    const order = await prisma.order.findFirst({
+      where: {
+        userId,
+        refId: chapterId,
+        status: OrderStatus.PAID,
+        appliedPricePaywall: { gt: 0 }
+      }
+    });
+
+    return !!order;
+  }
+
+  /**
+   * Check if user has paid for epilogue (volumes 11+)
+   */
+  private async checkPaidEpilogue(userId: string | undefined, chapterId: string): Promise<boolean> {
+    if (!userId) return false;
+
+    const order = await prisma.order.findFirst({
+      where: {
+        userId,
+        refId: chapterId,
+        status: OrderStatus.PAID,
+        appliedPriceEpilogue: { gt: 0 }
+      }
+    });
+
+    return !!order;
+  }
+
+  /**
+   * Get freeToRead price for a chapter
+   */
+  private async getPriceFreeToRead(chapterId: string): Promise<number> {
+    const prices = await priceSchemaService.getChapterPrices(chapterId);
+    return prices.priceFreeToRead;
+  }
+
+  /**
+   * Get paywall price for a chapter
+   */
+  private async getPricePaywall(chapterId: string): Promise<number> {
+    const prices = await priceSchemaService.getChapterPrices(chapterId);
+    return prices.pricePaywall;
+  }
+
+  /**
+   * Get epilogue price for a chapter
+   */
+  private async getPriceEpilogue(chapterId: string): Promise<number> {
+    const prices = await priceSchemaService.getChapterPrices(chapterId);
+    return prices.priceEpilogue;
   }
 }
