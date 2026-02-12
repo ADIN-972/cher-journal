@@ -59,11 +59,11 @@ function createTranslationFunction(translations: Record<string, any>): Translati
       return key; // Fallback to key name if not found
     }
 
-    // Handle interpolation: {{variable}} → params.variable
+    // Handle interpolation: {variable} → params.variable
     if (params && typeof params === 'object') {
-      value = value.replace(/\{\{(\w+)\}\}/g, (_, paramKey) => {
+      value = value.replace(/\{(\w+)\}/g, (_, paramKey) => {
         const paramValue = params[paramKey];
-        return paramValue !== undefined ? String(paramValue) : `{{${paramKey}}}`;
+        return paramValue !== undefined ? String(paramValue) : `{${paramKey}}`;
       });
     }
 
