@@ -114,7 +114,7 @@ function PromotionOverallImpact({ promotion }: PromotionOverallImpactProps) {
       <div className="grid grid-cols-2 gap-2 text-xs opacity-90">
         {/* Per-user limit */}
         {promotion.perUserLimit && (
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 col-span-2">
             <MdRepeat size={14} className="opacity-70" />
             <span>
               <strong>{promotion.perUserLimit}x</strong> par utilisateur
@@ -124,7 +124,7 @@ function PromotionOverallImpact({ promotion }: PromotionOverallImpactProps) {
 
         {/* Global limit */}
         {promotion.maxUses && (
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 col-span-2">
             <MdPeople size={14} className="opacity-70" />
             <span>
               <strong>{promotion.maxUses}</strong> utilisations total
