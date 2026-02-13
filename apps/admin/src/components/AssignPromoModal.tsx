@@ -17,8 +17,9 @@ export default function AssignPromoModal({
   onSuccess,
 }: AssignPromoModalProps) {
   const [loading, setLoading] = useState(false);
+  const userName = userEmail.split("@")[0];
   const [formData, setFormData] = useState({
-    name: "",
+    name: `Promotion attribuée à ${userName}`,
     scope: "VOLUME" as "VOLUME" | "CHAPTER" | "POV" | "EPILOGUE" | "COLORING" | "BUNDLE" | "SUBSCRIPTION",
     type: "PERCENT" as "PERCENT" | "FIXED" | "FREE",
     value: 0,
