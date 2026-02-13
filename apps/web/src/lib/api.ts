@@ -2,6 +2,8 @@
  * API Client with JWT token management
  */
 
+import { ApplicablePromotion } from '@cher-journal/types';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? '';
 
 class ApiClient {
@@ -336,6 +338,14 @@ class ApiClient {
       data
     );
     return response.data;
+  }
+
+  /**
+   * Promotions endpoints
+   */
+  async getApplicablePromotions(): Promise<ApplicablePromotion[]> {
+    const response = await this.get<{ success: boolean; data: { promotions: ApplicablePromotion[] } }>('/promotions/applicable');
+    return response.data.promotions;
   }
 
   /**

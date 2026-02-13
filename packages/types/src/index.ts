@@ -412,6 +412,27 @@ export interface PromotionUpdateDto {
   targetCriteria?: Record<string, any>;
 }
 
+export interface ApplicablePromotion {
+  id: string;
+  name: string;
+  description: string | null;
+  scope: PriceScope;
+  type: PromotionType;
+  value: number | null;
+  startsAt: Date;
+  endsAt: Date;
+  code: string | null;
+  content: {
+    chapterId: string;
+    chapterTitle: string;
+    chapterCoverUrl: string | null;
+    volumeNumber?: number;
+    volumeTitle?: string;
+  } | null;
+  remainingUses: number | null;
+  userRemainingUses: number | null;
+}
+
 // Wait-until-free
 export interface WaitStatus {
   isActive: boolean;

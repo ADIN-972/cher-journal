@@ -6,6 +6,7 @@ import Library from "./Library";
 import PurchaseHistory from "../components/account/PurchaseHistory";
 import SupportClaims from "../components/account/SupportClaims";
 import MyReviews from "../components/account/MyReviews";
+import Promotions from "../components/account/Promotions";
 import Subscription from "../components/account/Subscription";
 import Preferences from "../components/account/Preferences";
 import Notifications from "../components/account/Notifications";
@@ -18,6 +19,7 @@ type AccountSection =
   | "purchases"
   | "claims"
   | "reviews"
+  | "promotions"
   | "subscription"
   | "preferences"
   | "notifications"
@@ -63,6 +65,12 @@ export default function Account() {
       label: t("account.menu.reviews"),
       icon: "rate_review",
       description: t("account.menu.reviews_desc"),
+    },
+    {
+      id: "promotions",
+      label: t("account.menu.promotions"),
+      icon: "card_giftcard",
+      description: t("account.menu.promotions_desc"),
     },
     {
       id: "subscription",
@@ -117,6 +125,8 @@ export default function Account() {
         return <SupportClaims />;
       case "reviews":
         return <MyReviews />;
+      case "promotions":
+        return <Promotions />;
       case "subscription":
         return <Subscription />;
       case "preferences":
@@ -143,31 +153,33 @@ export default function Account() {
             <span className="material-symbols-outlined text-[#c5a059] text-4xl">
               account_circle
             </span>
-            <h1 className="text-4xl font-script text-[#c5a059] newsreader">
+            <h1 className="text-4xl text-[#c5a059] ">
               {t("account.page_title")}
             </h1>
           </div>
           <p className="text-charcoal dark:text-white/70 italic text-sm">
-            {t("account.welcome_message", { firstName: user?.firstName || "User" })}
+            {t("account.welcome_message", {
+              firstName: user?.firstName || "User",
+            })}
           </p>
         </div>
 
-        <div className="grid grid-cols-[auto_1fr] gap-4 md:gap-8">
+        <div className="grid grid-cols-[auto_1fr] gap-4 lg:gap-8">
           {/* Sidebar Navigation */}
           <aside className="flex-shrink-0">
-            <div className="bg-gradient-to-br from-[#2d1620]/80 to-[#2d1620]/60 rounded-2xl border border-[#c5a059]/30 p-2 md:p-6 sticky top-24">
-              <nav className="grid grid-cols-1">
+            <div className="bg-gradient-to-br from-[#2d1620]/80 to-[#2d1620]/60 rounded-md border border-[#c5a059]/30 p-1 lg:p-6 sticky top-24">
+              <nav className="grid grid-cols-1 gap-1">
                 {menuItems.map((item) => (
                   <button
                     key={item.id}
                     onClick={() => setActiveSection(item.id)}
                     title={item.label}
-                    className={`text-left px-2 md:px-4 py-3 rounded-xl transition-all group ${
+                    className={`text-left px-2 py-1 lg:px-4 lg:py-2 rounded-md transition-all group ${
                       activeSection === item.id
                         ? "bg-[#c5a059]/20 border border-[#c5a059]/50"
                         : "hover:bg-[#c5a059]/10 border border-transparent"
                     }`}>
-                    <div className="flex items-center gap-3 mb-1">
+                    <div className="flex items-center gap-3">
                       <span
                         className={`material-symbols-outlined text-lg ${
                           activeSection === item.id
@@ -176,7 +188,7 @@ export default function Account() {
                         }`}>
                         {item.icon}
                       </span>
-                      <div className="hidden md:block">
+                      <div className="hidden lg:block">
                         <span
                           className={`text-sm font-display italic ${
                             activeSection === item.id
@@ -188,7 +200,7 @@ export default function Account() {
                       </div>
                     </div>
                     <p
-                      className={`text-xs ml-8 hidden md:block ${
+                      className={`text-xs ml-8 hidden lg:block ${
                         activeSection === item.id
                           ? "text-charcoal dark:text-white/60"
                           : "text-charcoal dark:text-white/70"
@@ -202,12 +214,12 @@ export default function Account() {
                 <button
                   onClick={handleLogout}
                   title={t("account.logout_title")}
-                  className="w-full text-left px-2 md:px-4 py-3 rounded-xl transition-all group hover:bg-red-900/20 border border-transparent hover:border-red-500/50 mt-6">
+                  className="w-full text-left px-2 lg:px-4 py-3 rounded-md transition-all group hover:bg-red-900/20 border border-transparent hover:border-red-500/50 mt-6">
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-lg text-red-400">
                       logout
                     </span>
-                    <span className="text-sm font-display italic text-red-400 group-hover:text-red-300 hidden md:inline">
+                    <span className="text-sm font-display italic text-red-400 group-hover:text-red-300 hidden lg:inline">
                       {t("account.logout")}
                     </span>
                   </div>
@@ -218,7 +230,7 @@ export default function Account() {
 
           {/* Main Content */}
           <main className="flex-1 min-w-0">
-            <div className="rounded-2xl border border-[#c5a059]/20 p-8 min-h-[600px]">
+            <div className="rounded-md border border-[#c5a059]/20 min-h-[600px] p-2 md:p-5">
               {renderSectionContent()}
             </div>
           </main>
