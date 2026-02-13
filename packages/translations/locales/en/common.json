@@ -243,7 +243,8 @@
     "seconds_plural": "{{count}} seconds",
     "card_view": "Card View",
     "list_view": "List View",
-    "calendar_view": "Calendar View"
+    "calendar_view": "Calendar View",
+    "add": "Add"
   },
   "messages": {
     "loading": "Loading...",
@@ -766,6 +767,28 @@
     "success": {
       "created": "Volume created successfully",
       "updated": "Volume updated successfully"
+    }
+  },
+  "user_detail": {
+    "notes": {
+      "title": "Notes",
+      "body": "Add notes about this user"
+    },
+    "address": {
+      "title": "Address",
+      "line": "Address Line",
+      "view_map": "View Map"
+    },
+    "attachments": {
+      "title": "Attachments",
+      "none": "No attachments"
+    },
+    "chapters": {
+      "title": "Chapters"
+    },
+    "chapter": {
+      "paid_label": "Paid",
+      "volume_prefix": "Volume"
     }
   },
   "promotions": {

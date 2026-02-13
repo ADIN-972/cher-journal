@@ -243,7 +243,8 @@
     "seconds_plural": "{{count}} secondes",
     "card_view": "Vue Carte",
     "list_view": "Vue Liste",
-    "calendar_view": "Vue Calendrier"
+    "calendar_view": "Vue Calendrier",
+    "add": "Ajouter"
   },
   "messages": {
     "loading": "Chargement...",
@@ -766,6 +767,28 @@
     "success": {
       "created": "Volume créé avec succès",
       "updated": "Volume modifié avec succès"
+    }
+  },
+  "user_detail": {
+    "notes": {
+      "title": "Notes",
+      "body": "Ajouter des notes sur cet utilisateur"
+    },
+    "address": {
+      "title": "Adresse",
+      "line": "Adresse",
+      "view_map": "Voir la carte"
+    },
+    "attachments": {
+      "title": "Pièces jointes",
+      "none": "Aucune pièce jointe"
+    },
+    "chapters": {
+      "title": "Chapitres"
+    },
+    "chapter": {
+      "paid_label": "Payant",
+      "volume_prefix": "Volume"
     }
   },
   "promotions": {
