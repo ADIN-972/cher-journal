@@ -36,7 +36,7 @@ export const createPromotionSchema = z.object({
   scope: PriceScopeEnum,
   refId: z.string().uuid().optional(),
   type: PromotionTypeEnum,
-  value: z.number().int().optional(), // percent or cents
+  value: z.number().int().nullable().optional(), // percent or cents (null for FREE type)
   startsAt: z.coerce.date(),
   endsAt: z.coerce.date(),
   maxUses: z.number().int().positive().optional(),
@@ -52,7 +52,7 @@ export const updatePromotionSchema = z.object({
   name: z.string().min(1).max(200).optional(),
   description: z.string().optional(),
   type: PromotionTypeEnum.optional(),
-  value: z.number().int().optional(),
+  value: z.number().int().nullable().optional(), // null for FREE type
   startsAt: z.coerce.date().optional(),
   endsAt: z.coerce.date().optional(),
   maxUses: z.number().int().positive().optional(),
