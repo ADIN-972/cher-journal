@@ -243,7 +243,8 @@
     "seconds_plural": "{{count}} seconds",
     "card_view": "Card View",
     "list_view": "List View",
-    "calendar_view": "Calendar View"
+    "calendar_view": "Calendar View",
+    "add": "Add"
   },
   "messages": {
     "loading": "Loading...",
@@ -435,6 +436,70 @@
     "EVEIL_DU_DESIR": "Awakening of Desire",
     "RELATIONS_TRANSFORMATRICES": "Transformative Relations",
     "MEMOIRE_DU_CORPS": "Body Memory"
+  },
+  "genres_definitions": {
+    "intro": "The stories of Cher Journal explore desire as a human, sensory and transformative experience. Each genre is not a fixed category, but an emotional gateway. A single story can belong to multiple genres, because desire is multiple, ever-changing, and never reducible to a single impulse.",
+    "usage": "Genres are used: to guide the reader, to respect the diversity of sensibilities, to affirm a demanding and literary editorial line.",
+    "PASSIONS_CHARNELLES": {
+      "title": "Passionate Desires",
+      "description": "The body is central, present, alive. Desire is expressed through skin, gestures, physical proximity. This genre celebrates sensual intensity and bodily engagement."
+    },
+    "ROMANCES_TENDRES": {
+      "title": "Sweet Romance",
+      "description": "Stories where tenderness, attention and emotion take precedence. Desire is wrapped in delicacy, sometimes fragile, always sincere."
+    },
+    "MYSTERIES_SENSUELS": {
+      "title": "Sensual Mystery",
+      "description": "Trouble, secrets, and the unsaid nurture attraction. Glances matter as much as actions, and silence becomes erotic."
+    },
+    "INTERDITS": {
+      "title": "Forbidden",
+      "description": "Desire arises where it should not. This genre explores social, moral, or personal boundaries without judgment, but with lucidity."
+    },
+    "CONQUETES": {
+      "title": "Seduction & Conquest",
+      "description": "A game of approach, seduction, sometimes power. But here, conquest is mutual, never one-sided."
+    },
+    "REVES_SECRETS": {
+      "title": "Secret Dreams",
+      "description": "Inner stories, almost whispered. Fantasy, memory, and imagination hold essential places here."
+    },
+    "PASSION_BRUTALE": {
+      "title": "Raw Passion",
+      "description": "Direct intensity, sometimes violent in emotion — never gratuitous. This genre explores cruder desires, strong tensions, bodies that clash as much as they seek each other."
+    },
+    "AMOUR_COMPLIQUE": {
+      "title": "Complicated Love",
+      "description": "When loving means hesitating, surrendering, choosing otherwise. Deep bonds traversed by doubt, distance, or the impossible."
+    },
+    "DESIR_NOCTURNE": {
+      "title": "Nocturnal Desire",
+      "description": "Night as territory for letting go. This genre evokes the intimacy that reveals itself when the world sleeps."
+    },
+    "LIBERATION": {
+      "title": "Liberation",
+      "description": "Desire as escape, reconstruction, affirmation. These stories tell what the body allows to untangle."
+    },
+    "DECOUVERTE_DE_SOI": {
+      "title": "Self-Discovery",
+      "description": "An inner journey where desire becomes a tool for knowledge. These stories explore personal transformation through sensual experience."
+    },
+    "INTIMITE_PSYCHOLOGIQUE": {
+      "title": "Psychological Intimacy",
+      "description": "The eroticism of the soul as much as the body. Emotional vulnerability and mental connection are at the heart of these stories."
+    },
+    "EVEIL_DU_DESIR": {
+      "title": "Awakening of Desire",
+      "description": "The first shivers, the discovery, innocence lost. This genre captures the moment when desire awakens for the first time."
+    },
+    "RELATIONS_TRANSFORMATRICES": {
+      "title": "Transformative Relations",
+      "description": "Meetings that change everything. Desire becomes a catalyst for personal and relational transformation."
+    },
+    "MEMOIRE_DU_CORPS": {
+      "title": "Body Memory",
+      "description": "History inscribed in flesh. These stories explore how desire crystallizes memories and inhabits the body timelessly."
+    }
   },
   "components": {
     "asset_filters": {
@@ -702,6 +767,187 @@
     "success": {
       "created": "Volume created successfully",
       "updated": "Volume updated successfully"
+    }
+  },
+  "user_detail": {
+    "notes": {
+      "title": "Notes",
+      "body": "Add notes about this user"
+    },
+    "address": {
+      "title": "Address",
+      "line": "Address Line",
+      "view_map": "View Map"
+    },
+    "attachments": {
+      "title": "Attachments",
+      "none": "No attachments"
+    },
+    "chapters": {
+      "title": "Chapters"
+    },
+    "chapter": {
+      "paid_label": "Paid",
+      "volume_prefix": "Volume",
+      "volumes": "Volumes",
+      "read_label": "Reading Status",
+      "paid_volumes": "Paid Volumes",
+      "volumes_range": "Volumes Range",
+      "access": "Access",
+      "source": "Source",
+      "granted_on": "Granted On",
+      "read_history": "Reading History",
+      "volume_label": "Volume",
+      "paid": "Paid",
+      "opened_on": "Opened On"
+    },
+    "stats": {
+      "total_orders": "Total Orders",
+      "paid_orders": "Paid Orders"
+    },
+    "order": "Order",
+    "status": "Status",
+    "no_orders": "No orders yet",
+    "search_orders_placeholder": "Search orders...",
+    "actions": {
+      "message": "Send Message",
+      "analytics": "Analytics"
+    }
+  },
+  "promotions": {
+    "title": "Promotions Management",
+    "subtitle": "Create and manage promotional campaigns",
+    "create_promotion": "Create Promotion",
+    "edit_promotion": "Edit Promotion",
+    "new_promotion": "Create Promotion",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "confirm_delete": "Are you sure you want to delete this promotion?",
+    "filters": {
+      "scope": "Scope",
+      "status": "Status",
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "scopes": {
+      "VOLUME": "Volume",
+      "CHAPTER": "Chapter",
+      "EPILOGUE": "Epilogue",
+      "POV": "Point of View",
+      "COLORING": "Coloring",
+      "BUNDLE": "Bundle",
+      "SUBSCRIPTION": "Subscription"
+    },
+    "table": {
+      "scope": "Scope",
+      "type": "Type",
+      "reduction": "Reduction",
+      "period": "Period",
+      "usages": "Usages",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "types": {
+      "PERCENT": "Percentage",
+      "FIXED": "Fixed Amount",
+      "FREE": "Free"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "targeting": {
+      "title": "Target Selection",
+      "all_users": "All Users",
+      "specific_users": "Specific Users",
+      "criteria_based": "Criteria Based"
+    },
+    "form": {
+      "subtitle_create": "Create a new promotional campaign to increase sales",
+      "subtitle_edit": "Edit the details of your promotional campaign",
+      "basic_info": "Basic Information",
+      "name_label": "Promotion Name",
+      "name_placeholder": "Ex: Summer Sales -20%",
+      "explanation_name": "This name will be visible to administrators only",
+      "description_label": "Description",
+      "description_placeholder": "Optional promotion description...",
+      "explanation_description": "Internal description to help you identify this promotion",
+      "name": "Promotion Name",
+      "description": "Description",
+      "type": "Type",
+      "type_label": "Promotion Type",
+      "value": "Value",
+      "percent": "Percentage",
+      "amount": "Amount",
+      "scope": "Scope",
+      "scope_label": "Content Scope",
+      "start_date": "Start Date",
+      "end_date": "End Date",
+      "code": "Promo Code",
+      "section_content_type": "Content Type",
+      "explanation_scope_selection": "Select which type of content this promotion applies to",
+      "explanation_scope_volume": "This promotion applies to individual volumes",
+      "explanation_scope_chapter": "This promotion applies to chapters",
+      "explanation_scope_epilogue": "This promotion applies to epilogues",
+      "explanation_scope_pov": "This promotion applies to points of view",
+      "explanation_scope_coloring": "This promotion applies to coloring books",
+      "explanation_scope_bundle": "This promotion applies to bundles",
+      "explanation_scope_subscription": "This promotion applies to subscriptions",
+      "section_reduction_type": "Reduction Type",
+      "explanation_type_percent": "Percentage reduction of the purchase price",
+      "explanation_type_percent_short": "Percentage reduction",
+      "explanation_type_fixed": "Fixed amount reduction",
+      "explanation_type_fixed_short": "Reduction in euros",
+      "explanation_type_free": "Offer free access to this content",
+      "explanation_type_free_short": "Free",
+      "not_applicable": "Not applicable",
+      "section_value": "Reduction Value",
+      "reduction_percent": "Reduction %",
+      "reduction_amount": "Reduction Amount",
+      "example_percent": "Ex: 20",
+      "explanation_value_percent": "Enter the percentage value (0-100)",
+      "explanation_value_fixed": "Enter the amount in cents (ex: 50 for 0.50€, 200 for 2.00€)",
+      "alert_zero_value": "Reduction value cannot be zero",
+      "associated_price": "Associated Price (optional)",
+      "select_price": "Select a price",
+      "explanation_price_linked": "Associate this promotion with a specific price to automatically apply the reduction",
+      "section_period": "Validity Period",
+      "explanation_period": "Define when this promotion is active",
+      "section_status": "Activation",
+      "active": "Active",
+      "explanation_status_toggle": "Enable or disable this promotion",
+      "explanation_status_period": "The promotion will be automatically activated on the start date",
+      "explanation_status_active": "This promotion is currently active",
+      "section_limits": "Usage Limits",
+      "max_clients": "Maximum Clients",
+      "max_uses": "Maximum Uses",
+      "per_user": "Per User Limit",
+      "unlimited": "Unlimited",
+      "limits_example": "Example: Set max uses to 100 and per user to 3",
+      "explanation_max_uses": "Maximum number of times this promotion can be used",
+      "explanation_per_user": "Number of times each customer can use this promotion",
+      "summary_impact": "Promotion Impact",
+      "summary_intro": "Summary of this promotion's effects",
+      "summary_for": "For",
+      "summary_total_uses": "Maximum Uses",
+      "summary_period": "Valid From",
+      "details": "Details",
+      "save": "Save Promotion",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "saving": "Saving...",
+      "error_save": "Error saving promotion",
+      "error_load": "Error loading promotion",
+      "error_delete": "Error deleting promotion"
+    },
+    "toast": {
+      "saving": "Saving promotion...",
+      "created": "Promotion created successfully",
+      "updated": "Promotion updated successfully",
+      "deleted": "Promotion deleted successfully",
+      "error": "Error managing promotion"
     }
   }
 }
