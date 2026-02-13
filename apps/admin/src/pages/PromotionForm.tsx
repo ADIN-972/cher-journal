@@ -35,6 +35,8 @@ export function PromotionForm() {
     maxUses: undefined,
     perUserLimit: undefined,
     refId: undefined,
+    targetType: "ALL_USERS",
+    targetedUsersCount: undefined,
   });
 
   const [loading, setLoading] = useState(false);
@@ -46,6 +48,7 @@ export function PromotionForm() {
     targetUserIds: [] as string[],
     targetCriteria: {} as any,
   });
+  const [targetedUsersCount, setTargetedUsersCount] = useState<number | null>(null);
 
   useEffect(() => {
     if (isEdit) {
@@ -53,6 +56,25 @@ export function PromotionForm() {
     }
     loadPrices();
   }, [isEdit, id]);
+
+  // Update formData with targeting data and recalculate targeted count
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      targetType: targeting.targetType,
+      targetedUsersCount,
+    }));
+    calculateTargetedCount();
+  }, [targeting]);
+
+  const calculateTargetedCount = async () => {
+    try {
+      const response = await api.post("/admin/promotions/preview-targeting", targeting);
+      setTargetedUsersCount(response.data.targetedUsersCount);
+    } catch (error) {
+      console.error("Failed to calculate targeted count:", error);
+    }
+  };
 
   const loadPromotion = async () => {
     if (!id) return;
@@ -83,6 +105,8 @@ export function PromotionForm() {
         isActive: promo.isActive,
         code: promo.code || undefined,
         priceId: promo.priceId || undefined,
+        targetType: promo.targetType || "ALL_USERS",
+        targetedUsersCount: undefined,
       });
 
       // Load targeting data
@@ -139,9 +163,19 @@ export function PromotionForm() {
 
     try {
       const payload = {
-        ...formData,
+        name: formData.name,
+        description: formData.description,
+        scope: formData.scope,
+        refId: formData.refId,
+        type: formData.type,
+        value: formData.type === "FREE" ? null : formData.value,
         startsAt: new Date(formData.startsAt),
         endsAt: new Date(formData.endsAt),
+        maxUses: formData.maxUses,
+        perUserLimit: formData.perUserLimit,
+        isActive: formData.isActive,
+        code: formData.code,
+        priceId: formData.priceId,
         targetType: targeting.targetType,
         targetUserIds: targeting.targetUserIds,
         targetCriteria: targeting.targetCriteria,
@@ -826,6 +860,44 @@ export function PromotionForm() {
                     ? t("promotions.form.explanation_status_active")
                     : t("promotions.form.explanation_status_inactive")}
                 </p>
+              </div>
+
+              {/* Targeting Preview */}
+              <div className="border-b border-gray-200 pb-4">
+                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                  {t("promotions.form.targeting_section", "Ciblage")}
+                </p>
+                <p className="text-sm font-bold text-gray-900 mb-2">
+                  {targeting.targetType === "ALL_USERS"
+                    ? "Tous les utilisateurs"
+                    : targeting.targetType === "SPECIFIC_USERS"
+                      ? "Utilisateurs spécifiques"
+                      : "Basé sur critères"}
+                </p>
+                <div className="space-y-2">
+                  {targeting.targetType === "SPECIFIC_USERS" && (
+                    <div>
+                      <p className="text-xs text-gray-600">
+                        {targeting.targetUserIds?.length || 0} email(s)
+                      </p>
+                    </div>
+                  )}
+                  {targeting.targetType === "CRITERIA_BASED" && (
+                    <div>
+                      <p className="text-xs text-gray-600">
+                        Critères avancés configurés
+                      </p>
+                    </div>
+                  )}
+                  <div className="p-3 bg-indigo-50 rounded border border-indigo-200 mt-3">
+                    <p className="text-xs text-indigo-700 font-medium">
+                      Utilisateurs ciblés:
+                    </p>
+                    <p className="text-2xl font-bold text-indigo-900 mt-1">
+                      {targetedUsersCount !== null ? targetedUsersCount.toLocaleString() : "-"}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* Price Preview if linked */}
