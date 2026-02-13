@@ -345,6 +345,9 @@ export interface Price {
 
 export interface Promotion {
   id: string;
+  name: string;
+  description?: string | null;
+  code?: string | null;
   scope: PriceScope;
   refId?: string | null;
   type: PromotionType;
@@ -354,8 +357,16 @@ export interface Promotion {
   maxUses?: number | null;
   perUserLimit?: number | null;
   isActive: boolean;
+  targetType?: string;
+  targetUserIds?: string[];
+  targetCriteria?: Record<string, any>;
+  targetedUsersCount?: number;
   priceId?: string | null;
   price?: Price | null;
+  _count?: {
+    applied?: number;
+    orders?: number;
+  };
 }
 
 export interface AppliedPromotion {
@@ -367,25 +378,38 @@ export interface AppliedPromotion {
 }
 
 export interface PromotionCreateDto {
+  name: string;
+  description?: string;
+  code?: string;
   scope: PriceScope;
   refId?: string;
   type: PromotionType;
-  value?: number;
+  value?: number | null;
   startsAt: Date;
   endsAt: Date;
   maxUses?: number;
   perUserLimit?: number;
+  isActive?: boolean;
+  targetType?: string;
+  targetUserIds?: string[];
+  targetCriteria?: Record<string, any>;
   priceId?: string;
 }
 
 export interface PromotionUpdateDto {
+  name?: string;
+  description?: string;
+  code?: string;
   type?: PromotionType;
-  value?: number;
+  value?: number | null;
   startsAt?: Date;
   endsAt?: Date;
   maxUses?: number;
   perUserLimit?: number;
   isActive?: boolean;
+  targetType?: string;
+  targetUserIds?: string[];
+  targetCriteria?: Record<string, any>;
 }
 
 // Wait-until-free

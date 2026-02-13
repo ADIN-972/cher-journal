@@ -154,8 +154,8 @@ function PromotionOverallImpact({ promotion }: PromotionOverallImpactProps) {
           <MdPublic size={14} className="opacity-70" />
           <span>
             <strong>{getTargetLabel(promotion.targetType)}</strong>
-            {promotion.targetType === "SPECIFIC_USERS" && promotion.targetedUsersCount !== undefined && (
-              <> ({promotion.targetedUsersCount.toLocaleString()})</>
+            {promotion.targetedUsersCount !== undefined && (
+              <> ({promotion.targetedUsersCount.toLocaleString()} personne{promotion.targetedUsersCount > 1 ? 's' : ''})</>
             )}
           </span>
         </div>
