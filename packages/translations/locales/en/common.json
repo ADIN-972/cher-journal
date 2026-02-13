@@ -672,6 +672,8 @@
       "claims_desc": "Support and assistance",
       "reviews": "My Reviews",
       "reviews_desc": "Reviews and impressions",
+      "promotions": "Available Promotions",
+      "promotions_desc": "Special offers just for you",
       "subscription": "Subscription Info",
       "subscription_desc": "Manage my subscription",
       "preferences": "Preferences",
@@ -686,7 +688,31 @@
       "payment_info_desc": "Cards and payments"
     },
     "logout": "Sign Out",
-    "logout_title": "Sign Out"
+    "logout_title": "Sign Out",
+    "promotions": {
+      "title": "Available Promotions",
+      "subtitle": "Discover exclusive offers tailored for you",
+      "no_promotions": "No promotions available",
+      "no_promotions_detail": "Check back soon for special offers",
+      "loading": "Loading promotions...",
+      "error_loading": "Error loading promotions",
+      "retry": "Try Again",
+      "scope_volume": "Volume",
+      "scope_chapter": "Chapter",
+      "scope_epilogue": "Epilogue",
+      "scope_pov": "Point of View",
+      "scope_coloring": "Coloring Book",
+      "scope_bundle": "Bundle",
+      "scope_subscription": "Subscription",
+      "unlocks": "Unlocks",
+      "valid_until": "Valid Until",
+      "limited_uses": "Limited Uses",
+      "unlimited": "Unlimited Uses",
+      "take_advantage": "Take Advantage",
+      "discount_percent": "{value}% off",
+      "discount_fixed": "{value}€ off",
+      "free": "Free"
+    }
   },
   "tag_manager": {
     "title": "Tag Management",

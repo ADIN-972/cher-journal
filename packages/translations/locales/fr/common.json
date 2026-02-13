@@ -672,6 +672,8 @@
       "claims_desc": "Support et assistance",
       "reviews": "Mes Commentaires",
       "reviews_desc": "Avis et impressions",
+      "promotions": "Promotions Disponibles",
+      "promotions_desc": "Offres spéciales rien que pour vous",
       "subscription": "Informations d'Abonnement",
       "subscription_desc": "Gérer mon abonnement",
       "preferences": "Préférences",
@@ -686,7 +688,31 @@
       "payment_info_desc": "Cartes et paiements"
     },
     "logout": "Déconnexion",
-    "logout_title": "Se Déconnecter"
+    "logout_title": "Se Déconnecter",
+    "promotions": {
+      "title": "Promotions Disponibles",
+      "subtitle": "Découvrez des offres exclusives conçues pour vous",
+      "no_promotions": "Aucune promotion disponible",
+      "no_promotions_detail": "Revenez bientôt pour des offres spéciales",
+      "loading": "Chargement des promotions...",
+      "error_loading": "Erreur lors du chargement des promotions",
+      "retry": "Réessayer",
+      "scope_volume": "Volume",
+      "scope_chapter": "Chapitre",
+      "scope_epilogue": "Épilogue",
+      "scope_pov": "Point de Vue",
+      "scope_coloring": "Livre de Coloriage",
+      "scope_bundle": "Bundle",
+      "scope_subscription": "Abonnement",
+      "unlocks": "Déverrouille",
+      "valid_until": "Valide Jusqu'au",
+      "limited_uses": "Utilisations Limitées",
+      "unlimited": "Utilisations Illimitées",
+      "take_advantage": "En Profiter",
+      "discount_percent": "{value}% de réduction",
+      "discount_fixed": "{value}€ de réduction",
+      "free": "Gratuit"
+    }
   },
   "tag_manager": {
     "title": "Gestion des Tags",
