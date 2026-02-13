@@ -113,32 +113,45 @@ function PromotionOverallImpact({ promotion }: PromotionOverallImpactProps) {
       {/* Details grid */}
       <div className="grid grid-cols-2 gap-2 text-xs opacity-90">
         {/* Per-user limit */}
-        {promotion.perUserLimit && (
+        {promotion.perUserLimit !== undefined && promotion.perUserLimit !== null && (
           <div className="flex items-center gap-1.5 col-span-2">
             <MdRepeat size={14} className="opacity-70" />
             <span>
-              <strong>{promotion.perUserLimit}x</strong> par utilisateur
+              {promotion.perUserLimit === 0 ? (
+                "Illimité par utilisateur"
+              ) : (
+                <>
+                  <strong>{promotion.perUserLimit}x</strong> par utilisateur
+                </>
+              )}
             </span>
           </div>
         )}
 
         {/* Global limit */}
-        {promotion.maxUses && (
+        {promotion.maxUses !== undefined && promotion.maxUses !== null && (
           <div className="flex items-center gap-1.5 col-span-2">
             <MdPeople size={14} className="opacity-70" />
             <span>
-              <strong>{promotion.maxUses}</strong> utilisations total
+              {promotion.maxUses === 0 ? (
+                "Utilisations illimitées"
+              ) : (
+                <>
+                  <strong>{promotion.maxUses}</strong> utilisations total
+                </>
+              )}
             </span>
           </div>
         )}
 
-        {/* If no limits */}
-        {!promotion.maxUses && !promotion.perUserLimit && (
-          <div className="flex items-center gap-1.5 col-span-2">
-            <MdPeople size={14} className="opacity-70" />
-            <span>Illimité</span>
-          </div>
-        )}
+        {/* If no limits specified */}
+        {(promotion.maxUses === undefined || promotion.maxUses === null) &&
+          (promotion.perUserLimit === undefined || promotion.perUserLimit === null) && (
+            <div className="flex items-center gap-1.5 col-span-2">
+              <MdPeople size={14} className="opacity-70" />
+              <span>Illimité</span>
+            </div>
+          )}
 
         {/* Validity period */}
         <div className="flex items-center gap-1.5 col-span-2">
