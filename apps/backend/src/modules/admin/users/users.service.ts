@@ -242,6 +242,14 @@ export class UsersService {
         value: true,
         code: true,
         targetType: true,
+        isActive: true,
+        startsAt: true,
+        endsAt: true,
+        maxUses: true,
+        perUserLimit: true,
+        _count: {
+          select: { orders: true },
+        },
       },
       orderBy: { createdAt: "desc" },
     });

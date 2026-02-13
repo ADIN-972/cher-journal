@@ -110,6 +110,12 @@ export default function UserDetail() {
     value?: number;
     code?: string;
     targetType: string;
+    isActive?: boolean;
+    startsAt?: string;
+    endsAt?: string;
+    maxUses?: number | null;
+    perUserLimit?: number | null;
+    _count?: { orders: number };
   }
 
   interface AssignedPromotion {
@@ -483,6 +489,93 @@ export default function UserDetail() {
                       </div>
                     </div>
                   ))
+                )}
+
+                {/* Consolidated Promotions Overview */}
+                {(user.applicablePromotions?.length || 0) + (user.appliedPromotions?.length || 0) + (user.orders.some(o => o.appliedPromotion) ? 1 : 0) > 0 && (
+                  <div className="mt-8">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                      <MdCardGiftcard className="text-blue-600" size={24} />
+                      {t("user_detail.promo_overview", "Complete Promotion Overview")}
+                    </h3>
+                    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                      <div className="grid grid-cols-7 gap-3 p-4 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-700">
+                        <div>Promotion</div>
+                        <div className="text-center">Type</div>
+                        <div className="text-center">Value</div>
+                        <div className="text-center">Status</div>
+                        <div className="text-center">Used</div>
+                        <div className="text-center">Remaining</div>
+                        <div className="text-center">Category</div>
+                      </div>
+                      <div className="divide-y divide-gray-200">
+                        {/* Get all unique promotions */}
+                        {Array.from(
+                          new Map(
+                            [
+                              ...(user.applicablePromotions?.map(p => ({ ...p, source: 'applicable' })) || []),
+                              ...(user.appliedPromotions?.map(ap => ({ ...ap.promotion, source: 'assigned', assignedAt: ap.appliedAt })) || []),
+                              ...user.orders
+                                .filter(o => o.appliedPromotion)
+                                .map(o => ({ ...o.appliedPromotion!, source: 'used' })),
+                            ].reduce((map, promo) => {
+                              const key = promo.id;
+                              const existing = map.get(key);
+                              if (existing) {
+                                existing.sources = new Set([...(existing.sources || new Set()), promo.source]);
+                                if (promo.source === 'used') existing.usedCount = (existing.usedCount || 0) + 1;
+                              } else {
+                                map.set(key, { ...promo, sources: new Set([promo.source]), usedCount: promo.source === 'used' ? 1 : 0 });
+                              }
+                              return map;
+                            }, new Map())
+                          ).values()
+                        ).map((promo: any) => {
+                          const now = new Date();
+                          const isActive = promo.isActive && new Date(promo.startsAt) <= now && new Date(promo.endsAt) >= now;
+                          const usedCount = promo.usedCount || 0;
+                          const remaining = promo.perUserLimit ? Math.max(0, promo.perUserLimit - usedCount) : (promo.maxUses ? Math.max(0, promo.maxUses - (promo._count?.orders || 0)) : '∞');
+
+                          return (
+                            <div
+                              key={promo.id}
+                              className="grid grid-cols-7 gap-3 p-4 hover:bg-gray-50 transition-colors items-center text-sm">
+                              <div>
+                                <div className="font-medium text-gray-900">{promo.name}</div>
+                                {promo.code && <div className="text-xs text-gray-500">{promo.code}</div>}
+                              </div>
+                              <div className="text-center">
+                                {promo.type === 'PERCENT' && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">%</span>}
+                                {promo.type === 'FIXED' && <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">€</span>}
+                                {promo.type === 'FREE' && <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">FREE</span>}
+                              </div>
+                              <div className="text-center font-medium text-gray-900">
+                                {promo.type === 'PERCENT' && `${promo.value}%`}
+                                {promo.type === 'FIXED' && `${((promo.value || 0) / 100).toFixed(2)}€`}
+                                {promo.type === 'FREE' && '—'}
+                              </div>
+                              <div className="text-center">
+                                {isActive ? (
+                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Active</span>
+                                ) : (
+                                  <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">Expired</span>
+                                )}
+                              </div>
+                              <div className="text-center font-semibold text-gray-900">{usedCount}</div>
+                              <div className="text-center font-semibold text-gray-900">
+                                {typeof remaining === 'number' ? remaining : remaining}
+                              </div>
+                              <div className="text-center text-xs space-x-1">
+                                {promo.sources.has('applicable') && <span className="inline-block bg-purple-100 text-purple-700 px-2 py-0.5 rounded">Available</span>}
+                                {promo.sources.has('assigned') && <span className="inline-block bg-green-100 text-green-700 px-2 py-0.5 rounded">Assigned</span>}
+                                {promo.sources.has('used') && <span className="inline-block bg-orange-100 text-orange-700 px-2 py-0.5 rounded">Used</span>}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
                 )}
 
                 {/* Directly Assigned Promotions */}
