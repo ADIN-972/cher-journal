@@ -886,6 +886,7 @@
       "section_reduction_type": "Type de Réduction",
       "explanation_type_percent": "Pourcentage du prix d'achat",
       "explanation_type_fixed": "Réduction de montant fixe",
+      "explanation_type_fixed_short": "Montant Fixe",
       "explanation_type_free": "Offrir un accès gratuit à ce contenu",
       "explanation_type_free_short": "Gratuit",
       "not_applicable": "Non applicable",

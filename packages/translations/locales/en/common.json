@@ -886,6 +886,7 @@
       "section_reduction_type": "Reduction Type",
       "explanation_type_percent": "Percentage of the purchase price",
       "explanation_type_fixed": "Fixed amount reduction",
+      "explanation_type_fixed_short": "Fixed Amount",
       "explanation_type_free": "Offer free access to this content",
       "explanation_type_free_short": "Free",
       "not_applicable": "Not applicable",
