@@ -1,4 +1,4 @@
-import { prisma } from '../../../lib/prisma';
+import prisma from '../../../lib/prisma';
 import type { PriceScope, PromotionType } from '@cher-journal/types';
 
 export interface ApplicablePromotion {
@@ -87,7 +87,7 @@ export class PromotionsService {
       select: { promotionId: true },
     });
 
-    const appliedPromotionIds = new Set(appliedPromotions.map((ap) => ap.promotionId));
+    const appliedPromotionIds = new Set(appliedPromotions.map((ap: any) => ap.promotionId));
 
     // 5. Filter and enrich promotions
     const applicablePromotions: ApplicablePromotion[] = [];
@@ -107,7 +107,7 @@ export class PromotionsService {
 
       // Check per-user limit (perUserLimit)
       if (promo.perUserLimit !== null && promo.perUserLimit > 0) {
-        const userUsageCount = promo.applied.filter((ap) => ap.userId === userId).length;
+        const userUsageCount = promo.applied.filter((ap: any) => ap.userId === userId).length;
         if (userUsageCount >= promo.perUserLimit) {
           continue;
         }
@@ -130,7 +130,7 @@ export class PromotionsService {
       const userRemainingUses =
         promo.perUserLimit === null || promo.perUserLimit === 0
           ? null
-          : promo.perUserLimit - promo.applied.filter((ap) => ap.userId === userId).length;
+          : promo.perUserLimit - promo.applied.filter((ap: any) => ap.userId === userId).length;
 
       applicablePromotions.push({
         id: promo.id,

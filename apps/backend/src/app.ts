@@ -36,7 +36,7 @@ import { waitRoutes } from "./modules/reader/wait/wait.routes";
 import { readerRoutes } from "./modules/reader/reader/reader.routes";
 import { pricingRoutes } from "./modules/reader/pricing/pricing.routes";
 import { reviewsRoutes } from "./modules/reader/reviews/reviews.routes";
-import { promotionsRoutes } from "./modules/reader/promotions/promotions.routes";
+import { promotionsRoutes as userPromotionsRoutes } from "./modules/reader/promotions/promotions.routes";
 import { stripeRoutes } from "./modules/stripe/stripe.routes";
 import { publicAssetsRoutes } from "./modules/public/assets.routes";
 
@@ -160,7 +160,7 @@ export async function createApp(): Promise<FastifyInstance> {
     readerRoutes,
     pricingRoutes,
     reviewsRoutes,
-    promotionsRoutes,
+    userPromotionsRoutes,
     stripeRoutes,
     adminChaptersRoutes,
     adminVolumesRoutes,
