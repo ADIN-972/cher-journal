@@ -788,8 +788,17 @@
     },
     "chapter": {
       "paid_label": "Payant",
-      "volume_prefix": "Volume"
-    }
+      "volume_prefix": "Volume",
+      "volumes": "Volumes",
+      "read_label": "Statut de Lecture"
+    },
+    "stats": {
+      "total_orders": "Commandes Totales",
+      "paid_orders": "Commandes Payées"
+    },
+    "order": "Commande",
+    "status": "Statut",
+    "no_orders": "Aucune commande pour le moment"
   },
   "promotions": {
     "title": "Gestion des Promotions",
