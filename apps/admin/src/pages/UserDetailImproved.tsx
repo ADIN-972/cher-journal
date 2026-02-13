@@ -22,7 +22,31 @@ import {
   MdTimeline,
   MdBarChart as MdStats,
   MdLocalOffer,
+  MdCardGiftcard,
 } from "react-icons/md";
+
+interface Promotion {
+  id: string;
+  name: string;
+  description?: string;
+  scope: string;
+  type: string;
+  value?: number;
+  code?: string;
+  targetType: string;
+  isActive?: boolean;
+  startsAt?: string;
+  endsAt?: string;
+  maxUses?: number | null;
+  perUserLimit?: number | null;
+  _count?: { orders: number };
+}
+
+interface AssignedPromotion {
+  id: string;
+  appliedAt: string;
+  promotion: Promotion;
+}
 
 interface UserDetail {
   id: string;
@@ -35,6 +59,8 @@ interface UserDetail {
   entitlements: Entitlement[];
   reads: VolumeRead[];
   sessions: Session[];
+  applicablePromotions?: Promotion[];
+  appliedPromotions?: AssignedPromotion[];
 }
 
 interface Order {
@@ -52,6 +78,14 @@ interface Order {
   } | null;
   volumeFrom?: number;
   volumeTo?: number;
+  appliedPromotion?: {
+    id: string;
+    name: string;
+    description?: string;
+    type: string;
+    value?: number;
+    scope: string;
+  } | null;
 }
 
 interface Entitlement {
@@ -87,7 +121,7 @@ interface VolumeRead {
   };
 }
 
-type TabType = 'overview' | 'purchases' | 'access';
+type TabType = 'overview' | 'purchases' | 'access' | 'promotions';
 
 export default function UserDetailImproved() {
   const { id } = useParams();
@@ -142,6 +176,7 @@ export default function UserDetailImproved() {
     { id: 'overview' as TabType, label: 'Vue d\'ensemble', icon: <MdStats size={20} /> },
     { id: 'purchases' as TabType, label: 'Historique d\'achats', icon: <MdTimeline size={20} /> },
     { id: 'access' as TabType, label: 'Accès aux chapitres', icon: <MdBook size={20} /> },
+    { id: 'promotions' as TabType, label: 'Promotions', icon: <MdCardGiftcard size={20} /> },
   ];
 
   return (
@@ -335,6 +370,293 @@ export default function UserDetailImproved() {
                     reads={user.reads}
                     locale={locale}
                   />
+                </div>
+              )}
+
+              {activeTab === 'promotions' && (
+                <div className="space-y-6">
+                  {/* Consolidated Promotions Overview */}
+                  {(user.applicablePromotions?.length || 0) + (user.appliedPromotions?.length || 0) + (user.orders.some(o => o.appliedPromotion) ? 1 : 0) > 0 && (
+                    <div className="bg-white rounded-2xl shadow-sm p-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <MdCardGiftcard className="text-blue-600" size={24} />
+                        Vue d'ensemble consolidée
+                      </h3>
+                      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div className="grid grid-cols-7 gap-3 p-4 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-700">
+                          <div>Promotion</div>
+                          <div className="text-center">Type</div>
+                          <div className="text-center">Valeur</div>
+                          <div className="text-center">Statut</div>
+                          <div className="text-center">Utilisée</div>
+                          <div className="text-center">Restante</div>
+                          <div className="text-center">Catégorie</div>
+                        </div>
+                        <div className="divide-y divide-gray-200">
+                          {Array.from(
+                            new Map(
+                              [
+                                ...(user.applicablePromotions?.map(p => ({ ...p, source: 'applicable' })) || []),
+                                ...(user.appliedPromotions?.map(ap => ({ ...ap.promotion, source: 'assigned', assignedAt: ap.appliedAt })) || []),
+                                ...user.orders
+                                  .filter(o => o.appliedPromotion)
+                                  .map(o => ({ ...o.appliedPromotion!, source: 'used' })),
+                              ].reduce((map, promo) => {
+                                const key = promo.id;
+                                const existing = map.get(key);
+                                if (existing) {
+                                  existing.sources = new Set([...(existing.sources || new Set()), promo.source]);
+                                  if (promo.source === 'used') existing.usedCount = (existing.usedCount || 0) + 1;
+                                } else {
+                                  map.set(key, { ...promo, sources: new Set([promo.source]), usedCount: promo.source === 'used' ? 1 : 0 });
+                                }
+                                return map;
+                              }, new Map())
+                            ).values()
+                          ).map((promo: any) => {
+                            const now = new Date();
+                            const isActive = promo.isActive && new Date(promo.startsAt) <= now && new Date(promo.endsAt) >= now;
+                            const usedCount = promo.usedCount || 0;
+                            const remaining = promo.perUserLimit ? Math.max(0, promo.perUserLimit - usedCount) : (promo.maxUses ? Math.max(0, promo.maxUses - (promo._count?.orders || 0)) : '∞');
+
+                            return (
+                              <div
+                                key={promo.id}
+                                className="grid grid-cols-7 gap-3 p-4 hover:bg-gray-50 transition-colors items-center text-sm">
+                                <div>
+                                  <div className="font-medium text-gray-900">{promo.name}</div>
+                                  {promo.code && <div className="text-xs text-gray-500">{promo.code}</div>}
+                                </div>
+                                <div className="text-center">
+                                  {promo.type === 'PERCENT' && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">%</span>}
+                                  {promo.type === 'FIXED' && <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">€</span>}
+                                  {promo.type === 'FREE' && <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">FREE</span>}
+                                </div>
+                                <div className="text-center font-medium text-gray-900">
+                                  {promo.type === 'PERCENT' && `${promo.value}%`}
+                                  {promo.type === 'FIXED' && `${((promo.value || 0) / 100).toFixed(2)}€`}
+                                  {promo.type === 'FREE' && '—'}
+                                </div>
+                                <div className="text-center">
+                                  {isActive ? (
+                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Actif</span>
+                                  ) : (
+                                    <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">Expiré</span>
+                                  )}
+                                </div>
+                                <div className="text-center font-semibold text-gray-900">{usedCount}</div>
+                                <div className="text-center font-semibold text-gray-900">
+                                  {typeof remaining === 'number' ? remaining : remaining}
+                                </div>
+                                <div className="text-center text-xs space-x-1">
+                                  {promo.sources.has('applicable') && <span className="inline-block bg-purple-100 text-purple-700 px-2 py-0.5 rounded">Disponible</span>}
+                                  {promo.sources.has('assigned') && <span className="inline-block bg-green-100 text-green-700 px-2 py-0.5 rounded">Attribuée</span>}
+                                  {promo.sources.has('used') && <span className="inline-block bg-orange-100 text-orange-700 px-2 py-0.5 rounded">Utilisée</span>}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Directly Assigned Promotions */}
+                  {user.appliedPromotions && user.appliedPromotions.length > 0 && (
+                    <div className="bg-white rounded-2xl shadow-sm p-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <MdCardGiftcard className="text-green-600" size={24} />
+                        Promotions attribuées directement
+                      </h3>
+                      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div className="grid grid-cols-5 gap-4 p-4 bg-gray-50 border-b border-gray-200 text-sm font-semibold text-gray-700">
+                          <div>Nom</div>
+                          <div className="text-center">Type</div>
+                          <div className="text-center">Valeur</div>
+                          <div className="text-center">Code</div>
+                          <div className="text-center">Attribuée le</div>
+                        </div>
+                        <div className="divide-y divide-gray-200">
+                          {user.appliedPromotions.map((assignedPromo) => (
+                            <div
+                              key={assignedPromo.id}
+                              className="grid grid-cols-5 gap-4 p-4 hover:bg-green-50 transition-colors items-center">
+                              <div>
+                                <div className="font-medium text-gray-900">{assignedPromo.promotion.name}</div>
+                                {assignedPromo.promotion.description && (
+                                  <div className="text-sm text-gray-500 mt-1">{assignedPromo.promotion.description}</div>
+                                )}
+                              </div>
+                              <div className="text-center">
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                                  {assignedPromo.promotion.type === "PERCENT" && "Pourcentage"}
+                                  {assignedPromo.promotion.type === "FIXED" && "Montant"}
+                                  {assignedPromo.promotion.type === "FREE" && "Gratuit"}
+                                </span>
+                              </div>
+                              <div className="text-center font-medium text-gray-900">
+                                {assignedPromo.promotion.type === "PERCENT" && `${assignedPromo.promotion.value}%`}
+                                {assignedPromo.promotion.type === "FIXED" && `${((assignedPromo.promotion.value || 0) / 100).toFixed(2)}€`}
+                                {assignedPromo.promotion.type === "FREE" && "—"}
+                              </div>
+                              <div className="text-center">
+                                {assignedPromo.promotion.code ? (
+                                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-mono bg-gray-100 text-gray-700">
+                                    {assignedPromo.promotion.code}
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-400">—</span>
+                                )}
+                              </div>
+                              <div className="text-center text-sm text-gray-600">
+                                {new Date(assignedPromo.appliedAt).toLocaleDateString(locale, {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Applied Promotions in Orders */}
+                  {user.orders.some(o => o.appliedPromotion) && (
+                    <div className="bg-white rounded-2xl shadow-sm p-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <MdCardGiftcard className="text-orange-600" size={24} />
+                        Promotions utilisées aux achats
+                      </h3>
+                      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div className="grid grid-cols-5 gap-4 p-4 bg-gray-50 border-b border-gray-200 text-sm font-semibold text-gray-700">
+                          <div>Nom</div>
+                          <div className="text-center">Type</div>
+                          <div className="text-center">Valeur</div>
+                          <div className="text-center">Utilisée</div>
+                          <div className="text-center">Portée</div>
+                        </div>
+                        <div className="divide-y divide-gray-200">
+                          {Array.from(
+                            new Map(
+                              user.orders
+                                .filter(o => o.appliedPromotion)
+                                .reduce((map, order) => {
+                                  const promo = order.appliedPromotion!;
+                                  const key = promo.id;
+                                  const existing = map.get(key);
+                                  map.set(key, {
+                                    ...promo,
+                                    count: (existing?.count || 0) + 1,
+                                  });
+                                  return map;
+                                }, new Map())
+                            ).values()
+                          ).map((promo) => (
+                            <div
+                              key={promo.id}
+                              className="grid grid-cols-5 gap-4 p-4 hover:bg-gray-50 transition-colors items-center">
+                              <div>
+                                <div className="font-medium text-gray-900">{promo.name}</div>
+                                {promo.description && (
+                                  <div className="text-sm text-gray-500 mt-1">{promo.description}</div>
+                                )}
+                              </div>
+                              <div className="text-center">
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
+                                  {promo.type === "PERCENT" && "Pourcentage"}
+                                  {promo.type === "FIXED" && "Montant"}
+                                  {promo.type === "FREE" && "Gratuit"}
+                                </span>
+                              </div>
+                              <div className="text-center font-medium text-gray-900">
+                                {promo.type === "PERCENT" && `${promo.value}%`}
+                                {promo.type === "FIXED" && `${((promo.value || 0) / 100).toFixed(2)}€`}
+                                {promo.type === "FREE" && "—"}
+                              </div>
+                              <div className="text-center">
+                                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-700 font-semibold text-sm">
+                                  {promo.count}
+                                </span>
+                              </div>
+                              <div className="text-center text-sm text-gray-600">
+                                {promo.scope}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Applicable Promotions */}
+                  {user.applicablePromotions && user.applicablePromotions.length > 0 && (
+                    <div className="bg-white rounded-2xl shadow-sm p-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <MdLocalOffer className="text-purple-600" size={24} />
+                        Promotions disponibles
+                      </h3>
+                      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div className="grid grid-cols-5 gap-4 p-4 bg-gray-50 border-b border-gray-200 text-sm font-semibold text-gray-700">
+                          <div>Nom</div>
+                          <div className="text-center">Type</div>
+                          <div className="text-center">Valeur</div>
+                          <div className="text-center">Code</div>
+                          <div className="text-center">Portée</div>
+                        </div>
+                        <div className="divide-y divide-gray-200">
+                          {user.applicablePromotions.map((promo) => (
+                            <div
+                              key={promo.id}
+                              className="grid grid-cols-5 gap-4 p-4 hover:bg-purple-50 transition-colors items-center">
+                              <div>
+                                <div className="font-medium text-gray-900">{promo.name}</div>
+                                {promo.description && (
+                                  <div className="text-sm text-gray-500 mt-1">{promo.description}</div>
+                                )}
+                              </div>
+                              <div className="text-center">
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-700">
+                                  {promo.type === "PERCENT" && "Pourcentage"}
+                                  {promo.type === "FIXED" && "Montant"}
+                                  {promo.type === "FREE" && "Gratuit"}
+                                </span>
+                              </div>
+                              <div className="text-center font-medium text-gray-900">
+                                {promo.type === "PERCENT" && `${promo.value}%`}
+                                {promo.type === "FIXED" && `${((promo.value || 0) / 100).toFixed(2)}€`}
+                                {promo.type === "FREE" && "—"}
+                              </div>
+                              <div className="text-center">
+                                {promo.code ? (
+                                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-mono bg-gray-100 text-gray-700">
+                                    {promo.code}
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-400">—</span>
+                                )}
+                              </div>
+                              <div className="text-center text-sm text-gray-600">
+                                {promo.scope}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Empty State */}
+                  {!(user.applicablePromotions?.length || 0) && !(user.appliedPromotions?.length || 0) && !user.orders.some(o => o.appliedPromotion) && (
+                    <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
+                      <MdCardGiftcard className="mx-auto text-gray-400 mb-4" size={48} />
+                      <p className="text-gray-600 font-medium">Aucune promotion</p>
+                      <p className="text-gray-500 text-sm mt-1">Cet utilisateur n'a aucune promotion attribuée ou applicable</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
