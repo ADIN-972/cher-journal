@@ -465,6 +465,75 @@ export default function UserDetail() {
                     </div>
                   ))
                 )}
+
+                {/* Promotions Summary */}
+                {user.orders.some(o => o.appliedPromotion) && (
+                  <div className="mt-8">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                      <MdCardGiftcard className="text-orange-600" size={24} />
+                      {t("user_detail.applied_promotions", "Applied Promotions")}
+                    </h3>
+                    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                      <div className="grid grid-cols-5 gap-4 p-4 bg-gray-50 border-b border-gray-200 text-sm font-semibold text-gray-700">
+                        <div>{t("user_detail.promo_name", "Promotion Name")}</div>
+                        <div className="text-center">{t("user_detail.promo_type", "Type")}</div>
+                        <div className="text-center">{t("user_detail.promo_value", "Value")}</div>
+                        <div className="text-center">{t("user_detail.promo_usage", "Used")}</div>
+                        <div className="text-center">{t("user_detail.promo_scope", "Scope")}</div>
+                      </div>
+                      <div className="divide-y divide-gray-200">
+                        {Array.from(
+                          new Map(
+                            user.orders
+                              .filter(o => o.appliedPromotion)
+                              .reduce((map, order) => {
+                                const promo = order.appliedPromotion!;
+                                const key = promo.id;
+                                const existing = map.get(key);
+                                map.set(key, {
+                                  ...promo,
+                                  count: (existing?.count || 0) + 1,
+                                });
+                                return map;
+                              }, new Map())
+                          ).values()
+                        ).map((promo) => (
+                          <div
+                            key={promo.id}
+                            className="grid grid-cols-5 gap-4 p-4 hover:bg-gray-50 transition-colors items-center">
+                            <div>
+                              <div className="font-medium text-gray-900">{promo.name}</div>
+                              {promo.description && (
+                                <div className="text-sm text-gray-500 mt-1">{promo.description}</div>
+                              )}
+                            </div>
+                            <div className="text-center">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
+                                {promo.type === "PERCENT" && "Pourcentage"}
+                                {promo.type === "FIXED" && "Montant"}
+                                {promo.type === "FREE" && "Gratuit"}
+                              </span>
+                            </div>
+                            <div className="text-center font-medium text-gray-900">
+                              {promo.type === "PERCENT" && `${promo.value}%`}
+                              {promo.type === "FIXED" && `${((promo.value || 0) / 100).toFixed(2)}€`}
+                              {promo.type === "FREE" && "—"}
+                            </div>
+                            <div className="text-center">
+                              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-700 font-semibold text-sm">
+                                {promo.count}
+                              </span>
+                            </div>
+                            <div className="text-center text-sm text-gray-600">
+                              {promo.scope}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Chapters Section with Accordion */}
                 <div className="mt-6">
                   <div className="bg-white rounded-2xl shadow-sm p-6">
