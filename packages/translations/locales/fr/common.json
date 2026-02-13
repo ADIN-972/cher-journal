@@ -818,6 +818,10 @@
     "title": "Gestion des Promotions",
     "subtitle": "Créez et gérez vos campagnes promotionnelles",
     "new_promotion": "Créer une Promotion",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit_promotion": "Modifier la Promotion",
     "filters": {
       "scope": "Portée",
       "status": "Statut",

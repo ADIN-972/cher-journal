@@ -818,6 +818,10 @@
     "title": "Promotions Management",
     "subtitle": "Create and manage promotional campaigns",
     "new_promotion": "Create Promotion",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit_promotion": "Edit Promotion",
     "filters": {
       "scope": "Scope",
       "status": "Status",
