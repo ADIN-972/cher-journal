@@ -1,4 +1,4 @@
-import { MdEdit, MdDelete, MdExpandMore, MdExpandLess } from "react-icons/md";
+import { MdEdit, MdDelete, MdExpandMore, MdExpandLess, MdCardGiftcard, MdPercent, MdAttachMoney } from "react-icons/md";
 import { useState } from "react";
 import PromotionOverallImpact from "./PromotionOverallImpact";
 
@@ -112,14 +112,31 @@ export default function PromotionCard({
 
         {/* Promotion value - BIG and centered */}
         <div className="text-center my-4">
-          <div className="text-5xl font-black">
-            {getPromotionValueDisplay(promotion.type, promotion.value)}
-            {promotion.type === "PERCENT" ? "%" : "€"}
-          </div>
-          {promotion.type !== "FREE" && (
-            <div className="text-sm opacity-90 mt-1">
-              {promotion.type === "PERCENT" ? "de réduction" : "de rabais"}
+          {promotion.type === "FREE" ? (
+            <div className="flex flex-col items-center justify-center">
+              <div className="text-6xl mb-2">
+                <MdCardGiftcard className="inline" />
+              </div>
+              <div className="text-4xl font-black">GRATUIT</div>
+              <div className="text-sm opacity-90 mt-2">Accès complet</div>
             </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-center gap-2 mb-2">
+                {promotion.type === "PERCENT" ? (
+                  <MdPercent size={32} className="opacity-80" />
+                ) : (
+                  <MdAttachMoney size={32} className="opacity-80" />
+                )}
+              </div>
+              <div className="text-5xl font-black">
+                {getPromotionValueDisplay(promotion.type, promotion.value)}
+                {promotion.type === "PERCENT" ? "%" : "€"}
+              </div>
+              <div className="text-sm opacity-90 mt-1">
+                {promotion.type === "PERCENT" ? "de réduction" : "de rabais"}
+              </div>
+            </>
           )}
         </div>
 

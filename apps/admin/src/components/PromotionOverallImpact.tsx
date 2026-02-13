@@ -1,5 +1,6 @@
 import type { PriceScope, PromotionType } from "@cher-journal/types";
 import { useI18n } from "../lib/i18n";
+import { MdCardGiftcard, MdPercent, MdAttachMoney, MdCalendarToday, MdPeople, MdRepeat } from "react-icons/md";
 
 export interface PromotionOverallData {
   name: string;
@@ -50,50 +51,89 @@ function PromotionOverallImpact({ promotion }: PromotionOverallImpactProps) {
     return labels[scope];
   };
 
+  const getTypeColor = () => {
+    switch (promotion.type) {
+      case "FREE":
+        return "bg-purple-50 border-purple-400 text-purple-900";
+      case "PERCENT":
+        return "bg-blue-50 border-blue-400 text-blue-900";
+      case "FIXED":
+        return "bg-green-50 border-green-400 text-green-900";
+      default:
+        return "bg-gray-50 border-gray-400 text-gray-900";
+    }
+  };
+
+  const getTypeIcon = () => {
+    switch (promotion.type) {
+      case "FREE":
+        return <MdCardGiftcard size={16} className="inline mr-1" />;
+      case "PERCENT":
+        return <MdPercent size={16} className="inline mr-1" />;
+      case "FIXED":
+        return <MdAttachMoney size={16} className="inline mr-1" />;
+      default:
+        return null;
+    }
+  };
+
+  const getReductionText = () => {
+    if (promotion.type === "FREE") {
+      return "Accès gratuit complet";
+    } else if (promotion.type === "PERCENT") {
+      return `-${promotion.value ?? 0}%`;
+    } else {
+      return `-${((promotion.value || 0) / 100).toFixed(2)}€`;
+    }
+  };
+
   return (
-    <div className="mt-4 p-3 bg-blue-50 border border-l-8 border-blue-400 rounded-lg text-xs text-blue-800">
-      <p>
-        {t("promotions.form.summary_intro", undefined, {
-          scope: getScopeLabel(promotion.scope),
-        }) || `Cette promotion s'applique à ${getScopeLabel(promotion.scope)}`}{" "}
-        <strong>
-          {promotion.type === "FREE"
-            ? t("promotions.form.free_access", "avec accès gratuit")
-            : promotion.type === "PERCENT"
-              ? t("promotions.form.reduction_percent", undefined, {
-                  value: promotion.value ?? 0,
-                }) || `-${promotion.value ?? 0}%`
-              : t("promotions.form.reduction_amount", undefined, {
-                  value: `${((promotion.value || 0) / 100).toFixed(2)}€`,
-                }) || `-${((promotion.value || 0) / 100).toFixed(2)}€`}
-        </strong>
-        {promotion.maxUses || promotion.perUserLimit ? (
-          <>
-            {" "}
-            {t("promotions.form.summary_for", undefined, {
-              audience: promotion.perUserLimit
-                ? t("promotions.form.max_clients", undefined, {
-                    value: promotion.perUserLimit,
-                  }) || `maximum ${promotion.perUserLimit} fois par client`
-                : t("promotions.form.unlimited_clients", "sans limite par client"),
-            }) || "pour"}
-            {promotion.maxUses && (
-              <>
-                {" "}
-                {t("promotions.form.summary_total_uses", undefined, {
-                  value: promotion.maxUses,
-                }) || `(${promotion.maxUses} utilisations maximum au total)`}
-              </>
-            )}
-          </>
-        ) : (
-          <> {t("promotions.form.all_clients", "pour tous les clients")} </>
-        )}{" "}
-        {t("promotions.form.summary_period", undefined, {
-          start: formatDate(promotion.startsAt),
-          end: formatDate(promotion.endsAt),
-        }) || `du ${formatDate(promotion.startsAt)} au ${formatDate(promotion.endsAt)}`}
-      </p>
+    <div className={`mt-4 p-4 border border-l-8 rounded-lg text-sm space-y-3 ${getTypeColor()}`}>
+      {/* Main reduction info */}
+      <div className="font-semibold text-base">
+        {getTypeIcon()}
+        <strong>{getReductionText()}</strong> sur {getScopeLabel(promotion.scope)}
+      </div>
+
+      {/* Details grid */}
+      <div className="grid grid-cols-2 gap-2 text-xs opacity-90">
+        {/* Per-user limit */}
+        {promotion.perUserLimit && (
+          <div className="flex items-center gap-1.5">
+            <MdRepeat size={14} className="opacity-70" />
+            <span>
+              <strong>{promotion.perUserLimit}x</strong> par utilisateur
+            </span>
+          </div>
+        )}
+
+        {/* Global limit */}
+        {promotion.maxUses && (
+          <div className="flex items-center gap-1.5">
+            <MdPeople size={14} className="opacity-70" />
+            <span>
+              <strong>{promotion.maxUses}</strong> utilisations total
+            </span>
+          </div>
+        )}
+
+        {/* If no limits */}
+        {!promotion.maxUses && !promotion.perUserLimit && (
+          <div className="flex items-center gap-1.5 col-span-2">
+            <MdPeople size={14} className="opacity-70" />
+            <span>Illimité</span>
+          </div>
+        )}
+
+        {/* Validity period */}
+        <div className="flex items-center gap-1.5 col-span-2">
+          <MdCalendarToday size={14} className="opacity-70" />
+          <span>
+            Du <strong>{formatDate(promotion.startsAt)}</strong> au{" "}
+            <strong>{formatDate(promotion.endsAt)}</strong>
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
