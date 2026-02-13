@@ -360,6 +360,7 @@ model Order {
   appliedPromotionId      String?     // Quelle promo a été appliquée?
   createdAt               DateTime    @default(now())
   user                    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appliedPromotion        Promotion?  @relation(fields: [appliedPromotionId], references: [id], onDelete: SetNull)
   refunds                 Refund[]
 
   @@index([userId])
@@ -554,6 +555,7 @@ model Promotion {
   priceId      String?
   price        Price?         @relation(fields: [priceId], references: [id])
   applied      AppliedPromotion[]
+  orders       Order[]
 
   @@index([scope, refId])
   @@index([priceId])

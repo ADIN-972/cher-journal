@@ -127,6 +127,14 @@ export default function UserDetail() {
     } | null;
     volumeFrom?: number;
     volumeTo?: number;
+    appliedPromotion?: {
+      id: string;
+      name: string;
+      description?: string;
+      type: string;
+      value?: number;
+      scope: string;
+    } | null;
   }
 
   interface Entitlement {
@@ -415,6 +423,21 @@ export default function UserDetail() {
                               {order.volumeTo &&
                                 order.volumeTo !== order.volumeFrom &&
                                 ` à ${order.volumeTo}`}
+                            </div>
+                          )}
+                          {order.appliedPromotion && (
+                            <div className="text-sm text-orange-600 mt-1 flex items-center gap-1">
+                              <MdCardGiftcard size={14} />
+                              <span className="font-medium">{order.appliedPromotion.name}</span>
+                              {order.appliedPromotion.type === "PERCENT" && order.appliedPromotion.value && (
+                                <span>({order.appliedPromotion.value}% off)</span>
+                              )}
+                              {order.appliedPromotion.type === "FIXED" && order.appliedPromotion.value && (
+                                <span>(-{(order.appliedPromotion.value / 100).toFixed(2)}€)</span>
+                              )}
+                              {order.appliedPromotion.type === "FREE" && (
+                                <span>(Gratuit)</span>
+                              )}
                             </div>
                           )}
                         </div>

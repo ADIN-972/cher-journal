@@ -137,6 +137,18 @@ export class UsersService {
         createdAt: true,
         orders: {
           orderBy: { createdAt: "desc" },
+          include: {
+            appliedPromotion: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                type: true,
+                value: true,
+                scope: true,
+              },
+            } as any,
+          } as any,
         },
         entitlements: {
           include: { chapter: true },
