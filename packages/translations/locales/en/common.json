@@ -767,5 +767,67 @@
       "created": "Volume created successfully",
       "updated": "Volume updated successfully"
     }
+  },
+  "promotions": {
+    "title": "Promotions Management",
+    "subtitle": "Create and manage promotional campaigns",
+    "new_promotion": "Create Promotion",
+    "filters": {
+      "scope": "Scope",
+      "status": "Status",
+      "all": "All"
+    },
+    "scopes": {
+      "VOLUME": "Volume",
+      "CHAPTER": "Chapter",
+      "EPILOGUE": "Epilogue",
+      "POV": "Point of View",
+      "COLORING": "Coloring",
+      "BUNDLE": "Bundle",
+      "SUBSCRIPTION": "Subscription"
+    },
+    "table": {
+      "scope": "Scope",
+      "type": "Type",
+      "reduction": "Reduction",
+      "period": "Period",
+      "usages": "Usages",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "types": {
+      "PERCENT": "Percentage",
+      "FIXED": "Fixed Amount",
+      "FREE": "Free"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "targeting": {
+      "title": "Target Selection",
+      "all_users": "All Users",
+      "specific_users": "Specific Users",
+      "criteria_based": "Criteria Based"
+    },
+    "form": {
+      "basic_info": "Basic Information",
+      "name": "Promotion Name",
+      "description": "Description",
+      "type": "Type",
+      "value": "Value",
+      "scope": "Scope",
+      "start_date": "Start Date",
+      "end_date": "End Date",
+      "code": "Promo Code",
+      "save": "Save Promotion",
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "created": "Promotion created successfully",
+      "updated": "Promotion updated successfully",
+      "deleted": "Promotion deleted successfully",
+      "error": "Error managing promotion"
+    }
   }
 }

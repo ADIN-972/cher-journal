@@ -767,5 +767,67 @@
       "created": "Volume créé avec succès",
       "updated": "Volume modifié avec succès"
     }
+  },
+  "promotions": {
+    "title": "Gestion des Promotions",
+    "subtitle": "Créez et gérez vos campagnes promotionnelles",
+    "new_promotion": "Créer une Promotion",
+    "filters": {
+      "scope": "Portée",
+      "status": "Statut",
+      "all": "Tous"
+    },
+    "scopes": {
+      "VOLUME": "Volume",
+      "CHAPTER": "Chapitre",
+      "EPILOGUE": "Épilogue",
+      "POV": "Point de Vue",
+      "COLORING": "Coloriage",
+      "BUNDLE": "Bundle",
+      "SUBSCRIPTION": "Abonnement"
+    },
+    "table": {
+      "scope": "Portée",
+      "type": "Type",
+      "reduction": "Réduction",
+      "period": "Période",
+      "usages": "Utilisations",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "types": {
+      "PERCENT": "Pourcentage",
+      "FIXED": "Montant Fixe",
+      "FREE": "Gratuit"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "targeting": {
+      "title": "Sélection de la Cible",
+      "all_users": "Tous les Utilisateurs",
+      "specific_users": "Utilisateurs Spécifiques",
+      "criteria_based": "Basé sur les Critères"
+    },
+    "form": {
+      "basic_info": "Informations de Base",
+      "name": "Nom de la Promotion",
+      "description": "Description",
+      "type": "Type",
+      "value": "Valeur",
+      "scope": "Portée",
+      "start_date": "Date de Début",
+      "end_date": "Date de Fin",
+      "code": "Code Promo",
+      "save": "Enregistrer",
+      "cancel": "Annuler"
+    },
+    "toast": {
+      "created": "Promotion créée avec succès",
+      "updated": "Promotion mise à jour avec succès",
+      "deleted": "Promotion supprimée avec succès",
+      "error": "Erreur lors de la gestion de la promotion"
+    }
   }
 }
