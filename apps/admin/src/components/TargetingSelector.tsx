@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "../lib/api";
 import toast from "react-hot-toast";
-import { MdPeople, MdTrendingUp, MdRefresh } from "react-icons/md";
+import { MdPeople, MdTrendingUp, MdRefresh, MdCheckCircle, MdCancel, MdClose } from "react-icons/md";
 
 interface PromotionCriteria {
   minOrders?: number;
@@ -25,12 +25,30 @@ interface TargetingSelectorProps {
   onChange: (value: TargetingPreview) => void;
 }
 
+interface EmailField {
+  id: string;
+  email: string;
+  isValid: boolean | null;
+  isVerifying: boolean;
+}
+
 export default function TargetingSelector({
   value,
   onChange,
 }: TargetingSelectorProps) {
   const [targetedCount, setTargetedCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [emailFields, setEmailFields] = useState<EmailField[]>(() => {
+    if (value.targetUserIds && value.targetUserIds.length > 0) {
+      return value.targetUserIds.map((email, idx) => ({
+        id: `email-${idx}`,
+        email,
+        isValid: true,
+        isVerifying: false,
+      }));
+    }
+    return [{ id: "email-0", email: "", isValid: null, isVerifying: false }];
+  });
 
   // Calculate targeted users count when criteria change
   useEffect(() => {
@@ -75,6 +93,66 @@ export default function TargetingSelector({
     onChange({
       ...value,
       targetCriteria: {},
+    });
+  };
+
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailChange = (id: string, email: string) => {
+    setEmailFields(
+      emailFields.map((field) =>
+        field.id === id
+          ? { ...field, email, isValid: null }
+          : field
+      )
+    );
+  };
+
+  const handleVerifyEmail = (id: string) => {
+    const field = emailFields.find((f) => f.id === id);
+    if (!field) return;
+
+    const isValid = isValidEmail(field.email);
+    setEmailFields(
+      emailFields.map((f) =>
+        f.id === id ? { ...f, isValid } : f
+      )
+    );
+
+    if (isValid) {
+      const validEmails = emailFields
+        .filter((f) => f.email && (f.id === id ? true : f.isValid === true))
+        .map((f) => f.email);
+
+      onChange({
+        ...value,
+        targetUserIds: validEmails,
+      });
+    }
+  };
+
+  const handleAddEmail = () => {
+    const newId = `email-${Date.now()}`;
+    setEmailFields([
+      ...emailFields,
+      { id: newId, email: "", isValid: null, isVerifying: false },
+    ]);
+  };
+
+  const handleRemoveEmail = (id: string) => {
+    const updatedFields = emailFields.filter((f) => f.id !== id);
+    setEmailFields(updatedFields);
+
+    const validEmails = updatedFields
+      .filter((f) => f.email && f.isValid === true)
+      .map((f) => f.email);
+
+    onChange({
+      ...value,
+      targetUserIds: validEmails,
     });
   };
 
@@ -127,33 +205,59 @@ export default function TargetingSelector({
       {/* Specific Users Input */}
       {value.targetType === "SPECIFIC_USERS" && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Emails des utilisateurs (un par ligne)
+          <label className="block text-sm font-medium text-gray-700 mb-3">
+            Emails des utilisateurs
           </label>
-          <textarea
-            rows={5}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            placeholder="user1@example.com&#10;user2@example.com"
-            value={value.targetUserIds?.join("\n") || ""}
-            onChange={(e) => {
-              const emails = e.target.value
-                .split("\n")
-                .map((email) => email.trim())
-                .filter((email) => email.length > 0);
-              onChange({
-                ...value,
-                targetUserIds: emails,
-              });
-            }}
-            onKeyDown={(e) => {
-              // Allow Enter to create a new line, don't submit form
-              if (e.key === "Enter") {
-                e.stopPropagation();
-              }
-            }}
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Entrez les emails des utilisateurs ciblés, un par ligne
+          <div className="space-y-2">
+            {emailFields.map((field, idx) => (
+              <div key={field.id} className="flex items-end gap-2">
+                <div className="flex-1">
+                  <input
+                    type="email"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    placeholder="exemple@email.com"
+                    value={field.email}
+                    onChange={(e) => handleEmailChange(field.id, e.target.value)}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleVerifyEmail(field.id)}
+                  disabled={!field.email || field.isVerifying}
+                  className="px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  Vérifier
+                </button>
+                <div className="w-5 h-5 flex items-center justify-center">
+                  {field.isValid === true && (
+                    <MdCheckCircle className="w-5 h-5 text-green-500" />
+                  )}
+                  {field.isValid === false && (
+                    <MdCancel className="w-5 h-5 text-red-500" />
+                  )}
+                </div>
+                {emailFields.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveEmail(field.id)}
+                    className="p-2 text-gray-500 hover:text-red-600 transition-colors"
+                    title="Supprimer"
+                  >
+                    <MdClose className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={handleAddEmail}
+            className="mt-3 text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+          >
+            + Ajouter
+          </button>
+          <p className="text-xs text-gray-500 mt-2">
+            Cliquez sur "Vérifier" pour valider chaque email
           </p>
         </div>
       )}
