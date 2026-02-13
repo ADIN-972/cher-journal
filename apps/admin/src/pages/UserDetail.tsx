@@ -26,6 +26,7 @@ import {
   MdVisibility,
   MdAttachMoney,
   MdCardGiftcard,
+  MdLocalOffer,
 } from "react-icons/md";
 
 // Main UserDetail page component
