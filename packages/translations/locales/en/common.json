@@ -869,6 +869,7 @@
       "end_date": "End Date",
       "code": "Promo Code",
       "section_content_type": "Content Type",
+      "explanation_scope_volume": "This promotion applies to individual volumes",
       "section_reduction_type": "Reduction Type",
       "explanation_type_percent": "Percentage of the purchase price",
       "section_value": "Reduction Value",
