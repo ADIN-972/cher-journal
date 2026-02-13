@@ -201,9 +201,38 @@ export class UsersService {
       })
     );
 
+    // Récupérer les promotions applicables
+    const applicablePromotions = await prisma.promotion.findMany({
+      where: {
+        isActive: true,
+        startsAt: { lte: new Date() },
+        endsAt: { gte: new Date() },
+        OR: [
+          { targetType: "ALL_USERS" },
+          {
+            targetType: "SPECIFIC_USERS",
+            targetUserIds: { has: id },
+          },
+          { targetType: "CRITERIA_BASED" },
+        ],
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        scope: true,
+        type: true,
+        value: true,
+        code: true,
+        targetType: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
     return {
       ...user,
       orders: enrichedOrders,
+      applicablePromotions,
     };
   }
 
