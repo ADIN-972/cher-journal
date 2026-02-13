@@ -43,7 +43,7 @@ export const createPromotionSchema = z.object({
   perUserLimit: z.number().int().positive().optional(),
   isActive: z.boolean().default(true),
   targetType: PromotionTargetTypeEnum.default("ALL_USERS"),
-  targetUserIds: z.array(z.string().uuid()).optional(),
+  targetUserIds: z.array(z.string().email().or(z.string().uuid())).optional(), // Accept emails or UUIDs
   targetCriteria: PromotionCriteriaSchema.optional(),
   priceId: z.string().uuid().optional(),
 });
@@ -59,13 +59,13 @@ export const updatePromotionSchema = z.object({
   perUserLimit: z.number().int().positive().optional(),
   isActive: z.boolean().optional(),
   targetType: PromotionTargetTypeEnum.optional(),
-  targetUserIds: z.array(z.string().uuid()).optional(),
+  targetUserIds: z.array(z.string().email().or(z.string().uuid())).optional(), // Accept emails or UUIDs
   targetCriteria: PromotionCriteriaSchema.optional(),
 });
 
 export const previewTargetingSchema = z.object({
   targetType: PromotionTargetTypeEnum,
-  targetUserIds: z.array(z.string().uuid()).optional(),
+  targetUserIds: z.array(z.string().email().or(z.string().uuid())).optional(), // Accept emails or UUIDs
   targetCriteria: PromotionCriteriaSchema.optional(),
 });
 
