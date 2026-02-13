@@ -930,6 +930,27 @@
       "error": "Erreur lors de la gestion de la promotion"
     }
   },
+  "add_entitlement_modal": {
+    "title": "Ajouter un Droit d'Accès",
+    "chapter": "Chapitre",
+    "from": "De",
+    "to": "À",
+    "scope": "Portée",
+    "source": "Source",
+    "source_purchase": "Achat",
+    "source_preorder": "Précommande",
+    "source_pack": "Pack",
+    "source_subscription": "Abonnement",
+    "select_chapter": "Sélectionner un Chapitre",
+    "close_aria": "Fermer la modale",
+    "button_add": "Ajouter un Droit",
+    "button_adding": "Ajout en cours...",
+    "toast": {
+      "load_error": "Erreur lors du chargement des chapitres",
+      "success": "Droit d'accès ajouté avec succès",
+      "error": "Erreur lors de l'ajout du droit d'accès"
+    }
+  },
   "dashboard": {
     "stats_users": "Utilisateurs Totaux",
     "stats_chapters": "Chapitres Totaux",

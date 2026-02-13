@@ -930,6 +930,27 @@
       "error": "Error managing promotion"
     }
   },
+  "add_entitlement_modal": {
+    "title": "Add Entitlement",
+    "chapter": "Chapter",
+    "from": "From",
+    "to": "To",
+    "scope": "Scope",
+    "source": "Source",
+    "source_purchase": "Purchase",
+    "source_preorder": "Preorder",
+    "source_pack": "Pack",
+    "source_subscription": "Subscription",
+    "select_chapter": "Select Chapter",
+    "close_aria": "Close modal",
+    "button_add": "Add Entitlement",
+    "button_adding": "Adding...",
+    "toast": {
+      "load_error": "Error loading chapters",
+      "success": "Entitlement added successfully",
+      "error": "Error adding entitlement"
+    }
+  },
   "dashboard": {
     "stats_users": "Total Users",
     "stats_chapters": "Total Chapters",
