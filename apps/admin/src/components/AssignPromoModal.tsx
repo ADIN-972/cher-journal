@@ -18,6 +18,7 @@ export default function AssignPromoModal({
 }: AssignPromoModalProps) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
+    name: "",
     scope: "VOLUME" as "VOLUME" | "CHAPTER" | "POV" | "EPILOGUE" | "COLORING" | "BUNDLE" | "SUBSCRIPTION",
     type: "PERCENT" as "PERCENT" | "FIXED" | "FREE",
     value: 0,
@@ -43,8 +44,15 @@ export default function AssignPromoModal({
         return;
       }
 
+      if (!formData.name.trim()) {
+        toast.error("Le nom de la promotion est requis");
+        setLoading(false);
+        return;
+      }
+
       // Create promotion for this specific user
       const promoData = {
+        name: formData.name || `Promotion ${formData.scope} - ${userEmail}`,
         scope: formData.scope,
         type: formData.type,
         value: formData.type === "FREE" ? null : formData.value,
@@ -54,8 +62,8 @@ export default function AssignPromoModal({
         perUserLimit: formData.perUserLimit,
         isActive: true,
         description: formData.description || `Promotion personnalisée pour ${userEmail}`,
-        // Note: Backend needs to support userId filter for promotions
-        targetUserId: userId,
+        targetType: "SPECIFIC_USERS",
+        targetUserIds: [userId],
       };
 
       await api.post("/admin/promotions", promoData);
@@ -112,6 +120,25 @@ export default function AssignPromoModal({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Name Input */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Nom de la Promotion *
+            </label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="Ex: Réduction VIP pour client premium"
+              maxLength={200}
+              required
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              {formData.name.length}/200 caractères
+            </p>
+          </div>
+
           {/* Scope Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
