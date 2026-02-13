@@ -1,6 +1,6 @@
 import type { PriceScope, PromotionType } from "@cher-journal/types";
 import { useI18n } from "../lib/i18n";
-import { MdCardGiftcard, MdPercent, MdAttachMoney, MdCalendarToday, MdPeople, MdRepeat } from "react-icons/md";
+import { MdCardGiftcard, MdPercent, MdAttachMoney, MdCalendarToday, MdPeople, MdRepeat, MdPublic } from "react-icons/md";
 
 export interface PromotionOverallData {
   name: string;
@@ -16,6 +16,8 @@ export interface PromotionOverallData {
   isActive: boolean;
   code?: string;
   priceId?: string;
+  targetType?: string;
+  targetedUsersCount?: number;
 }
 
 interface PromotionOverallImpactProps {
@@ -87,6 +89,19 @@ function PromotionOverallImpact({ promotion }: PromotionOverallImpactProps) {
     }
   };
 
+  const getTargetLabel = (targetType?: string) => {
+    switch (targetType) {
+      case "ALL_USERS":
+        return "Tous les utilisateurs";
+      case "SPECIFIC_USERS":
+        return "Utilisateurs spécifiques";
+      case "CRITERIA_BASED":
+        return "Basé sur critères";
+      default:
+        return "Tous les utilisateurs";
+    }
+  };
+
   return (
     <div className={`mt-4 p-4 border border-l-8 rounded-lg text-sm space-y-3 ${getTypeColor()}`}>
       {/* Main reduction info */}
@@ -131,6 +146,17 @@ function PromotionOverallImpact({ promotion }: PromotionOverallImpactProps) {
           <span>
             Du <strong>{formatDate(promotion.startsAt)}</strong> au{" "}
             <strong>{formatDate(promotion.endsAt)}</strong>
+          </span>
+        </div>
+
+        {/* Targeting */}
+        <div className="flex items-center gap-1.5 col-span-2">
+          <MdPublic size={14} className="opacity-70" />
+          <span>
+            <strong>{getTargetLabel(promotion.targetType)}</strong>
+            {promotion.targetType === "SPECIFIC_USERS" && promotion.targetedUsersCount !== undefined && (
+              <> ({promotion.targetedUsersCount.toLocaleString()})</>
+            )}
           </span>
         </div>
       </div>
