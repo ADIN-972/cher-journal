@@ -941,6 +941,24 @@
     "view_all_users": "Voir Tous les Utilisateurs",
     "manage_chapters": "Gérer les Chapitres",
     "view_orders": "Voir les Commandes",
-    "view_details": "Voir les Détails"
+    "view_details": "Voir les Détails",
+    "recent_activities": "Activités Récentes",
+    "activity": {
+      "user_registered": {
+        "title": "Nouvel Utilisateur Inscrit",
+        "subtitle": "Un nouvel utilisateur a rejoint la plateforme",
+        "time": "à l'instant"
+      },
+      "order_completed": {
+        "title": "Commande Complétée",
+        "subtitle": "Un client a complété son achat",
+        "time": "à l'instant"
+      },
+      "chapter_published": {
+        "title": "Chapitre Publié",
+        "subtitle": "Un nouveau chapitre a été publié",
+        "time": "à l'instant"
+      }
+    }
   }
 }

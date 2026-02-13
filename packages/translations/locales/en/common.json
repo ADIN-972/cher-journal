@@ -941,6 +941,24 @@
     "view_all_users": "View All Users",
     "manage_chapters": "Manage Chapters",
     "view_orders": "View Orders",
-    "view_details": "View Details"
+    "view_details": "View Details",
+    "recent_activities": "Recent Activities",
+    "activity": {
+      "user_registered": {
+        "title": "New User Registered",
+        "subtitle": "A new user has joined the platform",
+        "time": "just now"
+      },
+      "order_completed": {
+        "title": "Order Completed",
+        "subtitle": "A customer has completed their purchase",
+        "time": "just now"
+      },
+      "chapter_published": {
+        "title": "Chapter Published",
+        "subtitle": "A new chapter has been published",
+        "time": "just now"
+      }
+    }
   }
 }
