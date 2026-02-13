@@ -37,6 +37,47 @@
     "english": "English",
     "search_placeholder": "Rechercher des histoires..."
   },
+  "auth": {
+    "create_account": "Créer un Compte",
+    "no_account_yet": "Vous n'avez pas encore de compte?"
+  },
+  "buttons": {
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "view": "Afficher"
+  },
+  "common": {
+    "loading_ellipsis": "Chargement..."
+  },
+  "confirmations": {
+    "delete_chapter": "Supprimer le Chapitre",
+    "delete_chapter_warning": "Êtes-vous sûr de vouloir supprimer ce chapitre? Cette action ne peut pas être annulée."
+  },
+  "messages": {
+    "error": {
+      "load_chapter": "Erreur lors du chargement du chapitre",
+      "load_order": "Erreur lors du chargement de la commande",
+      "load_orders": "Erreur lors du chargement des commandes",
+      "load_users": "Erreur lors du chargement des utilisateurs"
+    },
+    "success": {
+      "chapter_created": "Chapitre créé avec succès",
+      "chapter_deleted": "Chapitre supprimé avec succès"
+    }
+  },
+  "orders": {
+    "completed": "Complétée",
+    "pending": "En Attente"
+  },
+  "users": {
+    "details": "Détails de l'Utilisateur",
+    "role_admin": "Administrateur",
+    "role_user": "Utilisateur",
+    "status_active": "Actif",
+    "status_suspended": "Suspendu",
+    "user_activated": "Utilisateur activé avec succès",
+    "user_suspended": "Utilisateur suspendu avec succès"
+  },
   "home": {
     "title": "Cher Journal",
     "subtitle": "Découvrez des histoires sensuelles",
@@ -689,6 +730,8 @@
     },
     "logout": "Déconnexion",
     "logout_title": "Se Déconnecter",
+    "settings": "Paramètres du Compte",
+    "settings_subtitle": "Gérez vos préférences",
     "promotions": {
       "title": "Promotions Disponibles",
       "subtitle": "Découvrez des offres exclusives conçues pour vous",
@@ -1000,6 +1043,316 @@
       "load_error": "Erreur lors du chargement des chapitres",
       "success": "Droit d'accès ajouté avec succès",
       "error": "Erreur lors de l'ajout du droit d'accès"
+    }
+  },
+  "chapters": {
+    "drafts": "Brouillons",
+    "in_progress": "En Cours",
+    "published": "Publiés"
+  },
+  "chapters_page": {
+    "actions": {
+      "bulk_edit": "Édition en Masse",
+      "deselect_all": "Désélectionner Tous"
+    },
+    "archive": {
+      "archived": "Archivé avec succès",
+      "unarchived": "Désarchivé avec succès",
+      "error": "Erreur lors de l'archivage du chapitre"
+    },
+    "bulk": {
+      "select_required": "Veuillez sélectionner au moins un chapitre",
+      "update_error": "Erreur lors de la mise à jour des chapitres"
+    },
+    "context": {
+      "actions": "Actions",
+      "chapter_actions": "Actions du Chapitre",
+      "deselect_visible": "Désélectionner Visibles",
+      "draft": "Brouillon",
+      "duplicate": "Dupliquer",
+      "edit": "Modifier",
+      "in_progress": "En Cours",
+      "publish": "Publier",
+      "publish_now": "Publier Maintenant",
+      "selection": "Sélection",
+      "view_volumes": "Afficher les Volumes"
+    },
+    "duplicate": {
+      "success": "Chapitre dupliqué avec succès",
+      "error": "Erreur lors de la duplication du chapitre"
+    },
+    "empty": {
+      "all": "Aucun chapitre trouvé",
+      "archived": "Aucun chapitre archivé",
+      "draft": "Aucun brouillon",
+      "in_progress": "Aucun chapitre en cours",
+      "published": "Aucun chapitre publié"
+    },
+    "include_archived": {
+      "on": "Inclure Archivés"
+    },
+    "status": {
+      "error": "Erreur lors de la mise à jour du statut",
+      "labels": {
+        "DRAFT": "Brouillon",
+        "IN_PROGRESS": "En Cours",
+        "PUBLISHED": "Publié"
+      }
+    },
+    "tooltip": {
+      "deselect_visible": "Désélectionner les chapitres visibles",
+      "filter_all": "Afficher tous les chapitres",
+      "filter_archived": "Afficher les chapitres archivés",
+      "filter_draft": "Afficher les brouillons",
+      "filter_in_progress": "Afficher les chapitres en cours",
+      "filter_published": "Afficher les chapitres publiés",
+      "include_archived": "Inclure les chapitres archivés",
+      "select_visible": "Sélectionner les chapitres visibles",
+      "sort_az": "Trier A-Z",
+      "sort_date_old": "Trier par plus ancien",
+      "sort_date_recent": "Trier par plus récent",
+      "sort_za": "Trier Z-A",
+      "view_calendar": "Vue calendrier",
+      "view_card": "Vue carte",
+      "view_list": "Vue liste"
+    }
+  },
+  "chapter_detail": {
+    "buttons": {
+      "quick_create": "Création Rapide"
+    },
+    "context_menu": {
+      "deselect_all": "Désélectionner Tous"
+    },
+    "dialog": {
+      "delete_title": "Supprimer le Chapitre"
+    },
+    "fab": {
+      "bulk_edit": "Édition en Masse",
+      "deselect_all": "Désélectionner Tous",
+      "quick_create": "Création Rapide"
+    },
+    "no_volumes": "Aucun volume disponible",
+    "table": {
+      "price": "Prix"
+    },
+    "toast": {
+      "bulk_update_error": "Erreur lors de la mise à jour des chapitres",
+      "chapter_updated": "Chapitre mis à jour avec succès",
+      "create_error": "Erreur lors de la création du chapitre",
+      "delete_error": "Erreur lors de la suppression du chapitre",
+      "image_assign_error": "Erreur lors de l'assignation de l'image",
+      "image_assigned_chapter": "Image assignée au chapitre",
+      "image_assigned_volume": "Image assignée au volume",
+      "load_error": "Erreur lors du chargement du chapitre",
+      "select_required": "Veuillez sélectionner au moins un élément",
+      "titles_update_error": "Erreur lors de la mise à jour des titres",
+      "update_error": "Erreur lors de la mise à jour du chapitre",
+      "volume_deleted": "Volume supprimé avec succès"
+    },
+    "view": {
+      "calendar": "Calendrier",
+      "card": "Carte",
+      "list": "Liste"
+    }
+  },
+  "chapter_view": {
+    "calendar_coming_soon": "À venir",
+    "no_chapters": "Aucun chapitre disponible",
+    "on_activation": "À l'Activation",
+    "statistics": {
+      "coloring_pages": "Pages à Colorier",
+      "volumes_illustrated": "Volumes Illustrés",
+      "volumes_protagonist": "Volumes Protagoniste",
+      "volumes_written": "Volumes Écrits"
+    },
+    "table": {
+      "image": "Image",
+      "prices": "Prix",
+      "protagonist": "Protagoniste",
+      "release_date": "Date de Sortie",
+      "status": "Statut",
+      "title": "Titre"
+    }
+  },
+  "prices": {
+    "all": "Tous les Prix",
+    "confirm_delete": "Confirmer la Suppression",
+    "filter_by_scope": "Filtrer par Portée",
+    "form": {
+      "amount_help": "Le montant du prix",
+      "amount_label": "Montant",
+      "amount_placeholder": "Entrez le montant du prix",
+      "confirm_delete": "Confirmer la Suppression du Prix",
+      "create_title": "Créer un Nouveau Prix",
+      "currency_label": "Devise",
+      "edit_title": "Modifier le Prix",
+      "error_delete": "Erreur lors de la suppression du prix",
+      "error_load": "Erreur lors du chargement des prix",
+      "error_save": "Erreur lors de l'enregistrement du prix",
+      "preview_title": "Aperçu du Prix",
+      "price": "Prix",
+      "refid_help": "ID de Référence pour l'intégration",
+      "refid_label": "ID de Référence",
+      "scope": "Portée",
+      "scope_help": "À quel contenu ce prix s'applique",
+      "scope_label": "Portée du Contenu"
+    },
+    "linked_promotions": "Promotions Liées",
+    "new_price": "Nouveau Prix",
+    "no_prices": "Aucun prix disponible",
+    "promo_type": {
+      "free": "Gratuit"
+    },
+    "reference": "Référence",
+    "scope": {
+      "bundle": "Bundle",
+      "chapter": "Chapitre",
+      "coloring": "Coloriage",
+      "epilogue": "Épilogue",
+      "pov": "Point de Vue",
+      "subscription": "Abonnement",
+      "volume": "Volume"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "subtitle": "Gérez les options de tarification",
+    "title": "Tarification"
+  },
+  "promotions": {
+    "confirm_delete": "Êtes-vous sûr de vouloir supprimer cette promotion?",
+    "create_promotion": "Créer une Promotion",
+    "no_promotions": "Aucune promotion disponible",
+    "saving": "Enregistrement de la promotion...",
+    "toggle_off": "Désactivé",
+    "toggle_on": "Activé"
+  },
+  "register": {
+    "already_account": "Vous avez déjà un compte?",
+    "confirm_password_label": "Confirmer le Mot de Passe",
+    "confirm_password_placeholder": "Confirmez votre mot de passe",
+    "email_label": "Adresse E-mail",
+    "email_placeholder": "Entrez votre e-mail",
+    "errors": {
+      "password_match": "Les mots de passe ne correspondent pas"
+    },
+    "first_name_label": "Prénom",
+    "first_name_placeholder": "Votre prénom",
+    "last_name_label": "Nom de Famille",
+    "last_name_placeholder": "Votre nom de famille",
+    "login": "Connexion ici",
+    "password_label": "Mot de Passe",
+    "password_placeholder": "Créez un mot de passe fort",
+    "password_strength": "Force du Mot de Passe",
+    "strength": {
+      "medium": "Moyen",
+      "strong": "Fort",
+      "weak": "Faible"
+    },
+    "submit": "Créer un Compte",
+    "submitting": "Création du compte...",
+    "terms": {
+      "and": "et",
+      "prefix": "J'accepte les",
+      "privacy": "Politique de Confidentialité",
+      "tos": "Conditions d'Utilisation"
+    },
+    "username_label": "Nom d'Utilisateur",
+    "username_placeholder": "Choisissez un nom d'utilisateur"
+  },
+  "settings": {
+    "loading": "Chargement des paramètres...",
+    "admin": {
+      "title": "Paramètres Administrateur",
+      "include_archived": {
+        "help": "Afficher les chapitres archivés dans les listes",
+        "label": "Inclure Archivés"
+      },
+      "theme": "Thème",
+      "language": "Langue",
+      "chapter_view": "Vue des Chapitres",
+      "page_size": "Taille de la Page"
+    },
+    "user": {
+      "title": "Préférences Utilisateur",
+      "theme": "Thème",
+      "language": "Langue",
+      "density": "Densité d'Affichage",
+      "date_format": "Format de la Date"
+    },
+    "options": {
+      "comfortable": "Confortable",
+      "compact": "Compact",
+      "dark": "Sombre",
+      "light": "Clair",
+      "system": "Système",
+      "english": "English",
+      "french": "Français",
+      "twelve": "12 Heures",
+      "twenty_four": "24 Heures"
+    },
+    "views": {
+      "calendar": "Calendrier",
+      "card": "Carte",
+      "list": "Liste"
+    },
+    "superadmin": {
+      "title": "Paramètres Superadmin",
+      "critical": "Paramètres Critiques",
+      "system_info": "Informations Système",
+      "encryption": {
+        "label": "Chiffrement des Données",
+        "enabled": "Activé",
+        "disabled": "Désactivé",
+        "help": "Chiffrement de bout en bout pour les données utilisateur"
+      },
+      "logs": {
+        "label": "Journalisation des Activités",
+        "enabled": "Activé",
+        "disabled": "Désactivé",
+        "help": "Enregistrer toutes les actions d'administration pour les audits"
+      },
+      "maintenance": {
+        "label": "Mode de Maintenance",
+        "enabled": "Activé",
+        "disabled": "Désactivé",
+        "help": "Mettre temporairement la plateforme hors ligne"
+      },
+      "warning": {
+        "title": "⚠️ Paramètres Critiques",
+        "body": "Ces paramètres affectent l'ensemble de la plateforme. À modifier avec prudence."
+      }
+    }
+  },
+  "user_detail": {
+    "load_error": "Erreur lors du chargement des détails de l'utilisateur",
+    "actions": {
+      "back": "Retour",
+      "edit_status": "Modifier le Statut"
+    },
+    "chapters": {
+      "none": "Aucun chapitre"
+    },
+    "chapter": {
+      "toggle_details": "Afficher les Détails"
+    }
+  },
+  "volume_view": {
+    "calendar_coming_soon": "À venir",
+    "free": "Gratuit",
+    "manage_perspectives": "Gérer les Perspectives",
+    "table": {
+      "free": "Gratuit",
+      "image": "Image",
+      "price": "Prix",
+      "title": "Titre",
+      "wait_duration": "Durée d'Attente"
+    },
+    "toast": {
+      "image_assign_error": "Erreur lors de l'assignation de l'image",
+      "image_assigned": "Image assignée avec succès"
     }
   },
   "dashboard": {
