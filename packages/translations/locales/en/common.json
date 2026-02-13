@@ -929,5 +929,18 @@
       "deleted": "Promotion deleted successfully",
       "error": "Error managing promotion"
     }
+  },
+  "dashboard": {
+    "stats_users": "Total Users",
+    "stats_chapters": "Total Chapters",
+    "stats_orders": "Total Orders",
+    "stats_revenue": "Total Revenue",
+    "last_month": "Last Month",
+    "this_month": "This Month",
+    "chapters_new": "New Chapters",
+    "view_all_users": "View All Users",
+    "manage_chapters": "Manage Chapters",
+    "view_orders": "View Orders",
+    "view_details": "View Details"
   }
 }

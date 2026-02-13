@@ -929,5 +929,18 @@
       "deleted": "Promotion supprimée avec succès",
       "error": "Erreur lors de la gestion de la promotion"
     }
+  },
+  "dashboard": {
+    "stats_users": "Utilisateurs Totaux",
+    "stats_chapters": "Chapitres Totaux",
+    "stats_orders": "Commandes Totales",
+    "stats_revenue": "Revenu Total",
+    "last_month": "Le Mois Dernier",
+    "this_month": "Ce Mois",
+    "chapters_new": "Nouveaux Chapitres",
+    "view_all_users": "Voir Tous les Utilisateurs",
+    "manage_chapters": "Gérer les Chapitres",
+    "view_orders": "Voir les Commandes",
+    "view_details": "Voir les Détails"
   }
 }
