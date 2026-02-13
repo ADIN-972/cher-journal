@@ -47,7 +47,8 @@
     "view": "Afficher"
   },
   "common": {
-    "loading_ellipsis": "Chargement..."
+    "loading_ellipsis": "Chargement...",
+    "purchase": "Achat"
   },
   "confirmations": {
     "delete_chapter": "Supprimer le Chapitre",
@@ -1048,12 +1049,29 @@
   "chapters": {
     "drafts": "Brouillons",
     "in_progress": "En Cours",
-    "published": "Publiés"
+    "published": "Publiés",
+    "create_chapter": "Créer un Chapitre",
+    "delete_chapter": "Supprimer le Chapitre",
+    "edit_chapter": "Modifier le Chapitre"
   },
   "chapters_page": {
+    "title": "Chapitres",
+    "description": "Gérez vos chapitres et volumes",
     "actions": {
       "bulk_edit": "Édition en Masse",
-      "deselect_all": "Désélectionner Tous"
+      "deselect_all": "Désélectionner Tous",
+      "create": "Créer un Chapitre",
+      "select_all": "Sélectionner Tous"
+    },
+    "fab": {
+      "title": "Ajouter un Chapitre"
+    },
+    "filters": {
+      "all": "Tous",
+      "draft": "Brouillons",
+      "in_progress": "En Cours",
+      "published": "Publiés",
+      "archived": "Archivés"
     },
     "archive": {
       "archived": "Archivé avec succès",
@@ -1075,7 +1093,28 @@
       "publish": "Publier",
       "publish_now": "Publier Maintenant",
       "selection": "Sélection",
-      "view_volumes": "Afficher les Volumes"
+      "view_volumes": "Afficher les Volumes",
+      "archive": "Archiver",
+      "unarchive": "Désarchiver",
+      "create": "Créer",
+      "delete": "Supprimer",
+      "filter": "Filtrer",
+      "filter_all": "Tous les Chapitres",
+      "filter_archived": "Archivés",
+      "filter_draft": "Brouillons",
+      "filter_in_progress": "En Cours",
+      "filter_published": "Publiés",
+      "global_actions": "Actions Globales",
+      "select_visible": "Sélectionner Visibles",
+      "sort": "Trier",
+      "sort_az": "Trier A-Z",
+      "sort_date_old": "Plus Ancien en Premier",
+      "sort_date_recent": "Plus Récent en Premier",
+      "sort_za": "Trier Z-A",
+      "view": "Affichage",
+      "view_calendar": "Calendrier",
+      "view_card": "Cartes",
+      "view_list": "Liste"
     },
     "duplicate": {
       "success": "Chapitre dupliqué avec succès",
@@ -1118,11 +1157,23 @@
     }
   },
   "chapter_detail": {
+    "chapter_images": "Images du Chapitre",
     "buttons": {
-      "quick_create": "Création Rapide"
+      "quick_create": "Création Rapide",
+      "add_volume": "Ajouter un Volume",
+      "bulk_import": "Import en Masse",
+      "edit_titles": "Modifier les Titres"
     },
     "context_menu": {
-      "deselect_all": "Désélectionner Tous"
+      "deselect_all": "Désélectionner Tous",
+      "select_all": "Sélectionner Tous",
+      "select": "Sélectionner",
+      "selection": "Sélection",
+      "bulk_actions": "Actions en Masse",
+      "display": "Affichage",
+      "manage_perspectives": "Gérer les Perspectives",
+      "volume_actions": "Actions des Volumes",
+      "danger": "Zone de Danger"
     },
     "dialog": {
       "delete_title": "Supprimer le Chapitre"
@@ -1130,7 +1181,15 @@
     "fab": {
       "bulk_edit": "Édition en Masse",
       "deselect_all": "Désélectionner Tous",
-      "quick_create": "Création Rapide"
+      "quick_create": "Création Rapide",
+      "add_volume": "Ajouter un Volume",
+      "select_all": "Sélectionner Tous"
+    },
+    "modal": {
+      "bootstrap_title": "Créer des Volumes",
+      "bootstrap_description": "Créez des volumes pour ce chapitre",
+      "create": "Créer",
+      "volumes_count": "Nombre de Volumes"
     },
     "no_volumes": "Aucun volume disponible",
     "table": {
@@ -1222,21 +1281,67 @@
     "title": "Tarification"
   },
   "promotions": {
+    "title": "Gestion des Promotions",
+    "subtitle": "Créez et gérez vos campagnes promotionnelles",
     "confirm_delete": "Êtes-vous sûr de vouloir supprimer cette promotion?",
     "create_promotion": "Créer une Promotion",
+    "new_promotion": "Nouvelle Promotion",
     "no_promotions": "Aucune promotion disponible",
     "saving": "Enregistrement de la promotion...",
     "toggle_off": "Désactivé",
-    "toggle_on": "Activé"
+    "toggle_on": "Activé",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit_promotion": "Modifier la Promotion",
+    "filters": {
+      "all": "Tous",
+      "status": "Statut",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "scope": "Portée"
+    },
+    "scopes": {
+      "VOLUME": "Volume",
+      "CHAPTER": "Chapitre",
+      "EPILOGUE": "Épilogue",
+      "POV": "Point de Vue",
+      "COLORING": "Coloriage",
+      "BUNDLE": "Bundle",
+      "SUBSCRIPTION": "Abonnement"
+    },
+    "types": {
+      "PERCENT": "Pourcentage",
+      "FIXED": "Montant Fixe",
+      "FREE": "Gratuit"
+    },
+    "table": {
+      "scope": "Portée",
+      "type": "Type",
+      "reduction": "Réduction",
+      "period": "Période",
+      "usages": "Utilisations",
+      "status": "Statut"
+    }
   },
   "register": {
+    "title": "Créez Votre Compte",
+    "subtitle": "Rejoignez Cher Journal aujourd'hui",
     "already_account": "Vous avez déjà un compte?",
     "confirm_password_label": "Confirmer le Mot de Passe",
     "confirm_password_placeholder": "Confirmez votre mot de passe",
     "email_label": "Adresse E-mail",
     "email_placeholder": "Entrez votre e-mail",
     "errors": {
-      "password_match": "Les mots de passe ne correspondent pas"
+      "password_match": "Les mots de passe ne correspondent pas",
+      "first_name_required": "Le prénom est requis",
+      "last_name_required": "Le nom de famille est requis",
+      "password_length": "Le mot de passe doit contenir au moins 8 caractères",
+      "password_mismatch": "Les mots de passe ne correspondent pas"
+    },
+    "toast": {
+      "success": "Compte créé avec succès",
+      "error": "Erreur lors de la création du compte"
     },
     "first_name_label": "Prénom",
     "first_name_placeholder": "Votre prénom",
@@ -1328,15 +1433,44 @@
   },
   "user_detail": {
     "load_error": "Erreur lors du chargement des détails de l'utilisateur",
+    "no_orders": "Aucune commande",
+    "search_orders_placeholder": "Rechercher des commandes...",
+    "order": "Commande",
+    "status": "Statut",
     "actions": {
       "back": "Retour",
-      "edit_status": "Modifier le Statut"
+      "edit_status": "Modifier le Statut",
+      "message": "Envoyer un Message",
+      "analytics": "Voir les Analyses"
     },
     "chapters": {
-      "none": "Aucun chapitre"
+      "none": "Aucun chapitre",
+      "title": "Chapitres"
     },
     "chapter": {
-      "toggle_details": "Afficher les Détails"
+      "toggle_details": "Afficher les Détails",
+      "paid_label": "Payant",
+      "paid_volumes": "Volumes Payants",
+      "volume_prefix": "Volume",
+      "volumes": "Volumes",
+      "read_label": "Lu"
+    },
+    "notes": {
+      "title": "Notes",
+      "body": "Notes client"
+    },
+    "attachments": {
+      "title": "Pièces Jointes",
+      "none": "Aucune pièce jointe"
+    },
+    "address": {
+      "title": "Adresse",
+      "line": "Adresse",
+      "view_map": "Voir sur la Carte"
+    },
+    "stats": {
+      "total_orders": "Commandes Totales",
+      "paid_orders": "Commandes Payées"
     }
   },
   "volume_view": {
