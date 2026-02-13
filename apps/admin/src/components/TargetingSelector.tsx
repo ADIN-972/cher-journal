@@ -145,6 +145,12 @@ export default function TargetingSelector({
                 targetUserIds: emails,
               });
             }}
+            onKeyDown={(e) => {
+              // Allow Enter to create a new line, don't submit form
+              if (e.key === "Enter") {
+                e.stopPropagation();
+              }
+            }}
           />
           <p className="text-xs text-gray-500 mt-1">
             Entrez les emails des utilisateurs ciblés, un par ligne
