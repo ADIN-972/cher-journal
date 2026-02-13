@@ -702,6 +702,7 @@
       "unlocks": "Unlocks:",
       "loading": "Loading promotions...",
       "error_loading": "Error loading promotions",
+      "retry": "Retry",
       "discount_percent": "-{value}%",
       "discount_fixed": "-{value}€",
       "free": "FREE"

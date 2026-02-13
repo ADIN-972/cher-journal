@@ -1,6 +1,5 @@
 import { prisma } from '../../../lib/prisma';
 import type { PriceScope, PromotionType } from '@cher-journal/types';
-import { TargetingService } from '../../admin/promotions/targeting.service';
 
 export interface ApplicablePromotion {
   id: string;
@@ -24,7 +23,6 @@ export interface ApplicablePromotion {
 }
 
 export class PromotionsService {
-  private targetingService = new TargetingService();
 
   async getUserApplicablePromotions(userId: string): Promise<ApplicablePromotion[]> {
     // 1. Query active promotions within validity date

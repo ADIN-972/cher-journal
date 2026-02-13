@@ -702,6 +702,7 @@
       "unlocks": "Débloque :",
       "loading": "Chargement des promotions...",
       "error_loading": "Erreur lors du chargement des promotions",
+      "retry": "Réessayer",
       "discount_percent": "-{value}%",
       "discount_fixed": "-{value}€",
       "free": "GRATUIT"
