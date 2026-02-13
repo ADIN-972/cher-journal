@@ -39,8 +39,8 @@ export const createPromotionSchema = z.object({
   value: z.number().int().nullable().optional(), // percent or cents (null for FREE type)
   startsAt: z.coerce.date(),
   endsAt: z.coerce.date(),
-  maxUses: z.number().int().positive().optional(),
-  perUserLimit: z.number().int().positive().optional(),
+  maxUses: z.number().int().nonnegative().optional(), // 0 means unlimited
+  perUserLimit: z.number().int().nonnegative().optional(), // 0 means unlimited
   isActive: z.boolean().default(true),
   targetType: PromotionTargetTypeEnum.default("ALL_USERS"),
   targetUserIds: z.array(z.string().email().or(z.string().uuid())).optional(), // Accept emails or UUIDs
@@ -55,8 +55,8 @@ export const updatePromotionSchema = z.object({
   value: z.number().int().nullable().optional(), // null for FREE type
   startsAt: z.coerce.date().optional(),
   endsAt: z.coerce.date().optional(),
-  maxUses: z.number().int().positive().optional(),
-  perUserLimit: z.number().int().positive().optional(),
+  maxUses: z.number().int().nonnegative().optional(), // 0 means unlimited
+  perUserLimit: z.number().int().nonnegative().optional(), // 0 means unlimited
   isActive: z.boolean().optional(),
   targetType: PromotionTargetTypeEnum.optional(),
   targetUserIds: z.array(z.string().email().or(z.string().uuid())).optional(), // Accept emails or UUIDs
