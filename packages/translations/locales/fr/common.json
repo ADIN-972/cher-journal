@@ -775,7 +775,9 @@
     "filters": {
       "scope": "Portée",
       "status": "Statut",
-      "all": "Tous"
+      "all": "Tous",
+      "active": "Actif",
+      "inactive": "Inactif"
     },
     "scopes": {
       "VOLUME": "Volume",

@@ -775,7 +775,9 @@
     "filters": {
       "scope": "Scope",
       "status": "Status",
-      "all": "All"
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive"
     },
     "scopes": {
       "VOLUME": "Volume",
