@@ -808,7 +808,11 @@
     "order": "Commande",
     "status": "Statut",
     "no_orders": "Aucune commande pour le moment",
-    "search_orders_placeholder": "Rechercher des commandes..."
+    "search_orders_placeholder": "Rechercher des commandes...",
+    "actions": {
+      "message": "Envoyer un Message",
+      "analytics": "Analyse"
+    }
   },
   "promotions": {
     "title": "Gestion des Promotions",
