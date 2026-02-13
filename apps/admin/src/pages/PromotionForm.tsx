@@ -62,10 +62,17 @@ export function PromotionForm() {
     setFormData((prev) => ({
       ...prev,
       targetType: targeting.targetType,
-      targetedUsersCount,
     }));
     calculateTargetedCount();
   }, [targeting]);
+
+  // Sync targetedUsersCount to formData whenever it changes
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      targetedUsersCount,
+    }));
+  }, [targetedUsersCount]);
 
   const calculateTargetedCount = async () => {
     try {
