@@ -112,6 +112,12 @@ export default function UserDetail() {
     targetType: string;
   }
 
+  interface AssignedPromotion {
+    id: string;
+    appliedAt: string;
+    promotion: Promotion;
+  }
+
   interface UserDetail {
     id: string;
     publicId: string;
@@ -124,6 +130,7 @@ export default function UserDetail() {
     reads: VolumeRead[];
     sessions: Session[];
     applicablePromotions?: Promotion[];
+    appliedPromotions?: AssignedPromotion[];
   }
 
   interface Order {
@@ -476,6 +483,63 @@ export default function UserDetail() {
                       </div>
                     </div>
                   ))
+                )}
+
+                {/* Directly Assigned Promotions */}
+                {user.appliedPromotions && user.appliedPromotions.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                      <MdCardGiftcard className="text-green-600" size={24} />
+                      {t("user_detail.assigned_promotions", "Directly Assigned Promotions")}
+                    </h3>
+                    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                      <div className="grid grid-cols-5 gap-4 p-4 bg-gray-50 border-b border-gray-200 text-sm font-semibold text-gray-700">
+                        <div>{t("user_detail.promo_name", "Promotion Name")}</div>
+                        <div className="text-center">{t("user_detail.promo_type", "Type")}</div>
+                        <div className="text-center">{t("user_detail.promo_value", "Value")}</div>
+                        <div className="text-center">{t("user_detail.promo_code", "Code")}</div>
+                        <div className="text-center">{t("user_detail.assigned_date", "Assigned")}</div>
+                      </div>
+                      <div className="divide-y divide-gray-200">
+                        {user.appliedPromotions.map((assignedPromo) => (
+                          <div
+                            key={assignedPromo.id}
+                            className="grid grid-cols-5 gap-4 p-4 hover:bg-green-50 transition-colors items-center">
+                            <div>
+                              <div className="font-medium text-gray-900">{assignedPromo.promotion.name}</div>
+                              {assignedPromo.promotion.description && (
+                                <div className="text-sm text-gray-500 mt-1">{assignedPromo.promotion.description}</div>
+                              )}
+                            </div>
+                            <div className="text-center">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                                {assignedPromo.promotion.type === "PERCENT" && "Pourcentage"}
+                                {assignedPromo.promotion.type === "FIXED" && "Montant"}
+                                {assignedPromo.promotion.type === "FREE" && "Gratuit"}
+                              </span>
+                            </div>
+                            <div className="text-center font-medium text-gray-900">
+                              {assignedPromo.promotion.type === "PERCENT" && `${assignedPromo.promotion.value}%`}
+                              {assignedPromo.promotion.type === "FIXED" && `${((assignedPromo.promotion.value || 0) / 100).toFixed(2)}€`}
+                              {assignedPromo.promotion.type === "FREE" && "—"}
+                            </div>
+                            <div className="text-center">
+                              {assignedPromo.promotion.code ? (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-mono bg-gray-100 text-gray-700">
+                                  {assignedPromo.promotion.code}
+                                </span>
+                              ) : (
+                                <span className="text-gray-400">—</span>
+                              )}
+                            </div>
+                            <div className="text-center text-sm text-gray-600">
+                              {formatDate(assignedPromo.appliedAt)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 )}
 
                 {/* Promotions Summary */}

@@ -168,6 +168,23 @@ export class UsersService {
         sessions: {
           orderBy: { createdAt: "desc" },
         },
+        appliedPromotions: {
+          include: {
+            promotion: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                type: true,
+                value: true,
+                scope: true,
+                code: true,
+                targetType: true,
+              },
+            },
+          },
+          orderBy: { appliedAt: "desc" },
+        },
       },
     });
 
