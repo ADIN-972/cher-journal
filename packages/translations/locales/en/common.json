@@ -47,8 +47,7 @@
     "view": "View"
   },
   "common": {
-    "loading_ellipsis": "Loading...",
-    "purchase": "Purchase"
+    "loading_ellipsis": "Loading..."
   },
   "confirmations": {
     "delete_chapter": "Delete Chapter",

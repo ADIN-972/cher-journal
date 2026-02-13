@@ -47,8 +47,7 @@
     "view": "Afficher"
   },
   "common": {
-    "loading_ellipsis": "Chargement...",
-    "purchase": "Achat"
+    "loading_ellipsis": "Chargement..."
   },
   "confirmations": {
     "delete_chapter": "Supprimer le Chapitre",
