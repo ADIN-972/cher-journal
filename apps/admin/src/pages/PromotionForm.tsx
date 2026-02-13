@@ -48,7 +48,7 @@ export function PromotionForm() {
     targetUserIds: [] as string[],
     targetCriteria: {} as any,
   });
-  const [targetedUsersCount, setTargetedUsersCount] = useState<number | null>(null);
+  const [targetedUsersCount, setTargetedUsersCount] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     if (isEdit) {
@@ -894,7 +894,7 @@ export function PromotionForm() {
                       Utilisateurs ciblés:
                     </p>
                     <p className="text-2xl font-bold text-indigo-900 mt-1">
-                      {targetedUsersCount !== null ? targetedUsersCount.toLocaleString() : "-"}
+                      {targetedUsersCount !== undefined ? targetedUsersCount.toLocaleString() : "-"}
                     </p>
                   </div>
                 </div>
