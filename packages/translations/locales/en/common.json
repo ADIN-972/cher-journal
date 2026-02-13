@@ -898,6 +898,7 @@
       "saving": "Saving..."
     },
     "toast": {
+      "saving": "Saving promotion...",
       "created": "Promotion created successfully",
       "updated": "Promotion updated successfully",
       "deleted": "Promotion deleted successfully",

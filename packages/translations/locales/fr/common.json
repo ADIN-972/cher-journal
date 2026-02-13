@@ -898,6 +898,7 @@
       "saving": "Enregistrement..."
     },
     "toast": {
+      "saving": "Enregistrement de la promotion...",
       "created": "Promotion créée avec succès",
       "updated": "Promotion mise à jour avec succès",
       "deleted": "Promotion supprimée avec succès",
