@@ -798,7 +798,8 @@
     },
     "order": "Commande",
     "status": "Statut",
-    "no_orders": "Aucune commande pour le moment"
+    "no_orders": "Aucune commande pour le moment",
+    "search_orders_placeholder": "Rechercher des commandes..."
   },
   "promotions": {
     "title": "Gestion des Promotions",

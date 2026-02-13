@@ -798,7 +798,8 @@
     },
     "order": "Order",
     "status": "Status",
-    "no_orders": "No orders yet"
+    "no_orders": "No orders yet",
+    "search_orders_placeholder": "Search orders..."
   },
   "promotions": {
     "title": "Promotions Management",
