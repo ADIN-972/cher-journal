@@ -790,7 +790,16 @@
       "paid_label": "Paid",
       "volume_prefix": "Volume",
       "volumes": "Volumes",
-      "read_label": "Reading Status"
+      "read_label": "Reading Status",
+      "paid_volumes": "Paid Volumes",
+      "volumes_range": "Volumes Range",
+      "access": "Access",
+      "source": "Source",
+      "granted_on": "Granted On",
+      "read_history": "Reading History",
+      "volume_label": "Volume",
+      "paid": "Paid",
+      "opened_on": "Opened On"
     },
     "stats": {
       "total_orders": "Total Orders",

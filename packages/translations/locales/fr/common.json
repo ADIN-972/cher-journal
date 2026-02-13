@@ -790,7 +790,16 @@
       "paid_label": "Payant",
       "volume_prefix": "Volume",
       "volumes": "Volumes",
-      "read_label": "Statut de Lecture"
+      "read_label": "Statut de Lecture",
+      "paid_volumes": "Volumes Payants",
+      "volumes_range": "Plage de Volumes",
+      "access": "Accès",
+      "source": "Source",
+      "granted_on": "Accordé le",
+      "read_history": "Historique de Lecture",
+      "volume_label": "Volume",
+      "paid": "Payant",
+      "opened_on": "Ouvert le"
     },
     "stats": {
       "total_orders": "Commandes Totales",
