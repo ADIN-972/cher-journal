@@ -32,6 +32,7 @@ export default function ChapterReviewDrawer({ isOpen, onClose, chapter }: Chapte
       setReviewText('');
       setError(null);
       setSuccess(false);
+      setIsSubmitting(false);
     }
   }, [isOpen, chapter?.chapterId]);
 
@@ -39,6 +40,7 @@ export default function ChapterReviewDrawer({ isOpen, onClose, chapter }: Chapte
     if (!chapter) return;
 
     setIsLoading(true);
+    setIsSubmitting(false);
     try {
       const existingReview = await api.getUserReview(chapter.chapterId);
       if (existingReview) {
