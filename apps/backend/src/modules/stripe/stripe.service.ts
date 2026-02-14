@@ -393,6 +393,8 @@ export class StripeService {
             where: { id: existingEntitlement.id },
             data: {
               source: EntitlementSource.PURCHASE,
+              volumeFrom: minVolume,
+              volumeTo: maxVolume,
               versionScope: (versionScope || EntitlementVersionScope.BASE) as EntitlementVersionScope,
             },
           });
@@ -412,6 +414,19 @@ export class StripeService {
           });
           console.log('[Stripe Webhook] ✅ Entitlement created');
         }
+
+        // Clear all wait-to-read timers (unlock future dates) for this chapter
+        // Since user now has full access to the chapter, any pending wait timers should be removed
+        console.log('[Stripe Webhook] Clearing wait-to-read timers for chapter...');
+        const now = new Date();
+        const futureUnlocks = await prisma.unlock.deleteMany({
+          where: {
+            userId,
+            chapterId,
+            unlocksAt: { gt: now }, // Delete unlocks that are still in the future
+          },
+        });
+        console.log(`[Stripe Webhook] ✅ Cleared ${futureUnlocks.count} pending wait-to-read timers`);
 
         // Create initial unlock for volume 1 (immediately accessible)
         console.log('[Stripe Webhook] Creating unlock for volume 1...');
