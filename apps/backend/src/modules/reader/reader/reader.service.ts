@@ -11,6 +11,8 @@ export class ReaderService {
     volumeNumber: number,
     perspective: Perspective
   ): Promise<boolean> {
+    console.log(`[canAccessVolume] Checking access for userId=${userId}, chapterId=${chapterId}, volumeNumber=${volumeNumber}, perspective=${perspective}`);
+
     // Get volume info to check isFree and isFinalPaywall
     const volume = await prisma.volume.findFirst({
       where: {
@@ -20,16 +22,19 @@ export class ReaderService {
     });
 
     if (!volume) {
+      console.log(`[canAccessVolume] Volume not found for chapterId=${chapterId}, volumeNumber=${volumeNumber}`);
       return false;
     }
 
     // Volume 1 is always accessible immediately
     if (volumeNumber === 1) {
+      console.log(`[canAccessVolume] Volume 1 is always accessible`);
       return true;
     }
 
     // Free volumes are always accessible (no wait, no entitlement required)
     if (volume.isFree) {
+      console.log(`[canAccessVolume] Volume ${volumeNumber} is free`);
       return true;
     }
 
@@ -44,19 +49,24 @@ export class ReaderService {
     });
 
     if (!entitlement) {
+      console.log(`[canAccessVolume] No entitlement found for userId=${userId}, chapterId=${chapterId}, volumeNumber=${volumeNumber}`);
       return false;
     }
+
+    console.log(`[canAccessVolume] Found entitlement: source=${entitlement.source}, volumeFrom=${entitlement.volumeFrom}, volumeTo=${entitlement.volumeTo}, versionScope=${entitlement.versionScope}`);
 
     // Check perspective access
     if (
       perspective === Perspective.PROTAGONIST &&
       entitlement.versionScope !== "ALL"
     ) {
+      console.log(`[canAccessVolume] Perspective PROTAGONIST denied: entitlement versionScope=${entitlement.versionScope}`);
       return false;
     }
 
     // Final paywall volumes are blocked (need upgrade)
     if (volume.isFinalPaywall) {
+      console.log(`[canAccessVolume] Volume ${volumeNumber} is final paywall`);
       return false;
     }
 
@@ -72,9 +82,11 @@ export class ReaderService {
     });
 
     if (unlock && unlock.unlocksAt > new Date()) {
+      console.log(`[canAccessVolume] Volume ${volumeNumber} locked by wait until ${unlock.unlocksAt}`);
       return false; // Still locked
     }
 
+    console.log(`[canAccessVolume] Access GRANTED for userId=${userId}, volume=${volumeNumber}`);
     return true;
   }
 
