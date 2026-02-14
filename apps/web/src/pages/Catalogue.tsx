@@ -4,6 +4,7 @@ import { useCatalogStore } from "../stores/catalogStore";
 import ErrorMessage from "../components/common/ErrorMessage";
 import ChapterCover from "../components/common/ChapterCover";
 import ReviewStars from "../components/common/ReviewStars";
+import ChapterIntensityIndicators from "../components/common/ChapterIntensityIndicators";
 import { getReadingTime } from "../lib/functions";
 
 type Genre =
@@ -400,6 +401,8 @@ export default function Catalogue() {
                             ? `${getReadingTime(chapter.totalCharacterCount)} min de lecture`
                             : " "}
                         </p>
+
+                        {chapter && <ChapterIntensityIndicators chapter={chapter} variant="compact" />}
                       </div>
                     )}
                   </Link>
