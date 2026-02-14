@@ -159,7 +159,7 @@ export const ERROR_MESSAGES: Record<string, Message> = {
   LOAD_ERROR: {
     title: 'Un léger contretemps...',
     description: 'Impossible de charger le contenu demandé. Veuillez réessayer.',
-    type: MessageType.ERROR,
+    type: MessageType.ERROR
   },
   NETWORK_ERROR: {
     title: 'La connexion s\'est rompue...',
