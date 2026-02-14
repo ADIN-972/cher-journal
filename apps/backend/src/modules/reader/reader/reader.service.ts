@@ -70,7 +70,15 @@ export class ReaderService {
       return false;
     }
 
-    // Check if locked by wait
+    // PURCHASE entitlements bypass wait-to-read timers completely
+    // If user paid for this volume, any old wait-to-read unlock timers don't apply
+    if (entitlement.source === 'PURCHASE') {
+      console.log(`[canAccessVolume] User has PURCHASE entitlement, ignoring any wait-to-read timers`);
+      console.log(`[canAccessVolume] Access GRANTED for userId=${userId}, volume=${volumeNumber}`);
+      return true;
+    }
+
+    // Check if locked by wait (only for non-PURCHASE entitlements like free wait-to-read)
     const unlock = await prisma.unlock.findUnique({
       where: {
         userId_chapterId_volumeNumber: {
