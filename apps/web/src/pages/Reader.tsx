@@ -38,6 +38,7 @@ export default function Reader({
   const lastProgressSentRef = useRef<number>(0);
   const progressUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastErrorShownRef = useRef<string | null>(null);
+  const errorToastShownRef = useRef(false);
 
   const coverImageUrl = currentVolume?.illustrationUrl
     ? `${import.meta.env.VITE_API_URL ?? ""}${currentVolume.illustrationUrl}`
@@ -47,6 +48,7 @@ export default function Reader({
     if (volumeId) {
       // Reset error tracking when loading a new volume
       lastErrorShownRef.current = null;
+      errorToastShownRef.current = false;
       loadVolume(volumeId);
     }
   }, [volumeId, loadVolume]);
@@ -74,15 +76,19 @@ export default function Reader({
   // Handle error state with toast notification
   // Toast is shown independently from page navigation behavior
   // User can close the toast and navigate freely
-  // Prevents toast cascade by tracking last shown error
+  // Prevents toast cascade - shows only one toast per load attempt
   useEffect(() => {
-    if (error && error !== lastErrorShownRef.current) {
-      lastErrorShownRef.current = error;
-      showErrorToast(toast, error);
-    } else if (!currentVolume && isLoading === false && lastErrorShownRef.current === null) {
-      // Volume failed to load without explicit error (only show once)
-      lastErrorShownRef.current = "LOAD_ERROR";
-      showErrorToast(toast, "LOAD_ERROR");
+    if (!errorToastShownRef.current) {
+      if (error && error !== lastErrorShownRef.current) {
+        lastErrorShownRef.current = error;
+        errorToastShownRef.current = true;
+        showErrorToast(toast, error);
+      } else if (!currentVolume && isLoading === false && lastErrorShownRef.current === null) {
+        // Volume failed to load without explicit error (only show once)
+        lastErrorShownRef.current = "LOAD_ERROR";
+        errorToastShownRef.current = true;
+        showErrorToast(toast, "LOAD_ERROR");
+      }
     }
   }, [error, currentVolume, isLoading]);
 
