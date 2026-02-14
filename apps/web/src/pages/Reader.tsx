@@ -50,6 +50,8 @@ export default function Reader({
       // Only load if not already loaded this volumeId
       loadedVolumeIdRef.current = volumeId;
       loadAttemptIdRef.current = `${volumeId}-${Date.now()}`;
+      // Reset error tracking for new volume
+      shownErrorForAttemptRef.current = null;
       loadVolume(volumeId);
     }
   }, [volumeId, loadVolume]);
