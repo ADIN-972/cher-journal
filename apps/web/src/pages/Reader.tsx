@@ -40,6 +40,7 @@ export default function Reader({
   const loadAttemptIdRef = useRef<string | null>(null);
   const shownErrorForAttemptRef = useRef<string | null>(null);
   const loadedVolumeIdRef = useRef<string | null>(null);
+  const currentAttemptVolumeIdRef = useRef<string | null>(null);
 
   const coverImageUrl = currentVolume?.illustrationUrl
     ? `${import.meta.env.VITE_API_URL ?? ""}${currentVolume.illustrationUrl}`
@@ -49,6 +50,7 @@ export default function Reader({
     if (volumeId && loadedVolumeIdRef.current !== volumeId) {
       // Only load if not already loaded this volumeId
       loadedVolumeIdRef.current = volumeId;
+      currentAttemptVolumeIdRef.current = volumeId;
       loadAttemptIdRef.current = `${volumeId}-${Date.now()}`;
       // Reset error tracking for new volume
       shownErrorForAttemptRef.current = null;
@@ -82,8 +84,14 @@ export default function Reader({
   // Guarantees one toast per load attempt using attempt ID
   useEffect(() => {
     const currentAttemptId = loadAttemptIdRef.current;
+    const attemptVolumeId = currentAttemptVolumeIdRef.current;
 
-    if (currentAttemptId && shownErrorForAttemptRef.current !== currentAttemptId) {
+    // Only show error if it's for the current volume being loaded
+    if (
+      currentAttemptId &&
+      attemptVolumeId === volumeId &&
+      shownErrorForAttemptRef.current !== currentAttemptId
+    ) {
       if (error) {
         shownErrorForAttemptRef.current = currentAttemptId;
         showErrorToast(toast, error);
@@ -93,7 +101,7 @@ export default function Reader({
         showErrorToast(toast, "LOAD_ERROR");
       }
     }
-  }, [error, currentVolume, isLoading]);
+  }, [error, currentVolume, isLoading, volumeId]);
 
   // Calculate scroll progress
   useEffect(() => {
