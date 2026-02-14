@@ -35,7 +35,22 @@ toast.promo('Offre spéciale', 'Bundle disponible à prix réduit');
 ```typescript
 // Auto-dismiss after 3 seconds
 toast.success('Copié!', undefined, 3000);
+
+// Auto-dismiss after 5 seconds
+toast.info('Notification temporaire', 'Ce message disparaîtra dans 5 secondes', 5000);
 ```
+
+**Auto-dismiss Feature**:
+- Pass a `duration` parameter (in milliseconds) to enable auto-dismiss
+- Toast displays a **visual progress bar** showing remaining time
+- Progress bar color matches the notification type:
+  - **Success**: Gold (#d4af37)
+  - **Error**: Pink (#e91e63)
+  - **Promo**: Lavender (#b39ddb)
+  - **Warning**: Amber (#ffc107)
+  - **Info**: Gray
+- User can still manually close the toast with the X button
+- Progress bar animates smoothly from 100% → 0% over the duration
 
 ## Using Helper Functions
 
@@ -202,6 +217,39 @@ toast.addToast({
 - **Secondary buttons**: Gray text ("Plus tard")
 - **Outlined buttons** (Promo): Border with hover fill effect
 - **Text buttons** (Info): Underlined with hover effect
+
+## Progress Bar for Auto-Dismiss Toasts
+
+When a toast has a `duration` (auto-dismiss enabled), a **visual progress bar** appears at the bottom of the toast:
+
+```typescript
+// Auto-dismiss with progress bar (5 seconds)
+toast.success('Copié!', 'Lien copié dans le presse-papiers', 5000);
+// → Shows gold progress bar, counts down to 0%
+
+toast.info('Mise à jour', 'Une nouvelle version est disponible', 3000);
+// → Shows gray progress bar, counts down to 0%
+```
+
+**Progress Bar Features**:
+- ✅ Animates smoothly from **100% → 0%** over the duration
+- ✅ Color-coded by toast type:
+  - Gold for success
+  - Pink for errors
+  - Lavender for promotions
+  - Amber for warnings
+  - Gray for info
+- ✅ Gives visual feedback on remaining time
+- ✅ User can still manually close (X button) before it expires
+- ✅ Only appears on toasts with a duration
+
+**Use Cases for Progress Bars**:
+- Temporary confirmations ("Copié!")
+- Temporary status updates
+- Non-critical notifications that should auto-dismiss
+- Feedback that doesn't require user action
+
+**Note**: Toasts WITH action buttons do NOT show progress bars, as they expect user interaction.
 
 ## Closing Toasts
 
