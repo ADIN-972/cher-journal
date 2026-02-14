@@ -45,12 +45,12 @@ export default function Reader({
     : undefined;
   // Load volume on mount or when volumeId changes
   useEffect(() => {
-    if (volumeId) {
+    if (volumeId && !isLoading) {
       // Generate new attempt ID to track this load attempt
       loadAttemptIdRef.current = `${volumeId}-${Date.now()}`;
       loadVolume(volumeId);
     }
-  }, [volumeId, loadVolume]);
+  }, [volumeId, isLoading, loadVolume]);
 
   // Send progress to API (debounced)
   const sendProgressToAPI = async (progress: number) => {
