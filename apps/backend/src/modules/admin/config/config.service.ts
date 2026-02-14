@@ -249,6 +249,16 @@ export class ConfigService {
         description: 'Durée d\'attente par défaut pour le freeToRead (en heures)',
         isEncrypted: false,
       },
+
+      // Content Settings
+      {
+        key: 'content.moment_selection_chapter_id',
+        value: null,
+        category: 'CONTENT',
+        type: 'STRING',
+        description: 'ID du chapitre marqué comme "Sélection du moment" (featured chapter)',
+        isEncrypted: false,
+      },
     ];
 
     for (const def of defaults) {

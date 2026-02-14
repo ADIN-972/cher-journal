@@ -12,6 +12,7 @@ import {
   MdEdit,
   MdVisibility,
   MdVisibilityOff,
+  MdCollections,
 } from 'react-icons/md';
 
 interface SystemConfig {
@@ -127,6 +128,8 @@ export default function SystemConfig() {
         return <MdPublic className="w-5 h-5" />;
       case 'READER':
         return <MdAutoStories className="w-5 h-5" />;
+      case 'CONTENT':
+        return <MdCollections className="w-5 h-5" />;
       default:
         return <MdSettings className="w-5 h-5" />;
     }
@@ -142,6 +145,8 @@ export default function SystemConfig() {
         return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'READER':
         return 'bg-amber-100 text-amber-800 border-amber-200';
+      case 'CONTENT':
+        return 'bg-rose-100 text-rose-800 border-rose-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
