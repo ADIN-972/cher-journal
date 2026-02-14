@@ -296,30 +296,21 @@ export class StripeService {
       const volNum = parseInt(volumeNumber as string, 10);
       console.log('[Stripe Webhook] Granting volume entitlement for volume', volNum);
 
-      // Check if user already has an entitlement for this volume
-      const existingEntitlement = await prisma.entitlement.findFirst({
+      // Check if user already has a PURCHASE entitlement for this volume
+      const existingPurchaseEntitlement = await prisma.entitlement.findFirst({
         where: {
           userId,
           chapterId,
           volumeFrom: { lte: volNum },
           volumeTo: { gte: volNum },
+          source: EntitlementSource.PURCHASE,
         },
       });
 
-      if (existingEntitlement) {
-        // Update existing entitlement to PURCHASE (upgrade from free wait-to-read)
-        console.log('[Stripe Webhook] Updating existing entitlement to PURCHASE');
-        await prisma.entitlement.update({
-          where: { id: existingEntitlement.id },
-          data: {
-            source: EntitlementSource.PURCHASE,
-            versionScope: (versionScope || EntitlementVersionScope.BASE) as EntitlementVersionScope,
-          },
-        });
-        console.log('[Stripe Webhook] ✅ Entitlement updated to PURCHASE');
-      } else {
-        // Create new entitlement for this specific volume
-        console.log('[Stripe Webhook] Creating entitlement for volume', volNum);
+      if (!existingPurchaseEntitlement) {
+        // Create new PURCHASE entitlement for this specific volume
+        // (don't update existing FREE entitlements, just add a PURCHASE one)
+        console.log('[Stripe Webhook] Creating PURCHASE entitlement for volume', volNum);
         await prisma.entitlement.create({
           data: {
             userId,
@@ -330,7 +321,9 @@ export class StripeService {
             source: EntitlementSource.PURCHASE,
           },
         });
-        console.log('[Stripe Webhook] ✅ Volume entitlement created');
+        console.log('[Stripe Webhook] ✅ PURCHASE entitlement created for volume', volNum);
+      } else {
+        console.log('[Stripe Webhook] ℹ️  User already has PURCHASE access to volume', volNum);
       }
 
       // Create/update unlock for this volume (immediately accessible)
