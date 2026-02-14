@@ -77,7 +77,14 @@ export class StripeController {
     }
 
     try {
-      const rawBody = (request as any).rawBody || JSON.stringify(request.body);
+      const rawBody = (request as any).rawBody;
+      if (!rawBody) {
+        return reply.status(400).send({
+          success: false,
+          error: { code: 'MISSING_RAW_BODY', message: 'Missing raw body for signature verification' },
+        });
+      }
+
       const result = await service.handleWebhook(rawBody, signature);
 
       return reply.send({ success: true, data: result });
