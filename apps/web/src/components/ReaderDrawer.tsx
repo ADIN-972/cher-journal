@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import api from "../lib/api";
 import { useToast } from "../hooks/useToast";
+import { useReaderStore } from "../stores/readerStore";
 import { showSuccessToast, showErrorToast, showWarningToast } from "../lib/toastHelper";
 import EndOfVolumeUI from "./EndOfVolumeUI";
 import Reader from "../pages/Reader";
@@ -31,6 +32,7 @@ export default function ReaderDrawer({
   onReadNext,
 }: ReaderDrawerProps) {
   const toast = useToast();
+  const { currentVolume, isLoading } = useReaderStore();
 
   // Block body scroll when drawer is open
   useEffect(() => {
@@ -44,6 +46,14 @@ export default function ReaderDrawer({
       document.body.style.overflow = "";
     };
   }, [isOpen]);
+
+  // Close drawer if content failed to load
+  useEffect(() => {
+    if (isOpen && !isLoading && !currentVolume && volumeId) {
+      // Loading finished but no content - close the drawer
+      onClose();
+    }
+  }, [isOpen, isLoading, currentVolume, volumeId, onClose]);
 
   const handleStartWait = async () => {
     try {
@@ -71,9 +81,12 @@ export default function ReaderDrawer({
   if (!isOpen) return null;
 
   return (
-    <div id="reader-drawer" className="fixed inset-0 z-50 overflow-y-auto">
+    <div
+      id="reader-drawer"
+      className="fixed inset-0 z-50 overflow-y-auto">
       <Reader
         volumeId={volumeId}
+        chapterId={chapterId}
         onClose={onClose}
         scrollContainerId="reader-drawer"
         footer={
