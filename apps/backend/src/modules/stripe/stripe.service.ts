@@ -128,7 +128,12 @@ export class StripeService {
 
       // Subtract already owned volumes, then apply 25% discount
       const remainingPrice = bundleOriginalPrice - alreadyAccessiblePrice;
-      const discountedPrice = Math.round(remainingPrice * 0.75);
+      let discountedPrice = Math.round(remainingPrice * 0.75);
+
+      // Ensure minimum price of 50 cents
+      if (discountedPrice < 50) {
+        discountedPrice = 50;
+      }
 
       // Debug logs
       console.log('[Stripe Debug] bundleOriginalPrice:', bundleOriginalPrice);
@@ -138,11 +143,6 @@ export class StripeService {
       console.log('[Stripe Debug] prices:', prices);
       console.log('[Stripe Debug] chapter.volumes:', chapter.volumes.length);
       console.log('[Stripe Debug] existingEntitlements:', existingEntitlements);
-
-      // Validation: montant minimum de 0.50€ (50 centimes)
-      if (discountedPrice < 50) {
-        throw new Error('INVALID_AMOUNT: Le montant calculé est inférieur à 0.50€');
-      }
 
       lineItems.push({
         price_data: {
