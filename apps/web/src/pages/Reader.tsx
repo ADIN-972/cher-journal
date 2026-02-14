@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useReaderStore } from "../stores/readerStore";
 import { useThemeStore } from "../stores/themeStore";
+import { useToast } from "../hooks/useToast";
 import api from "../lib/api";
 
 export default function Reader({
@@ -17,6 +18,7 @@ export default function Reader({
 }) {
   //const { volumeId } = useParams<{ volumeId: string }>();
   const navigate = useNavigate();
+  const toast = useToast();
   const {
     currentVolume,
     isLoading,
@@ -62,6 +64,18 @@ export default function Reader({
       console.error("Failed to update progress:", error);
     }
   };
+
+  // Handle error state with toast notification
+  useEffect(() => {
+    if (error || !currentVolume) {
+      if (error) {
+        toast.error(error);
+      } else {
+        toast.error("Impossible de charger le volume");
+      }
+      handleExit();
+    }
+  }, [error, currentVolume, toast]);
 
   // Calculate scroll progress
   useEffect(() => {
@@ -175,24 +189,8 @@ export default function Reader({
     );
   }
 
-  if (error || !currentVolume) {
-    return (
-      <div className="min-h-screen flex items-center justify-center  px-6">
-        <div className="max-w-md w-full bg-white dark:bg-white/5 border border-red-200 dark:border-red-800 rounded-lg p-8">
-          <h2 className="text-lg font-semibold text-red-800 dark:text-red-400 mb-4">
-            Erreur
-          </h2>
-          <p className="text-red-600 dark:text-red-300 mb-6">
-            {error || "Impossible de charger le volume"}
-          </p>
-          <button
-            onClick={handleExit}
-            className="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-full font-semibold transition-all">
-            Retour
-          </button>
-        </div>
-      </div>
-    );
+  if (!currentVolume) {
+    return null;
   }
 
   // Split content into paragraphs
@@ -440,11 +438,11 @@ export default function Reader({
                 <div
                   className="relative"
                   key={index}>
-                  {isFirstParagraph && (
+                  {isFirstParagraph && coverImageUrl && (
                     <div className="antique-float flex flex-col items-center gap-4">
                       <div className="relative w-full aspect-[4/5] flex items-center justify-center">
                         <img
-                          alt="Illustration Art-Déco"
+                          alt=""
                           className="w-full h-full object-cover vignette-mask opacity-80 mix-blend-multiply transition-opacity duration-700 hover:opacity-100 shadow-md rounded-md"
                           src={coverImageUrl}
                         />
