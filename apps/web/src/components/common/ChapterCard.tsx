@@ -1,5 +1,6 @@
 import ChapterCover from "./ChapterCover";
 import { getGenreTranslation } from "../../lib/genreTranslations";
+import { GENRES } from "../../pages/Catalogue";
 
 interface ChapterCardProps {
   imageUrl?: string;
@@ -40,9 +41,7 @@ export default function ChapterCard({
     DEFAULT_FALLBACK_IMAGES[
       fallbackImageIndex % DEFAULT_FALLBACK_IMAGES.length
     ];
-
-
-    
+   
   return (
     <div
       className="grid grid-cols-[150px_1fr] h-full md:flex md:flex-col gap-4 group cursor-pointer py-10 bg-white border-slate-200 dark:bg-white/5 dark:border-white/10 border-y shadow-md dark:shadow-boudoir-950/50 p-4 rounded-xl border border-boudoir-200/50 dark:border-boudoir-800/50 hover:border-gold/30 dark:hover:border-gold/50 transition-all"
@@ -82,13 +81,22 @@ export default function ChapterCard({
       {/* Genre tags */}
       {genres.length > 0 && (
         <div className="flex gap-1 w-full flex-wrap mt-3 col-span-2">
-          {genres.slice(0, 2).map((genreTag, idx) => (
-            <span
-              key={idx}
-              className="inline-block items-center justify-center text-center bg-gold/10 dark:bg-boudoir-800 border border-gold/30 dark:border-gold text-gold text-[10px]  px-2 py-0.5 rounded-full font-semibold">
-              {getGenreTranslation(genreTag.genre)}
-            </span>
-          ))}
+          {genres.slice(0, 2).map((genreTag, idx) => {
+            const genreData = GENRES[genreTag.genre as keyof typeof GENRES];
+            const icon = genreData?.icon;
+            return (
+              <span
+                key={idx}
+                className="inline-flex items-center gap-1 bg-gold/10 dark:bg-boudoir-800 border border-gold/30 dark:border-gold text-gold text-[10px] px-2 py-0.5 rounded-full font-semibold">
+                {icon && (
+                  <span className="material-symbols-outlined text-[12px]">
+                    {icon}
+                  </span>
+                )}
+                {getGenreTranslation(genreTag.genre)}
+              </span>
+            );
+          })}
         </div>
       )}
     </div>
