@@ -151,6 +151,8 @@ export function createWarningToast(
 
 /**
  * Info Toast - Update notification or general information
+ * NOTE: Info toasts ALWAYS have a timer - they auto-dismiss after DEFAULT_TOAST_DURATION
+ * This ensures info messages don't persist indefinitely on screen
  */
 export function createInfoToast(
   title: string,
@@ -174,7 +176,7 @@ export function createInfoToast(
     type: 'info',
     title,
     message,
-    duration: actions.length === 0 ? DEFAULT_TOAST_DURATION : undefined,
+    duration: DEFAULT_TOAST_DURATION, // Info toasts ALWAYS have a timer
     actions: actions.length > 0 ? actions : undefined,
   };
 }

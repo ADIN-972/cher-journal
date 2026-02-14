@@ -2,6 +2,7 @@ import prisma from '../../../lib/prisma';
 import { ChapterStatus, VolumeStatus, OrderStatus } from '@prisma/client';
 import { priceSchemaService } from '../../admin/price-schemas/price-schemas.service';
 import { resolveAssetUrl } from '../../../lib/assetUtils';
+import { AccessControlService } from '../../../lib/accessControl';
 
 // Helper to convert BigInt to number for JSON serialization
 const convertBigIntToNumber = (obj: any): any => {
@@ -20,6 +21,8 @@ const convertBigIntToNumber = (obj: any): any => {
 };
 
 export class CatalogService {
+  private accessControl = new AccessControlService();
+
   async listChapters() {
     const chapters = await prisma.chapter.findMany({
       where: {
@@ -203,79 +206,14 @@ export class CatalogService {
         return null; // Exclude unpublished volumes
       }
 
-      // Initialize accessibility state
-      let isAccessible = false;
-      let blockageType: string | null = null;
-      let blockageInfo: any = null;
+      // Use centralized AccessControlService for all access verification
+      const accessInfo = await this.accessControl.getVolumeAccessInfo(
+        userId,
+        id,
+        volume.volumeNumber
+      );
 
-      // HIERARCHY OF UNLOCKING:
-
-      // 1. Bundle or Chapter Purchase → Full Access
-      const hasFullAccess = entitlement &&
-        entitlement.volumeFrom <= volume.volumeNumber &&
-        entitlement.volumeTo >= volume.volumeNumber &&
-        entitlement.source !== 'SUBSCRIPTION'; // SUBSCRIPTION = free wait-to-read entitlement
-
-      if (hasFullAccess) {
-        isAccessible = true;
-      }
-      // 2. isFree
-      else if (volume.isFree) {
-        isAccessible = true;
-      }
-      // 3. Volumes 1-8: Wait-to-Read System
-      else if (volume.volumeNumber <= 8) {
-        // Check if user paid for freeToRead
-        const hasPaidFreeToRead = await this.checkPaidFreeToRead(userId, volume.id);
-        if (hasPaidFreeToRead) {
-          isAccessible = true;
-        } else {
-          // Check wait unlock
-          const unlock = unlocks.find(u => u.volumeNumber === volume.volumeNumber);
-          if (unlock && unlock.unlocksAt <= now) {
-            isAccessible = true;
-          } else {
-            blockageType = 'WAIT_OR_PAY';
-            blockageInfo = {
-              waitRemaining: unlock ? Math.max(0, unlock.unlocksAt.getTime() - now.getTime()) : null,
-              priceFreeToRead: await this.getPriceFreeToRead(id)
-            };
-          }
-        }
-      }
-      // 4. Volumes 9-10: Paywall
-      else if (volume.volumeNumber <= 10) {
-        const hasPaidPaywall = await this.checkPaidPaywall(userId, id);
-        if (hasPaidPaywall) {
-          isAccessible = true;
-        } else {
-          blockageType = 'PAYWALL';
-          blockageInfo = {
-            pricePaywall: await this.getPricePaywall(id)
-          };
-        }
-      }
-      // 5. Volumes 11+: Épilogues
-      else {
-        const hasPaidEpilogue = await this.checkPaidEpilogue(userId, id);
-        if (hasPaidEpilogue) {
-          isAccessible = true;
-        } else {
-          blockageType = 'EPILOGUE';
-          blockageInfo = {
-            priceEpilogue: await this.getPriceEpilogue(id)
-          };
-        }
-      }
-
-      // canStartWait logic (volumes 1-7 can enable wait for 2-8)
-      let canStartWait = false;
-      if (volume.volumeNumber >= 2 && volume.volumeNumber <= 8 && !isAccessible) {
-        const previousVolumeRead = volumeReads.find(r => r.volumeNumber === volume.volumeNumber - 1);
-        if (previousVolumeRead && previousVolumeRead.canStartWaitFrom) {
-          canStartWait = true;
-        }
-      }
+      const { isAccessible, blockageType, blockageInfo, canStartWait } = accessInfo;
 
       // Get reading progress for this volume
       const volumeRead = volumeReads.find(r => r.volumeNumber === volume.volumeNumber);
@@ -384,61 +322,7 @@ export class CatalogService {
     return convertBigIntToNumber(response);
   }
 
-  // ============= HELPER METHODS FOR ACCESSIBILITY =============
-
-  /**
-   * Check if user has paid for freeToRead (volumes 1-8)
-   */
-  private async checkPaidFreeToRead(userId: string | undefined, volumeId: string): Promise<boolean> {
-    if (!userId) return false;
-
-    const order = await prisma.order.findFirst({
-      where: {
-        userId,
-        refId: volumeId,
-        status: OrderStatus.PAID,
-        appliedPriceFreeToRead: { gt: 0 }
-      }
-    });
-
-    return !!order;
-  }
-
-  /**
-   * Check if user has paid for paywall (volumes 9-10)
-   */
-  private async checkPaidPaywall(userId: string | undefined, chapterId: string): Promise<boolean> {
-    if (!userId) return false;
-
-    const order = await prisma.order.findFirst({
-      where: {
-        userId,
-        refId: chapterId,
-        status: OrderStatus.PAID,
-        appliedPricePaywall: { gt: 0 }
-      }
-    });
-
-    return !!order;
-  }
-
-  /**
-   * Check if user has paid for epilogue (volumes 11+)
-   */
-  private async checkPaidEpilogue(userId: string | undefined, chapterId: string): Promise<boolean> {
-    if (!userId) return false;
-
-    const order = await prisma.order.findFirst({
-      where: {
-        userId,
-        refId: chapterId,
-        status: OrderStatus.PAID,
-        appliedPriceEpilogue: { gt: 0 }
-      }
-    });
-
-    return !!order;
-  }
+  // ============= HELPER METHODS FOR PRICING =============
 
   /**
    * Get freeToRead price for a chapter

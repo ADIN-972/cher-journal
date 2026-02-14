@@ -72,10 +72,38 @@ export default function ReaderDrawer({
     }
   };
 
-  const handlePurchase = (type: "freeToRead" | "paywall" | "epilogue") => {
-    // TODO: Implement Stripe checkout for each type
-    toast.info(`Paiement ${type} à implémenter`);
-    console.log("Purchase type:", type, "for chapter:", chapterId);
+  const handlePurchase = async (type: "freeToRead" | "paywall" | "epilogue") => {
+    if (!nextVolume?.id) {
+      showErrorToast(toast, 'CHECKOUT_SESSION_FAILED');
+      return;
+    }
+
+    try {
+      let orderType: 'CHAPTER' | 'VOLUME';
+
+      if (type === 'freeToRead') {
+        // Individual volume purchase (volumes 1-8)
+        orderType = 'VOLUME';
+      } else {
+        // Paywall or epilogue: purchase full chapter
+        orderType = 'CHAPTER';
+      }
+
+      const { url } = await api.createCheckoutSession({
+        chapterId,
+        type: orderType,
+        volumeNumber: type === 'freeToRead' ? nextVolume.volumeNumber : undefined,
+        versionScope: "BASE",
+        successUrl: `${window.location.origin}/chapters/${chapterId}?purchase=success`,
+        cancelUrl: `${window.location.origin}/chapters/${chapterId}?purchase=cancelled`,
+      });
+
+      // Redirect to Stripe checkout
+      window.location.href = url;
+    } catch (err: any) {
+      console.error("Failed to create checkout session:", err);
+      showErrorToast(toast, 'CHECKOUT_SESSION_FAILED');
+    }
   };
 
   if (!isOpen) return null;

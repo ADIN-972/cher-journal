@@ -41,6 +41,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   // Convenience methods
   // Note: Default behavior is NO auto-dismiss. Toasts persist until user closes them or clicks an action.
+  // Exception: Info toasts ALWAYS have a default duration (3 seconds) to prevent indefinite persistence
   // Pass duration if you want auto-dismiss for simple notifications.
   const success = useCallback((title: string, message?: string, duration?: number) => {
     addToast({ type: 'success', title, message: message || '', duration });
@@ -55,7 +56,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }, [addToast]);
 
   const info = useCallback((title: string, message?: string, duration?: number) => {
-    addToast({ type: 'info', title, message: message || '', duration });
+    // Info toasts default to 3 seconds if no duration specified
+    addToast({ type: 'info', title, message: message || '', duration: duration ?? 3000 });
   }, [addToast]);
 
   const promo = useCallback((title: string, message?: string, duration?: number) => {
