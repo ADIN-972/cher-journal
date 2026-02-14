@@ -84,7 +84,7 @@ export default function Reader({
       lastErrorShownRef.current = "LOAD_ERROR";
       showErrorToast(toast, "LOAD_ERROR");
     }
-  }, [error, currentVolume, isLoading, toast]);
+  }, [error, currentVolume, isLoading]);
 
   // Calculate scroll progress
   useEffect(() => {
