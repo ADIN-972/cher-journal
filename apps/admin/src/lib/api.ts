@@ -77,6 +77,10 @@ class ApiClient {
     return this.request("POST", path, data);
   }
 
+  async put<T = any>(path: string, data?: any): Promise<ApiResponse<T>> {
+    return this.request("PUT", path, data);
+  }
+
   async patch<T = any>(path: string, data?: any): Promise<ApiResponse<T>> {
     return this.request("PATCH", path, data);
   }
