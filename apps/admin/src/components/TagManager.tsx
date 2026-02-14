@@ -10,6 +10,7 @@ import {
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { api } from "../lib/api";
+import { useI18n } from "../lib/i18n";
 
 interface Tag {
   id: string;
@@ -28,7 +29,7 @@ interface TagManagerProps {
 }
 
 export default function TagManager({ onTagsChange }: TagManagerProps) {
-  const { t } = useTranslation();
+  const { t } = useI18n();
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);

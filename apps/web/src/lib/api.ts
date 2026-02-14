@@ -292,15 +292,18 @@ class ApiClient {
   }
 
   async getActiveWaits(): Promise<any[]> {
-    return this.get('/wait/active');
+    const response = await this.get<{ success: boolean; data: any[] }>('/wait/active');
+    return response.data;
   }
 
   async getCompletedWaits(): Promise<any[]> {
-    return this.get('/wait/completed');
+    const response = await this.get<{ success: boolean; data: any[] }>('/wait/completed');
+    return response.data;
   }
 
   async getAllWaits(): Promise<any[]> {
-    return this.get('/wait/all');
+    const response = await this.get<{ success: boolean; data: any[] }>('/wait/all');
+    return response.data;
   }
 
   async markCanStartWait(data: { chapterId: string; volumeNumber: number }): Promise<{ success: boolean }> {

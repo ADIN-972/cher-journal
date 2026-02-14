@@ -37,6 +37,28 @@
     "english": "English",
     "search_placeholder": "Rechercher des histoires..."
   },
+  "buttons": {
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "view": "Afficher"
+  },
+  "confirmations": {
+    "delete_chapter": "Supprimer le Chapitre",
+    "delete_chapter_warning": "Êtes-vous sûr de vouloir supprimer ce chapitre? Cette action ne peut pas être annulée."
+  },
+  "orders": {
+    "completed": "Complétée",
+    "pending": "En Attente"
+  },
+  "users": {
+    "details": "Détails de l'Utilisateur",
+    "role_admin": "Administrateur",
+    "role_user": "Utilisateur",
+    "status_active": "Actif",
+    "status_suspended": "Suspendu",
+    "user_activated": "Utilisateur activé avec succès",
+    "user_suspended": "Utilisateur suspendu avec succès"
+  },
   "home": {
     "title": "Cher Journal",
     "subtitle": "Découvrez des histoires sensuelles",
@@ -195,163 +217,6 @@
     "stripe_payment_failed": "Le traitement du paiement a échoué. Veuillez réessayer",
     "stripe_session_error": "Impossible de créer la session de paiement"
   },
-  "common": {
-    "loading": "Chargement...",
-    "error": "Erreur",
-    "success": "Succès",
-    "warning": "Avertissement",
-    "info": "Information",
-    "confirm": "Confirmer",
-    "cancel": "Annuler",
-    "save": "Enregistrer",
-    "delete": "Supprimer",
-    "edit": "Éditer",
-    "view": "Afficher",
-    "close": "Fermer",
-    "search": "Rechercher",
-    "filter": "Filtrer",
-    "sort": "Trier",
-    "apply": "Appliquer",
-    "clear": "Effacer",
-    "submit": "Soumettre",
-    "next": "Suivant",
-    "previous": "Précédent",
-    "more": "Plus",
-    "less": "Moins",
-    "show_more": "Afficher plus",
-    "show_less": "Afficher moins",
-    "no_results": "Aucun résultat trouvé",
-    "empty": "Vide",
-    "or": "Ou",
-    "and": "Et",
-    "copy": "Copier",
-    "copied": "Copié",
-    "download": "Télécharger",
-    "upload": "Télécharger",
-    "version": "Version",
-    "yes": "Oui",
-    "no": "Non",
-    "ok": "OK",
-    "enabled": "Activé",
-    "disabled": "Désactivé",
-    "search_placeholder": "Rechercher...",
-    "hours": "{{count}} heure",
-    "hours_plural": "{{count}} heures",
-    "minutes": "{{count}} minute",
-    "minutes_plural": "{{count}} minutes",
-    "seconds": "{{count}} seconde",
-    "seconds_plural": "{{count}} secondes",
-    "card_view": "Vue Carte",
-    "list_view": "Vue Liste",
-    "calendar_view": "Vue Calendrier",
-    "add": "Ajouter"
-  },
-  "messages": {
-    "loading": "Chargement...",
-    "please_wait": "Veuillez patienter",
-    "saving": "Enregistrement...",
-    "saved": "Enregistré avec succès",
-    "saved_successfully": "Modifications enregistrées avec succès",
-    "deleting": "Suppression...",
-    "deleted": "Supprimé avec succès",
-    "deleted_successfully": "Élément supprimé avec succès",
-    "confirm_delete": "Êtes-vous sûr de vouloir supprimer ceci ?",
-    "action_required": "Action requise",
-    "session_expired": "Votre session a expiré. Veuillez vous reconnecter.",
-    "access_denied": "Accès refusé",
-    "success": {
-      "chapter_updated": "Chapitre modifié avec succès"
-    },
-    "error": {
-      "load_chapters": "Erreur lors du chargement des chapitres",
-      "load_stats": "Erreur lors du chargement des statistiques"
-    }
-  },
-  "chapters": {
-    "edit_chapter": "Modifier le chapitre",
-    "create_chapter": "Créer un chapitre",
-    "delete_chapter": "Supprimer le chapitre"
-  },
-  "chapter_detail": {
-    "volumes_title": "Tomes",
-    "chapter_images": "Images du Chapitre",
-    "modal": {
-      "bootstrap_title": "Créer des tomes",
-      "bootstrap_description": "Combien de tomes souhaitez-vous créer pour ce chapitre ?",
-      "volumes_count": "Nombre de tomes",
-      "create": "Créer les tomes"
-    },
-    "buttons": {
-      "edit_titles": "Modifier les Titres",
-      "bulk_import": "Importation en Masse",
-      "add_volume": "Ajouter un Tome"
-    },
-    "fab": {
-      "add_volume": "Ajouter un Tome",
-      "select_all": "Sélectionner tout"
-    },
-    "context_menu": {
-      "display": "Affichage",
-      "selection": "Sélection",
-      "select_all": "Sélectionner tout",
-      "volume_actions": "Actions sur les Tomes",
-      "manage_perspectives": "Gérer les Perspectives",
-      "select": "Sélectionner",
-      "danger": "Pour ce volume",
-      "bulk_actions": "Actions en Masse",
-      "bulk_edit": "Édition en Masse"
-    },
-    "selected_count": "{{count}} sélectionnés"
-  },
-  "chapters_page": {
-    "title": "Gestion du Catalogue",
-    "description": "Gérez vos chapitres et vos tomes",
-    "include_archived": {
-      "off": "Masquer les archivés"
-    },
-    "filters": {
-      "all": "Tous",
-      "published": "Publiés",
-      "in_progress": "En cours",
-      "draft": "Brouillons",
-      "archived": "Archivés"
-    },
-    "fab": {
-      "title": "Créer un Chapitre"
-    },
-    "actions": {
-      "create": "Créer un Nouveau Chapitre",
-      "select_all": "Sélectionner Tout"
-    },
-    "context": {
-      "deselect_all": "Désélectionner Tout",
-      "bulk_actions": "Actions en Masse",
-      "bulk_edit": "Édition en Masse",
-      "delete": "Supprimer",
-      "archive": "Archiver",
-      "unarchive": "Dés-archiver",
-      "export": "Exporter",
-      "import": "Importer",
-      "global_actions": "Actions Globales",
-      "create": "Créer",
-      "select_visible": "Sélectionner les Visibles",
-      "sort": "Trier",
-      "sort_az": "Trier A-Z",
-      "sort_za": "Trier Z-A",
-      "sort_date_recent": "Trier par Récent",
-      "sort_date_old": "Trier par Ancien",
-      "view": "Vue",
-      "view_card": "Vue Carte",
-      "view_list": "Vue Liste",
-      "view_calendar": "Vue Calendrier",
-      "filter": "Filtrer",
-      "filter_all": "Tous",
-      "filter_published": "Publiés",
-      "filter_in_progress": "En Cours",
-      "filter_draft": "Brouillons",
-      "filter_archived": "Archivés"
-    }
-  },
   "login": {
     "title": "Connexion",
     "welcome_subtitle": "Bienvenue dans l'administration",
@@ -361,23 +226,6 @@
     "submit_button": "Se connecter",
     "success_message": "Connexion réussie",
     "error_message": "Erreur de connexion"
-  },
-  "register": {
-    "title": "Inscription",
-    "subtitle": "Créer votre compte",
-    "password_weak": "Faible",
-    "password_medium": "Moyen",
-    "password_strong": "Fort",
-    "errors": {
-      "first_name_required": "Le prénom est obligatoire",
-      "last_name_required": "Le nom est obligatoire",
-      "password_mismatch": "Les mots de passe ne correspondent pas",
-      "password_length": "Le mot de passe doit contenir au moins 6 caractères"
-    },
-    "toast": {
-      "success": "Inscription réussie",
-      "error": "Erreur lors de l'inscription"
-    }
   },
   "layout": {
     "welcome_message": "Bienvenue dans votre espace d'administration",
@@ -608,58 +456,6 @@
     "success_updated": "Bundle modifié avec succès",
     "untitled": "Bundle sans titre"
   },
-  "auth": {
-    "login": {
-      "page_title": "Cher Journal",
-      "page_subtitle": "Bienvenue dans notre univers sensuel",
-      "brand_name": "Cher Journal",
-      "tagline": "Bienvenue dans notre univers sensuel",
-      "email_label": "Adresse Email",
-      "email_placeholder": "votre@email.com",
-      "password_label": "Mot de passe",
-      "password_placeholder": "••••••••",
-      "forgot_password": "Mot de passe oublié?",
-      "loading": "Connexion en cours...",
-      "button_login": "Se connecter",
-      "divider": "Nouveau?",
-      "no_account": "Pas encore de compte?",
-      "register_link": "S'inscrire maintenant"
-    },
-    "register": {
-      "brand_name": "Cher Journal",
-      "page_title": "Rejoins-nous",
-      "page_subtitle": "Crée ton compte pour accéder à notre univers sensuel",
-      "heading": "Rejoins-nous",
-      "tagline": "Crée ton compte pour accéder à notre univers sensuel",
-      "firstname_label": "Prénom",
-      "firstname_placeholder": "Jean",
-      "lastname_label": "Nom",
-      "lastname_placeholder": "Dupont",
-      "fullname_label": "Nom Complet",
-      "fullname_placeholder": "Jean Dupont",
-      "email_label": "Adresse Email",
-      "email_placeholder": "votre@email.com",
-      "password_label": "Mot de passe",
-      "password_placeholder": "••••••••",
-      "confirm_password_label": "Confirmer le mot de passe",
-      "confirm_password_placeholder": "••••••••",
-      "terms_checkbox": "J'accepte les conditions d'utilisation",
-      "password_helper": "Au moins 6 caractères",
-      "loading": "Création en cours...",
-      "button_register": "S'inscrire maintenant",
-      "divider": "Déjà un compte?",
-      "login_prompt": "Tu as déjà un compte?",
-      "login_link": "Connecte-toi ici",
-      "validation_email_required": "L'email est requis",
-      "validation_email_invalid": "L'email doit être valide",
-      "validation_password_weak": "Le mot de passe doit contenir au moins 6 caractères",
-      "validation_password_mismatch": "Les mots de passe ne correspondent pas",
-      "validation_password_required": "Le mot de passe est requis",
-      "validation_firstname_required": "Le prénom est requis",
-      "validation_lastname_required": "Le nom est requis",
-      "validation_fullname_required": "Le nom complet est requis"
-    }
-  },
   "account": {
     "page_title": "Mon Espace Personnel",
     "welcome_message": "Bienvenue {firstName}, gérez votre compte et vos préférences",
@@ -672,6 +468,8 @@
       "claims_desc": "Support et assistance",
       "reviews": "Mes Commentaires",
       "reviews_desc": "Avis et impressions",
+      "promotions": "Promotions Disponibles",
+      "promotions_desc": "Offres spéciales rien que pour vous",
       "subscription": "Informations d'Abonnement",
       "subscription_desc": "Gérer mon abonnement",
       "preferences": "Préférences",
@@ -686,7 +484,33 @@
       "payment_info_desc": "Cartes et paiements"
     },
     "logout": "Déconnexion",
-    "logout_title": "Se Déconnecter"
+    "logout_title": "Se Déconnecter",
+    "settings": "Paramètres du Compte",
+    "settings_subtitle": "Gérez vos préférences",
+    "promotions": {
+      "title": "Promotions Disponibles",
+      "subtitle": "Découvrez des offres exclusives conçues pour vous",
+      "no_promotions": "Aucune promotion disponible",
+      "no_promotions_detail": "Revenez bientôt pour des offres spéciales",
+      "loading": "Chargement des promotions...",
+      "error_loading": "Erreur lors du chargement des promotions",
+      "retry": "Réessayer",
+      "scope_volume": "Volume",
+      "scope_chapter": "Chapitre",
+      "scope_epilogue": "Épilogue",
+      "scope_pov": "Point de Vue",
+      "scope_coloring": "Livre de Coloriage",
+      "scope_bundle": "Bundle",
+      "scope_subscription": "Abonnement",
+      "unlocks": "Déverrouille",
+      "valid_until": "Valide Jusqu'au",
+      "limited_uses": "Utilisations Limitées",
+      "unlimited": "Utilisations Illimitées",
+      "take_advantage": "En Profiter",
+      "discount_percent": "{value}% de réduction",
+      "discount_fixed": "{value}€ de réduction",
+      "free": "Gratuit"
+    }
   },
   "tag_manager": {
     "title": "Gestion des Tags",
@@ -769,67 +593,601 @@
       "updated": "Volume modifié avec succès"
     }
   },
+  "add_entitlement_modal": {
+    "title": "Ajouter un Droit d'Accès",
+    "chapter": "Chapitre",
+    "from": "De",
+    "to": "À",
+    "scope": "Portée",
+    "source": "Source",
+    "source_purchase": "Achat",
+    "source_preorder": "Précommande",
+    "source_pack": "Pack",
+    "source_subscription": "Abonnement",
+    "select_chapter": "Sélectionner un Chapitre",
+    "close_aria": "Fermer la modale",
+    "button_add": "Ajouter un Droit",
+    "button_adding": "Ajout en cours...",
+    "toast": {
+      "load_error": "Erreur lors du chargement des chapitres",
+      "success": "Droit d'accès ajouté avec succès",
+      "error": "Erreur lors de l'ajout du droit d'accès"
+    }
+  },
+  "chapter_view": {
+    "calendar_coming_soon": "À venir",
+    "no_chapters": "Aucun chapitre disponible",
+    "on_activation": "À l'Activation",
+    "statistics": {
+      "coloring_pages": "Pages à Colorier",
+      "volumes_illustrated": "Volumes Illustrés",
+      "volumes_protagonist": "Volumes Protagoniste",
+      "volumes_written": "Volumes Écrits"
+    },
+    "table": {
+      "image": "Image",
+      "prices": "Prix",
+      "protagonist": "Protagoniste",
+      "release_date": "Date de Sortie",
+      "status": "Statut",
+      "title": "Titre"
+    }
+  },
+  "prices": {
+    "all": "Tous les Prix",
+    "confirm_delete": "Confirmer la Suppression",
+    "filter_by_scope": "Filtrer par Portée",
+    "form": {
+      "amount_help": "Le montant du prix",
+      "amount_label": "Montant",
+      "amount_placeholder": "Entrez le montant du prix",
+      "confirm_delete": "Confirmer la Suppression du Prix",
+      "create_title": "Créer un Nouveau Prix",
+      "currency_label": "Devise",
+      "edit_title": "Modifier le Prix",
+      "error_delete": "Erreur lors de la suppression du prix",
+      "error_load": "Erreur lors du chargement des prix",
+      "error_save": "Erreur lors de l'enregistrement du prix",
+      "preview_title": "Aperçu du Prix",
+      "price": "Prix",
+      "refid_help": "ID de Référence pour l'intégration",
+      "refid_label": "ID de Référence",
+      "scope": "Portée",
+      "scope_help": "À quel contenu ce prix s'applique",
+      "scope_label": "Portée du Contenu"
+    },
+    "linked_promotions": "Promotions Liées",
+    "new_price": "Nouveau Prix",
+    "no_prices": "Aucun prix disponible",
+    "promo_type": {
+      "free": "Gratuit"
+    },
+    "reference": "Référence",
+    "scope": {
+      "bundle": "Bundle",
+      "chapter": "Chapitre",
+      "coloring": "Coloriage",
+      "epilogue": "Épilogue",
+      "pov": "Point de Vue",
+      "subscription": "Abonnement",
+      "volume": "Volume"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "subtitle": "Gérez les options de tarification",
+    "title": "Tarification"
+  },
+  "settings": {
+    "loading": "Chargement des paramètres...",
+    "admin": {
+      "title": "Paramètres Administrateur",
+      "include_archived": {
+        "help": "Afficher les chapitres archivés dans les listes",
+        "label": "Inclure Archivés"
+      },
+      "theme": "Thème",
+      "language": "Langue",
+      "chapter_view": "Vue des Chapitres",
+      "page_size": "Taille de la Page"
+    },
+    "user": {
+      "title": "Préférences Utilisateur",
+      "theme": "Thème",
+      "language": "Langue",
+      "density": "Densité d'Affichage",
+      "date_format": "Format de la Date"
+    },
+    "options": {
+      "comfortable": "Confortable",
+      "compact": "Compact",
+      "dark": "Sombre",
+      "light": "Clair",
+      "system": "Système",
+      "english": "English",
+      "french": "Français",
+      "twelve": "12 Heures",
+      "twenty_four": "24 Heures"
+    },
+    "views": {
+      "calendar": "Calendrier",
+      "card": "Carte",
+      "list": "Liste"
+    },
+    "superadmin": {
+      "title": "Paramètres Superadmin",
+      "critical": "Paramètres Critiques",
+      "system_info": "Informations Système",
+      "encryption": {
+        "label": "Chiffrement des Données",
+        "enabled": "Activé",
+        "disabled": "Désactivé",
+        "help": "Chiffrement de bout en bout pour les données utilisateur"
+      },
+      "logs": {
+        "label": "Journalisation des Activités",
+        "enabled": "Activé",
+        "disabled": "Désactivé",
+        "help": "Enregistrer toutes les actions d'administration pour les audits"
+      },
+      "maintenance": {
+        "label": "Mode de Maintenance",
+        "enabled": "Activé",
+        "disabled": "Désactivé",
+        "help": "Mettre temporairement la plateforme hors ligne"
+      },
+      "warning": {
+        "title": "⚠️ Paramètres Critiques",
+        "body": "Ces paramètres affectent l'ensemble de la plateforme. À modifier avec prudence."
+      }
+    }
+  },
+  "volume_view": {
+    "calendar_coming_soon": "À venir",
+    "free": "Gratuit",
+    "manage_perspectives": "Gérer les Perspectives",
+    "table": {
+      "free": "Gratuit",
+      "image": "Image",
+      "price": "Prix",
+      "title": "Titre",
+      "wait_duration": "Durée d'Attente"
+    },
+    "toast": {
+      "image_assign_error": "Erreur lors de l'assignation de l'image",
+      "image_assigned": "Image assignée avec succès"
+    }
+  },
+  "dashboard": {
+    "stats_users": "Utilisateurs Totaux",
+    "stats_chapters": "Chapitres Totaux",
+    "stats_orders": "Commandes Totales",
+    "stats_revenue": "Revenu Total",
+    "last_month": "Le Mois Dernier",
+    "this_month": "Ce Mois",
+    "chapters_new": "Nouveaux Chapitres",
+    "view_all_users": "Voir Tous les Utilisateurs",
+    "manage_chapters": "Gérer les Chapitres",
+    "view_orders": "Voir les Commandes",
+    "view_details": "Voir les Détails",
+    "recent_activities": "Activités Récentes",
+    "activity": {
+      "user_registered": {
+        "title": "Nouvel Utilisateur Inscrit",
+        "subtitle": "Un nouvel utilisateur a rejoint la plateforme",
+        "time": "à l'instant"
+      },
+      "order_completed": {
+        "title": "Commande Complétée",
+        "subtitle": "Un client a complété son achat",
+        "time": "à l'instant"
+      },
+      "chapter_published": {
+        "title": "Chapitre Publié",
+        "subtitle": "Un nouveau chapitre a été publié",
+        "time": "à l'instant"
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "page_title": "Cher Journal",
+      "page_subtitle": "Bienvenue dans notre univers sensuel",
+      "brand_name": "Cher Journal",
+      "tagline": "Bienvenue dans notre univers sensuel",
+      "email_label": "Adresse Email",
+      "email_placeholder": "votre@email.com",
+      "password_label": "Mot de passe",
+      "password_placeholder": "••••••••",
+      "forgot_password": "Mot de passe oublié?",
+      "loading": "Connexion en cours...",
+      "button_login": "Se connecter",
+      "divider": "Nouveau?",
+      "no_account": "Pas encore de compte?",
+      "register_link": "S'inscrire maintenant"
+    },
+    "register": {
+      "brand_name": "Cher Journal",
+      "page_title": "Rejoins-nous",
+      "page_subtitle": "Crée ton compte pour accéder à notre univers sensuel",
+      "heading": "Rejoins-nous",
+      "tagline": "Crée ton compte pour accéder à notre univers sensuel",
+      "firstname_label": "Prénom",
+      "firstname_placeholder": "Jean",
+      "lastname_label": "Nom",
+      "lastname_placeholder": "Dupont",
+      "fullname_label": "Nom Complet",
+      "fullname_placeholder": "Jean Dupont",
+      "email_label": "Adresse Email",
+      "email_placeholder": "votre@email.com",
+      "password_label": "Mot de passe",
+      "password_placeholder": "••••••••",
+      "confirm_password_label": "Confirmer le mot de passe",
+      "confirm_password_placeholder": "••••••••",
+      "terms_checkbox": "J'accepte les conditions d'utilisation",
+      "password_helper": "Au moins 6 caractères",
+      "loading": "Création en cours...",
+      "button_register": "S'inscrire maintenant",
+      "divider": "Déjà un compte?",
+      "login_prompt": "Tu as déjà un compte?",
+      "login_link": "Connecte-toi ici",
+      "validation_email_required": "L'email est requis",
+      "validation_email_invalid": "L'email doit être valide",
+      "validation_password_weak": "Le mot de passe doit contenir au moins 6 caractères",
+      "validation_password_mismatch": "Les mots de passe ne correspondent pas",
+      "validation_password_required": "Le mot de passe est requis",
+      "validation_firstname_required": "Le prénom est requis",
+      "validation_lastname_required": "Le nom est requis",
+      "validation_fullname_required": "Le nom complet est requis"
+    }
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "warning": "Avertissement",
+    "info": "Information",
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Éditer",
+    "view": "Afficher",
+    "close": "Fermer",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "sort": "Trier",
+    "apply": "Appliquer",
+    "clear": "Effacer",
+    "submit": "Soumettre",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "more": "Plus",
+    "less": "Moins",
+    "show_more": "Afficher plus",
+    "show_less": "Afficher moins",
+    "no_results": "Aucun résultat trouvé",
+    "empty": "Vide",
+    "or": "Ou",
+    "and": "Et",
+    "copy": "Copier",
+    "copied": "Copié",
+    "download": "Télécharger",
+    "upload": "Télécharger",
+    "version": "Version",
+    "yes": "Oui",
+    "no": "Non",
+    "ok": "OK",
+    "enabled": "Activé",
+    "disabled": "Désactivé",
+    "search_placeholder": "Rechercher...",
+    "hours": "{{count}} heure",
+    "hours_plural": "{{count}} heures",
+    "minutes": "{{count}} minute",
+    "minutes_plural": "{{count}} minutes",
+    "seconds": "{{count}} seconde",
+    "seconds_plural": "{{count}} secondes",
+    "card_view": "Vue Carte",
+    "list_view": "Vue Liste",
+    "calendar_view": "Vue Calendrier",
+    "add": "Ajouter"
+  },
+  "messages": {
+    "loading": "Chargement...",
+    "please_wait": "Veuillez patienter",
+    "saving": "Enregistrement...",
+    "saved": "Enregistré avec succès",
+    "saved_successfully": "Modifications enregistrées avec succès",
+    "deleting": "Suppression...",
+    "deleted": "Supprimé avec succès",
+    "deleted_successfully": "Élément supprimé avec succès",
+    "confirm_delete": "Êtes-vous sûr de vouloir supprimer ceci ?",
+    "action_required": "Action requise",
+    "session_expired": "Votre session a expiré. Veuillez vous reconnecter.",
+    "access_denied": "Accès refusé",
+    "success": {
+      "chapter_updated": "Chapitre modifié avec succès"
+    },
+    "error": {
+      "load_chapters": "Erreur lors du chargement des chapitres",
+      "load_stats": "Erreur lors du chargement des statistiques"
+    }
+  },
+  "chapters": {
+    "drafts": "Brouillons",
+    "in_progress": "En Cours",
+    "published": "Publiés",
+    "create_chapter": "Créer un Chapitre",
+    "delete_chapter": "Supprimer le Chapitre",
+    "edit_chapter": "Modifier le Chapitre"
+  },
+  "chapter_detail": {
+    "chapter_images": "Images du Chapitre",
+    "buttons": {
+      "quick_create": "Création Rapide",
+      "add_volume": "Ajouter un Volume",
+      "bulk_import": "Import en Masse",
+      "edit_titles": "Modifier les Titres"
+    },
+    "context_menu": {
+      "deselect_all": "Désélectionner Tous",
+      "select_all": "Sélectionner Tous",
+      "select": "Sélectionner",
+      "selection": "Sélection",
+      "bulk_actions": "Actions en Masse",
+      "display": "Affichage",
+      "manage_perspectives": "Gérer les Perspectives",
+      "volume_actions": "Actions des Volumes",
+      "danger": "Zone de Danger"
+    },
+    "dialog": {
+      "delete_title": "Supprimer le Chapitre"
+    },
+    "fab": {
+      "bulk_edit": "Édition en Masse",
+      "deselect_all": "Désélectionner Tous",
+      "quick_create": "Création Rapide",
+      "add_volume": "Ajouter un Volume",
+      "select_all": "Sélectionner Tous"
+    },
+    "modal": {
+      "bootstrap_title": "Créer des Volumes",
+      "bootstrap_description": "Créez des volumes pour ce chapitre",
+      "create": "Créer",
+      "volumes_count": "Nombre de Volumes"
+    },
+    "no_volumes": "Aucun volume disponible",
+    "table": {
+      "price": "Prix"
+    },
+    "toast": {
+      "bulk_update_error": "Erreur lors de la mise à jour des chapitres",
+      "chapter_updated": "Chapitre mis à jour avec succès",
+      "create_error": "Erreur lors de la création du chapitre",
+      "delete_error": "Erreur lors de la suppression du chapitre",
+      "image_assign_error": "Erreur lors de l'assignation de l'image",
+      "image_assigned_chapter": "Image assignée au chapitre",
+      "image_assigned_volume": "Image assignée au volume",
+      "load_error": "Erreur lors du chargement du chapitre",
+      "select_required": "Veuillez sélectionner au moins un élément",
+      "titles_update_error": "Erreur lors de la mise à jour des titres",
+      "update_error": "Erreur lors de la mise à jour du chapitre",
+      "volume_deleted": "Volume supprimé avec succès"
+    },
+    "view": {
+      "calendar": "Calendrier",
+      "card": "Carte",
+      "list": "Liste"
+    }
+  },
+  "chapters_page": {
+    "title": "Chapitres",
+    "description": "Gérez vos chapitres et volumes",
+    "actions": {
+      "bulk_edit": "Édition en Masse",
+      "deselect_all": "Désélectionner Tous",
+      "create": "Créer un Chapitre",
+      "select_all": "Sélectionner Tous"
+    },
+    "fab": {
+      "title": "Ajouter un Chapitre"
+    },
+    "filters": {
+      "all": "Tous",
+      "draft": "Brouillons",
+      "in_progress": "En Cours",
+      "published": "Publiés",
+      "archived": "Archivés"
+    },
+    "archive": {
+      "archived": "Archivé avec succès",
+      "unarchived": "Désarchivé avec succès",
+      "error": "Erreur lors de l'archivage du chapitre"
+    },
+    "bulk": {
+      "select_required": "Veuillez sélectionner au moins un chapitre",
+      "update_error": "Erreur lors de la mise à jour des chapitres"
+    },
+    "context": {
+      "actions": "Actions",
+      "chapter_actions": "Actions du Chapitre",
+      "deselect_visible": "Désélectionner Visibles",
+      "draft": "Brouillon",
+      "duplicate": "Dupliquer",
+      "edit": "Modifier",
+      "in_progress": "En Cours",
+      "publish": "Publier",
+      "publish_now": "Publier Maintenant",
+      "selection": "Sélection",
+      "view_volumes": "Afficher les Volumes",
+      "archive": "Archiver",
+      "unarchive": "Désarchiver",
+      "create": "Créer",
+      "delete": "Supprimer",
+      "filter": "Filtrer",
+      "filter_all": "Tous les Chapitres",
+      "filter_archived": "Archivés",
+      "filter_draft": "Brouillons",
+      "filter_in_progress": "En Cours",
+      "filter_published": "Publiés",
+      "global_actions": "Actions Globales",
+      "select_visible": "Sélectionner Visibles",
+      "sort": "Trier",
+      "sort_az": "Trier A-Z",
+      "sort_date_old": "Plus Ancien en Premier",
+      "sort_date_recent": "Plus Récent en Premier",
+      "sort_za": "Trier Z-A",
+      "view": "Affichage",
+      "view_calendar": "Calendrier",
+      "view_card": "Cartes",
+      "view_list": "Liste"
+    },
+    "duplicate": {
+      "success": "Chapitre dupliqué avec succès",
+      "error": "Erreur lors de la duplication du chapitre"
+    },
+    "empty": {
+      "all": "Aucun chapitre trouvé",
+      "archived": "Aucun chapitre archivé",
+      "draft": "Aucun brouillon",
+      "in_progress": "Aucun chapitre en cours",
+      "published": "Aucun chapitre publié"
+    },
+    "include_archived": {
+      "on": "Inclure Archivés"
+    },
+    "status": {
+      "error": "Erreur lors de la mise à jour du statut",
+      "labels": {
+        "DRAFT": "Brouillon",
+        "IN_PROGRESS": "En Cours",
+        "PUBLISHED": "Publié"
+      }
+    },
+    "tooltip": {
+      "deselect_visible": "Désélectionner les chapitres visibles",
+      "filter_all": "Afficher tous les chapitres",
+      "filter_archived": "Afficher les chapitres archivés",
+      "filter_draft": "Afficher les brouillons",
+      "filter_in_progress": "Afficher les chapitres en cours",
+      "filter_published": "Afficher les chapitres publiés",
+      "include_archived": "Inclure les chapitres archivés",
+      "select_visible": "Sélectionner les chapitres visibles",
+      "sort_az": "Trier A-Z",
+      "sort_date_old": "Trier par plus ancien",
+      "sort_date_recent": "Trier par plus récent",
+      "sort_za": "Trier Z-A",
+      "view_calendar": "Vue calendrier",
+      "view_card": "Vue carte",
+      "view_list": "Vue liste"
+    }
+  },
+  "register": {
+    "title": "Créez Votre Compte",
+    "subtitle": "Rejoignez Cher Journal aujourd'hui",
+    "already_account": "Vous avez déjà un compte?",
+    "confirm_password_label": "Confirmer le Mot de Passe",
+    "confirm_password_placeholder": "Confirmez votre mot de passe",
+    "email_label": "Adresse E-mail",
+    "email_placeholder": "Entrez votre e-mail",
+    "errors": {
+      "password_match": "Les mots de passe ne correspondent pas",
+      "first_name_required": "Le prénom est requis",
+      "last_name_required": "Le nom de famille est requis",
+      "password_length": "Le mot de passe doit contenir au moins 8 caractères",
+      "password_mismatch": "Les mots de passe ne correspondent pas"
+    },
+    "toast": {
+      "success": "Compte créé avec succès",
+      "error": "Erreur lors de la création du compte"
+    },
+    "first_name_label": "Prénom",
+    "first_name_placeholder": "Votre prénom",
+    "last_name_label": "Nom de Famille",
+    "last_name_placeholder": "Votre nom de famille",
+    "login": "Connexion ici",
+    "password_label": "Mot de Passe",
+    "password_placeholder": "Créez un mot de passe fort",
+    "password_strength": "Force du Mot de Passe",
+    "strength": {
+      "medium": "Moyen",
+      "strong": "Fort",
+      "weak": "Faible"
+    },
+    "submit": "Créer un Compte",
+    "submitting": "Création du compte...",
+    "terms": {
+      "and": "et",
+      "prefix": "J'accepte les",
+      "privacy": "Politique de Confidentialité",
+      "tos": "Conditions d'Utilisation"
+    },
+    "username_label": "Nom d'Utilisateur",
+    "username_placeholder": "Choisissez un nom d'utilisateur"
+  },
   "user_detail": {
+    "load_error": "Erreur lors du chargement des détails de l'utilisateur",
+    "no_orders": "Aucune commande",
+    "search_orders_placeholder": "Rechercher des commandes...",
+    "order": "Commande",
+    "status": "Statut",
+    "actions": {
+      "back": "Retour",
+      "edit_status": "Modifier le Statut",
+      "message": "Envoyer un Message",
+      "analytics": "Voir les Analyses"
+    },
+    "chapters": {
+      "none": "Aucun chapitre",
+      "title": "Chapitres"
+    },
+    "chapter": {
+      "toggle_details": "Afficher les Détails",
+      "paid_label": "Payant",
+      "paid_volumes": "Volumes Payants",
+      "volume_prefix": "Volume",
+      "volumes": "Volumes",
+      "read_label": "Lu"
+    },
     "notes": {
       "title": "Notes",
-      "body": "Ajouter des notes sur cet utilisateur"
+      "body": "Notes client"
+    },
+    "attachments": {
+      "title": "Pièces Jointes",
+      "none": "Aucune pièce jointe"
     },
     "address": {
       "title": "Adresse",
       "line": "Adresse",
-      "view_map": "Voir la carte"
-    },
-    "attachments": {
-      "title": "Pièces jointes",
-      "none": "Aucune pièce jointe"
-    },
-    "chapters": {
-      "title": "Chapitres"
-    },
-    "chapter": {
-      "paid_label": "Payant",
-      "volume_prefix": "Volume",
-      "volumes": "Volumes",
-      "read_label": "Statut de Lecture",
-      "paid_volumes": "Volumes Payants",
-      "volumes_range": "Plage de Volumes",
-      "access": "Accès",
-      "source": "Source",
-      "granted_on": "Accordé le",
-      "read_history": "Historique de Lecture",
-      "volume_label": "Volume",
-      "paid": "Payant",
-      "opened_on": "Ouvert le"
+      "view_map": "Voir sur la Carte"
     },
     "stats": {
       "total_orders": "Commandes Totales",
       "paid_orders": "Commandes Payées"
-    },
-    "order": "Commande",
-    "status": "Statut",
-    "no_orders": "Aucune commande pour le moment",
-    "search_orders_placeholder": "Rechercher des commandes...",
-    "actions": {
-      "message": "Envoyer un Message",
-      "analytics": "Analyse"
     }
   },
   "promotions": {
     "title": "Gestion des Promotions",
     "subtitle": "Créez et gérez vos campagnes promotionnelles",
+    "confirm_delete": "Êtes-vous sûr de vouloir supprimer cette promotion?",
     "create_promotion": "Créer une Promotion",
-    "edit_promotion": "Modifier la Promotion",
-    "new_promotion": "Créer une Promotion",
+    "new_promotion": "Nouvelle Promotion",
+    "no_promotions": "Aucune promotion disponible",
+    "saving": "Enregistrement de la promotion...",
+    "toggle_off": "Désactivé",
+    "toggle_on": "Activé",
     "save": "Enregistrer",
     "cancel": "Annuler",
     "delete": "Supprimer",
-    "confirm_delete": "Êtes-vous sûr de vouloir supprimer cette promotion ?",
+    "edit_promotion": "Modifier la Promotion",
     "filters": {
-      "scope": "Portée",
-      "status": "Statut",
       "all": "Tous",
+      "status": "Statut",
       "active": "Actif",
-      "inactive": "Inactif"
+      "inactive": "Inactif",
+      "scope": "Portée"
     },
     "scopes": {
       "VOLUME": "Volume",
@@ -840,114 +1198,18 @@
       "BUNDLE": "Bundle",
       "SUBSCRIPTION": "Abonnement"
     },
+    "types": {
+      "PERCENT": "Pourcentage",
+      "FIXED": "Montant Fixe",
+      "FREE": "Gratuit"
+    },
     "table": {
       "scope": "Portée",
       "type": "Type",
       "reduction": "Réduction",
       "period": "Période",
       "usages": "Utilisations",
-      "status": "Statut",
-      "actions": "Actions"
-    },
-    "types": {
-      "PERCENT": "Pourcentage",
-      "FIXED": "Montant Fixe",
-      "FREE": "Gratuit"
-    },
-    "status": {
-      "active": "Actif",
-      "inactive": "Inactif"
-    },
-    "targeting": {
-      "title": "Sélection de la Cible",
-      "all_users": "Tous les Utilisateurs",
-      "specific_users": "Utilisateurs Spécifiques",
-      "criteria_based": "Basé sur les Critères"
-    },
-    "form": {
-      "subtitle_create": "Créez une nouvelle campagne promotionnelle pour augmenter les ventes",
-      "subtitle_edit": "Modifiez les détails de votre campagne promotionnelle",
-      "basic_info": "Informations de Base",
-      "name_label": "Nom de la Promotion",
-      "name_placeholder": "Ex: Soldes d'été -20%",
-      "explanation_name": "Ce nom sera visible par les administrateurs uniquement",
-      "description_label": "Description",
-      "description_placeholder": "Description optionnelle de la promotion...",
-      "explanation_description": "Description interne pour vous aider à identifier cette promotion",
-      "name": "Nom de la Promotion",
-      "description": "Description",
-      "type": "Type",
-      "type_label": "Type de Promotion",
-      "value": "Valeur",
-      "percent": "Pourcentage",
-      "amount": "Montant",
-      "scope": "Portée",
-      "scope_label": "Portée du Contenu",
-      "start_date": "Date de Début",
-      "end_date": "Date de Fin",
-      "code": "Code Promo",
-      "section_content_type": "Type de Contenu",
-      "explanation_scope_selection": "Sélectionnez le type de contenu auquel cette promotion s'applique",
-      "explanation_scope_volume": "Cette promotion s'applique aux volumes individuels",
-      "explanation_scope_chapter": "Cette promotion s'applique aux chapitres",
-      "explanation_scope_epilogue": "Cette promotion s'applique aux éplogues",
-      "explanation_scope_pov": "Cette promotion s'applique aux points de vue",
-      "explanation_scope_coloring": "Cette promotion s'applique aux livres de coloriage",
-      "explanation_scope_bundle": "Cette promotion s'applique aux bundles",
-      "explanation_scope_subscription": "Cette promotion s'applique aux abonnements",
-      "section_reduction_type": "Type de Réduction",
-      "explanation_type_percent": "Réduction en pourcentage du prix d'achat",
-      "explanation_type_percent_short": "Réduction en pourcentage",
-      "explanation_type_fixed": "Réduction d'un montant fixe",
-      "explanation_type_fixed_short": "Réduction en euros",
-      "explanation_type_free": "Offrir un accès gratuit à ce contenu",
-      "explanation_type_free_short": "Gratuit",
-      "not_applicable": "Non applicable",
-      "section_value": "Valeur de la Réduction",
-      "reduction_percent": "Réduction %",
-      "reduction_amount": "Montant de la Réduction",
-      "example_percent": "Ex: 20",
-      "explanation_value_percent": "Entrez la valeur en pourcentage (0-100)",
-      "explanation_value_fixed": "Entrez le montant en centimes (ex: 50 pour 0.50€, 200 pour 2.00€)",
-      "alert_zero_value": "La valeur de réduction ne peut pas être zéro",
-      "associated_price": "Prix Associé (optionnel)",
-      "select_price": "Sélectionner un prix",
-      "explanation_price_linked": "Associez cette promotion à un prix spécifique pour appliquer la réduction automatiquement",
-      "section_period": "Période de Validité",
-      "explanation_period": "Définissez quand cette promotion est active",
-      "section_status": "Activation",
-      "active": "Actif",
-      "explanation_status_toggle": "Activez ou désactivez cette promotion",
-      "explanation_status_period": "La promotion sera automatiquement activée à la date de début",
-      "explanation_status_active": "Cette promotion est actuellement active",
-      "section_limits": "Limites d'Utilisation",
-      "max_clients": "Clients Maximum",
-      "max_uses": "Utilisations Maximum",
-      "per_user": "Limite par Utilisateur",
-      "unlimited": "Illimité",
-      "limits_example": "Exemple : Définir max utilisations à 100 et par utilisateur à 3",
-      "explanation_max_uses": "Nombre maximum de fois que cette promotion peut être utilisée",
-      "explanation_per_user": "Nombre de fois que chaque client peut utiliser cette promotion",
-      "summary_impact": "Impact de la Promotion",
-      "summary_intro": "Résumé des effets de cette promotion",
-      "summary_for": "Pour",
-      "summary_total_uses": "Utilisations Maximum",
-      "summary_period": "Valide à partir du",
-      "details": "Détails",
-      "save": "Enregistrer",
-      "cancel": "Annuler",
-      "delete": "Supprimer",
-      "saving": "Enregistrement...",
-      "error_save": "Erreur lors de l'enregistrement de la promotion",
-      "error_load": "Erreur lors du chargement de la promotion",
-      "error_delete": "Erreur lors de la suppression de la promotion"
-    },
-    "toast": {
-      "saving": "Enregistrement de la promotion...",
-      "created": "Promotion créée avec succès",
-      "updated": "Promotion mise à jour avec succès",
-      "deleted": "Promotion supprimée avec succès",
-      "error": "Erreur lors de la gestion de la promotion"
+      "status": "Statut"
     }
   }
 }

@@ -1,4 +1,12 @@
-import { MdEdit, MdDelete, MdExpandMore, MdExpandLess, MdCardGiftcard, MdPercent, MdAttachMoney } from "react-icons/md";
+import {
+  MdEdit,
+  MdDelete,
+  MdExpandMore,
+  MdExpandLess,
+  MdCardGiftcard,
+  MdPercent,
+  MdAttachMoney,
+} from "react-icons/md";
 import { useState } from "react";
 import PromotionOverallImpact from "./PromotionOverallImpact";
 
@@ -101,12 +109,13 @@ export default function PromotionCard({
           !isActive ? "dashed" : ""
         } ${bgColors[promotion.scope] || "bg-gray-600"} bg-opacity-60 ${scopeLineColors[promotion.scope] || "border-gray-600"} border-b px-3 pt-3 pb-3 text-white relative `}>
         {/* Scope badge at the top */}
-        <div className={`flex py-1 px-3 shadow-md rounded-full w-min text-xs font-semibold uppercase tracking-wider mb-1 opacity-90  ${bgColors[promotion.scope] || "bg-gray-600"}`}>
+        <div
+          className={`flex py-1 px-3 shadow-md rounded-full w-min text-xs font-semibold uppercase tracking-wider mb-1 opacity-90  ${bgColors[promotion.scope] || "bg-gray-600"}`}>
           {scopeLabel}
         </div>
 
         {/* Promotion name */}
-        <h3 className="text-xl font-bold mb-2 line-clamp-2">
+        <h3 className="text-md text-center font-bold mb-2 line-clamp-2">
           {promotion.name}
         </h3>
 
@@ -114,19 +123,23 @@ export default function PromotionCard({
         <div className="text-center my-4">
           {promotion.type === "FREE" ? (
             <div className="flex flex-col items-center justify-center">
-              <div className="text-6xl mb-2">
-                <MdCardGiftcard className="inline" />
-              </div>
-              <div className="text-4xl font-black">GRATUIT</div>
+            
+              <div className="text-2xl font-black"><MdCardGiftcard className="inline" /> GRATUIT</div>
               <div className="text-sm opacity-90 mt-2">Accès complet</div>
             </div>
           ) : (
             <>
               <div className="flex items-center justify-center gap-2 mb-2">
                 {promotion.type === "PERCENT" ? (
-                  <MdPercent size={32} className="opacity-80" />
+                  <MdPercent
+                    size={32}
+                    className="opacity-80"
+                  />
                 ) : (
-                  <MdAttachMoney size={32} className="opacity-80" />
+                  <MdAttachMoney
+                    size={32}
+                    className="opacity-80"
+                  />
                 )}
               </div>
               <div className="text-5xl font-black">
@@ -164,18 +177,21 @@ export default function PromotionCard({
         <div className="absolute flex bg-gray-200 w-10 h-10 -right-5 -bottom-5 rounded-full"></div>
       </div>
       {/* Bottom section with info and actions */}
-      <div className="grid grid-rows-[auto_auto_auto_1fr] bg-white px-3 pt-6 relative items-center justify-center">
+      <div className="grid  bg-white  relative items-center justify-center">
+        
+          <PromotionOverallImpact promotion={promotion as any} />
+       
         {/* Description */}
-        <p className="text-sm text-gray-600 line-clamp-2">
+        {/* <p className="text-sm text-gray-600 line-clamp-2">
         {promotion.description && (
           <div className="mb-2 bg-gray-100 border-gray-300 border p-2 rounded">
             {promotion.description}
             </div>
         )}
-          </p>
+          </p> */}
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        {/* <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <div className="text-xs text-gray-500">Utilisateurs ciblés</div>
             <div className="text-lg font-bold text-gray-900">
@@ -190,16 +206,16 @@ export default function PromotionCard({
               {promotion._count?.applied || 0}
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Dates */}
-        <div className="text-xs text-gray-500 py-2">
+        {/* <div className="text-xs text-gray-500 py-2">
           Du {new Date(promotion.startsAt).toLocaleDateString("fr-FR")} au{" "}
           {new Date(promotion.endsAt).toLocaleDateString("fr-FR")}
-        </div>
+        </div> */}
 
         {/* Expandable Details Section */}
-        <div className="flex flex-col h-full mb-6 justify-start items-start">
+        {/* <div className="flex flex-col h-full mb-6 justify-start items-start">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="flex items-center justify-between w-full text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors py-2">
@@ -216,9 +232,9 @@ export default function PromotionCard({
               <PromotionOverallImpact promotion={promotion as any} />
             </div>
           )}
-        </div>
+        </div> */}
       </div>
-      
+
       <div className="relative z-[1] border-b border-gray-500 border-dashed">
         <div className="absolute flex bg-gray-200 w-10 h-10 -left-5 -bottom-5 rounded-full"></div>
         <div className="absolute flex bg-gray-200 w-10 h-10 -right-5 -bottom-5 rounded-full"></div>

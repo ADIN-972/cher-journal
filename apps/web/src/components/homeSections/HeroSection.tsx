@@ -27,7 +27,7 @@ export default function HeroSection({ chapters, heroData }: HeroSectionProps) {
           <span className="inline-block bg-primary text-white text-[10px] uppercase tracking-[0.15em] font-semibold px-3 py-1.5 rounded">
             La sélection du moment
           </span>
-          <div className="grid grid-cols-[150px_1fr] gap-4">
+          <div className="grid grid-cols-[150px_1fr] gap-2">
             <div>
               <div className="aspect-[3/4] shrink-0 rounded-lg overflow-hidden relative bg-gradient-to-br from-boudoir-200 to-boudoir-300 dark:from-boudoir-800 dark:to-boudoir-900 shadow-sm">
                 {heroData.imageUrl ? (
@@ -62,7 +62,7 @@ export default function HeroSection({ chapters, heroData }: HeroSectionProps) {
             </div>
           </div>
           {/* CTA Buttons */}
-          <div className="flex items-center gap-4 pt-2">
+          <div className="flex items-center gap-2 pt-2">
             <Link
               to={`/chapters/${heroData.id}`}
               className="bg-primary hover:bg-primary/80 text-white px-8 py-4 rounded-lg font-bold tracking-wide transition-all transform hover:scale-105">
@@ -70,9 +70,9 @@ export default function HeroSection({ chapters, heroData }: HeroSectionProps) {
             </Link>
             <Link
               to="/catalogue"
-              className="border border-charcoal dark:border-white/20 hover:bg-white/5 text-charcoal dark:text-white px-8 py-4 rounded-lg font-bold tracking-wide transition-all">
-              <span className="w-8 h-px bg-white/80"></span>
-              LE CATALOGUE
+              className="border border-charcoal dark:border-white/20 hover:bg-white/5 text-charcoal dark:text-white px-8 py-4 rounded-lg font-bold tracking-wide transition-all whitespace-nowrap">
+               LE CATALOGUE
+             
             </Link>
           </div>
         </div>

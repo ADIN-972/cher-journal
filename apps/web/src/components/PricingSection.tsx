@@ -1,3 +1,4 @@
+import { useToast } from "../hooks/useToast";
 import PlanCard from "./common/PlanCard";
 
 interface Volume {
@@ -39,6 +40,8 @@ export default function PricingSection({
   onPurchase,
   isPurchasing,
 }: PricingSectionProps) {
+  const toast = useToast();
+
   // Only show if user hasn't purchased everything
   if (pricing.bundleDiscountedPrice <= 0) {
     return null;
@@ -85,7 +88,7 @@ export default function PricingSection({
             price={nextLockedVolume.price || pricing.priceFreeToRead}
             buttonText="Débloquer ce Volume"
             onPurchase={() => {
-              alert(
+              toast.info(
                 "Fonctionnalité de déverrouillage de volume individuel à venir"
               );
             }}

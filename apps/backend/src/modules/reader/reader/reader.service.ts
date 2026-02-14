@@ -332,24 +332,22 @@ export class ReaderService {
     }
 
     // Track that user is reading this volume (create VolumeRead if first time)
-    await prisma.volumeRead.upsert({
-      where: {
-        userId_chapterId_volumeNumber: {
+    // Use try-catch to handle race condition where another request creates the record concurrently
+    try {
+      await prisma.volumeRead.create({
+        data: {
           userId,
           chapterId: version.volume.chapterId,
           volumeNumber: version.volume.volumeNumber,
+          firstOpenedAt: new Date(),
         },
-      },
-      create: {
-        userId,
-        chapterId: version.volume.chapterId,
-        volumeNumber: version.volume.volumeNumber,
-        firstOpenedAt: new Date(),
-      },
-      update: {
-        // Don't update firstOpenedAt - keep the original timestamp
-      },
-    });
+      });
+    } catch (error: any) {
+      // If unique constraint violation (record already exists), that's fine - ignore it
+      if (error.code !== 'P2002') {
+        throw error;
+      }
+    }
 
     // Get plaintext from encrypted blob
     let plaintext: string;

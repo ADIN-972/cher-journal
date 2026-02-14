@@ -3,6 +3,7 @@ import { useLibraryStore } from "../stores/libraryStore";
 import { Link } from "react-router-dom";
 import ChapterReviewDrawer from "../components/ChapterReviewDrawer";
 import ChapterCover from "../components/common/ChapterCover";
+import ActiveWaitsSection from "../components/library/ActiveWaitsSection";
 
 export default function Library() {
   const { volumes, isLoading, error, filter, setFilter, fetchLibrary } =
@@ -67,7 +68,7 @@ export default function Library() {
   return (
     <div className="flex-1 flex flex-col overflow-y-auto">
       {/* Header */}
-      <div className="flex flex-wrap justify-between items-end gap-3 mb-8">
+      <div className="flex flex-wrap justify-between items-end gap-3 mb-2">
         <div className="flex min-w-72 flex-col gap-1">
           <p className="text-xl md:text-3xl font-display italic text-[#c5a059] mb-2 leading-tight tracking-tight">
             Bienvenue dans votre sanctuaire
@@ -91,7 +92,7 @@ export default function Library() {
                   ? "border-[#c5a059] text-[#c5a059]"
                   : "border-transparent text-white/40 hover:text-white/80"
               }`}>
-              <p className="text-sm font-bold leading-normal tracking-wider uppercase">
+              <p className="text-[9px] md:text-sm font-bold leading-normal tracking-wider uppercase">
                 {tab.label}
               </p>
             </button>
@@ -101,7 +102,7 @@ export default function Library() {
 
       {/* Error Message */}
       {error && (
-        <div className="mb-8 bg-gradient-to-br from-[#2d1620]/40 to-[#1a0f14]/60 border border-[#ee2b5b]/30 rounded-2xl backdrop-blur-sm">
+        <div className="mb-2 bg-gradient-to-br from-[#2d1620]/40 to-[#1a0f14]/60 border border-[#ee2b5b]/30 rounded-2xl backdrop-blur-sm">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-full bg-[#ee2b5b]/20 flex items-center justify-center flex-shrink-0">
               <span className="material-symbols-outlined text-2xl text-[#ee2b5b]">
@@ -129,7 +130,7 @@ export default function Library() {
 
       {/* Chapters Grid */}
       <div className="mb-16">
-        <div className="flex items-center justify-between mb-8 px-4">
+        <div className="grid grid-rows-2 items-center justify-between mb-2 px-4">
           <h2 className="text-[#c5a059] text-3xl font-display italic font-bold">
             Détails de Lecture
           </h2>
@@ -162,7 +163,7 @@ export default function Library() {
           </div>
         ) : (
           <div className="relative pt-6 pb-12">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16 p-2">
               {chapters.map((chapter) => {
                 // Calculate progress based on current volume
                 const currentVol = chapter.currentVolume || 1;
@@ -273,6 +274,9 @@ export default function Library() {
           </div>
         )}
       </div>
+
+      {/* Active Waits Section */}
+      <ActiveWaitsSection />
 
       {/* Bottom Grid - Coloring Books & Unlocked Chapters */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">

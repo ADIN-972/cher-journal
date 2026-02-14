@@ -1,0 +1,357 @@
+{
+  "_comment": "COMPLETE EXAMPLE - All data is fully transcribed, no truncation with '...'",
+  "_comment_2": "This matches exactly what extract-all-data.ts exports. All fields contain complete values.",
+  "_comment_3": "Passwords: Full bcrypt hashes | Tokens: Complete JWT/session tokens | Hashes: Full SHA256 values",
+  "metadata": {
+    "exportedAt": "2026-02-13T10:30:00.000Z",
+    "tables": {
+      "users": 11,
+      "sessions": 2,
+      "chapters": 14,
+      "volumes": 70,
+      "volumeVersions": 140,
+      "versionAssets": 0,
+      "chapterAssets": 12,
+      "chapterGenreTags": 28,
+      "orders": 61,
+      "refunds": 2,
+      "entitlements": 20,
+      "unlocks": 15,
+      "volumeReads": 45,
+      "chapterReviews": 8,
+      "encryptedBlobs": 0,
+      "webhookEvents": 0,
+      "settings": 0,
+      "prices": 15,
+      "priceHistory": 3,
+      "promotions": 2,
+      "appliedPromotions": 5,
+      "priceSchemas": 1,
+      "chapterPriceOverrides": 0,
+      "auditLogs": 12,
+      "systemConfigs": 0,
+      "assetTags": 3,
+      "assetTagging": 5,
+      "bundles": 2,
+      "bundleItems": 6,
+      "constellations": 5,
+      "chapterConstellations": 28,
+      "volumeConstellations": 0,
+      "badges": 12,
+      "userBadges": 5,
+      "userProgress": 11,
+      "userConstellationProgress": 15,
+      "rewardUnlocks": 2,
+      "userRewardUnlocks": 3
+    }
+  },
+  "data": {
+    "users": [
+      {
+        "id": "uuid-admin-001",
+        "publicId": "uuid-public-001",
+        "email": "admin@cher-journal.fr",
+        "passwordHash": "$2b$10$N9qo8uLOickgx2ZMRZoMye7J8jQG7cqZ.8HZjRgYmJ8mK5.vYVf8K",
+        "firstName": "Admin",
+        "lastName": "User",
+        "username": "admin",
+        "status": "ACTIVE",
+        "role": "ADMIN",
+        "createdAt": "2026-01-15T10:00:00.000Z"
+      },
+      {
+        "id": "uuid-user-001",
+        "publicId": "uuid-public-user-001",
+        "email": "reader@example.com",
+        "passwordHash": "$2b$10$KXZJ/0VEL.8w0S0rXVqb8uXbVy4D7l1KZfJ2GJJ0p1Y6S2h2R5D2a",
+        "firstName": "Emma",
+        "lastName": "Early",
+        "username": null,
+        "status": "ACTIVE",
+        "role": "USER",
+        "createdAt": "2026-01-20T10:00:00.000Z"
+      }
+    ],
+    "sessions": [
+      {
+        "id": "session-001",
+        "userId": "uuid-user-001",
+        "sessionToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+        "createdAt": "2026-02-13T09:00:00.000Z",
+        "expiresAt": "2026-02-20T09:00:00.000Z",
+        "ipHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "userAgentHash": "2c26b46911185131006ba5991d4c5ed5c7f3b1d97e75ac351a40d726bd580374"
+      }
+    ],
+    "chapters": [
+      {
+        "id": "chapter-001",
+        "title": "Le Secret de la Forêt",
+        "protagonistName": "Léa",
+        "description": "Une histoire de passion...",
+        "status": "PUBLISHED",
+        "publishedAt": "2026-01-01T10:00:00.000Z",
+        "scheduledFor": null,
+        "coverAssetId": "asset-001",
+        "isArchived": false,
+        "createdAt": "2025-12-20T10:00:00.000Z",
+        "accroche_classic": "Dans la chaleur d'un instant volé...",
+        "accroche_dark": "Avec elle, la tendresse flirte avec l'urgence...",
+        "accroche_love": "Elle est une lumière douce...",
+        "accroche_marketing": "Découvrez Léa, une passion à fleur de peau...",
+        "accroche_dark_collection": "Avec elle, l'abandon n'est jamais innocent...",
+        "niveau_intensite": 3,
+        "niveau_douceur": 4,
+        "niveau_danger": 2,
+        "niveau_transformation": 3
+      }
+    ],
+    "volumes": [
+      {
+        "id": "volume-001",
+        "chapterId": "chapter-001",
+        "volumeNumber": 1,
+        "title": "Volume 1",
+        "status": "PUBLISHED",
+        "waitDuration": "0",
+        "isFinalPaywall": false,
+        "isFree": false,
+        "publishedAt": "2026-01-01T10:00:00.000Z",
+        "scheduledFor": null,
+        "illustrationAssetId": "asset-002",
+        "createdAt": "2025-12-20T10:00:00.000Z",
+        "intensite": 35,
+        "douceur": 60,
+        "danger": 10,
+        "transformation": 50,
+        "mystere": 55,
+        "charme": 65,
+        "xpFeuBase": 45,
+        "xpAmeBase": 36,
+        "xpOmbreBase": 27,
+        "isDarkCollection": false
+      }
+    ],
+    "volumeVersions": [
+      {
+        "id": "version-001",
+        "volumeId": "volume-001",
+        "perspective": "NARRATOR",
+        "textBlobId": null,
+        "illustrationAssetId": null,
+        "text": null,
+        "isAutoText": true,
+        "characterCount": 0,
+        "createdAt": "2025-12-20T10:00:00.000Z"
+      }
+    ],
+    "versionAssets": [],
+    "chapterAssets": [
+      {
+        "id": "asset-001",
+        "chapterId": "chapter-001",
+        "kind": "IMAGE",
+        "label": "Cover",
+        "objectKey": "covers/chapter-001.jpg",
+        "thumbnailObjectKey": "covers/chapter-001-thumb.jpg",
+        "mimeType": "image/jpeg",
+        "sizeBytes": 256000,
+        "width": 1200,
+        "height": 1600,
+        "sha256": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+        "version": 1,
+        "originalAssetId": null,
+        "createdAt": "2025-12-20T10:00:00.000Z",
+        "updatedAt": "2025-12-20T10:00:00.000Z"
+      }
+    ],
+    "chapterGenreTags": [
+      {
+        "id": "genre-tag-001",
+        "chapterId": "chapter-001",
+        "genre": "PASSIONS_CHARNELLES",
+        "createdAt": "2025-12-20T10:00:00.000Z"
+      }
+    ],
+    "orders": [
+      {
+        "id": "order-001",
+        "userId": "uuid-user-001",
+        "type": "CHAPTER",
+        "status": "PAID",
+        "refId": "chapter-001",
+        "volumeNumber": null,
+        "provider": "stripe",
+        "providerSessionId": "cs_test_a1B2c3D4e5F6g7H8i9J0k1L2m3N4o5P6Q7r8S9t0U1v2W3x4Y5z",
+        "providerPaymentIntentId": "pi_1QhZXgBz9eEVHrJt8bLmK9Wp",
+        "currency": "EUR",
+        "amountTotal": 699,
+        "appliedPriceFreeToRead": 199,
+        "appliedPricePaywall": 299,
+        "appliedPriceEpilogue": 399,
+        "appliedPriceSchemaId": "schema-001",
+        "appliedPromotionId": null,
+        "createdAt": "2026-01-05T10:00:00.000Z"
+      }
+    ],
+    "refunds": [],
+    "entitlements": [
+      {
+        "id": "entitlement-001",
+        "userId": "uuid-user-001",
+        "chapterId": "chapter-001",
+        "volumeFrom": 1,
+        "volumeTo": 5,
+        "versionScope": "BASE",
+        "source": "PURCHASE",
+        "grantedAt": "2026-01-05T10:00:00.000Z"
+      }
+    ],
+    "unlocks": [
+      {
+        "id": "unlock-001",
+        "userId": "uuid-user-001",
+        "chapterId": "chapter-001",
+        "volumeNumber": 6,
+        "unlocksAt": "2026-02-05T10:00:00.000Z",
+        "triggeredBy": "WAIT"
+      }
+    ],
+    "volumeReads": [
+      {
+        "id": "read-001",
+        "userId": "uuid-user-001",
+        "chapterId": "chapter-001",
+        "volumeNumber": 1,
+        "progress": 100,
+        "firstOpenedAt": "2026-01-05T11:00:00.000Z",
+        "completedAt": "2026-01-05T12:30:00.000Z",
+        "canStartWaitFrom": "2026-01-05T12:00:00.000Z"
+      }
+    ],
+    "chapterReviews": [],
+    "encryptedBlobs": [],
+    "webhookEvents": [],
+    "settings": [],
+    "prices": [
+      {
+        "id": "price-001",
+        "scope": "VOLUME",
+        "refId": "volume-001",
+        "amountCents": 199,
+        "currency": "EUR",
+        "createdAt": "2025-12-20T10:00:00.000Z"
+      }
+    ],
+    "priceHistory": [],
+    "promotions": [
+      {
+        "id": "promo-001",
+        "name": "Early Bird",
+        "description": "10% discount for early adopters",
+        "scope": "VOLUME",
+        "refId": null,
+        "type": "PERCENT",
+        "value": 10,
+        "startsAt": "2026-01-01T00:00:00.000Z",
+        "endsAt": "2026-02-01T00:00:00.000Z",
+        "maxUses": 100,
+        "perUserLimit": 1,
+        "isActive": false,
+        "code": "EARLY10",
+        "targetType": "ALL_USERS",
+        "targetUserIds": [],
+        "targetCriteria": null,
+        "createdAt": "2025-12-20T10:00:00.000Z",
+        "updatedAt": "2025-12-20T10:00:00.000Z",
+        "createdBy": "uuid-admin-001",
+        "priceId": null
+      }
+    ],
+    "appliedPromotions": [],
+    "priceSchemas": [
+      {
+        "id": "schema-001",
+        "name": "Standard Pricing",
+        "description": "Default pricing schema",
+        "priceFreeToRead": 199,
+        "pricePaywall": 299,
+        "priceEpilogue": 399,
+        "isActive": true,
+        "appliedFrom": "2025-12-20T10:00:00.000Z",
+        "appliedTo": null,
+        "createdAt": "2025-12-20T10:00:00.000Z",
+        "createdBy": "uuid-admin-001"
+      }
+    ],
+    "chapterPriceOverrides": [],
+    "auditLogs": [],
+    "systemConfigs": [],
+    "assetTags": [
+      {
+        "id": "tag-001",
+        "name": "Portrait",
+        "description": "Portrait-oriented images",
+        "color": "#FF5733",
+        "createdAt": "2025-12-20T10:00:00.000Z",
+        "updatedAt": "2025-12-20T10:00:00.000Z"
+      }
+    ],
+    "assetTagging": [],
+    "bundles": [],
+    "bundleItems": [],
+    "constellations": [
+      {
+        "id": "constellation-001",
+        "slug": "fondatrices",
+        "name": "Les Fondatrices",
+        "description": "Les histoires qui initient, ouvrent, marquent à jamais.",
+        "iconKey": "constellation-foundation",
+        "colorKey": "c-foundation",
+        "createdAt": "2025-12-20T10:00:00.000Z"
+      }
+    ],
+    "chapterConstellations": [
+      {
+        "id": "cc-001",
+        "chapterId": "chapter-001",
+        "constellationId": "constellation-001",
+        "weight": 100
+      }
+    ],
+    "volumeConstellations": [],
+    "badges": [
+      {
+        "id": "badge-001",
+        "type": "PROGRESSION",
+        "code": "PREMIERE_BRULURE",
+        "name": "Première brûlure",
+        "description": "Premier pas franchi : la curiosité devient engagement.",
+        "iconKey": "badge-flame-1",
+        "constellationId": null,
+        "minLevel": 2,
+        "thresholdPct": null,
+        "createdAt": "2025-12-20T10:00:00.000Z"
+      }
+    ],
+    "userBadges": [],
+    "userProgress": [
+      {
+        "id": "progress-001",
+        "userId": "uuid-user-001",
+        "level": 1,
+        "xpFeu": 100,
+        "xpAme": 80,
+        "xpOmbre": 60,
+        "feuPct": 40,
+        "amePct": 32,
+        "ombrePct": 28,
+        "createdAt": "2026-01-20T10:00:00.000Z",
+        "updatedAt": "2026-02-13T10:00:00.000Z"
+      }
+    ],
+    "userConstellationProgress": [],
+    "rewardUnlocks": [],
+    "userRewardUnlocks": []
+  }
+}

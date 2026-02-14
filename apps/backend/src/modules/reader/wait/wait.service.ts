@@ -3,6 +3,7 @@ import { config } from '@cher-journal/config';
 import { UnlockTriggeredBy } from '@prisma/client';
 import { StartWaitInput, GetWaitStatusInput } from './wait.schemas';
 import { ConfigService } from '../../admin/config/config.service';
+import { priceSchemaService } from '../../admin/price-schemas/price-schemas.service';
 
 export class WaitService {
   private configService: ConfigService;
@@ -133,24 +134,22 @@ export class WaitService {
       },
     });
 
-    // Create or update VolumeRead
-    await prisma.volumeRead.upsert({
-      where: {
-        userId_chapterId_volumeNumber: {
+    // Create VolumeRead if it doesn't exist yet
+    // Use try-catch to handle race condition where another request creates the record concurrently
+    try {
+      await prisma.volumeRead.create({
+        data: {
           userId,
           chapterId: data.chapterId,
           volumeNumber: data.volumeNumber,
         },
-      },
-      create: {
-        userId,
-        chapterId: data.chapterId,
-        volumeNumber: data.volumeNumber,
-      },
-      update: {
-        // Just update timestamp if already exists
-      },
-    });
+      });
+    } catch (error: any) {
+      // If unique constraint violation (record already exists), that's fine - ignore it
+      if (error.code !== 'P2002') {
+        throw error;
+      }
+    }
 
     return {
       unlocksAt: unlock.unlocksAt,
@@ -193,16 +192,56 @@ export class WaitService {
         unlocksAt: { gt: new Date() },
       },
       include: {
-        chapter: true,
+        chapter: {
+          include: {
+            volumes: true,
+          },
+        },
       },
     });
 
-    return unlocks.map(unlock => ({
-      chapterId: unlock.chapterId,
-      chapterTitle: unlock.chapter.title,
-      volumeNumber: unlock.volumeNumber,
-      unlocksAt: unlock.unlocksAt,
-      remainingMs: unlock.unlocksAt.getTime() - Date.now(),
+    return Promise.all(unlocks.map(async (unlock) => {
+      // Get volume for determining price category
+      const volume = unlock.chapter.volumes.find(v => v.volumeNumber === unlock.volumeNumber);
+
+      // Get prices for this chapter
+      const prices = await priceSchemaService.getChapterPrices(unlock.chapterId);
+
+      // Determine which price applies to this volume
+      let volumePrice = 0;
+      if (volume && !volume.isFree) {
+        if (volume.volumeNumber <= 8) {
+          volumePrice = prices.priceFreeToRead;
+        } else if (volume.volumeNumber <= 10) {
+          volumePrice = prices.pricePaywall;
+        } else {
+          volumePrice = prices.priceEpilogue;
+        }
+      }
+
+      // Calculate chapter price (all non-free volumes)
+      let chapterPrice = 0;
+      unlock.chapter.volumes.forEach(vol => {
+        if (!vol.isFree) {
+          if (vol.volumeNumber <= 8) {
+            chapterPrice += prices.priceFreeToRead;
+          } else if (vol.volumeNumber <= 10) {
+            chapterPrice += prices.pricePaywall;
+          } else {
+            chapterPrice += prices.priceEpilogue;
+          }
+        }
+      });
+
+      return {
+        chapterId: unlock.chapterId,
+        chapterTitle: unlock.chapter.title,
+        volumeNumber: unlock.volumeNumber,
+        unlocksAt: unlock.unlocksAt,
+        remainingMs: unlock.unlocksAt.getTime() - Date.now(),
+        volumePrice,
+        chapterPrice,
+      };
     }));
   }
 

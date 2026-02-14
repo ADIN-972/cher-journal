@@ -4,7 +4,7 @@ interface ChapterCoverProps {
   showPremiumBadge?: boolean;
   showLimitedEditionBadge?: boolean;
   className?: string;
-  textSize?: "sm" | "md" | "lg"| "xl"| "2xl"| "3xl";
+  textSize?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
 }
 
 export default function ChapterCover({
@@ -15,7 +15,6 @@ export default function ChapterCover({
   className = "",
   textSize = "md",
 }: ChapterCoverProps) {
-
   const textSizeClass = {
     sm: "text-sm",
     md: "text-md",
@@ -23,7 +22,7 @@ export default function ChapterCover({
     xl: "text-xl",
     "2xl": "text-2xl",
     "3xl": "text-3xl",
-  }[textSize];  
+  }[textSize];
   return (
     <div className={`relative group ${className}`}>
       <div className="absolute -inset-1 opacity-25 group-hover:opacity-40 transition duration-1000"></div>
@@ -31,28 +30,17 @@ export default function ChapterCover({
         <div className="absolute -inset-2 bg-accent-gold/5 rounded-xl blur-2xl opacity-50 group-hover:opacity-100 transition duration-1000"></div>
 
         <div className="relative grid grid-rows-[auto_1fr] bg-black rounded-[4px] overflow-hidden aspect-[3/4] book-edge ring-1 ring-white/10 transition-transform duration-500 group-hover:scale-[1.01]">
-          {imageUrl ? (
-            <>
-              <img
-                className="w-full h-auto object-cover"
-                // src={imageUrl.replace(".png", "-thumb.png")}
-                src={imageUrl}
-                alt={title}
-              />
-              <div className={`relative flex px-8 items-center bg-[#53273F] handwriting ${textSizeClass}`}>
-                {title}
-              </div>
-            </>
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent-gold/20 flex items-center justify-center">
-              <div className="text-center p-6">
-                <div className="text-6xl mb-4">📖</div>
-                <p className={`${textSizeClass} text-charcoal dark:text-white/70 font-medium`}>
-                  {title}
-                </p>
-              </div>
-            </div>
-          )}
+          <img
+            className="w-full h-auto object-cover"
+            // src={imageUrl.replace(".png", "-thumb.png")}
+            src={imageUrl ?? "/assets/images/404_bg.png"}
+            alt={title}
+          />
+          <div
+            className={`relative flex px-8 items-center bg-[#53273F] handwriting leading-4 ${textSizeClass}`}>
+            {title}
+          </div>
+
           {/* <div className="book-texture"></div> */}
           <div className="book-spine-effect"></div>
           <div className="book-binding-line"></div>

@@ -1,7 +1,7 @@
 import { useState, useRef, ChangeEvent } from "react";
 import { MdCloudUpload, MdImage, MdClose } from "react-icons/md";
 import toast from "react-hot-toast";
-import { useTranslation } from "react-i18next";
+import { useI18n } from "../lib/i18n";
 
 interface ImageUploadProps {
   onUploadSuccess?: (asset: any | any[]) => void;
@@ -26,7 +26,7 @@ export default function ImageUpload({
   className = "",
   multiple = false,
 }: ImageUploadProps) {
-  const { t } = useTranslation();
+  const { t } = useI18n();
   const [uploading, setUploading] = useState(false);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);

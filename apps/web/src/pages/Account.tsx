@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
 import { useTranslation } from "../lib/i18n";
 import Library from "./Library";
@@ -35,11 +35,38 @@ interface MenuItem {
 }
 
 export default function Account() {
+  const { section } = useParams<{ section?: string }>();
   const [activeSection, setActiveSection] =
     useState<AccountSection>("my-books");
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  // Sync URL to active section
+  useEffect(() => {
+    if (section && isValidSection(section)) {
+      setActiveSection(section as AccountSection);
+    } else if (!section) {
+      // If no section in URL, default to my-books
+      navigate("/account/my-books", { replace: true });
+    }
+  }, [section, navigate]);
+
+  const isValidSection = (value: string): value is AccountSection => {
+    return [
+      "my-books",
+      "purchases",
+      "claims",
+      "reviews",
+      "promotions",
+      "subscription",
+      "preferences",
+      "notifications",
+      "devices",
+      "account-info",
+      "payment-info",
+    ].includes(value);
+  };
 
   const menuItems: MenuItem[] = [
     {
@@ -172,7 +199,7 @@ export default function Account() {
                 {menuItems.map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => setActiveSection(item.id)}
+                    onClick={() => navigate(`/account/${item.id}`)}
                     title={item.label}
                     className={`text-left px-2 py-1 lg:px-4 lg:py-2 rounded-md transition-all group ${
                       activeSection === item.id

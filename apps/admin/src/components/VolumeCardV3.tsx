@@ -117,7 +117,7 @@ export default function VolumeCardV3({
       <div
         className="book-card group"
         id="publishing-chapter">
-        <div className="book-container">
+        <div className="relative book-container">
           <button
             onClick={onToggleSelection}
             className="absolute top-2 left-2 bg-white dark:bg-gray-800 rounded-lg p-2 shadow-md hover:shadow-lg transition-shadow z-[1]">
@@ -127,6 +127,10 @@ export default function VolumeCardV3({
               <MdCheckBoxOutlineBlank className="w-5 h-5 text-gray-400 dark:text-gray-500" />
             )}
           </button>
+          <div className="absolute bottom-2 left-2 flex flex-col items-center text-xs text-white border border-white/30 bg-black/40 backdrop-blur-sm shadow-md rounded-md p-2  z-[1]">
+            <PiClockCountdownBold className="h-5 w-5" />
+            <div>{getWaitDurationHours(volume)}h</div>
+          </div>
           <div className="book-left">
             <div className="page-texture"></div>
             <img

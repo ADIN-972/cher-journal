@@ -115,9 +115,11 @@ export default function HomeNew() {
     id: chapter.id,
     title: chapter.title,
     badge: ["Coup de foudre", "Mystère", "Audace"][index] || "Populaire",
-    badgeColor: ["text-white", "text-charcoal dark:text-white/70", "text-gold"][
-      index
-    ],
+    badgeColor: [
+      "text-charcoal dark:text-white/70",
+      "text-charcoal dark:text-white/70",
+      "text-charcoal dark:text-white/70",
+    ][index],
     subtitle: chapter.protagonistName || "",
     description: chapter.accroche_marketing ?? chapter.description ?? undefined,
     genres: chapter.genres || [],

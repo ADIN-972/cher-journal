@@ -7,13 +7,13 @@ import {
 } from "react-router-dom";
 import { useCatalogStore } from "../stores/catalogStore";
 import api from "../lib/api";
+import { useToast } from "../hooks/useToast";
 import ReaderDrawer from "../components/ReaderDrawer";
 import PurchaseDrawer from "../components/PurchaseDrawer";
 import ErrorMessage from "../components/common/ErrorMessage";
 import ChapterCover from "../components/common/ChapterCover";
 import PricingSection from "../components/PricingSection";
 import ReviewsSection from "../components/ReviewsSection";
-import { useToast } from "../hooks/useToast";
 import WaitTimer from "../components/WaitTimer";
 import { NotificationService } from "../lib/notifications";
 
@@ -22,7 +22,7 @@ export default function Chapter() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { currentChapter, isLoading, error, fetchChapter } = useCatalogStore();
-  const { showToast, ToastContainer } = useToast();
+  const toast = useToast();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isStartingWait, setIsStartingWait] = useState(false);
@@ -73,11 +73,9 @@ export default function Chapter() {
     const purchaseStatus = searchParams.get("purchase");
 
     if (purchaseStatus === "success") {
-      showToast({
-        message:
-          "Paiement effectué avec succès ! Vous avez maintenant accès au contenu.",
-        type: "success",
-      });
+      toast.success(
+        "Paiement effectué avec succès ! Vous avez maintenant accès au contenu."
+      );
       // Remove the query parameter from URL
       setSearchParams({});
       // Refresh chapter data to get updated access
@@ -85,15 +83,13 @@ export default function Chapter() {
         fetchChapter(id);
       }
     } else if (purchaseStatus === "cancelled") {
-      showToast({
-        message:
-          "Le paiement a été annulé. Vous pouvez réessayer quand vous le souhaitez.",
-        type: "info",
-      });
+      toast.info(
+        "Le paiement a été annulé. Vous pouvez réessayer quand vous le souhaitez."
+      );
       // Remove the query parameter from URL
       setSearchParams({});
     }
-  }, [searchParams, setSearchParams, showToast, id, fetchChapter]);
+  }, [searchParams, setSearchParams, toast, id, fetchChapter]);
 
   // Update timer every minute
   useEffect(() => {
@@ -137,10 +133,7 @@ export default function Chapter() {
     } catch (err: any) {
       console.error("Failed to create checkout session for volume:", err);
       const errorMessage = err.response?.data?.error?.message || "Erreur lors de la création de la session de paiement.";
-      showToast({
-        message: errorMessage,
-        type: "error",
-      });
+      toast.error(errorMessage);
       setIsPurchasing(false);
     }
   };
@@ -161,11 +154,9 @@ export default function Chapter() {
       window.location.href = url;
     } catch (err: any) {
       console.error("Failed to create checkout session:", err);
-      showToast({
-        message:
-          "Erreur lors de la création de la session de paiement. Veuillez réessayer.",
-        type: "error",
-      });
+      toast.error(
+        "Erreur lors de la création de la session de paiement. Veuillez réessayer."
+      );
       setIsPurchasing(false);
     }
   };
@@ -222,11 +213,9 @@ export default function Chapter() {
       window.location.href = url;
     } catch (err: any) {
       console.error("Failed to create checkout session:", err);
-      showToast({
-        message:
-          "Erreur lors de la création de la session de paiement. Veuillez réessayer.",
-        type: "error",
-      });
+      toast.error(
+        "Erreur lors de la création de la session de paiement. Veuillez réessayer."
+      );
       setIsPurchasing(false);
     }
   };
@@ -250,32 +239,22 @@ export default function Chapter() {
       await fetchChapter(id);
       await fetchActiveWaitsCount();
 
-      showToast({
-        message: "Compte à rebours démarré avec succès !",
-        type: "success",
-      });
+      toast.success("Compte à rebours démarré avec succès !");
 
       setIsStartingWait(false);
     } catch (err: any) {
       console.error("Failed to start wait timer:", err);
 
       if (err.message?.includes("MAX_PENDING_CHAPTERS_REACHED")) {
-        showToast({
-          message:
-            "Vous avez déjà 2 chapitres en attente. Veuillez patienter avant d'en démarrer un nouveau.",
-          type: "warning",
-        });
+        toast.warning(
+          "Vous avez déjà 2 chapitres en attente. Veuillez patienter avant d'en démarrer un nouveau."
+        );
       } else if (err.message?.includes("WAIT_ALREADY_ACTIVE")) {
-        showToast({
-          message: "Un compte à rebours est déjà actif pour ce chapitre.",
-          type: "info",
-        });
+        toast.info("Un compte à rebours est déjà actif pour ce chapitre.");
       } else {
-        showToast({
-          message:
-            "Erreur lors du démarrage du compte à rebours. Veuillez réessayer.",
-          type: "error",
-        });
+        toast.error(
+          "Erreur lors du démarrage du compte à rebours. Veuillez réessayer."
+        );
       }
 
       setIsStartingWait(false);
@@ -341,9 +320,7 @@ export default function Chapter() {
   const reviewCount = 124;
 
   return (
-    <>
-      <ToastContainer />
-      <main className="max-w-7xl mx-auto px-6 py-10 text-charcoal dark:text-white/70 dark:text-white">
+    <main className="max-w-7xl mx-auto px-6 py-10 text-charcoal dark:text-white/70 dark:text-white">
         {/* Breadcrumbs */}
         <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
           <Link
@@ -544,7 +521,7 @@ export default function Chapter() {
                           onClick={(e) => {
                             e.stopPropagation();
                             // TODO: Navigate to upgrade page
-                            alert("Fonctionnalité de mise à niveau à venir");
+                            toast.info("Fonctionnalité de mise à niveau à venir");
                           }}
                           className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-full font-semibold text-sm flex items-center gap-2 transition-all">
                           <span className="material-symbols-outlined text-sm">
@@ -646,7 +623,7 @@ export default function Chapter() {
         {/* Reader Reviews */}
         <ReviewsSection
           onWriteReview={() =>
-            alert("Fonctionnalité d'écriture d'avis à venir")
+            toast.info("Fonctionnalité d'écriture d'avis à venir")
           }
         />
 
@@ -705,6 +682,5 @@ export default function Chapter() {
           />
         )}
       </main>
-    </>
   );
 }

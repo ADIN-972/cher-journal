@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../hooks/useToast';
 
 interface Volume {
   id: string;
@@ -19,6 +20,7 @@ interface VolumeListProps {
 
 export default function VolumeList({ volumes, chapterTitle }: VolumeListProps) {
   const navigate = useNavigate();
+  const toast = useToast();
   const [loadingVolumeId, setLoadingVolumeId] = useState<string | null>(null);
 
   const handleRead = (volumeId: string) => {
@@ -29,7 +31,7 @@ export default function VolumeList({ volumes, chapterTitle }: VolumeListProps) {
     setLoadingVolumeId(volumeId);
     // TODO: Implement purchase flow (Phase 4)
     console.log('Purchase volume:', volumeId);
-    alert('La fonctionnalité d\'achat sera disponible dans la Phase 4');
+    toast.info('La fonctionnalité d\'achat sera disponible dans la Phase 4');
     setLoadingVolumeId(null);
   };
 
@@ -37,7 +39,7 @@ export default function VolumeList({ volumes, chapterTitle }: VolumeListProps) {
     setLoadingVolumeId(volumeId);
     // TODO: Implement wait-to-read (Phase 4)
     console.log('Wait to read volume:', volumeId);
-    alert('La fonctionnalité Wait-to-Read sera disponible dans la Phase 4');
+    toast.info('La fonctionnalité Wait-to-Read sera disponible dans la Phase 4');
     setLoadingVolumeId(null);
   };
 

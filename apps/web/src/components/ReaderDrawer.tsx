@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import api from "../lib/api";
+import { useToast } from "../hooks/useToast";
 import EndOfVolumeUI from "./EndOfVolumeUI";
 import Reader from "../pages/Reader";
 
@@ -28,6 +29,8 @@ export default function ReaderDrawer({
   nextVolume,
   onReadNext,
 }: ReaderDrawerProps) {
+  const toast = useToast();
+
   // Block body scroll when drawer is open
   useEffect(() => {
     if (isOpen) {
@@ -44,20 +47,20 @@ export default function ReaderDrawer({
   const handleStartWait = async () => {
     try {
       await api.startWait({ chapterId, volumeNumber: volumeNumber + 1 });
-      alert(
+      toast.success(
         "Compte à rebours démarré ! Le volume suivant se débloquera automatiquement.",
       );
       onClose();
     } catch (err: any) {
       console.error("Failed to start wait:", err);
       if (err.message?.includes("MAX_PENDING_CHAPTERS_REACHED")) {
-        alert(
+        toast.warning(
           "Vous avez déjà 2 chapitres en attente. Veuillez patienter avant d'en démarrer un nouveau.",
         );
       } else if (err.message?.includes("WAIT_ALREADY_ACTIVE")) {
-        alert("Un compte à rebours est déjà actif pour ce chapitre.");
+        toast.warning("Un compte à rebours est déjà actif pour ce chapitre.");
       } else {
-        alert(
+        toast.error(
           "Erreur lors du démarrage du compte à rebours. Veuillez réessayer.",
         );
       }
@@ -66,7 +69,7 @@ export default function ReaderDrawer({
 
   const handlePurchase = (type: "freeToRead" | "paywall" | "epilogue") => {
     // TODO: Implement Stripe checkout for each type
-    alert(`Paiement ${type} à implémenter`);
+    toast.info(`Paiement ${type} à implémenter`);
     console.log("Purchase type:", type, "for chapter:", chapterId);
   };
 

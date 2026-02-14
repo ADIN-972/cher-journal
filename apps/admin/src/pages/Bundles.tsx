@@ -11,7 +11,7 @@ import {
   MdShoppingCart,
 } from "react-icons/md";
 import { api } from "../lib/api";
-import { useTranslation } from "react-i18next";
+import { useI18n, useTranslation } from '../lib/i18n';
 
 interface BundleItem {
   id: string;
@@ -48,7 +48,7 @@ interface Bundle {
 }
 
 export default function Bundles() {
-  const { t } = useTranslation();
+  const { t } = useI18n();
   const navigate = useNavigate();
 
   const [bundles, setBundles] = useState<Bundle[]>([]);

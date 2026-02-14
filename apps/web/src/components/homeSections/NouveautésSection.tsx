@@ -48,7 +48,7 @@ export default function NouveautésSection({
             key={item.id}
             to={`/chapters/${item.id}`}
             className="group">
-            <div className="aspect-[3/4] min-w-[180px] overflow-hidden mb-3 relative bg-gradient-to-br from-boudoir-800 to-boudoir-900">
+            <div className="aspect-[3/4] min-w-[150px] overflow-hidden mb-3 relative bg-gradient-to-br from-boudoir-800 to-boudoir-900">
               {item.imageUrl ? (
                 <ChapterCover
                   imageUrl={item.imageUrl}

@@ -103,9 +103,9 @@ function PromotionOverallImpact({ promotion }: PromotionOverallImpactProps) {
   };
 
   return (
-    <div className={`mt-4 p-4 border border-l-8 rounded-lg text-sm space-y-3 ${getTypeColor()}`}>
+    <div className={`h-full p-4 border border-l-8 rounded-lg text-sm space-y-3 ${getTypeColor()}`}>
       {/* Main reduction info */}
-      <div className="font-semibold text-base">
+      <div className="font-semibold ">
         {getTypeIcon()}
         <strong>{getReductionText()}</strong> sur {getScopeLabel(promotion.scope)}
       </div>

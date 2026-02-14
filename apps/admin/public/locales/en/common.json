@@ -37,6 +37,28 @@
     "english": "English",
     "search_placeholder": "Search books..."
   },
+  "buttons": {
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View"
+  },
+  "confirmations": {
+    "delete_chapter": "Delete Chapter",
+    "delete_chapter_warning": "Are you sure you want to delete this chapter? This action cannot be undone."
+  },
+  "orders": {
+    "completed": "Completed",
+    "pending": "Pending"
+  },
+  "users": {
+    "details": "User Details",
+    "role_admin": "Administrator",
+    "role_user": "User",
+    "status_active": "Active",
+    "status_suspended": "Suspended",
+    "user_activated": "User activated successfully",
+    "user_suspended": "User suspended successfully"
+  },
   "home": {
     "title": "Cher Journal",
     "subtitle": "Discover sensual stories",
@@ -195,163 +217,6 @@
     "stripe_payment_failed": "Payment processing failed. Please try again",
     "stripe_session_error": "Could not create checkout session"
   },
-  "common": {
-    "loading": "Loading...",
-    "error": "Error",
-    "success": "Success",
-    "warning": "Warning",
-    "info": "Information",
-    "confirm": "Confirm",
-    "cancel": "Cancel",
-    "save": "Save",
-    "delete": "Delete",
-    "edit": "Edit",
-    "view": "View",
-    "close": "Close",
-    "search": "Search",
-    "filter": "Filter",
-    "sort": "Sort",
-    "apply": "Apply",
-    "clear": "Clear",
-    "submit": "Submit",
-    "next": "Next",
-    "previous": "Previous",
-    "more": "More",
-    "less": "Less",
-    "show_more": "Show more",
-    "show_less": "Show less",
-    "no_results": "No results found",
-    "empty": "Empty",
-    "or": "Or",
-    "and": "And",
-    "copy": "Copy",
-    "copied": "Copied",
-    "download": "Download",
-    "upload": "Upload",
-    "version": "Version",
-    "yes": "Yes",
-    "no": "No",
-    "ok": "OK",
-    "enabled": "Enabled",
-    "disabled": "Disabled",
-    "search_placeholder": "Search...",
-    "hours": "{{count}} hour",
-    "hours_plural": "{{count}} hours",
-    "minutes": "{{count}} minute",
-    "minutes_plural": "{{count}} minutes",
-    "seconds": "{{count}} second",
-    "seconds_plural": "{{count}} seconds",
-    "card_view": "Card View",
-    "list_view": "List View",
-    "calendar_view": "Calendar View",
-    "add": "Add"
-  },
-  "messages": {
-    "loading": "Loading...",
-    "please_wait": "Please wait",
-    "saving": "Saving...",
-    "saved": "Saved successfully",
-    "saved_successfully": "Changes saved successfully",
-    "deleting": "Deleting...",
-    "deleted": "Deleted successfully",
-    "deleted_successfully": "Item deleted successfully",
-    "confirm_delete": "Are you sure you want to delete this?",
-    "action_required": "Action required",
-    "session_expired": "Your session has expired. Please login again.",
-    "access_denied": "Access denied",
-    "success": {
-      "chapter_updated": "Chapter updated successfully"
-    },
-    "error": {
-      "load_chapters": "Failed to load chapters",
-      "load_stats": "Failed to load statistics"
-    }
-  },
-  "chapters": {
-    "edit_chapter": "Edit Chapter",
-    "create_chapter": "Create Chapter",
-    "delete_chapter": "Delete Chapter"
-  },
-  "chapter_detail": {
-    "volumes_title": "Volumes",
-    "chapter_images": "Chapter Images",
-    "modal": {
-      "bootstrap_title": "Create Volumes",
-      "bootstrap_description": "How many volumes would you like to create for this chapter?",
-      "volumes_count": "Number of volumes",
-      "create": "Create Volumes"
-    },
-    "buttons": {
-      "edit_titles": "Edit Titles",
-      "bulk_import": "Bulk Import",
-      "add_volume": "Add Volume"
-    },
-    "fab": {
-      "add_volume": "Add Volume",
-      "select_all": "Select All"
-    },
-    "context_menu": {
-      "display": "Display",
-      "selection": "Selection",
-      "select_all": "Select All",
-      "volume_actions": "Volume Actions",
-      "manage_perspectives": "Manage Perspectives",
-      "select": "Select",
-      "danger": "For this volume",
-      "bulk_actions": "Bulk Actions",
-      "bulk_edit": "Bulk Edit"
-    },
-    "selected_count": "{{count}} selected"
-  },
-  "chapters_page": {
-    "title": "Catalog Management",
-    "description": "Manage your chapters and volumes",
-    "include_archived": {
-      "off": "Hide archived"
-    },
-    "filters": {
-      "all": "All",
-      "published": "Published",
-      "in_progress": "In Progress",
-      "draft": "Draft",
-      "archived": "Archived"
-    },
-    "fab": {
-      "title": "Create Chapter"
-    },
-    "actions": {
-      "create": "Create New Chapter",
-      "select_all": "Select All"
-    },
-    "context": {
-      "deselect_all": "Deselect All",
-      "bulk_actions": "Bulk Actions",
-      "bulk_edit": "Bulk Edit",
-      "delete": "Delete",
-      "archive": "Archive",
-      "unarchive": "Unarchive",
-      "export": "Export",
-      "import": "Import",
-      "global_actions": "Global Actions",
-      "create": "Create",
-      "select_visible": "Select Visible",
-      "sort": "Sort",
-      "sort_az": "Sort A-Z",
-      "sort_za": "Sort Z-A",
-      "sort_date_recent": "Sort by Recent",
-      "sort_date_old": "Sort by Oldest",
-      "view": "View",
-      "view_card": "Card View",
-      "view_list": "List View",
-      "view_calendar": "Calendar View",
-      "filter": "Filter",
-      "filter_all": "All",
-      "filter_published": "Published",
-      "filter_in_progress": "In Progress",
-      "filter_draft": "Draft",
-      "filter_archived": "Archived"
-    }
-  },
   "login": {
     "title": "Login",
     "welcome_subtitle": "Welcome to administration",
@@ -361,23 +226,6 @@
     "submit_button": "Sign In",
     "success_message": "Login successful",
     "error_message": "Login failed"
-  },
-  "register": {
-    "title": "Register",
-    "subtitle": "Create your account",
-    "password_weak": "Weak",
-    "password_medium": "Medium",
-    "password_strong": "Strong",
-    "errors": {
-      "first_name_required": "First name is required",
-      "last_name_required": "Last name is required",
-      "password_mismatch": "Passwords don't match",
-      "password_length": "Password must be at least 6 characters"
-    },
-    "toast": {
-      "success": "Registration successful",
-      "error": "Registration failed"
-    }
   },
   "layout": {
     "welcome_message": "Welcome to your admin space",
@@ -608,58 +456,6 @@
     "success_updated": "Bundle updated successfully",
     "untitled": "Untitled Bundle"
   },
-  "auth": {
-    "login": {
-      "page_title": "Cher Journal",
-      "page_subtitle": "Welcome to our sensual world",
-      "brand_name": "Cher Journal",
-      "tagline": "Welcome to our sensual world",
-      "email_label": "Email Address",
-      "email_placeholder": "your@email.com",
-      "password_label": "Password",
-      "password_placeholder": "••••••••",
-      "forgot_password": "Forgot Password?",
-      "loading": "Signing in...",
-      "button_login": "Sign In",
-      "divider": "New?",
-      "no_account": "Don't have an account?",
-      "register_link": "Sign up now"
-    },
-    "register": {
-      "brand_name": "Cher Journal",
-      "page_title": "Join Us",
-      "page_subtitle": "Create your account to access our sensual world",
-      "heading": "Join Us",
-      "tagline": "Create your account to access our sensual world",
-      "firstname_label": "First Name",
-      "firstname_placeholder": "John",
-      "lastname_label": "Last Name",
-      "lastname_placeholder": "Doe",
-      "fullname_label": "Full Name",
-      "fullname_placeholder": "John Doe",
-      "email_label": "Email Address",
-      "email_placeholder": "your@email.com",
-      "password_label": "Password",
-      "password_placeholder": "••••••••",
-      "confirm_password_label": "Confirm Password",
-      "confirm_password_placeholder": "••••••••",
-      "terms_checkbox": "I agree to the terms and conditions",
-      "password_helper": "At least 6 characters",
-      "loading": "Creating account...",
-      "button_register": "Sign Up Now",
-      "divider": "Already have an account?",
-      "login_prompt": "Already have an account?",
-      "login_link": "Sign in here",
-      "validation_email_required": "Email is required",
-      "validation_email_invalid": "Email must be valid",
-      "validation_password_weak": "Password must be at least 6 characters",
-      "validation_password_mismatch": "Passwords do not match",
-      "validation_password_required": "Password is required",
-      "validation_firstname_required": "First name is required",
-      "validation_lastname_required": "Last name is required",
-      "validation_fullname_required": "Full name is required"
-    }
-  },
   "account": {
     "page_title": "My Personal Space",
     "welcome_message": "Welcome {firstName}, manage your account and preferences",
@@ -672,6 +468,8 @@
       "claims_desc": "Support and assistance",
       "reviews": "My Reviews",
       "reviews_desc": "Reviews and impressions",
+      "promotions": "Available Promotions",
+      "promotions_desc": "Special offers just for you",
       "subscription": "Subscription Info",
       "subscription_desc": "Manage my subscription",
       "preferences": "Preferences",
@@ -686,7 +484,33 @@
       "payment_info_desc": "Cards and payments"
     },
     "logout": "Sign Out",
-    "logout_title": "Sign Out"
+    "logout_title": "Sign Out",
+    "settings": "Account Settings",
+    "settings_subtitle": "Manage your preferences",
+    "promotions": {
+      "title": "Available Promotions",
+      "subtitle": "Discover exclusive offers tailored for you",
+      "no_promotions": "No promotions available",
+      "no_promotions_detail": "Check back soon for special offers",
+      "loading": "Loading promotions...",
+      "error_loading": "Error loading promotions",
+      "retry": "Try Again",
+      "scope_volume": "Volume",
+      "scope_chapter": "Chapter",
+      "scope_epilogue": "Epilogue",
+      "scope_pov": "Point of View",
+      "scope_coloring": "Coloring Book",
+      "scope_bundle": "Bundle",
+      "scope_subscription": "Subscription",
+      "unlocks": "Unlocks",
+      "valid_until": "Valid Until",
+      "limited_uses": "Limited Uses",
+      "unlimited": "Unlimited Uses",
+      "take_advantage": "Take Advantage",
+      "discount_percent": "{value}% off",
+      "discount_fixed": "{value}€ off",
+      "free": "Free"
+    }
   },
   "tag_manager": {
     "title": "Tag Management",
@@ -769,67 +593,601 @@
       "updated": "Volume updated successfully"
     }
   },
+  "add_entitlement_modal": {
+    "title": "Add Entitlement",
+    "chapter": "Chapter",
+    "from": "From",
+    "to": "To",
+    "scope": "Scope",
+    "source": "Source",
+    "source_purchase": "Purchase",
+    "source_preorder": "Preorder",
+    "source_pack": "Pack",
+    "source_subscription": "Subscription",
+    "select_chapter": "Select Chapter",
+    "close_aria": "Close modal",
+    "button_add": "Add Entitlement",
+    "button_adding": "Adding...",
+    "toast": {
+      "load_error": "Error loading chapters",
+      "success": "Entitlement added successfully",
+      "error": "Error adding entitlement"
+    }
+  },
+  "chapter_view": {
+    "calendar_coming_soon": "Coming soon",
+    "no_chapters": "No chapters available",
+    "on_activation": "On Activation",
+    "statistics": {
+      "coloring_pages": "Coloring Pages",
+      "volumes_illustrated": "Volumes Illustrated",
+      "volumes_protagonist": "Volumes Protagonist",
+      "volumes_written": "Volumes Written"
+    },
+    "table": {
+      "image": "Image",
+      "prices": "Prices",
+      "protagonist": "Protagonist",
+      "release_date": "Release Date",
+      "status": "Status",
+      "title": "Title"
+    }
+  },
+  "prices": {
+    "all": "All Prices",
+    "confirm_delete": "Confirm Delete",
+    "filter_by_scope": "Filter by Scope",
+    "form": {
+      "amount_help": "The price amount",
+      "amount_label": "Amount",
+      "amount_placeholder": "Enter price amount",
+      "confirm_delete": "Confirm Delete Price",
+      "create_title": "Create New Price",
+      "currency_label": "Currency",
+      "edit_title": "Edit Price",
+      "error_delete": "Error deleting price",
+      "error_load": "Error loading prices",
+      "error_save": "Error saving price",
+      "preview_title": "Price Preview",
+      "price": "Price",
+      "refid_help": "Reference ID for integration",
+      "refid_label": "Reference ID",
+      "scope": "Scope",
+      "scope_help": "What content this price applies to",
+      "scope_label": "Content Scope"
+    },
+    "linked_promotions": "Linked Promotions",
+    "new_price": "New Price",
+    "no_prices": "No prices available",
+    "promo_type": {
+      "free": "Free"
+    },
+    "reference": "Reference",
+    "scope": {
+      "bundle": "Bundle",
+      "chapter": "Chapter",
+      "coloring": "Coloring",
+      "epilogue": "Epilogue",
+      "pov": "Point of View",
+      "subscription": "Subscription",
+      "volume": "Volume"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "subtitle": "Manage pricing options",
+    "title": "Pricing"
+  },
+  "settings": {
+    "loading": "Loading settings...",
+    "admin": {
+      "title": "Administrator Settings",
+      "include_archived": {
+        "help": "Show archived chapters in listings",
+        "label": "Include Archived"
+      },
+      "theme": "Theme",
+      "language": "Language",
+      "chapter_view": "Chapter View",
+      "page_size": "Page Size"
+    },
+    "user": {
+      "title": "User Preferences",
+      "theme": "Theme",
+      "language": "Language",
+      "density": "Display Density",
+      "date_format": "Date Format"
+    },
+    "options": {
+      "comfortable": "Comfortable",
+      "compact": "Compact",
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System",
+      "english": "English",
+      "french": "Français",
+      "twelve": "12-Hour",
+      "twenty_four": "24-Hour"
+    },
+    "views": {
+      "calendar": "Calendar",
+      "card": "Card",
+      "list": "List"
+    },
+    "superadmin": {
+      "title": "Superadmin Settings",
+      "critical": "Critical Settings",
+      "system_info": "System Information",
+      "encryption": {
+        "label": "Data Encryption",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "help": "End-to-end encryption for user data"
+      },
+      "logs": {
+        "label": "Activity Logging",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "help": "Log all admin actions for audit trails"
+      },
+      "maintenance": {
+        "label": "Maintenance Mode",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "help": "Temporarily take the platform offline"
+      },
+      "warning": {
+        "title": "⚠️ Critical Settings",
+        "body": "These settings affect the entire platform. Change with caution."
+      }
+    }
+  },
+  "volume_view": {
+    "calendar_coming_soon": "Coming soon",
+    "free": "Free",
+    "manage_perspectives": "Manage Perspectives",
+    "table": {
+      "free": "Free",
+      "image": "Image",
+      "price": "Price",
+      "title": "Title",
+      "wait_duration": "Wait Duration"
+    },
+    "toast": {
+      "image_assign_error": "Error assigning image",
+      "image_assigned": "Image assigned successfully"
+    }
+  },
+  "dashboard": {
+    "stats_users": "Total Users",
+    "stats_chapters": "Total Chapters",
+    "stats_orders": "Total Orders",
+    "stats_revenue": "Total Revenue",
+    "last_month": "Last Month",
+    "this_month": "This Month",
+    "chapters_new": "New Chapters",
+    "view_all_users": "View All Users",
+    "manage_chapters": "Manage Chapters",
+    "view_orders": "View Orders",
+    "view_details": "View Details",
+    "recent_activities": "Recent Activities",
+    "activity": {
+      "user_registered": {
+        "title": "New User Registered",
+        "subtitle": "A new user has joined the platform",
+        "time": "just now"
+      },
+      "order_completed": {
+        "title": "Order Completed",
+        "subtitle": "A customer has completed their purchase",
+        "time": "just now"
+      },
+      "chapter_published": {
+        "title": "Chapter Published",
+        "subtitle": "A new chapter has been published",
+        "time": "just now"
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "page_title": "Cher Journal",
+      "page_subtitle": "Welcome to our sensual world",
+      "brand_name": "Cher Journal",
+      "tagline": "Welcome to our sensual world",
+      "email_label": "Email Address",
+      "email_placeholder": "your@email.com",
+      "password_label": "Password",
+      "password_placeholder": "••••••••",
+      "forgot_password": "Forgot Password?",
+      "loading": "Signing in...",
+      "button_login": "Sign In",
+      "divider": "New?",
+      "no_account": "Don't have an account?",
+      "register_link": "Sign up now"
+    },
+    "register": {
+      "brand_name": "Cher Journal",
+      "page_title": "Join Us",
+      "page_subtitle": "Create your account to access our sensual world",
+      "heading": "Join Us",
+      "tagline": "Create your account to access our sensual world",
+      "firstname_label": "First Name",
+      "firstname_placeholder": "John",
+      "lastname_label": "Last Name",
+      "lastname_placeholder": "Doe",
+      "fullname_label": "Full Name",
+      "fullname_placeholder": "John Doe",
+      "email_label": "Email Address",
+      "email_placeholder": "your@email.com",
+      "password_label": "Password",
+      "password_placeholder": "••••••••",
+      "confirm_password_label": "Confirm Password",
+      "confirm_password_placeholder": "••••••••",
+      "terms_checkbox": "I agree to the terms and conditions",
+      "password_helper": "At least 6 characters",
+      "loading": "Creating account...",
+      "button_register": "Sign Up Now",
+      "divider": "Already have an account?",
+      "login_prompt": "Already have an account?",
+      "login_link": "Sign in here",
+      "validation_email_required": "Email is required",
+      "validation_email_invalid": "Email must be valid",
+      "validation_password_weak": "Password must be at least 6 characters",
+      "validation_password_mismatch": "Passwords do not match",
+      "validation_password_required": "Password is required",
+      "validation_firstname_required": "First name is required",
+      "validation_lastname_required": "Last name is required",
+      "validation_fullname_required": "Full name is required"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "apply": "Apply",
+    "clear": "Clear",
+    "submit": "Submit",
+    "next": "Next",
+    "previous": "Previous",
+    "more": "More",
+    "less": "Less",
+    "show_more": "Show more",
+    "show_less": "Show less",
+    "no_results": "No results found",
+    "empty": "Empty",
+    "or": "Or",
+    "and": "And",
+    "copy": "Copy",
+    "copied": "Copied",
+    "download": "Download",
+    "upload": "Upload",
+    "version": "Version",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "search_placeholder": "Search...",
+    "hours": "{{count}} hour",
+    "hours_plural": "{{count}} hours",
+    "minutes": "{{count}} minute",
+    "minutes_plural": "{{count}} minutes",
+    "seconds": "{{count}} second",
+    "seconds_plural": "{{count}} seconds",
+    "card_view": "Card View",
+    "list_view": "List View",
+    "calendar_view": "Calendar View",
+    "add": "Add"
+  },
+  "messages": {
+    "loading": "Loading...",
+    "please_wait": "Please wait",
+    "saving": "Saving...",
+    "saved": "Saved successfully",
+    "saved_successfully": "Changes saved successfully",
+    "deleting": "Deleting...",
+    "deleted": "Deleted successfully",
+    "deleted_successfully": "Item deleted successfully",
+    "confirm_delete": "Are you sure you want to delete this?",
+    "action_required": "Action required",
+    "session_expired": "Your session has expired. Please login again.",
+    "access_denied": "Access denied",
+    "success": {
+      "chapter_updated": "Chapter updated successfully"
+    },
+    "error": {
+      "load_chapters": "Failed to load chapters",
+      "load_stats": "Failed to load statistics"
+    }
+  },
+  "chapters": {
+    "drafts": "Drafts",
+    "in_progress": "In Progress",
+    "published": "Published",
+    "create_chapter": "Create Chapter",
+    "delete_chapter": "Delete Chapter",
+    "edit_chapter": "Edit Chapter"
+  },
+  "chapter_detail": {
+    "chapter_images": "Chapter Images",
+    "buttons": {
+      "quick_create": "Quick Create",
+      "add_volume": "Add Volume",
+      "bulk_import": "Bulk Import",
+      "edit_titles": "Edit Titles"
+    },
+    "context_menu": {
+      "deselect_all": "Deselect All",
+      "select_all": "Select All",
+      "select": "Select",
+      "selection": "Selection",
+      "bulk_actions": "Bulk Actions",
+      "display": "Display",
+      "manage_perspectives": "Manage Perspectives",
+      "volume_actions": "Volume Actions",
+      "danger": "Danger Zone"
+    },
+    "dialog": {
+      "delete_title": "Delete Chapter"
+    },
+    "fab": {
+      "bulk_edit": "Bulk Edit",
+      "deselect_all": "Deselect All",
+      "quick_create": "Quick Create",
+      "add_volume": "Add Volume",
+      "select_all": "Select All"
+    },
+    "modal": {
+      "bootstrap_title": "Bootstrap Volumes",
+      "bootstrap_description": "Create volumes for this chapter",
+      "create": "Create",
+      "volumes_count": "Number of Volumes"
+    },
+    "no_volumes": "No volumes available",
+    "table": {
+      "price": "Price"
+    },
+    "toast": {
+      "bulk_update_error": "Error updating chapters",
+      "chapter_updated": "Chapter updated successfully",
+      "create_error": "Error creating chapter",
+      "delete_error": "Error deleting chapter",
+      "image_assign_error": "Error assigning image",
+      "image_assigned_chapter": "Image assigned to chapter",
+      "image_assigned_volume": "Image assigned to volume",
+      "load_error": "Error loading chapter",
+      "select_required": "Please select at least one item",
+      "titles_update_error": "Error updating titles",
+      "update_error": "Error updating chapter",
+      "volume_deleted": "Volume deleted successfully"
+    },
+    "view": {
+      "calendar": "Calendar",
+      "card": "Card",
+      "list": "List"
+    }
+  },
+  "chapters_page": {
+    "title": "Chapters",
+    "description": "Manage your chapters and volumes",
+    "actions": {
+      "bulk_edit": "Bulk Edit",
+      "deselect_all": "Deselect All",
+      "create": "Create Chapter",
+      "select_all": "Select All"
+    },
+    "fab": {
+      "title": "Add Chapter"
+    },
+    "filters": {
+      "all": "All",
+      "draft": "Drafts",
+      "in_progress": "In Progress",
+      "published": "Published",
+      "archived": "Archived"
+    },
+    "archive": {
+      "archived": "Archived successfully",
+      "unarchived": "Unarchived successfully",
+      "error": "Error archiving chapter"
+    },
+    "bulk": {
+      "select_required": "Please select at least one chapter",
+      "update_error": "Error updating chapters"
+    },
+    "context": {
+      "actions": "Actions",
+      "chapter_actions": "Chapter Actions",
+      "deselect_visible": "Deselect Visible",
+      "draft": "Draft",
+      "duplicate": "Duplicate",
+      "edit": "Edit",
+      "in_progress": "In Progress",
+      "publish": "Publish",
+      "publish_now": "Publish Now",
+      "selection": "Selection",
+      "view_volumes": "View Volumes",
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "create": "Create",
+      "delete": "Delete",
+      "filter": "Filter",
+      "filter_all": "All Chapters",
+      "filter_archived": "Archived",
+      "filter_draft": "Drafts",
+      "filter_in_progress": "In Progress",
+      "filter_published": "Published",
+      "global_actions": "Global Actions",
+      "select_visible": "Select Visible",
+      "sort": "Sort",
+      "sort_az": "Sort A-Z",
+      "sort_date_old": "Oldest First",
+      "sort_date_recent": "Newest First",
+      "sort_za": "Sort Z-A",
+      "view": "View",
+      "view_calendar": "Calendar",
+      "view_card": "Cards",
+      "view_list": "List"
+    },
+    "duplicate": {
+      "success": "Chapter duplicated successfully",
+      "error": "Error duplicating chapter"
+    },
+    "empty": {
+      "all": "No chapters found",
+      "archived": "No archived chapters",
+      "draft": "No drafts",
+      "in_progress": "No chapters in progress",
+      "published": "No published chapters"
+    },
+    "include_archived": {
+      "on": "Include Archived"
+    },
+    "status": {
+      "error": "Error updating status",
+      "labels": {
+        "DRAFT": "Draft",
+        "IN_PROGRESS": "In Progress",
+        "PUBLISHED": "Published"
+      }
+    },
+    "tooltip": {
+      "deselect_visible": "Deselect visible chapters",
+      "filter_all": "Show all chapters",
+      "filter_archived": "Show archived chapters",
+      "filter_draft": "Show drafts",
+      "filter_in_progress": "Show in-progress chapters",
+      "filter_published": "Show published chapters",
+      "include_archived": "Include archived chapters",
+      "select_visible": "Select visible chapters",
+      "sort_az": "Sort A-Z",
+      "sort_date_old": "Sort by oldest first",
+      "sort_date_recent": "Sort by most recent",
+      "sort_za": "Sort Z-A",
+      "view_calendar": "Calendar view",
+      "view_card": "Card view",
+      "view_list": "List view"
+    }
+  },
+  "register": {
+    "title": "Create Your Account",
+    "subtitle": "Join Cher Journal today",
+    "already_account": "Already have an account?",
+    "confirm_password_label": "Confirm Password",
+    "confirm_password_placeholder": "Confirm your password",
+    "email_label": "Email Address",
+    "email_placeholder": "Enter your email",
+    "errors": {
+      "password_match": "Passwords do not match",
+      "first_name_required": "First name is required",
+      "last_name_required": "Last name is required",
+      "password_length": "Password must be at least 8 characters",
+      "password_mismatch": "Passwords do not match"
+    },
+    "toast": {
+      "success": "Account created successfully",
+      "error": "Error creating account"
+    },
+    "first_name_label": "First Name",
+    "first_name_placeholder": "Your first name",
+    "last_name_label": "Last Name",
+    "last_name_placeholder": "Your last name",
+    "login": "Login here",
+    "password_label": "Password",
+    "password_placeholder": "Create a strong password",
+    "password_strength": "Password Strength",
+    "strength": {
+      "medium": "Medium",
+      "strong": "Strong",
+      "weak": "Weak"
+    },
+    "submit": "Create Account",
+    "submitting": "Creating account...",
+    "terms": {
+      "and": "and",
+      "prefix": "I agree to the",
+      "privacy": "Privacy Policy",
+      "tos": "Terms of Service"
+    },
+    "username_label": "Username",
+    "username_placeholder": "Choose a username"
+  },
   "user_detail": {
+    "load_error": "Error loading user details",
+    "no_orders": "No orders",
+    "search_orders_placeholder": "Search orders...",
+    "order": "Order",
+    "status": "Status",
+    "actions": {
+      "back": "Back",
+      "edit_status": "Edit Status",
+      "message": "Message User",
+      "analytics": "View Analytics"
+    },
+    "chapters": {
+      "none": "No chapters",
+      "title": "Chapters"
+    },
+    "chapter": {
+      "toggle_details": "Toggle Details",
+      "paid_label": "Paid",
+      "paid_volumes": "Paid Volumes",
+      "volume_prefix": "Volume",
+      "volumes": "Volumes",
+      "read_label": "Read"
+    },
     "notes": {
       "title": "Notes",
-      "body": "Add notes about this user"
-    },
-    "address": {
-      "title": "Address",
-      "line": "Address Line",
-      "view_map": "View Map"
+      "body": "Customer notes"
     },
     "attachments": {
       "title": "Attachments",
       "none": "No attachments"
     },
-    "chapters": {
-      "title": "Chapters"
-    },
-    "chapter": {
-      "paid_label": "Paid",
-      "volume_prefix": "Volume",
-      "volumes": "Volumes",
-      "read_label": "Reading Status",
-      "paid_volumes": "Paid Volumes",
-      "volumes_range": "Volumes Range",
-      "access": "Access",
-      "source": "Source",
-      "granted_on": "Granted On",
-      "read_history": "Reading History",
-      "volume_label": "Volume",
-      "paid": "Paid",
-      "opened_on": "Opened On"
+    "address": {
+      "title": "Address",
+      "line": "Address",
+      "view_map": "View on Map"
     },
     "stats": {
       "total_orders": "Total Orders",
       "paid_orders": "Paid Orders"
-    },
-    "order": "Order",
-    "status": "Status",
-    "no_orders": "No orders yet",
-    "search_orders_placeholder": "Search orders...",
-    "actions": {
-      "message": "Send Message",
-      "analytics": "Analytics"
     }
   },
   "promotions": {
     "title": "Promotions Management",
     "subtitle": "Create and manage promotional campaigns",
+    "confirm_delete": "Are you sure you want to delete this promotion?",
     "create_promotion": "Create Promotion",
-    "edit_promotion": "Edit Promotion",
-    "new_promotion": "Create Promotion",
+    "new_promotion": "New Promotion",
+    "no_promotions": "No promotions available",
+    "saving": "Saving promotion...",
+    "toggle_off": "Off",
+    "toggle_on": "On",
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
-    "confirm_delete": "Are you sure you want to delete this promotion?",
+    "edit_promotion": "Edit Promotion",
     "filters": {
-      "scope": "Scope",
-      "status": "Status",
       "all": "All",
+      "status": "Status",
       "active": "Active",
-      "inactive": "Inactive"
+      "inactive": "Inactive",
+      "scope": "Scope"
     },
     "scopes": {
       "VOLUME": "Volume",
@@ -840,114 +1198,18 @@
       "BUNDLE": "Bundle",
       "SUBSCRIPTION": "Subscription"
     },
+    "types": {
+      "PERCENT": "Percentage",
+      "FIXED": "Fixed Amount",
+      "FREE": "Free"
+    },
     "table": {
       "scope": "Scope",
       "type": "Type",
       "reduction": "Reduction",
       "period": "Period",
       "usages": "Usages",
-      "status": "Status",
-      "actions": "Actions"
-    },
-    "types": {
-      "PERCENT": "Percentage",
-      "FIXED": "Fixed Amount",
-      "FREE": "Free"
-    },
-    "status": {
-      "active": "Active",
-      "inactive": "Inactive"
-    },
-    "targeting": {
-      "title": "Target Selection",
-      "all_users": "All Users",
-      "specific_users": "Specific Users",
-      "criteria_based": "Criteria Based"
-    },
-    "form": {
-      "subtitle_create": "Create a new promotional campaign to increase sales",
-      "subtitle_edit": "Edit the details of your promotional campaign",
-      "basic_info": "Basic Information",
-      "name_label": "Promotion Name",
-      "name_placeholder": "Ex: Summer Sales -20%",
-      "explanation_name": "This name will be visible to administrators only",
-      "description_label": "Description",
-      "description_placeholder": "Optional promotion description...",
-      "explanation_description": "Internal description to help you identify this promotion",
-      "name": "Promotion Name",
-      "description": "Description",
-      "type": "Type",
-      "type_label": "Promotion Type",
-      "value": "Value",
-      "percent": "Percentage",
-      "amount": "Amount",
-      "scope": "Scope",
-      "scope_label": "Content Scope",
-      "start_date": "Start Date",
-      "end_date": "End Date",
-      "code": "Promo Code",
-      "section_content_type": "Content Type",
-      "explanation_scope_selection": "Select which type of content this promotion applies to",
-      "explanation_scope_volume": "This promotion applies to individual volumes",
-      "explanation_scope_chapter": "This promotion applies to chapters",
-      "explanation_scope_epilogue": "This promotion applies to epilogues",
-      "explanation_scope_pov": "This promotion applies to points of view",
-      "explanation_scope_coloring": "This promotion applies to coloring books",
-      "explanation_scope_bundle": "This promotion applies to bundles",
-      "explanation_scope_subscription": "This promotion applies to subscriptions",
-      "section_reduction_type": "Reduction Type",
-      "explanation_type_percent": "Percentage reduction of the purchase price",
-      "explanation_type_percent_short": "Percentage reduction",
-      "explanation_type_fixed": "Fixed amount reduction",
-      "explanation_type_fixed_short": "Reduction in euros",
-      "explanation_type_free": "Offer free access to this content",
-      "explanation_type_free_short": "Free",
-      "not_applicable": "Not applicable",
-      "section_value": "Reduction Value",
-      "reduction_percent": "Reduction %",
-      "reduction_amount": "Reduction Amount",
-      "example_percent": "Ex: 20",
-      "explanation_value_percent": "Enter the percentage value (0-100)",
-      "explanation_value_fixed": "Enter the amount in cents (ex: 50 for 0.50€, 200 for 2.00€)",
-      "alert_zero_value": "Reduction value cannot be zero",
-      "associated_price": "Associated Price (optional)",
-      "select_price": "Select a price",
-      "explanation_price_linked": "Associate this promotion with a specific price to automatically apply the reduction",
-      "section_period": "Validity Period",
-      "explanation_period": "Define when this promotion is active",
-      "section_status": "Activation",
-      "active": "Active",
-      "explanation_status_toggle": "Enable or disable this promotion",
-      "explanation_status_period": "The promotion will be automatically activated on the start date",
-      "explanation_status_active": "This promotion is currently active",
-      "section_limits": "Usage Limits",
-      "max_clients": "Maximum Clients",
-      "max_uses": "Maximum Uses",
-      "per_user": "Per User Limit",
-      "unlimited": "Unlimited",
-      "limits_example": "Example: Set max uses to 100 and per user to 3",
-      "explanation_max_uses": "Maximum number of times this promotion can be used",
-      "explanation_per_user": "Number of times each customer can use this promotion",
-      "summary_impact": "Promotion Impact",
-      "summary_intro": "Summary of this promotion's effects",
-      "summary_for": "For",
-      "summary_total_uses": "Maximum Uses",
-      "summary_period": "Valid From",
-      "details": "Details",
-      "save": "Save Promotion",
-      "cancel": "Cancel",
-      "delete": "Delete",
-      "saving": "Saving...",
-      "error_save": "Error saving promotion",
-      "error_load": "Error loading promotion",
-      "error_delete": "Error deleting promotion"
-    },
-    "toast": {
-      "saving": "Saving promotion...",
-      "created": "Promotion created successfully",
-      "updated": "Promotion updated successfully",
-      "deleted": "Promotion deleted successfully",
-      "error": "Error managing promotion"
+      "status": "Status"
     }
   }
 }
