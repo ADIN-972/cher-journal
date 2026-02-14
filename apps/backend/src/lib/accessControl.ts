@@ -1,5 +1,5 @@
 import prisma from './prisma';
-import { Perspective } from '@prisma/client';
+import { Perspective, OrderStatus } from '@prisma/client';
 
 export interface AccessCheckResult {
   hasAccess: boolean;
@@ -393,7 +393,7 @@ export class AccessControlService {
       where: {
         userId,
         refId: chapterId,
-        status: 'PAID',
+        status: OrderStatus.PAID,
         appliedPricePaywall: { gt: 0 },
       },
     });
@@ -409,7 +409,7 @@ export class AccessControlService {
       where: {
         userId,
         refId: chapterId,
-        status: 'PAID',
+        status: OrderStatus.PAID,
         appliedPriceEpilogue: { gt: 0 },
       },
     });
