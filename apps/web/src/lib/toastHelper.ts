@@ -3,12 +3,17 @@ import { Toast, ToastAction } from '../components/Toast/types';
 /**
  * Toast Helper Functions
  * Simplified API for common toast scenarios with pre-configured actions
+ *
+ * RULE: Toasts without action buttons will auto-dismiss with countdown timer
+ * - Toasts with actions: Persist until user clicks action or close button (no timer)
+ * - Toasts without actions: Auto-dismiss after DEFAULT_TOAST_DURATION with visible countdown
+ * This improves UX by not leaving transient notifications on screen indefinitely
  */
 
 /**
  * Default duration for toasts without action buttons
- * Toasts with actions will not auto-dismiss; user must click an action or close button
- * Toasts without actions will auto-dismiss after this duration with a countdown timer
+ * Applies to all toast types created via createXToast() functions
+ * When a toast has no actions/buttons, it will auto-dismiss and display a countdown timer
  */
 const DEFAULT_TOAST_DURATION = 10000; // 10 seconds in milliseconds
 
@@ -139,6 +144,7 @@ export function createWarningToast(
     type: 'warning',
     title,
     message,
+    duration: actions.length === 0 ? DEFAULT_TOAST_DURATION : undefined,
     actions: actions.length > 0 ? actions : undefined,
   };
 }
@@ -168,6 +174,7 @@ export function createInfoToast(
     type: 'info',
     title,
     message,
+    duration: actions.length === 0 ? DEFAULT_TOAST_DURATION : undefined,
     actions: actions.length > 0 ? actions : undefined,
   };
 }
@@ -211,6 +218,7 @@ export function createAchievementToast(
     type: 'success',
     title,
     message,
+    duration: actions.length === 0 ? DEFAULT_TOAST_DURATION : undefined,
     actions: actions.length > 0 ? actions : undefined,
   };
 }
@@ -241,6 +249,7 @@ export function createNavigationToast(
     type,
     title,
     message,
+    duration: actions.length === 0 ? DEFAULT_TOAST_DURATION : undefined,
     actions: actions.length > 0 ? actions : undefined,
   };
 }
@@ -271,6 +280,7 @@ export function createRefreshToast(
     type,
     title,
     message,
+    duration: actions.length === 0 ? DEFAULT_TOAST_DURATION : undefined,
     actions: actions.length > 0 ? actions : undefined,
   };
 }
@@ -299,6 +309,7 @@ export function createSimpleToast(
     type,
     title,
     message,
+    duration: actions.length === 0 ? DEFAULT_TOAST_DURATION : undefined,
     actions: actions.length > 0 ? actions : undefined,
   };
 }
