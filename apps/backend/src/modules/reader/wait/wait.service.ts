@@ -1,9 +1,10 @@
-import prisma from '../../../lib/prisma';
-import { config } from '@cher-journal/config';
-import { UnlockTriggeredBy } from '@prisma/client';
-import { StartWaitInput, GetWaitStatusInput } from './wait.schemas';
-import { ConfigService } from '../../admin/config/config.service';
-import { priceSchemaService } from '../../admin/price-schemas/price-schemas.service';
+import prisma from "../../../lib/prisma";
+import { config } from "@cher-journal/config";
+import { UnlockTriggeredBy } from "@prisma/client";
+import { StartWaitInput, GetWaitStatusInput } from "./wait.schemas";
+import { ConfigService } from "../../admin/config/config.service";
+import { priceSchemaService } from "../../admin/price-schemas/price-schemas.service";
+import { resolveAssetUrl } from "../../../lib/assetUtils";
 
 export class WaitService {
   private configService: ConfigService;
@@ -19,25 +20,25 @@ export class WaitService {
     });
 
     if (!chapter || chapter.volumes.length === 0) {
-      throw new Error('CHAPTER_NOT_FOUND');
+      throw new Error("CHAPTER_NOT_FOUND");
     }
 
     // Check if volumeNumber is valid (default to 1 if not provided)
     const volumeNumber = data.volumeNumber || 1;
-    const volume = chapter.volumes.find(v => v.volumeNumber === volumeNumber);
+    const volume = chapter.volumes.find((v) => v.volumeNumber === volumeNumber);
 
     if (!volume) {
-      throw new Error('VOLUME_NOT_FOUND');
+      throw new Error("VOLUME_NOT_FOUND");
     }
 
     // If volume is free, no wait needed - it's already accessible
     if (volume.isFree) {
-      throw new Error('VOLUME_IS_FREE');
+      throw new Error("VOLUME_IS_FREE");
     }
 
     // If volume has final paywall, user needs to upgrade
     if (volume.isFinalPaywall) {
-      throw new Error('REQUIRES_UPGRADE');
+      throw new Error("REQUIRES_UPGRADE");
     }
 
     // Check if user already has an entitlement (purchased or free)
@@ -50,8 +51,8 @@ export class WaitService {
 
     // If no entitlement, create a FREE one via wait-to-read
     if (!entitlement) {
-      const minVolume = Math.min(...chapter.volumes.map(v => v.volumeNumber));
-      const maxVolume = Math.max(...chapter.volumes.map(v => v.volumeNumber));
+      const minVolume = Math.min(...chapter.volumes.map((v) => v.volumeNumber));
+      const maxVolume = Math.max(...chapter.volumes.map((v) => v.volumeNumber));
 
       entitlement = await prisma.entitlement.create({
         data: {
@@ -59,8 +60,8 @@ export class WaitService {
           chapterId: data.chapterId,
           volumeFrom: minVolume,
           volumeTo: maxVolume,
-          versionScope: 'BASE', // Free users get only narrator perspective
-          source: 'SUBSCRIPTION', // Using SUBSCRIPTION as a proxy for "free wait-to-read"
+          versionScope: "BASE", // Free users get only narrator perspective
+          source: "SUBSCRIPTION", // Using SUBSCRIPTION as a proxy for "free wait-to-read"
         },
       });
     }
@@ -80,7 +81,10 @@ export class WaitService {
       // Already started
       return {
         unlocksAt: existingUnlock.unlocksAt,
-        remainingMs: Math.max(0, existingUnlock.unlocksAt.getTime() - Date.now()),
+        remainingMs: Math.max(
+          0,
+          existingUnlock.unlocksAt.getTime() - Date.now(),
+        ),
       };
     }
 
@@ -95,7 +99,7 @@ export class WaitService {
     });
 
     if (activeWaitInChapter) {
-      throw new Error('WAIT_ALREADY_ACTIVE');
+      throw new Error("WAIT_ALREADY_ACTIVE");
     }
 
     // Get max simultaneous timers from config
@@ -104,7 +108,7 @@ export class WaitService {
 
     // Check how many DIFFERENT chapters have active waits
     const activeWaitsInOtherChapters = await prisma.unlock.groupBy({
-      by: ['chapterId'],
+      by: ["chapterId"],
       where: {
         userId,
         chapterId: { not: data.chapterId }, // Exclude current chapter
@@ -114,7 +118,7 @@ export class WaitService {
     });
 
     if (activeWaitsInOtherChapters.length >= maxSimultaneousTimers) {
-      throw new Error('MAX_PENDING_CHAPTERS_REACHED');
+      throw new Error("MAX_PENDING_CHAPTERS_REACHED");
     }
 
     // Calculate unlock time based on NOW + current volume's waitDuration
@@ -146,7 +150,7 @@ export class WaitService {
       });
     } catch (error: any) {
       // If unique constraint violation (record already exists), that's fine - ignore it
-      if (error.code !== 'P2002') {
+      if (error.code !== "P2002") {
         throw error;
       }
     }
@@ -195,54 +199,69 @@ export class WaitService {
         chapter: {
           include: {
             volumes: true,
+            coverAsset: true,
           },
         },
       },
     });
 
-    return Promise.all(unlocks.map(async (unlock) => {
-      // Get volume for determining price category
-      const volume = unlock.chapter.volumes.find(v => v.volumeNumber === unlock.volumeNumber);
+    return Promise.all(
+      unlocks.map(async (unlock) => {
+        // Get volume for determining price category
+        const volume = unlock.chapter.volumes.find(
+          (v) => v.volumeNumber === unlock.volumeNumber,
+        );
 
-      // Get prices for this chapter
-      const prices = await priceSchemaService.getChapterPrices(unlock.chapterId);
+        // Get prices for this chapter
+        const prices = await priceSchemaService.getChapterPrices(
+          unlock.chapterId,
+        );
 
-      // Determine which price applies to this volume
-      let volumePrice = 0;
-      if (volume && !volume.isFree) {
-        if (volume.volumeNumber <= 8) {
-          volumePrice = prices.priceFreeToRead;
-        } else if (volume.volumeNumber <= 10) {
-          volumePrice = prices.pricePaywall;
-        } else {
-          volumePrice = prices.priceEpilogue;
-        }
-      }
-
-      // Calculate chapter price (all non-free volumes)
-      let chapterPrice = 0;
-      unlock.chapter.volumes.forEach(vol => {
-        if (!vol.isFree) {
-          if (vol.volumeNumber <= 8) {
-            chapterPrice += prices.priceFreeToRead;
-          } else if (vol.volumeNumber <= 10) {
-            chapterPrice += prices.pricePaywall;
+        // Determine which price applies to this volume
+        let volumePrice = 0;
+        if (volume && !volume.isFree) {
+          if (volume.volumeNumber <= 8) {
+            volumePrice = prices.priceFreeToRead;
+          } else if (volume.volumeNumber <= 10) {
+            volumePrice = prices.pricePaywall;
           } else {
-            chapterPrice += prices.priceEpilogue;
+            volumePrice = prices.priceEpilogue;
           }
         }
-      });
 
-      return {
-        chapterId: unlock.chapterId,
-        chapterTitle: unlock.chapter.title,
-        volumeNumber: unlock.volumeNumber,
-        unlocksAt: unlock.unlocksAt,
-        remainingMs: unlock.unlocksAt.getTime() - Date.now(),
-        volumePrice,
-        chapterPrice,
-      };
-    }));
+        // Calculate chapter price (all non-free volumes)
+        let chapterPrice = 0;
+        unlock.chapter.volumes.forEach((vol) => {
+          if (!vol.isFree) {
+            if (vol.volumeNumber <= 8) {
+              chapterPrice += prices.priceFreeToRead;
+            } else if (vol.volumeNumber <= 10) {
+              chapterPrice += prices.pricePaywall;
+            } else {
+              chapterPrice += prices.priceEpilogue;
+            }
+          }
+        });
+
+        // Resolve asset URL (use thumbnail if available)
+        let coverImageUrl = null;
+        if (unlock.chapter.coverAsset) {
+          coverImageUrl = resolveAssetUrl(unlock.chapter.coverAsset);
+        }
+
+        return {
+          chapterId: unlock.chapterId,
+          chapterTitle: unlock.chapter.title,
+          protagonistName: unlock.chapter.protagonistName,
+          volumeNumber: unlock.volumeNumber,
+          unlocksAt: unlock.unlocksAt,
+          remainingMs: unlock.unlocksAt.getTime() - Date.now(),
+          volumePrice,
+          chapterPrice,
+          coverImageUrl,
+        };
+      }),
+    );
   }
 
   async listCompletedWaits(userId: string) {
@@ -256,12 +275,12 @@ export class WaitService {
         chapter: true,
       },
       orderBy: {
-        unlocksAt: 'desc',
+        unlocksAt: "desc",
       },
       take: 50, // Limit to last 50 completed timers
     });
 
-    return unlocks.map(unlock => ({
+    return unlocks.map((unlock) => ({
       chapterId: unlock.chapterId,
       chapterTitle: unlock.chapter.title,
       volumeNumber: unlock.volumeNumber,
@@ -280,11 +299,11 @@ export class WaitService {
         chapter: true,
       },
       orderBy: {
-        unlocksAt: 'desc',
+        unlocksAt: "desc",
       },
     });
 
-    return unlocks.map(unlock => {
+    return unlocks.map((unlock) => {
       const isCompleted = unlock.unlocksAt <= new Date();
       return {
         chapterId: unlock.chapterId,
