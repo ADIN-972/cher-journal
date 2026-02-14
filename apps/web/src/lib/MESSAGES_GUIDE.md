@@ -2,12 +2,15 @@
 
 ## Vue d'ensemble
 
-Ce système permet de gérer tous les messages de l'application (erreurs, succès, infos, avertissements) de manière centralisée et cohérente.
+Ce système permet de gérer tous les messages de l'application (erreurs, succès, infos, avertissements, promotions) de manière centralisée et cohérente.
+
+Chaque message dispose d'un **titre poétique et élégant** qui correspond à l'esthétique sensuelle du Cher Journal, associé à une **description explicative claire**.
 
 ## Structure
 
-- **`messages.ts`** - Contient tous les codes de messages et leurs textes associés
+- **`messages.ts`** - Contient tous les codes de messages (50+) et leurs titres poétiques + descriptions
 - **`toastHelper.ts`** - Contient des fonctions utilitaires pour afficher les messages via le système de toasts
+- **`MESSAGES_GUIDE.md`** - Ce guide complet
 
 ## Utilisation
 
@@ -67,8 +70,42 @@ showWarningToast(toast, 'UNSAVED_CHANGES');
 ```typescript
 import { showPromoToast } from "../lib/toastHelper";
 
-showPromoToast(toast, 'LIMITED_TIME_OFFER');
+showPromoToast(toast, 'EXCLUSIVE_BUNDLE');
+showPromoToast(toast, 'PERSONALIZED_RECOMMENDATION');
 ```
+
+## Exemples de Titres Poétiques
+
+Le système utilise des titres élégants et sensibles qui correspondent à l'esthétique du Cher Journal:
+
+### 🎭 Erreurs
+- **"Un léger contretemps..."** - Erreurs génériques, chargement impossible
+- **"Une porte fermée..."** - Authentification requise
+- **"Le rideau s'est fermé..."** - Session expirée
+- **"Patience..."** - Attente, timers à venir
+- **"Une invitation perdue..."** - Promotion introuvable
+
+### ✨ Succès
+- **"Le secret est désormais vôtre"** - Achat, déverrouillage réussi
+- **"L'attente commence..."** - Timer lancé
+- **"Votre plume a trouvé écho"** - Avis publié, validation
+- **"Bienvenue dans le boudoir..."** - Connexion réussie
+- **"Conquérant des Sens"** - Succès, achievements
+
+### ℹ️ Info
+- **"Un instant..."** - Chargement en cours
+- **"Le moment est venu..."** - Timer terminé
+- **"Un nouveau murmure..."** - Nouvelle publication, update
+
+### ⚠️ Avertissements
+- **"Le sablier s'écoule..."** - Offre limitée, expiration prochaine
+- **"Êtes-vous certaine?"** - Confirmation d'action destructive
+- **"Vos mots s'échappent..."** - Modifications non enregistrées
+
+### 🎁 Promotions
+- **"Une invitation exclusive"** - Offre spéciale, bundle
+- **"Le Boudoir vous connaît..."** - Recommandation personnalisée
+- **"Une saison de sensualité"** - Promotion saisonnière
 
 ## Codes d'erreur disponibles
 
@@ -112,46 +149,64 @@ showPromoToast(toast, 'LIMITED_TIME_OFFER');
 
 ## Codes de succès disponibles
 
-- `PURCHASE_SUCCESSFUL` - Achat réussi
-- `WAIT_STARTED` - Timer lancé
-- `REVIEW_PUBLISHED` - Avis publié
-- `REVIEW_UPDATED` - Avis mis à jour
-- `REVIEW_DELETED` - Avis supprimé
-- `PROFILE_UPDATED` - Profil mis à jour
-- `PASSWORD_CHANGED` - Mot de passe changé
-- `LOGIN_SUCCESSFUL` - Bienvenue
-- `LOGOUT_SUCCESSFUL` - Déconnexion réussie
-- `REGISTRATION_SUCCESSFUL` - Inscription réussie
+- `PURCHASE_SUCCESSFUL` - "Le secret est désormais vôtre" - Achat réussi
+- `VOLUME_UNLOCKED` - "Le secret est désormais vôtre" - Volume débloqué
+- `CHAPTER_UNLOCKED` - "Le secret est désormais vôtre" - Chapitre débloqué
+- `WAIT_STARTED` - "L'attente commence..." - Timer lancé
+- `REVIEW_PUBLISHED` - "Votre plume a trouvé écho" - Avis publié
+- `REVIEW_UPDATED` - "Votre avis a été retouché" - Avis mis à jour
+- `REVIEW_DELETED` - "Vos paroles se sont effacées" - Avis supprimé
+- `PROFILE_UPDATED` - "Vous avez repris la plume" - Profil mis à jour
+- `PASSWORD_CHANGED` - "Votre clé a changé" - Mot de passe changé
+- `LOGIN_SUCCESSFUL` - "Bienvenue dans le boudoir..." - Connexion réussie
+- `LOGOUT_SUCCESSFUL` - "Jusqu'à bientôt..." - Déconnexion réussie
+- `REGISTRATION_SUCCESSFUL` - "Bienvenue au Cher Journal" - Inscription réussie
+- `ACHIEVEMENT_UNLOCKED` - "Conquérant des Sens" - Succès/Achievement
 
 ## Codes d'info disponibles
 
-- `LOADING` - Chargement...
-- `NO_RESULTS` - Aucun résultat
-- `WAIT_COMPLETED` - Timer terminé
+- `LOADING` - "Un instant..." - Chargement en cours
+- `NO_RESULTS` - "Aucune trace..." - Aucun résultat
+- `WAIT_COMPLETED` - "Le moment est venu..." - Timer terminé
+- `NEW_CHAPTER_AVAILABLE` - "Un nouveau murmure..." - Nouveau chapitre
+- `AUTHOR_UPDATE` - "Un nouveau murmure..." - Mise à jour auteur
 
 ## Codes d'avertissement disponibles
 
-- `CONFIRM_DELETE` - Confirmer la suppression
-- `UNSAVED_CHANGES` - Modifications non enregistrées
-- `LIMITED_TIME_OFFER` - Offre limitée
+- `CONFIRM_DELETE` - "Êtes-vous certaine?" - Confirmation suppression
+- `UNSAVED_CHANGES` - "Vos mots s'échappent..." - Modifications non enregistrées
+- `LIMITED_TIME_OFFER` - "Le sablier s'écoule..." - Offre limitée
+- `SUBSCRIPTION_EXPIRING` - "Le sablier s'écoule..." - Abonnement expire
+- `VOLUME_NOT_YET_AVAILABLE` - "Patience..." - Volume à venir
+
+## Codes de promotion disponibles
+
+- `EXCLUSIVE_BUNDLE` - "Une invitation exclusive" - Bundle spécial
+- `PERSONALIZED_RECOMMENDATION` - "Le Boudoir vous connaît..." - Recommandation
+- `NEW_AUTHOR_RELEASE` - "Un nouveau murmure..." - Nouvelle publication
+- `SEASONAL_PROMOTION` - "Une saison de sensualité" - Promotion saisonnière
 
 ## Ajouter un nouveau message
 
 ### 1. Ajouter le message à `messages.ts`
 
 ```typescript
-// Dans ERROR_MESSAGES, SUCCESS_MESSAGES, INFO_MESSAGES ou WARNING_MESSAGES
-MY_NEW_ERROR: {
-  title: 'Titre du message',
-  description: 'Description détaillée du message',
-  type: MessageType.ERROR,
+// Dans ERROR_MESSAGES, SUCCESS_MESSAGES, INFO_MESSAGES, WARNING_MESSAGES ou PROMO_MESSAGES
+MY_NEW_MESSAGE: {
+  title: 'Titre poétique et élégant',
+  description: 'Description détaillée et explicative du message',
+  type: MessageType.ERROR, // ou SUCCESS, INFO, WARNING
 },
 ```
 
 ### 2. Utiliser le nouveau code
 
 ```typescript
-showErrorToast(toast, 'MY_NEW_ERROR');
+showErrorToast(toast, 'MY_NEW_MESSAGE');
+showSuccessToast(toast, 'MY_NEW_MESSAGE');
+showInfoToast(toast, 'MY_NEW_MESSAGE');
+showWarningToast(toast, 'MY_NEW_MESSAGE');
+showPromoToast(toast, 'MY_NEW_MESSAGE');
 ```
 
 ## Format des messages
@@ -160,23 +215,42 @@ Chaque message a la structure suivante:
 
 ```typescript
 {
-  title: string;           // Titre affiché en gras
-  description: string;     // Message explicatif détaillé
+  title: string;           // Titre poétique et élégant (ex: "Le secret est désormais vôtre")
+  description: string;     // Message explicatif détaillé et sensible
   type: MessageType;       // 'error' | 'success' | 'info' | 'warning'
 }
 ```
 
-### Exemples
+### Exemples de bons titres poétiques
 
 ```typescript
-// ✅ Bon - Titre court et informatif
-title: "Chapitre introuvable"
-description: "Le chapitre que vous recherchez n'existe pas ou a été supprimé."
+// ✅ Succès - Élégant et sensible
+title: "Le secret est désormais vôtre"
+description: "Votre achat a été traité avec succès. Plongez dans le monde qui vous attend."
 
-// ❌ Mauvais - Titre trop long ou non explicite
-title: "Un chapitre n'a pas pu être trouvé dans la base de données"
+// ✅ Erreur - Atmosphérique
+title: "Un léger contretemps..."
+description: "Impossible de charger le contenu demandé. Veuillez réessayer."
+
+// ✅ Info - Mystérieux
+title: "Un nouveau murmure..."
+description: "Un nouveau chapitre vient d'être publié. Découvrez-le dès maintenant."
+
+// ✅ Avertissement - Dramatique
+title: "Le sablier s'écoule..."
+description: "Cette invitation exclusive expire très bientôt. Ne laissez pas passer l'occasion."
+
+// ❌ Mauvais - Générique et terne
+title: "Erreur de chargement"
 description: "Erreur"
 ```
+
+### Recommandations pour les titres
+
+- **Être poétique** - Utiliser un langage sensible et élégant
+- **Rester court** - 4-6 mots idéalement
+- **Créer une atmosphère** - Refléter l'émotion du message
+- **Éviter les clichés** - Soyez créatif et original
 
 ## Fonction d'extraction d'erreur
 
@@ -199,8 +273,28 @@ try {
 
 ## Avantages du système
 
-✅ **Cohérence** - Tous les messages ont le même format
-✅ **Maintenabilité** - Facile de mettre à jour les messages
-✅ **Traduction** - Futur support multi-langue
-✅ **Testabilité** - Messages testables indépendamment
-✅ **UX** - Titres élégants et descriptions claires
+✅ **Cohérence** - Tous les messages ont le même format et la même qualité
+✅ **Esthétique** - Titres poétiques et élégants qui reflètent l'univers sensuel du Cher Journal
+✅ **Maintenabilité** - Facile de mettre à jour les messages en un seul endroit
+✅ **Traduction** - Structure idéale pour un futur support multi-langue
+✅ **Testabilité** - Messages constants et testables indépendamment
+✅ **UX** - Titres poétiques + descriptions claires pour une meilleure expérience utilisateur
+✅ **Professionnalisme** - Messages sophistiqués et bien réfléchis plutôt que génériques
+
+## Inspiration et Culture de Design
+
+Ce système est conçu pour refléter l'essence du Cher Journal: **sensualité, élégance et mystère**.
+
+Chaque message utilise un langage poétique qui:
+- Invite l'utilisatrice à un voyage émotionnel
+- Crée une atmosphère cohérente avec la marque
+- Transforme les notifications ordinaires en moments mémorables
+- Renforce le lien avec la communauté
+
+### Exemples d'atmosphère
+
+- **Mystère**: "Un nouveau murmure...", "L'instant est venu..."
+- **Intimité**: "Le secret est désormais vôtre", "Bienvenue dans le boudoir..."
+- **Attente**: "Le sablier s'écoule...", "Patience..."
+- **Révélation**: "Vous avez repris la plume", "Votre plume a trouvé écho"
+- **Sensualité**: "Une saison de sensualité", "Le Boudoir vous connaît..."

@@ -1,6 +1,7 @@
 /**
  * Centralized message handler for all app notifications
  * Handles errors, success, info, and warning messages
+ * Uses poetic and elegant titles to match Cher Journal's sensual aesthetic
  */
 
 export enum MessageType {
@@ -22,117 +23,117 @@ export interface Message {
 export const ERROR_MESSAGES: Record<string, Message> = {
   // Chapter/Volume errors
   CHAPTER_NOT_FOUND: {
-    title: 'Chapitre introuvable',
+    title: 'Un léger contretemps...',
     description: 'Le chapitre que vous recherchez n\'existe pas ou a été supprimé.',
     type: MessageType.ERROR,
   },
   VOLUME_NOT_FOUND: {
-    title: 'Volume introuvable',
+    title: 'Un léger contretemps...',
     description: 'Le volume que vous recherchez n\'existe pas ou a été supprimé.',
     type: MessageType.ERROR,
   },
   VOLUME_NUMBER_REQUIRED: {
-    title: 'Numéro de volume manquant',
+    title: 'Un léger contretemps...',
     description: 'Un numéro de volume est requis pour cette opération.',
     type: MessageType.ERROR,
   },
   VOLUME_IS_FREE: {
-    title: 'Volume gratuit',
-    description: 'Ce volume est gratuit et ne nécessite pas d\'achat.',
+    title: 'Le secret vous attend...',
+    description: 'Ce volume est gratuit et ne nécessite pas d\'achat. Accédez-y directement.',
     type: MessageType.ERROR,
   },
 
   // Purchase/Payment errors
   USER_ALREADY_HAS_ACCESS: {
-    title: 'Accès déjà obtenu',
-    description: 'Vous avez déjà accès à ce contenu.',
+    title: 'Le secret est déjà vôtre',
+    description: 'Vous avez déjà accès à ce contenu. Retournez le découvrir.',
     type: MessageType.ERROR,
   },
   INVALID_AMOUNT: {
-    title: 'Montant invalide',
+    title: 'Un léger contretemps...',
     description: 'Le montant pour cette transaction est invalide. Le montant minimum est de 0,50€.',
     type: MessageType.ERROR,
   },
   PAYMENT_FAILED: {
-    title: 'Paiement échoué',
-    description: 'Votre paiement n\'a pas pu être traité. Veuillez réessayer ou utiliser une autre méthode de paiement.',
+    title: 'Un léger contretemps...',
+    description: 'Votre paiement n\'a pas pu aboutir. Veuillez vérifier vos informations de crédit pour poursuivre l\'aventure.',
     type: MessageType.ERROR,
   },
   STRIPE_ERROR: {
-    title: 'Erreur de paiement',
+    title: 'Un léger contretemps...',
     description: 'Une erreur s\'est produite lors du traitement de votre paiement. Veuillez réessayer.',
     type: MessageType.ERROR,
   },
 
   // Authentication errors
   UNAUTHORIZED: {
-    title: 'Non autorisé',
-    description: 'Vous devez être connecté pour accéder à ce contenu. Veuillez vous connecter.',
+    title: 'Une porte fermée...',
+    description: 'Vous devez être connecté pour accéder à ce contenu. Franchissez le seuil.',
     type: MessageType.ERROR,
   },
   SESSION_EXPIRED: {
-    title: 'Session expirée',
-    description: 'Votre session a expiré. Veuillez vous reconnecter.',
+    title: 'Le rideau s\'est fermé...',
+    description: 'Votre session a expiré. Rouvrez la porte de votre univers.',
     type: MessageType.ERROR,
   },
   LOGIN_FAILED: {
-    title: 'Identifiants invalides',
-    description: 'L\'email ou le mot de passe que vous avez entré est incorrect.',
+    title: 'Les clés ne correspondent pas...',
+    description: 'L\'email ou le mot de passe que vous avez entré est incorrect. Veuillez vérifier.',
     type: MessageType.ERROR,
   },
   EMAIL_ALREADY_EXISTS: {
-    title: 'Email déjà utilisé',
-    description: 'Cet email est déjà associé à un compte. Veuillez vous connecter ou utiliser un autre email.',
+    title: 'Déjà inscrite au journal...',
+    description: 'Cet email est déjà associé à un compte. Connectez-vous ou utilisez une autre adresse.',
     type: MessageType.ERROR,
   },
   WEAK_PASSWORD: {
-    title: 'Mot de passe faible',
-    description: 'Votre mot de passe doit contenir au moins 8 caractères, incluant des majuscules, des minuscules et des chiffres.',
+    title: 'Un mot de passe fragile...',
+    description: 'Votre mot de passe doit être plus robuste : au moins 8 caractères avec majuscules, minuscules et chiffres.',
     type: MessageType.ERROR,
   },
 
   // Wait-to-Read errors
   WAIT_MAX_TIMERS_REACHED: {
-    title: 'Limite de timers atteinte',
-    description: 'Vous avez atteint le nombre maximum de timers simultanés. Attendez qu\'un se termine ou achetez le volume.',
+    title: 'Patience...',
+    description: 'Vous avez atteint le nombre maximum de timers simultanés. Attendez qu\'un se termine ou débloquez ce volume.',
     type: MessageType.ERROR,
   },
   WAIT_ALREADY_ACTIVE: {
-    title: 'Timer déjà en cours',
-    description: 'Un timer est déjà actif pour ce volume. Veuillez attendre qu\'il se termine.',
+    title: 'Le sablier s\'écoule déjà...',
+    description: 'Un timer est déjà actif pour ce volume. Attendez que le temps fasse son œuvre.',
     type: MessageType.ERROR,
   },
   WAIT_NOT_FOUND: {
-    title: 'Timer introuvable',
+    title: 'Un léger contretemps...',
     description: 'Le timer que vous recherchez n\'existe pas ou a été supprimé.',
     type: MessageType.ERROR,
   },
 
   // Review errors
   REVIEW_NOT_FOUND: {
-    title: 'Avis introuvable',
+    title: 'Un léger contretemps...',
     description: 'L\'avis que vous recherchez n\'existe pas ou a été supprimé.',
     type: MessageType.ERROR,
   },
   CANNOT_REVIEW_VOLUME: {
-    title: 'Impossible de laisser un avis',
-    description: 'Vous n\'avez pas accès à ce volume, vous ne pouvez donc pas laisser d\'avis.',
+    title: 'Vous n\'avez pas accès...',
+    description: 'Vous ne pouvez pas laisser d\'avis sur ce volume car vous n\'y avez pas accès.',
     type: MessageType.ERROR,
   },
 
   // Promotion errors
   PROMOTION_NOT_FOUND: {
-    title: 'Promotion introuvable',
+    title: 'Une invitation perdue...',
     description: 'La promotion que vous recherchez n\'existe pas ou a expiré.',
     type: MessageType.ERROR,
   },
   PROMOTION_EXPIRED: {
-    title: 'Promotion expirée',
+    title: 'Le temps a passé...',
     description: 'Cette promotion a expiré et n\'est plus disponible.',
     type: MessageType.ERROR,
   },
   PROMOTION_MAX_USES_REACHED: {
-    title: 'Promotion limite atteinte',
+    title: 'L\'offre a épuisé son charme...',
     description: 'Cette promotion a atteint sa limite d\'utilisation.',
     type: MessageType.ERROR,
   },
@@ -144,13 +145,13 @@ export const ERROR_MESSAGES: Record<string, Message> = {
     type: MessageType.ERROR,
   },
   NETWORK_ERROR: {
-    title: 'Erreur de connexion',
-    description: 'Une erreur de connexion s\'est produite. Veuillez vérifier votre connexion Internet et réessayer.',
+    title: 'La connexion s\'est rompue...',
+    description: 'Une erreur de connexion s\'est produite. Vérifiez votre accès Internet et réessayez.',
     type: MessageType.ERROR,
   },
   UNKNOWN_ERROR: {
-    title: 'Une erreur s\'est produite',
-    description: 'Quelque chose d\'inattendu s\'est passé. Veuillez réessayer ou contacter le support.',
+    title: 'Un léger contretemps...',
+    description: 'Quelque chose d\'inattendu s\'est passé. Veuillez réessayer ou contacter notre support.',
     type: MessageType.ERROR,
   },
 };
@@ -160,53 +161,68 @@ export const ERROR_MESSAGES: Record<string, Message> = {
  */
 export const SUCCESS_MESSAGES: Record<string, Message> = {
   PURCHASE_SUCCESSFUL: {
-    title: 'Achat réussi',
-    description: 'Votre achat a été traité avec succès. Vous pouvez maintenant accéder au contenu.',
+    title: 'Le secret est désormais vôtre',
+    description: 'Votre achat a été traité avec succès. Plongez dans le monde qui vous attend.',
+    type: MessageType.SUCCESS,
+  },
+  VOLUME_UNLOCKED: {
+    title: 'Le secret est désormais vôtre',
+    description: 'Votre volume a été débloqué avec succès. Bonne lecture.',
+    type: MessageType.SUCCESS,
+  },
+  CHAPTER_UNLOCKED: {
+    title: 'Le secret est désormais vôtre',
+    description: 'Votre chapitre a été débloqué avec succès. Que l\'aventure commence.',
     type: MessageType.SUCCESS,
   },
   WAIT_STARTED: {
-    title: 'Timer lancé',
+    title: 'L\'attente commence...',
     description: 'Le timer a été lancé avec succès. Revenez dans le délai indiqué pour accéder au contenu.',
     type: MessageType.SUCCESS,
   },
   REVIEW_PUBLISHED: {
-    title: 'Avis publié',
-    description: 'Votre avis a été publié avec succès.',
+    title: 'Votre plume a trouvé écho',
+    description: 'Votre avis a été publié avec succès et est désormais visible par la communauté.',
     type: MessageType.SUCCESS,
   },
   REVIEW_UPDATED: {
-    title: 'Avis mis à jour',
-    description: 'Votre avis a été mis à jour avec succès.',
+    title: 'Votre avis a été retouché',
+    description: 'Vos paroles ont été mises à jour avec succès.',
     type: MessageType.SUCCESS,
   },
   REVIEW_DELETED: {
-    title: 'Avis supprimé',
+    title: 'Vos paroles se sont effacées',
     description: 'Votre avis a été supprimé avec succès.',
     type: MessageType.SUCCESS,
   },
   PROFILE_UPDATED: {
-    title: 'Profil mis à jour',
+    title: 'Vous avez repris la plume',
     description: 'Vos informations de profil ont été mises à jour avec succès.',
     type: MessageType.SUCCESS,
   },
   PASSWORD_CHANGED: {
-    title: 'Mot de passe changé',
+    title: 'Votre clé a changé',
     description: 'Votre mot de passe a été changé avec succès.',
     type: MessageType.SUCCESS,
   },
   LOGIN_SUCCESSFUL: {
-    title: 'Bienvenue!',
-    description: 'Vous êtes maintenant connecté.',
+    title: 'Bienvenue dans le boudoir...',
+    description: 'Vous êtes maintenant connectée. Explorez tous les secrets qui vous attendent.',
     type: MessageType.SUCCESS,
   },
   LOGOUT_SUCCESSFUL: {
-    title: 'Déconnexion réussie',
-    description: 'Vous avez été déconnecté avec succès.',
+    title: 'Jusqu\'à bientôt...',
+    description: 'Vous avez été déconnectée avec succès. À très vite.',
     type: MessageType.SUCCESS,
   },
   REGISTRATION_SUCCESSFUL: {
-    title: 'Inscription réussie',
-    description: 'Votre compte a été créé avec succès. Bienvenue!',
+    title: 'Bienvenue au Cher Journal',
+    description: 'Votre compte a été créé avec succès. Explorez notre univers sensuel et captivant.',
+    type: MessageType.SUCCESS,
+  },
+  ACHIEVEMENT_UNLOCKED: {
+    title: 'Conquérant des Sens',
+    description: 'Félicitations! Vous avez débloqué un privilège spécial. Réclamez votre récompense.',
     type: MessageType.SUCCESS,
   },
 };
@@ -216,18 +232,28 @@ export const SUCCESS_MESSAGES: Record<string, Message> = {
  */
 export const INFO_MESSAGES: Record<string, Message> = {
   LOADING: {
-    title: 'Chargement...',
-    description: 'Veuillez patienter pendant que nous chargeons le contenu.',
+    title: 'Un instant...',
+    description: 'Nous préparons votre expérience. Patientez un moment.',
     type: MessageType.INFO,
   },
   NO_RESULTS: {
-    title: 'Aucun résultat',
-    description: 'Aucun résultat trouvé pour votre recherche.',
+    title: 'Aucune trace...',
+    description: 'Aucun résultat ne correspond à votre recherche.',
     type: MessageType.INFO,
   },
   WAIT_COMPLETED: {
-    title: 'Timer terminé',
-    description: 'Votre timer a expiré. Vous pouvez maintenant accéder au contenu.',
+    title: 'Le moment est venu...',
+    description: 'Votre timer a expiré. Le contenu vous attend maintenant.',
+    type: MessageType.INFO,
+  },
+  NEW_CHAPTER_AVAILABLE: {
+    title: 'Un nouveau murmure...',
+    description: 'Un nouveau chapitre vient d\'être publié. Découvrez-le dès maintenant.',
+    type: MessageType.INFO,
+  },
+  AUTHOR_UPDATE: {
+    title: 'Un nouveau murmure...',
+    description: 'L\'auteur a publié une mise à jour captivante. À lire sans tarder.',
     type: MessageType.INFO,
   },
 };
@@ -237,25 +263,61 @@ export const INFO_MESSAGES: Record<string, Message> = {
  */
 export const WARNING_MESSAGES: Record<string, Message> = {
   CONFIRM_DELETE: {
-    title: 'Confirmer la suppression',
-    description: 'Cette action est irréversible. Êtes-vous sûr de vouloir continuer?',
+    title: 'Êtes-vous certaine?',
+    description: 'Cette action est irréversible. Êtes-vous sûre de vouloir continuer?',
     type: MessageType.WARNING,
   },
   UNSAVED_CHANGES: {
-    title: 'Modifications non enregistrées',
-    description: 'Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter?',
+    title: 'Vos mots s\'échappent...',
+    description: 'Vous avez des modifications non enregistrées. Êtes-vous sûre de vouloir partir?',
     type: MessageType.WARNING,
   },
   LIMITED_TIME_OFFER: {
-    title: 'Offre limitée',
-    description: 'Cette promotion expire bientôt. Ne manquez pas cette occasion!',
+    title: 'Le sablier s\'écoule...',
+    description: 'Cette invitation exclusive expire très bientôt. Ne laissez pas passer l\'occasion.',
+    type: MessageType.WARNING,
+  },
+  SUBSCRIPTION_EXPIRING: {
+    title: 'Le sablier s\'écoule...',
+    description: 'Votre Pass Privilège expire très bientôt. Prolongez votre aventure dès maintenant.',
+    type: MessageType.WARNING,
+  },
+  VOLUME_NOT_YET_AVAILABLE: {
+    title: 'Patience...',
+    description: 'Ce volume n\'est pas encore accessible. Laissez-nous le temps de vous le préparer.',
+    type: MessageType.WARNING,
+  },
+};
+
+/**
+ * Promo messages (Special category for promotional offers)
+ */
+export const PROMO_MESSAGES: Record<string, Message> = {
+  EXCLUSIVE_BUNDLE: {
+    title: 'Une invitation exclusive',
+    description: 'Un nouveau bundle \'Nuits de Soie\' est disponible à prix doux pour une durée limitée.',
+    type: MessageType.WARNING,
+  },
+  PERSONALIZED_RECOMMENDATION: {
+    title: 'Le Boudoir vous connaît...',
+    description: 'Basé sur vos dernières lectures, nous pensons que ce conte saura vous séduire.',
+    type: MessageType.INFO,
+  },
+  NEW_AUTHOR_RELEASE: {
+    title: 'Un nouveau murmure...',
+    description: 'Votre auteur favori vient de publier une nouvelle histoire. À découvrir immédiatement.',
+    type: MessageType.INFO,
+  },
+  SEASONAL_PROMOTION: {
+    title: 'Une saison de sensualité',
+    description: 'Profitez de nos offres saisonnières exclusives. Des histoires à prix réduits vous attendent.',
     type: MessageType.WARNING,
   },
 };
 
 /**
  * Get message by code
- * @param code - Message code (error, success, info, or warning code)
+ * @param code - Message code (error, success, info, warning, or promo code)
  * @param defaultTitle - Default title if message not found
  * @param defaultDescription - Default description if message not found
  * @returns Message object
@@ -271,6 +333,7 @@ export function getMessage(
     ...SUCCESS_MESSAGES,
     ...INFO_MESSAGES,
     ...WARNING_MESSAGES,
+    ...PROMO_MESSAGES,
   };
 
   return (

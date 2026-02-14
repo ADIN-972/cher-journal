@@ -74,7 +74,8 @@ export function showWarningToast(toast: ToastContext, code: string): void {
  * @param toast - Toast context from useToast hook
  * @param code - Promo message code
  * @example
- * showPromoToast(toast, 'LIMITED_TIME_OFFER');
+ * showPromoToast(toast, 'EXCLUSIVE_BUNDLE');
+ * showPromoToast(toast, 'PERSONALIZED_RECOMMENDATION');
  */
 export function showPromoToast(toast: ToastContext, code: string): void {
   const message = getMessage(code);
