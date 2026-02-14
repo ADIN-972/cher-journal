@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Toast as ToastType } from './types';
 
 interface ToastProps {
@@ -63,12 +63,31 @@ const styles = {
 };
 
 export function Toast({ toast, onRemove }: ToastProps) {
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+
   useEffect(() => {
     if (toast.duration) {
-      const timer = setTimeout(() => {
+      // Initialize time remaining
+      setTimeRemaining(Math.ceil(toast.duration / 1000));
+
+      // Set up the auto-dismiss timer
+      const dismissTimer = setTimeout(() => {
         onRemove(toast.id);
       }, toast.duration);
-      return () => clearTimeout(timer);
+
+      // Update countdown every 100ms for smooth progress
+      const countdownTimer = setInterval(() => {
+        setTimeRemaining((prev) => {
+          if (prev === null) return null;
+          const newTime = prev - 0.1;
+          return newTime > 0 ? newTime : 0;
+        });
+      }, 100);
+
+      return () => {
+        clearTimeout(dismissTimer);
+        clearInterval(countdownTimer);
+      };
     }
     return;
   }, [toast.duration, toast.id, onRemove]);
@@ -79,6 +98,9 @@ export function Toast({ toast, onRemove }: ToastProps) {
   const progressBarStyle = toast.duration ? {
     animation: `shrink-progress ${toast.duration}ms linear forwards`,
   } : undefined;
+
+  // Format time display
+  const displayTime = timeRemaining !== null ? Math.ceil(timeRemaining) : null;
 
   return (
     <div
@@ -137,13 +159,20 @@ export function Toast({ toast, onRemove }: ToastProps) {
         </div>
       </div>
 
-      {/* Progress bar for auto-dismiss toasts */}
+      {/* Progress bar for auto-dismiss toasts (shown when no buttons or when duration exists) */}
       {toast.duration && (
-        <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full ${getProgressBarColor(toast.type)}`}
-            style={progressBarStyle}
-          />
+        <div className="mt-2 space-y-2">
+          <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full ${getProgressBarColor(toast.type)}`}
+              style={progressBarStyle}
+            />
+          </div>
+          {(!toast.actions || toast.actions.length === 0) && displayTime !== null && (
+            <p className="text-xs text-gray-500 text-right font-medium">
+              Fermeture dans {displayTime}s
+            </p>
+          )}
         </div>
       )}
     </div>
