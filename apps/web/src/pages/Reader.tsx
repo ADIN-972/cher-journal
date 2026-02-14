@@ -34,6 +34,7 @@ export default function Reader({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const lastProgressSentRef = useRef<number>(0);
   const progressUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const errorShownRef = useRef(false);
 
   const coverImageUrl = currentVolume?.illustrationUrl
     ? `${import.meta.env.VITE_API_URL ?? ""}${currentVolume.illustrationUrl}`
@@ -67,7 +68,8 @@ export default function Reader({
 
   // Handle error state with toast notification
   useEffect(() => {
-    if (error || !currentVolume) {
+    if ((error || !currentVolume) && !errorShownRef.current) {
+      errorShownRef.current = true;
       if (error) {
         toast.error(error);
       } else {
