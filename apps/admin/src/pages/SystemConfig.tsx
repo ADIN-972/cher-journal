@@ -30,6 +30,12 @@ interface ConfigsByCategory {
   [category: string]: SystemConfig[];
 }
 
+interface Chapter {
+  id: string;
+  title: string;
+  protagonistName: string;
+}
+
 export default function SystemConfig() {
   const [configs, setConfigs] = useState<SystemConfig[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,9 +43,12 @@ export default function SystemConfig() {
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>('');
   const [showSecrets, setShowSecrets] = useState<{ [key: string]: boolean }>({});
+  const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [loadingChapters, setLoadingChapters] = useState(false);
 
   useEffect(() => {
     loadConfigs();
+    loadChapters();
   }, []);
 
   const loadConfigs = async () => {
@@ -54,6 +63,21 @@ export default function SystemConfig() {
       toast.error('Erreur lors du chargement des configurations');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadChapters = async () => {
+    try {
+      setLoadingChapters(true);
+      const response = await api.get('/admin/chapters');
+      if (response.success) {
+        setChapters(response.data);
+      }
+    } catch (error: any) {
+      console.error('Failed to load chapters:', error);
+      // Don't show error toast for chapters as it's optional
+    } finally {
+      setLoadingChapters(false);
     }
   };
 
@@ -181,6 +205,7 @@ export default function SystemConfig() {
               </div>
             </div>
             <button
+              type="button"
               onClick={handleInitialize}
               className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
             >
@@ -194,6 +219,7 @@ export default function SystemConfig() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
           <div className="flex flex-wrap gap-2">
             <button
+              type="button"
               onClick={() => setSelectedCategory('ALL')}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 selectedCategory === 'ALL'
@@ -205,6 +231,7 @@ export default function SystemConfig() {
             </button>
             {categories.map(category => (
               <button
+                type="button"
                 key={category}
                 onClick={() => setSelectedCategory(category)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -247,14 +274,35 @@ export default function SystemConfig() {
                   {/* Value display/edit */}
                   {editingKey === config.key ? (
                     <div className="flex items-center gap-2">
-                      <input
-                        type={config.type === 'SECRET' ? 'password' : 'text'}
-                        value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder={`Nouvelle valeur pour ${config.key}`}
-                      />
+                      {config.key === 'content.moment_selection_chapter_id' ? (
+                        <select
+                          value={editValue || ''}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          aria-label="Sélectionner un chapitre pour la sélection du moment"
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                          <option value="">-- Aucun chapitre (désactiver la sélection) --</option>
+                          {loadingChapters ? (
+                            <option disabled>Chargement des chapitres...</option>
+                          ) : (
+                            chapters.map(chapter => (
+                              <option key={chapter.id} value={chapter.id}>
+                                {chapter.title} ({chapter.protagonistName})
+                              </option>
+                            ))
+                          )}
+                        </select>
+                      ) : (
+                        <input
+                          type={config.type === 'SECRET' ? 'password' : 'text'}
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          placeholder={`Nouvelle valeur pour ${config.key}`}
+                        />
+                      )}
                       <button
+                        type="button"
                         onClick={() => handleSave(config.key)}
                         className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
                       >
@@ -262,6 +310,7 @@ export default function SystemConfig() {
                         Enregistrer
                       </button>
                       <button
+                        type="button"
                         onClick={handleCancel}
                         className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
                       >
@@ -277,7 +326,9 @@ export default function SystemConfig() {
                               {showSecrets[config.key] ? config.value : '••••••••'}
                             </code>
                             <button
+                              type="button"
                               onClick={() => toggleSecretVisibility(config.key)}
+                              title={showSecrets[config.key] ? 'Masquer la valeur' : 'Afficher la valeur'}
                               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                             >
                               {showSecrets[config.key] ? (
@@ -304,7 +355,9 @@ export default function SystemConfig() {
 
                 {editingKey !== config.key && (
                   <button
+                    type="button"
                     onClick={() => handleEdit(config)}
+                    title="Éditer cette configuration"
                     className="ml-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
                   >
                     <MdEdit className="w-5 h-5 text-gray-600" />
@@ -319,6 +372,7 @@ export default function SystemConfig() {
               <MdSettings className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-600">Aucune configuration trouvée</p>
               <button
+                type="button"
                 onClick={handleInitialize}
                 className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
               >
