@@ -1,7 +1,7 @@
 import prisma from '../../lib/prisma';
 import { config } from '@cher-journal/config';
 import Stripe from 'stripe';
-import { OrderType, OrderStatus, EntitlementVersionScope, EntitlementSource } from '@prisma/client';
+import { OrderType, OrderStatus, EntitlementVersionScope, EntitlementSource, UnlockTriggeredBy } from '@prisma/client';
 import { priceSchemaService } from '../admin/price-schemas/price-schemas.service';
 
 const stripe = new Stripe(config.stripe.secretKey, {
