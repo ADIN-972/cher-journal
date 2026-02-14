@@ -12,7 +12,6 @@ import {
 
 export default function HomeNew() {
   const { chapters, fetchChapters } = useCatalogStore();
-  const { t } = useTranslation();
   const [selectedAtmosphere, setSelectedAtmosphere] = useState<string | null>(
     null,
   );
