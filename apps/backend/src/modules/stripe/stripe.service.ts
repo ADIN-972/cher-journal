@@ -317,7 +317,7 @@ export class StripeService {
             chapterId,
             volumeFrom: volNum,
             volumeTo: volNum,
-            versionScope: versionScope as EntitlementVersionScope || EntitlementVersionScope.BASE,
+            versionScope: (versionScope || EntitlementVersionScope.BASE) as EntitlementVersionScope,
             source: EntitlementSource.PURCHASE,
           },
         });
@@ -374,7 +374,7 @@ export class StripeService {
             where: { id: existingEntitlement.id },
             data: {
               source: EntitlementSource.PURCHASE,
-              versionScope: versionScope as EntitlementVersionScope,
+              versionScope: (versionScope || EntitlementVersionScope.BASE) as EntitlementVersionScope,
             },
           });
           console.log('[Stripe Webhook] ✅ Entitlement updated');
@@ -387,7 +387,7 @@ export class StripeService {
               chapterId,
               volumeFrom: minVolume,
               volumeTo: maxVolume,
-              versionScope: versionScope as EntitlementVersionScope,
+              versionScope: (versionScope || EntitlementVersionScope.BASE) as EntitlementVersionScope,
               source: EntitlementSource.PURCHASE,
             },
           });
