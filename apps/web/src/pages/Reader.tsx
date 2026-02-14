@@ -11,11 +11,13 @@ export default function Reader({
   footer,
   onClose,
   scrollContainerId,
+  chapterId,
 }: {
   volumeId?: string;
   footer?: React.ReactNode;
   onClose?: () => void;
   scrollContainerId?: string;
+  chapterId?: string;
 }) {
   //const { volumeId } = useParams<{ volumeId: string }>();
   const navigate = useNavigate();
@@ -35,12 +37,11 @@ export default function Reader({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const lastProgressSentRef = useRef<number>(0);
   const progressUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const errorShownRef = useRef(false);
 
   const coverImageUrl = currentVolume?.illustrationUrl
     ? `${import.meta.env.VITE_API_URL ?? ""}${currentVolume.illustrationUrl}`
     : undefined;
-  // Load volume on mount
+  // Load volume on mount or when volumeId changes
   useEffect(() => {
     if (volumeId) {
       loadVolume(volumeId);
@@ -57,7 +58,7 @@ export default function Reader({
 
     try {
       await api.updateProgress({
-        chapterId: currentVolume.chapterId,
+        chapterId: chapterId ?? currentVolume.chapterId,
         volumeNumber: currentVolume.volumeNumber,
         progress,
       });
@@ -68,17 +69,16 @@ export default function Reader({
   };
 
   // Handle error state with toast notification
+  // Toast is shown independently from page navigation behavior
+  // User can close the toast and navigate freely
   useEffect(() => {
-    if ((error || !currentVolume) && !errorShownRef.current) {
-      errorShownRef.current = true;
-      if (error) {
-        showErrorToast(toast, error);
-      } else {
-        showErrorToast(toast, "LOAD_ERROR");
-      }
-      handleExit();
+    if (error) {
+      showErrorToast(toast, error);
+    } else if (!currentVolume && isLoading === false) {
+      // Volume failed to load without explicit error
+      showErrorToast(toast, "LOAD_ERROR");
     }
-  }, [error, currentVolume, toast]);
+  }, [error, currentVolume, isLoading, toast]);
 
   // Calculate scroll progress
   useEffect(() => {
@@ -172,10 +172,11 @@ export default function Reader({
   };
 
   const handleExit = () => {
-    if (currentVolume) {
-      navigate(`/chapter/${currentVolume.chapterId}`);
+    if (onClose) {
+      onClose();
     } else {
-      navigate("/catalogue");
+      const newUrl = chapterId ? `/chapters/${chapterId}` : "/catalogue";
+      navigate(newUrl);
     }
   };
 
