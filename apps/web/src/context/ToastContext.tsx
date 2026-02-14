@@ -40,23 +40,25 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Convenience methods
-  const success = useCallback((title: string, message?: string, duration = 4000) => {
+  // Note: Default behavior is NO auto-dismiss. Toasts persist until user closes them or clicks an action.
+  // Pass duration if you want auto-dismiss for simple notifications.
+  const success = useCallback((title: string, message?: string, duration?: number) => {
     addToast({ type: 'success', title, message: message || '', duration });
   }, [addToast]);
 
-  const error = useCallback((title: string, message?: string, duration = 5000) => {
+  const error = useCallback((title: string, message?: string, duration?: number) => {
     addToast({ type: 'error', title, message: message || '', duration });
   }, [addToast]);
 
-  const warning = useCallback((title: string, message?: string, duration = 4000) => {
+  const warning = useCallback((title: string, message?: string, duration?: number) => {
     addToast({ type: 'warning', title, message: message || '', duration });
   }, [addToast]);
 
-  const info = useCallback((title: string, message?: string, duration = 3000) => {
+  const info = useCallback((title: string, message?: string, duration?: number) => {
     addToast({ type: 'info', title, message: message || '', duration });
   }, [addToast]);
 
-  const promo = useCallback((title: string, message?: string, duration = 6000) => {
+  const promo = useCallback((title: string, message?: string, duration?: number) => {
     addToast({ type: 'promo', title, message: message || '', duration });
   }, [addToast]);
 
