@@ -37,6 +37,7 @@ export interface Chapter {
   };
   volumes?: Volume[];
   hasAccess?: boolean;
+  hasStartedReading?: boolean; // True if user has progress > 0 in any volume
   versionScope?: 'BASE' | 'ALL' | null;
   pricing?: Pricing;
   totalCharacterCount?: number;
