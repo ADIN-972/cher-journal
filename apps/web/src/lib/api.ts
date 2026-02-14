@@ -90,7 +90,12 @@ class ApiClient {
       if (!response.ok) {
         // Handle both error formats: { error: { message: "..." } } and { message: "..." }
         const errorMessage = data.error?.message || data.message || data.error || 'Request failed';
-        throw new Error(errorMessage);
+        const error = new Error(errorMessage);
+        // Preserve error code for centralized message system
+        if (data.error?.code) {
+          (error as any).code = data.error.code;
+        }
+        throw error;
       }
 
       return data;

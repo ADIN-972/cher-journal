@@ -92,6 +92,13 @@ export const ERROR_MESSAGES: Record<string, Message> = {
     type: MessageType.ERROR,
   },
 
+  // Access control errors
+  NO_ACCESS: {
+    title: 'Accès refusé...',
+    description: 'Vous n\'avez pas accès à ce contenu. Débloquez ce volume pour le découvrir.',
+    type: MessageType.ERROR,
+  },
+
   // Wait-to-Read errors
   WAIT_MAX_TIMERS_REACHED: {
     title: 'Patience...',
