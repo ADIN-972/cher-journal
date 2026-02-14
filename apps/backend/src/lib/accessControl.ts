@@ -435,7 +435,7 @@ export class AccessControlService {
     });
 
     if (override) {
-      return override.priceFreeToRead;
+      return override.priceFreeToRead ?? 199;
     }
 
     // Fall back to active price schema
@@ -471,7 +471,7 @@ export class AccessControlService {
     });
 
     if (override) {
-      return override.pricePaywall;
+      return override.pricePaywall ?? 299;
     }
 
     const schema = await prisma.priceSchema.findFirst({
@@ -506,7 +506,7 @@ export class AccessControlService {
     });
 
     if (override) {
-      return override.priceEpilogue;
+      return override.priceEpilogue ?? 399;
     }
 
     const schema = await prisma.priceSchema.findFirst({

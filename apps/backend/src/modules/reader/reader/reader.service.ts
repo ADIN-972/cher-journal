@@ -1,101 +1,29 @@
 import prisma from "../../../lib/prisma";
 import { decryptBlob } from "../../../lib/crypto";
+import { AccessControlService } from "../../../lib/accessControl";
 // TODO: Install canvas dependencies for Windows
 // import { createCanvas, registerFont } from 'canvas';
 import { Perspective } from "@prisma/client";
 
 export class ReaderService {
+  private accessControl = new AccessControlService();
+  /**
+   * Check if user can access a specific volume.
+   * Delegated to centralized AccessControlService.
+   */
   async canAccessVolume(
     userId: string,
     chapterId: string,
     volumeNumber: number,
     perspective: Perspective
   ): Promise<boolean> {
-    console.log(`[canAccessVolume] Checking access for userId=${userId}, chapterId=${chapterId}, volumeNumber=${volumeNumber}, perspective=${perspective}`);
-
-    // Get volume info to check isFree and isFinalPaywall
-    const volume = await prisma.volume.findFirst({
-      where: {
-        chapterId,
-        volumeNumber,
-      },
-    });
-
-    if (!volume) {
-      console.log(`[canAccessVolume] Volume not found for chapterId=${chapterId}, volumeNumber=${volumeNumber}`);
-      return false;
-    }
-
-    // Volume 1 is always accessible immediately
-    if (volumeNumber === 1) {
-      console.log(`[canAccessVolume] Volume 1 is always accessible`);
-      return true;
-    }
-
-    // Free volumes are always accessible (no wait, no entitlement required)
-    if (volume.isFree) {
-      console.log(`[canAccessVolume] Volume ${volumeNumber} is free`);
-      return true;
-    }
-
-    // For non-free volumes, check entitlement
-    const entitlement = await prisma.entitlement.findFirst({
-      where: {
-        userId,
-        chapterId,
-        volumeFrom: { lte: volumeNumber },
-        volumeTo: { gte: volumeNumber },
-      },
-    });
-
-    if (!entitlement) {
-      console.log(`[canAccessVolume] No entitlement found for userId=${userId}, chapterId=${chapterId}, volumeNumber=${volumeNumber}`);
-      return false;
-    }
-
-    console.log(`[canAccessVolume] Found entitlement: source=${entitlement.source}, volumeFrom=${entitlement.volumeFrom}, volumeTo=${entitlement.volumeTo}, versionScope=${entitlement.versionScope}`);
-
-    // Check perspective access
-    if (
-      perspective === Perspective.PROTAGONIST &&
-      entitlement.versionScope !== "ALL"
-    ) {
-      console.log(`[canAccessVolume] Perspective PROTAGONIST denied: entitlement versionScope=${entitlement.versionScope}`);
-      return false;
-    }
-
-    // Final paywall volumes are blocked (need upgrade)
-    if (volume.isFinalPaywall) {
-      console.log(`[canAccessVolume] Volume ${volumeNumber} is final paywall`);
-      return false;
-    }
-
-    // PURCHASE entitlements bypass wait-to-read timers completely
-    // If user paid for this volume, any old wait-to-read unlock timers don't apply
-    if (entitlement.source === 'PURCHASE') {
-      console.log(`[canAccessVolume] User has PURCHASE entitlement, ignoring any wait-to-read timers`);
-      console.log(`[canAccessVolume] Access GRANTED for userId=${userId}, volume=${volumeNumber}`);
-      return true;
-    }
-
-    // Check if locked by wait (only for non-PURCHASE entitlements like free wait-to-read)
-    const unlock = await prisma.unlock.findUnique({
-      where: {
-        userId_chapterId_volumeNumber: {
-          userId,
-          chapterId,
-          volumeNumber,
-        },
-      },
-    });
-
-    if (unlock && unlock.unlocksAt > new Date()) {
-      console.log(`[canAccessVolume] Volume ${volumeNumber} locked by wait until ${unlock.unlocksAt}`);
-      return false; // Still locked
-    }
-
-    console.log(`[canAccessVolume] Access GRANTED for userId=${userId}, volume=${volumeNumber}`);
-    return true;
+    const result = await this.accessControl.canAccessVolume(
+      userId,
+      chapterId,
+      volumeNumber,
+      perspective
+    );
+    return result.hasAccess;
   }
 
   async renderVolumeText(
