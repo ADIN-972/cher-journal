@@ -1,20 +1,23 @@
-import { useEffect, useState } from 'react';
-import { api } from '../../lib/api';
-import WaitTimer from '../WaitTimer';
-import { useToast } from '../../hooks/useToast';
+import { useEffect, useState } from "react";
+import { api } from "../../lib/api";
+import WaitTimer from "../WaitTimer";
+import { useToast } from "../../hooks/useToast";
 
 interface Wait {
   chapterId: string;
   chapterTitle: string;
+  protagonistName : string;
   volumeNumber: number;
   unlocksAt: string;
   remainingMs?: number;
   volumePrice?: number;
   chapterPrice?: number;
+  coverImageUrl?: string | null;
+  volumeIllustrationUrl?: string | null;
 }
 
 const formatPrice = (cents: number): string => {
-  return `€${(cents / 100).toFixed(2)}`;
+  return `${(cents / 100).toFixed(2)}€`;
 };
 
 export default function ActiveWaitsSection() {
@@ -28,16 +31,16 @@ export default function ActiveWaitsSection() {
     try {
       const { url } = await api.createCheckoutSession({
         chapterId: wait.chapterId,
-        type: 'VOLUME',
+        type: "VOLUME",
         volumeNumber: wait.volumeNumber,
-        versionScope: 'BASE',
+        versionScope: "BASE",
         successUrl: `${window.location.origin}/chapters/${wait.chapterId}?purchase=success`,
         cancelUrl: window.location.href,
       });
       window.location.href = url;
     } catch (err) {
-      toast.error('Impossible de créer la session de paiement');
-      console.error('Checkout error:', err);
+      toast.error("Impossible de créer la session de paiement");
+      console.error("Checkout error:", err);
     } finally {
       setLoadingVolume(null);
     }
@@ -48,15 +51,15 @@ export default function ActiveWaitsSection() {
     try {
       const { url } = await api.createCheckoutSession({
         chapterId: wait.chapterId,
-        type: 'CHAPTER',
-        versionScope: 'BASE',
+        type: "CHAPTER",
+        versionScope: "BASE",
         successUrl: `${window.location.origin}/chapters/${wait.chapterId}?purchase=success`,
         cancelUrl: window.location.href,
       });
       window.location.href = url;
     } catch (err) {
-      toast.error('Impossible de créer la session de paiement');
-      console.error('Checkout error:', err);
+      toast.error("Impossible de créer la session de paiement");
+      console.error("Checkout error:", err);
     } finally {
       setLoadingVolume(null);
     }
@@ -72,7 +75,7 @@ export default function ActiveWaitsSection() {
       const data = await api.getActiveWaits();
       setWaits(data);
     } catch (err) {
-      console.error('Failed to fetch active waits:', err);
+      console.error("Failed to fetch active waits:", err);
       // Silently fail - don't show error toast
     } finally {
       setIsLoading(false);
@@ -108,7 +111,7 @@ export default function ActiveWaitsSection() {
             {/* Chapter Title */}
             <div className="flex-1">
               <p className="text-charcoal dark:text-white/80 font-display italic text-sm">
-                {wait.chapterTitle}
+               <span className="font-bold">{wait.protagonistName}</span> : {wait.chapterTitle}
               </p>
               <p className="text-charcoal dark:text-white/50 text-xs mt-1">
                 Volume {wait.volumeNumber}
@@ -129,6 +132,17 @@ export default function ActiveWaitsSection() {
               />
             </div>
 
+            {/* Cover Image */}
+            {(wait.volumeIllustrationUrl || wait.coverImageUrl) && (
+              <div className="rounded-lg overflow-hidden h-40 bg-black/20">
+                <img
+                  src={wait.volumeIllustrationUrl || wait.coverImageUrl || undefined}
+                  alt={`${wait.chapterTitle} Volume ${wait.volumeNumber}`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+
             {/* Status Badge */}
             <div className="flex items-center gap-2 text-[#c5a059]">
               <span className="material-symbols-outlined text-base animate-pulse">
@@ -138,39 +152,54 @@ export default function ActiveWaitsSection() {
                 Déverrouillage en cours
               </span>
             </div>
+            
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-2 pt-2 border-t border-[#c5a059]/20">
               <button
                 type="button"
                 onClick={() => handleBuyVolume(wait)}
-                disabled={loadingVolume === `${wait.chapterId}-${wait.volumeNumber}`}
-                className="bg-[#c5a059]/20 hover:bg-[#c5a059]/30 disabled:bg-gray-500/20 text-[#c5a059] disabled:text-gray-500 border border-[#c5a059]/40 px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2">
-                <span className="material-symbols-outlined text-sm">
-                  {loadingVolume === `${wait.chapterId}-${wait.volumeNumber}` ? 'hourglass_empty' : 'shopping_cart'}
-                </span>
-                Acheter Vol. {wait.volumeNumber}
-                {wait.volumePrice !== undefined && (
-                  <span className="text-[#c5a059] font-bold">
-                    {formatPrice(wait.volumePrice)}
+                disabled={
+                  loadingVolume === `${wait.chapterId}-${wait.volumeNumber}`
+                }
+                className="bg-[#c5a059]/20 hover:bg-[#c5a059]/30 disabled:bg-gray-500/20 text-[#c5a059] disabled:text-gray-500 border border-[#c5a059]/40 px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-between gap-2">
+                <span className="">
+                  <span className="material-symbols-outlined text-sm">
+                    {loadingVolume === `${wait.chapterId}-${wait.volumeNumber}`
+                      ? "hourglass_empty"
+                      : "shopping_cart"}
                   </span>
-                )}
+                  Acheter Vol. {wait.volumeNumber}
+                </span>
+                <span className="">
+                  {wait.volumePrice !== undefined && (
+                    <span className="text-[#c5a059] font-bold">
+                      {formatPrice(wait.volumePrice)}
+                    </span>
+                  )}
+                </span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleBuyChapter(wait)}
                 disabled={loadingVolume === `${wait.chapterId}-chapter`}
-                className="bg-primary/20 hover:bg-primary/30 disabled:bg-gray-500/20 text-white disabled:text-gray-500 border border-primary/40 px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2">
-                <span className="material-symbols-outlined text-sm">
-                  {loadingVolume === `${wait.chapterId}-chapter` ? 'hourglass_empty' : 'collections_bookmark'}
-                </span>
-                Acheter L'Intégrale
-                {wait.chapterPrice !== undefined && (
-                  <span className="text-white font-bold">
-                    {formatPrice(wait.chapterPrice)}
+                className="bg-primary/20 hover:bg-primary/30 disabled:bg-gray-500/20 text-white disabled:text-gray-500 border border-primary/40 px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-between gap-2">
+                <span className="">
+                  <span className="material-symbols-outlined text-sm">
+                    {loadingVolume === `${wait.chapterId}-chapter`
+                      ? "hourglass_empty"
+                      : "collections_bookmark"}
                   </span>
-                )}
+                  Acheter L'Intégrale
+                </span>
+                <span className="">
+                  {wait.chapterPrice !== undefined && (
+                    <span className="text-white font-bold">
+                      {formatPrice(wait.chapterPrice)}
+                    </span>
+                  )}
+                </span>
               </button>
             </div>
           </div>
@@ -178,7 +207,8 @@ export default function ActiveWaitsSection() {
       </div>
 
       <p className="text-charcoal dark:text-white/50 text-xs mt-4 italic">
-        💡 Les timers se terminent automatiquement. Revenez bientôt pour découvrir la suite!
+        💡 Les timers se terminent automatiquement. Revenez bientôt pour
+        découvrir la suite!
       </p>
     </div>
   );
