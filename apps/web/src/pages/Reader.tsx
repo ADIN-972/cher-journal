@@ -51,6 +51,14 @@ export default function Reader({
     }
   }, [volumeId, loadVolume]);
 
+  // Close drawer if loading failed (currentVolume is null after loading completes)
+  useEffect(() => {
+    if (volumeId && !isLoading && !currentVolume && onClose) {
+      // Loading finished but no content was loaded - close the drawer
+      onClose();
+    }
+  }, [volumeId, isLoading, currentVolume, onClose]);
+
   // Send progress to API (debounced)
   const sendProgressToAPI = async (progress: number) => {
     if (!currentVolume) return;
