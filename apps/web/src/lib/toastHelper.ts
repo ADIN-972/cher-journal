@@ -292,3 +292,98 @@ export function createSimpleToast(
     actions: actions.length > 0 ? actions : undefined,
   };
 }
+
+/**
+ * Display functions that use the centralized message system
+ * These functions accept a toast context and display messages directly
+ */
+
+import { getErrorMessage, getMessage, MessageType } from './messages';
+
+/**
+ * Show error toast with centralized message system
+ * @param toast - Toast context from useToast hook
+ * @param error - Error object, message string, or error code
+ */
+export function showErrorToast(toast: any, error: any): void {
+  const { title, description } = getErrorMessage(error);
+  toast.addToast(createErrorToast(title, description));
+}
+
+/**
+ * Show success toast with centralized message system
+ * @param toast - Toast context from useToast hook
+ * @param code - Message code
+ * @param action - Optional action button
+ */
+export function showSuccessToast(
+  toast: any,
+  code: string,
+  action?: { label: string; onClick: () => void }
+): void {
+  const message = getMessage(code);
+  if (message.type === MessageType.SUCCESS || message.type === MessageType.INFO) {
+    toast.addToast(createSuccessToast(message.title, message.description, action));
+  }
+}
+
+/**
+ * Show warning toast with centralized message system
+ * @param toast - Toast context from useToast hook
+ * @param code - Message code
+ * @param action - Optional action button
+ */
+export function showWarningToast(
+  toast: any,
+  code: string,
+  action?: { label: string; onClick: () => void }
+): void {
+  const message = getMessage(code);
+  if (message.type === MessageType.WARNING) {
+    toast.addToast(createWarningToast(message.title, message.description, action));
+  }
+}
+
+/**
+ * Show info toast with centralized message system
+ * @param toast - Toast context from useToast hook
+ * @param code - Message code
+ * @param action - Optional action button
+ */
+export function showInfoToast(
+  toast: any,
+  code: string,
+  action?: { label: string; onClick: () => void }
+): void {
+  const message = getMessage(code);
+  if (message.type === MessageType.INFO) {
+    toast.addToast(createInfoToast(message.title, message.description, action));
+  }
+}
+
+/**
+ * Show promo toast with centralized message system
+ * @param toast - Toast context from useToast hook
+ * @param code - Message code
+ * @param action - Optional action button
+ */
+export function showPromoToast(
+  toast: any,
+  code: string,
+  action?: { label: string; onClick: () => void }
+): void {
+  const message = getMessage(code);
+  if (message.type === MessageType.INFO) {
+    toast.addToast(createPromoToast(message.title, message.description, action));
+  }
+}
+
+/**
+ * Handle error and display toast in a single call
+ * Useful for catch blocks: catch((error) => handleErrorToast(toast, error))
+ * @param toast - Toast context from useToast hook
+ * @param error - Error object or message
+ */
+export function handleErrorToast(toast: any, error: any): void {
+  showErrorToast(toast, error);
+}
