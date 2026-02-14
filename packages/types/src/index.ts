@@ -127,8 +127,15 @@ export interface Chapter {
     priceFreeToRead: number;
     pricePaywall: number;
     priceEpilogue: number;
+    totalVolumes?: number;
+    bundleOriginalPrice?: number;
+    bundleDiscountedPrice?: number;
+    nextVolumePrice?: number | null;
   };
   totalCharacterCount?: number;
+  hasStartedReading?: boolean; // True if user has started reading any volume (progress > 0)
+  hasAccess?: boolean; // True if user has entitlement to this chapter
+  versionScope?: EntitlementVersionScope | null; // Version scope of user's entitlement
   accroche_classic?: string | null;
   accroche_dark?: string | null;
   accroche_love?: string | null;
@@ -138,6 +145,9 @@ export interface Chapter {
   niveau_douceur?: number;
   niveau_danger?: number;
   niveau_transformation?: number;
+  _count?: {
+    volumes?: number;
+  };
 }
 
 export interface ChapterStats {
