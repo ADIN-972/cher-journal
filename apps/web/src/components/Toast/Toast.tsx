@@ -75,59 +75,77 @@ export function Toast({ toast, onRemove }: ToastProps) {
 
   const style = styles[toast.type];
 
+  // Progress bar animation style - converts duration to animation
+  const progressBarStyle = toast.duration ? {
+    animation: `shrink-progress ${toast.duration}ms linear forwards`,
+  } : undefined;
+
   return (
     <div
       className={`
-        glass-notification p-5 rounded-lg flex items-start gap-4
+        glass-notification p-5 rounded-lg flex flex-col gap-3
         ${style.border} transform transition-transform hover:-translate-x-2
         w-full max-w-md
       `}
     >
-      <div className={`mt-1 w-10 h-10 flex-shrink-0 ${style.iconBg} rounded-full flex items-center justify-center ${style.iconColor}`}>
-        {IconComponents[toast.type]}
-      </div>
-
-      <div className="flex-grow">
-        <div className="flex justify-between items-start">
-          <h3 className="text-xl font-bold italic text-gray-900 leading-tight">
-            {toast.title}
-          </h3>
-          <button
-            type="button"
-            onClick={() => onRemove(toast.id)}
-            className="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
-            aria-label="Close notification"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-            </svg>
-          </button>
+      {/* Main content wrapper */}
+      <div className="flex items-start gap-4">
+        <div className={`mt-1 w-10 h-10 flex-shrink-0 ${style.iconBg} rounded-full flex items-center justify-center ${style.iconColor}`}>
+          {IconComponents[toast.type]}
         </div>
 
-        <p className="text-gray-600 text-sm mt-1">{toast.message}</p>
-
-        {toast.actions && toast.actions.length > 0 && (
-          <div className="mt-4 flex justify-end space-x-4 items-center">
-            {toast.actions.map((action) => (
-              <button
-                key={action.label}
-                type="button"
-                onClick={() => {
-                  action.onClick();
-                  onRemove(toast.id);
-                }}
-                className={`text-xs font-bold uppercase tracking-wider transition-all ${
-                  action.variant === 'primary'
-                    ? getButtonStylePrimary(toast.type)
-                    : getButtonStyleSecondary()
-                }`}
-              >
-                {action.label}
-              </button>
-            ))}
+        <div className="flex-grow">
+          <div className="flex justify-between items-start">
+            <h3 className="text-xl font-bold italic text-gray-900 leading-tight">
+              {toast.title}
+            </h3>
+            <button
+              type="button"
+              onClick={() => onRemove(toast.id)}
+              className="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
+              aria-label="Close notification"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M6 18L18 6M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+              </svg>
+            </button>
           </div>
-        )}
+
+          <p className="text-gray-600 text-sm mt-1">{toast.message}</p>
+
+          {toast.actions && toast.actions.length > 0 && (
+            <div className="mt-4 flex justify-end space-x-4 items-center">
+              {toast.actions.map((action) => (
+                <button
+                  key={action.label}
+                  type="button"
+                  onClick={() => {
+                    action.onClick();
+                    onRemove(toast.id);
+                  }}
+                  className={`text-xs font-bold uppercase tracking-wider transition-all ${
+                    action.variant === 'primary'
+                      ? getButtonStylePrimary(toast.type)
+                      : getButtonStyleSecondary()
+                  }`}
+                >
+                  {action.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Progress bar for auto-dismiss toasts */}
+      {toast.duration && (
+        <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full ${getProgressBarColor(toast.type)}`}
+            style={progressBarStyle}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -145,4 +163,15 @@ function getButtonStylePrimary(type: string): string {
 
 function getButtonStyleSecondary(): string {
   return 'text-gray-500 text-[10px] font-bold uppercase tracking-widest hover:text-gray-800 transition-colors';
+}
+
+function getProgressBarColor(type: string): string {
+  const colors: Record<string, string> = {
+    success: 'bg-eros-gold',
+    error: 'bg-eros-pink',
+    promo: 'bg-eros-lavender',
+    warning: 'bg-eros-amber',
+    info: 'bg-gray-300',
+  };
+  return colors[type] || colors.info;
 }
