@@ -541,9 +541,26 @@ export default function Chapter() {
                           />
                           <button
                             type="button"
-                            onClick={(e) => {
+                            onClick={async (e) => {
                               e.stopPropagation();
-                              handleUnlock();
+                              if (!id) return;
+                              setIsPurchasing(true);
+                              try {
+                                const { url } = await api.createCheckoutSession({
+                                  chapterId: id,
+                                  type: "VOLUME",
+                                  volumeNumber: volume.volumeNumber,
+                                  versionScope: "BASE",
+                                  successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
+                                  cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
+                                });
+                                if (url) window.location.href = url;
+                              } catch (err: any) {
+                                console.error("Failed to create checkout session for volume:", err);
+                                const errorMessage = err.response?.data?.error?.message || "Erreur lors de la création de la session de paiement.";
+                                toast.error(errorMessage);
+                                setIsPurchasing(false);
+                              }
                             }}
                             disabled={isPurchasing}
                             className="bg-primary hover:bg-primary/90 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 transition-all">
