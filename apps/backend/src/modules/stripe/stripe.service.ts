@@ -307,7 +307,16 @@ export class StripeService {
       });
 
       if (existingEntitlement) {
-        console.log('[Stripe Webhook] ℹ️  User already has access to volume', volNum);
+        // Update existing entitlement to PURCHASE (upgrade from free wait-to-read)
+        console.log('[Stripe Webhook] Updating existing entitlement to PURCHASE');
+        await prisma.entitlement.update({
+          where: { id: existingEntitlement.id },
+          data: {
+            source: EntitlementSource.PURCHASE,
+            versionScope: (versionScope || EntitlementVersionScope.BASE) as EntitlementVersionScope,
+          },
+        });
+        console.log('[Stripe Webhook] ✅ Entitlement updated to PURCHASE');
       } else {
         // Create new entitlement for this specific volume
         console.log('[Stripe Webhook] Creating entitlement for volume', volNum);
@@ -324,7 +333,7 @@ export class StripeService {
         console.log('[Stripe Webhook] ✅ Volume entitlement created');
       }
 
-      // Create unlock for this volume (immediately accessible)
+      // Create/update unlock for this volume (immediately accessible)
       const existingUnlock = await prisma.unlock.findUnique({
         where: {
           userId_chapterId_volumeNumber: {
@@ -346,6 +355,23 @@ export class StripeService {
           },
         });
         console.log('[Stripe Webhook] ✅ Unlock created for volume', volNum);
+      } else if (existingUnlock.triggeredBy === UnlockTriggeredBy.WAIT) {
+        // Replace wait-triggered unlock with purchase unlock (immediate access)
+        console.log('[Stripe Webhook] Replacing WAIT unlock with PURCHASE unlock');
+        await prisma.unlock.update({
+          where: {
+            userId_chapterId_volumeNumber: {
+              userId,
+              chapterId,
+              volumeNumber: volNum,
+            },
+          },
+          data: {
+            unlocksAt: new Date(), // Unlock immediately
+            triggeredBy: 'PURCHASE',
+          },
+        });
+        console.log('[Stripe Webhook] ✅ Unlock updated to PURCHASE with immediate access');
       }
     } else if (orderType === 'CHAPTER') {
       console.log('[Stripe Webhook] Granting chapter entitlement...');
