@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useCatalogStore } from "../stores/catalogStore";
-import { useTranslation } from "../lib/i18n";
+import { getGenreTranslation } from "../lib/genreTranslations";
 import {
   HeroSection,
   AtmospheresFilter,
@@ -17,21 +17,6 @@ export default function HomeNew() {
     null,
   );
 
-  const getGenreLabel = (genreId: string): string => {
-    // Convert genre ID to uppercase for translation key lookup
-    // e.g., "passions_charnelles" -> "PASSIONS_CHARNELLES"
-    const translationKey = `genres.${genreId.toUpperCase()}`;
-    const translated = t(translationKey);
-    // If translation returns the key itself, it means no translation found
-    if (translated === translationKey) {
-      // Fallback: capitalize each word
-      return genreId
-        .split("_")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
-    }
-    return translated;
-  };
 
   // Extract all unique genres from chapters
   const availableGenres = useMemo(() => {
@@ -50,7 +35,7 @@ export default function HomeNew() {
       { id: "all", label: "Ambiances" },
       ...availableGenres.map((genre) => ({
         id: genre,
-        label: getGenreLabel(genre),
+        label: getGenreTranslation(genre),
       })),
     ],
     [availableGenres],
@@ -78,7 +63,8 @@ export default function HomeNew() {
   }, [chapters, selectedAtmosphere]);
 
   // Get featured chapter (first one) for hero section
-  const featuredChapter = chapters[0];
+  const featuredChapter =
+    chapters.find((chap) => chap.isFavorite) || chapters[0];
   const heroData = featuredChapter
     ? {
         title: featuredChapter.title,
@@ -91,6 +77,7 @@ export default function HomeNew() {
           ? `${import.meta.env.VITE_API_URL ?? ""}${featuredChapter.coverAsset.url}`
           : undefined,
         id: featuredChapter.id,
+        hasStartedReading: featuredChapter.hasStartedReading,
       }
     : undefined;
 
@@ -103,6 +90,9 @@ export default function HomeNew() {
       ? `${import.meta.env.VITE_API_URL ?? ""}${chapter.coverAsset.url}`
       : undefined,
     fallbackTitle: chapter.title,
+    hasStartedReading: chapter.hasStartedReading,
+    isFavorite: chapter.isFavorite,
+    protagonistName: chapter.protagonistName,
   }));
 
   // Get popular items from filtered chapters
@@ -121,6 +111,9 @@ export default function HomeNew() {
     imageUrl: chapter.coverAsset?.url
       ? `${import.meta.env.VITE_API_URL ?? ""}${chapter.coverAsset.url}`
       : undefined,
+    hasStartedReading: chapter.hasStartedReading,
+    isFavorite: chapter.isFavorite,
+    protagonistName: chapter.protagonistName,
   }));
 
   return (
