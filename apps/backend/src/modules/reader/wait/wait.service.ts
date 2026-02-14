@@ -66,7 +66,7 @@ export class WaitService {
       });
     }
 
-    // Check if wait already exists
+    // Check if there's an existing wait unlock for this volume
     const existingUnlock = await prisma.unlock.findUnique({
       where: {
         userId_chapterId_volumeNumber: {
@@ -77,8 +77,9 @@ export class WaitService {
       },
     });
 
-    if (existingUnlock) {
-      // Already started
+    // If an unlock exists but timer already completed, allow creating a new one
+    if (existingUnlock && existingUnlock.unlocksAt > new Date()) {
+      // Timer still active - return existing unlock
       return {
         unlocksAt: existingUnlock.unlocksAt,
         remainingMs: Math.max(
@@ -86,6 +87,19 @@ export class WaitService {
           existingUnlock.unlocksAt.getTime() - Date.now(),
         ),
       };
+    }
+
+    // If unlock exists but expired, or no unlock exists, delete the old one and create a fresh timer
+    if (existingUnlock) {
+      await prisma.unlock.delete({
+        where: {
+          userId_chapterId_volumeNumber: {
+            userId,
+            chapterId: data.chapterId,
+            volumeNumber: data.volumeNumber,
+          },
+        },
+      });
     }
 
     // Check if there's an active wait for this chapter (1 volume per chapter)

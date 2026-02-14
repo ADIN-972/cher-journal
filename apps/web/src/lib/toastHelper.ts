@@ -5,6 +5,13 @@ import { Toast, ToastAction } from '../components/Toast/types';
  * Simplified API for common toast scenarios with pre-configured actions
  */
 
+/**
+ * Default duration for toasts without action buttons
+ * Toasts with actions will not auto-dismiss; user must click an action or close button
+ * Toasts without actions will auto-dismiss after this duration with a countdown timer
+ */
+const DEFAULT_TOAST_DURATION = 10000; // 10 seconds in milliseconds
+
 export interface ToastOptions {
   title: string;
   message: string;
@@ -37,6 +44,7 @@ export function createSuccessToast(
     type: 'success',
     title,
     message,
+    duration: actions.length === 0 ? DEFAULT_TOAST_DURATION : undefined,
     actions: actions.length > 0 ? actions : undefined,
   };
 }
@@ -71,7 +79,7 @@ export function createErrorToast(
     type: 'error',
     title,
     message,
-    duration: 10000, // 10 seconds default for error toasts
+    duration: actions.length === 0 ? DEFAULT_TOAST_DURATION : undefined,
     actions: actions.length > 0 ? actions : undefined,
   };
 }
@@ -101,6 +109,7 @@ export function createPromoToast(
     type: 'promo',
     title,
     message,
+    duration: actions.length === 0 ? DEFAULT_TOAST_DURATION : undefined,
     actions: actions.length > 0 ? actions : undefined,
   };
 }
