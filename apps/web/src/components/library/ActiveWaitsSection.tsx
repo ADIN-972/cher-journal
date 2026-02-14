@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
 import WaitTimer from "../WaitTimer";
 import { useToast } from "../../hooks/useToast";
+import { showErrorToast } from "../../lib/toastHelper";
 
 interface Wait {
   chapterId: string;
   chapterTitle: string;
-  protagonistName : string;
+  protagonistName: string;
   volumeNumber: number;
   unlocksAt: string;
   remainingMs?: number;
@@ -39,7 +40,7 @@ export default function ActiveWaitsSection() {
       });
       window.location.href = url;
     } catch (err) {
-      toast.error("Impossible de créer la session de paiement");
+      showErrorToast(toast, 'CHECKOUT_SESSION_FAILED');
       console.error("Checkout error:", err);
     } finally {
       setLoadingVolume(null);
@@ -58,7 +59,7 @@ export default function ActiveWaitsSection() {
       });
       window.location.href = url;
     } catch (err) {
-      toast.error("Impossible de créer la session de paiement");
+      showErrorToast(toast, 'CHECKOUT_SESSION_FAILED');
       console.error("Checkout error:", err);
     } finally {
       setLoadingVolume(null);
@@ -103,7 +104,7 @@ export default function ActiveWaitsSection() {
         Timers en Cours
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
         {waits.map((wait) => (
           <div
             key={`${wait.chapterId}-${wait.volumeNumber}`}
@@ -111,49 +112,57 @@ export default function ActiveWaitsSection() {
             {/* Chapter Title */}
             <div className="flex-1">
               <p className="text-charcoal dark:text-white/80 font-display italic text-sm">
-               <span className="font-bold">{wait.protagonistName}</span> : {wait.chapterTitle}
+                <span className="font-bold">{wait.protagonistName}</span> :{" "}
+                {wait.chapterTitle}
               </p>
               <p className="text-charcoal dark:text-white/50 text-xs mt-1">
                 Volume {wait.volumeNumber}
               </p>
             </div>
 
-            {/* Timer */}
-            <div className="bg-white/5 rounded-lg p-3 flex justify-center">
-              <WaitTimer
-                remainingMs={
-                  wait.remainingMs ||
-                  Math.max(0, new Date(wait.unlocksAt).getTime() - Date.now())
-                }
-                variant="badge"
-                chapterTitle={wait.chapterTitle}
-                volumeNumber={wait.volumeNumber}
-                onComplete={fetchActiveWaits}
-              />
-            </div>
-
-            {/* Cover Image */}
-            {(wait.volumeIllustrationUrl || wait.coverImageUrl) && (
-              <div className="rounded-lg overflow-hidden h-40 bg-black/20">
-                <img
-                  src={wait.volumeIllustrationUrl || wait.coverImageUrl || undefined}
-                  alt={`${wait.chapterTitle} Volume ${wait.volumeNumber}`}
-                  className="w-full h-full object-cover"
-                />
+            <div className="flex flex-row items-center gap-3">
+              {/* Cover Image */}
+              {(wait.volumeIllustrationUrl || wait.coverImageUrl) && (
+                <div className="rounded-lg overflow-hidden h-40 bg-black/20">
+                  <img
+                    src={
+                      wait.volumeIllustrationUrl ||
+                      wait.coverImageUrl ||
+                      undefined
+                    }
+                    alt={`${wait.chapterTitle} Volume ${wait.volumeNumber}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <div className="">
+                {/* Timer */}
+                <div className="bg-white/5 rounded-lg p-3 flex justify-center">
+                  <WaitTimer
+                    remainingMs={
+                      wait.remainingMs ||
+                      Math.max(
+                        0,
+                        new Date(wait.unlocksAt).getTime() - Date.now(),
+                      )
+                    }
+                    variant="badge"
+                    chapterTitle={wait.chapterTitle}
+                    volumeNumber={wait.volumeNumber}
+                    onComplete={fetchActiveWaits}
+                  />
+                </div>
+                {/* Status Badge */}
+                <div className="flex items-center gap-2 text-[#c5a059]">
+                  <span className="material-symbols-outlined text-base animate-pulse">
+                    schedule
+                  </span>
+                  <span className="text-xs font-bold uppercase tracking-wider">
+                    Déverrouillage en cours
+                  </span>
+                </div>
               </div>
-            )}
-
-            {/* Status Badge */}
-            <div className="flex items-center gap-2 text-[#c5a059]">
-              <span className="material-symbols-outlined text-base animate-pulse">
-                schedule
-              </span>
-              <span className="text-xs font-bold uppercase tracking-wider">
-                Déverrouillage en cours
-              </span>
             </div>
-            
-
             {/* Action Buttons */}
             <div className="flex flex-col gap-2 pt-2 border-t border-[#c5a059]/20">
               <button

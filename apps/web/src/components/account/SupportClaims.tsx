@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useToast } from '../../hooks/useToast';
+import { showSuccessToast } from '../../lib/toastHelper';
 
 type ClaimCategory = 'technical' | 'billing' | 'content' | 'other';
 
@@ -26,7 +27,7 @@ export default function SupportClaims() {
       setIsSubmitting(false);
       setSubject('');
       setMessage('');
-      toast.success('Votre demande a été envoyée avec succès');
+      showSuccessToast(toast, 'SUPPORT_CLAIM_SENT');
     }, 1000);
   };
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { useToast } from '../../hooks/useToast';
+import { showErrorToast, showSuccessToast } from '../../lib/toastHelper';
 
 export default function AccountInfo() {
   const { user } = useAuthStore();
@@ -16,12 +17,12 @@ export default function AccountInfo() {
     e.preventDefault();
 
     if (passwords.new !== passwords.confirm) {
-      toast.error('Les mots de passe ne correspondent pas');
+      showErrorToast(toast, 'PASSWORD_MISMATCH');
       return;
     }
 
     // TODO: Call API to change password
-    toast.success('Mot de passe modifié avec succès');
+    showSuccessToast(toast, 'PASSWORD_CHANGED');
     setIsEditingPassword(false);
     setPasswords({ current: '', new: '', confirm: '' });
   };

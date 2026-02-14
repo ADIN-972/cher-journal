@@ -1,4 +1,5 @@
 import { useToast } from "../hooks/useToast";
+import { showInfoToast } from "../lib/toastHelper";
 import PlanCard from "./common/PlanCard";
 
 interface Volume {
@@ -88,9 +89,7 @@ export default function PricingSection({
             price={nextLockedVolume.price || pricing.priceFreeToRead}
             buttonText="Débloquer ce Volume"
             onPurchase={() => {
-              toast.info(
-                "Fonctionnalité de déverrouillage de volume individuel à venir"
-              );
+              showInfoToast(toast, 'FEATURE_COMING_SOON_VOLUME_UNLOCK');
             }}
             isLoading={isPurchasing}
           />

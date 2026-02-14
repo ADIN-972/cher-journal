@@ -138,6 +138,23 @@ export const ERROR_MESSAGES: Record<string, Message> = {
     type: MessageType.ERROR,
   },
 
+  // New error codes
+  PASSWORD_MISMATCH: {
+    title: 'Les mots de passe ne correspondent pas',
+    description: 'Les deux mots de passe que vous avez entré ne sont pas identiques. Veuillez vérifier.',
+    type: MessageType.ERROR,
+  },
+  WAIT_START_FAILED: {
+    title: 'Un léger contretemps...',
+    description: 'Erreur lors du démarrage du compte à rebours. Veuillez réessayer.',
+    type: MessageType.ERROR,
+  },
+  CHECKOUT_SESSION_FAILED: {
+    title: 'Un léger contretemps...',
+    description: 'Impossible de créer la session de paiement. Veuillez réessayer.',
+    type: MessageType.ERROR,
+  },
+
   // Generic errors
   LOAD_ERROR: {
     title: 'Un léger contretemps...',
@@ -225,6 +242,11 @@ export const SUCCESS_MESSAGES: Record<string, Message> = {
     description: 'Félicitations! Vous avez débloqué un privilège spécial. Réclamez votre récompense.',
     type: MessageType.SUCCESS,
   },
+  SUPPORT_CLAIM_SENT: {
+    title: 'Votre message a été envoyé',
+    description: 'Votre demande de support a été transmise avec succès. Nous vous répondrons très bientôt.',
+    type: MessageType.SUCCESS,
+  },
 };
 
 /**
@@ -254,6 +276,36 @@ export const INFO_MESSAGES: Record<string, Message> = {
   AUTHOR_UPDATE: {
     title: 'Un nouveau murmure...',
     description: 'L\'auteur a publié une mise à jour captivante. À lire sans tarder.',
+    type: MessageType.INFO,
+  },
+  PURCHASE_CANCELLED: {
+    title: 'Paiement annulé',
+    description: 'Le paiement a été annulé. Vous pouvez réessayer quand vous le souhaitez.',
+    type: MessageType.INFO,
+  },
+  FEATURE_COMING_SOON_PURCHASE: {
+    title: 'Bientôt disponible...',
+    description: 'La fonctionnalité d\'achat sera disponible très prochainement. Patientez un instant.',
+    type: MessageType.INFO,
+  },
+  FEATURE_COMING_SOON_WAIT: {
+    title: 'Bientôt disponible...',
+    description: 'La fonctionnalité Wait-to-Read sera disponible très prochainement.',
+    type: MessageType.INFO,
+  },
+  FEATURE_COMING_SOON_VOLUME_UNLOCK: {
+    title: 'Bientôt disponible...',
+    description: 'Le déverrouillage de volume individuel arrivera très bientôt.',
+    type: MessageType.INFO,
+  },
+  FEATURE_COMING_SOON_UPGRADE: {
+    title: 'Bientôt disponible...',
+    description: 'La fonctionnalité de mise à niveau sera disponible très prochainement.',
+    type: MessageType.INFO,
+  },
+  FEATURE_COMING_SOON_REVIEWS: {
+    title: 'Bientôt disponible...',
+    description: 'La fonctionnalité d\'écriture d\'avis sera accessible très bientôt.',
     type: MessageType.INFO,
   },
 };

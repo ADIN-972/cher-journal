@@ -8,6 +8,7 @@ import {
 import { useCatalogStore } from "../stores/catalogStore";
 import api from "../lib/api";
 import { useToast } from "../hooks/useToast";
+import { showSuccessToast, showErrorToast, showWarningToast, showInfoToast } from "../lib/toastHelper";
 import ReaderDrawer from "../components/ReaderDrawer";
 import PurchaseDrawer from "../components/PurchaseDrawer";
 import ErrorMessage from "../components/common/ErrorMessage";
@@ -73,9 +74,7 @@ export default function Chapter() {
     const purchaseStatus = searchParams.get("purchase");
 
     if (purchaseStatus === "success") {
-      toast.success(
-        "Paiement effectué avec succès ! Vous avez maintenant accès au contenu."
-      );
+      showSuccessToast(toast, 'PURCHASE_SUCCESSFUL');
       // Remove the query parameter from URL
       setSearchParams({});
       // Refresh chapter data to get updated access
@@ -83,9 +82,7 @@ export default function Chapter() {
         fetchChapter(id);
       }
     } else if (purchaseStatus === "cancelled") {
-      toast.info(
-        "Le paiement a été annulé. Vous pouvez réessayer quand vous le souhaitez."
-      );
+      showInfoToast(toast, 'PURCHASE_CANCELLED');
       // Remove the query parameter from URL
       setSearchParams({});
     }
@@ -132,8 +129,7 @@ export default function Chapter() {
       window.location.href = url;
     } catch (err: any) {
       console.error("Failed to create checkout session for volume:", err);
-      const errorMessage = err.response?.data?.error?.message || "Erreur lors de la création de la session de paiement.";
-      toast.error(errorMessage);
+      showErrorToast(toast, 'CHECKOUT_SESSION_FAILED');
       setIsPurchasing(false);
     }
   };
@@ -213,9 +209,7 @@ export default function Chapter() {
       window.location.href = url;
     } catch (err: any) {
       console.error("Failed to create checkout session:", err);
-      toast.error(
-        "Erreur lors de la création de la session de paiement. Veuillez réessayer."
-      );
+      showErrorToast(toast, 'CHECKOUT_SESSION_FAILED');
       setIsPurchasing(false);
     }
   };
@@ -239,22 +233,18 @@ export default function Chapter() {
       await fetchChapter(id);
       await fetchActiveWaitsCount();
 
-      toast.success("Compte à rebours démarré avec succès !");
+      showSuccessToast(toast, 'WAIT_STARTED');
 
       setIsStartingWait(false);
     } catch (err: any) {
       console.error("Failed to start wait timer:", err);
 
       if (err.message?.includes("MAX_PENDING_CHAPTERS_REACHED")) {
-        toast.warning(
-          "Vous avez déjà 2 chapitres en attente. Veuillez patienter avant d'en démarrer un nouveau."
-        );
+        showWarningToast(toast, 'WAIT_MAX_TIMERS_REACHED');
       } else if (err.message?.includes("WAIT_ALREADY_ACTIVE")) {
-        toast.info("Un compte à rebours est déjà actif pour ce chapitre.");
+        showInfoToast(toast, 'WAIT_ALREADY_ACTIVE');
       } else {
-        toast.error(
-          "Erreur lors du démarrage du compte à rebours. Veuillez réessayer."
-        );
+        showErrorToast(toast, 'WAIT_START_FAILED');
       }
 
       setIsStartingWait(false);
@@ -521,7 +511,7 @@ export default function Chapter() {
                           onClick={(e) => {
                             e.stopPropagation();
                             // TODO: Navigate to upgrade page
-                            toast.info("Fonctionnalité de mise à niveau à venir");
+                            showInfoToast(toast, 'FEATURE_COMING_SOON_UPGRADE');
                           }}
                           className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-full font-semibold text-sm flex items-center gap-2 transition-all">
                           <span className="material-symbols-outlined text-sm">
@@ -640,7 +630,7 @@ export default function Chapter() {
         {/* Reader Reviews */}
         <ReviewsSection
           onWriteReview={() =>
-            toast.info("Fonctionnalité d'écriture d'avis à venir")
+            showInfoToast(toast, 'FEATURE_COMING_SOON_REVIEWS')
           }
         />
 

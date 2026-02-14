@@ -250,12 +250,22 @@ export class WaitService {
         // Resolve asset URLs (use thumbnail if available)
         let coverImageUrl = null;
         if (unlock.chapter.coverAsset) {
-          coverImageUrl = resolveAssetUrl(unlock.chapter.coverAsset);
+          coverImageUrl = await resolveAssetUrl(unlock.chapter.coverAsset);
+          console.log(
+            "Resolved cover image URL:",
+            unlock.chapter.coverAsset,
+            coverImageUrl,
+          );
         }
 
         let volumeIllustrationUrl = null;
         if (volume && volume.illustrationAsset) {
-          volumeIllustrationUrl = resolveAssetUrl(volume.illustrationAsset);
+          volumeIllustrationUrl = await resolveAssetUrl(volume.illustrationAsset);
+          console.log(
+            "Resolved volume illustration URL:",
+            volume.illustrationAsset,
+            volumeIllustrationUrl,
+          );
         }
 
         return {

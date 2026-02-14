@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import api from "../lib/api";
 import { useToast } from "../hooks/useToast";
+import { showSuccessToast, showErrorToast, showWarningToast } from "../lib/toastHelper";
 import EndOfVolumeUI from "./EndOfVolumeUI";
 import Reader from "../pages/Reader";
 
@@ -47,22 +48,16 @@ export default function ReaderDrawer({
   const handleStartWait = async () => {
     try {
       await api.startWait({ chapterId, volumeNumber: volumeNumber + 1 });
-      toast.success(
-        "Compte à rebours démarré ! Le volume suivant se débloquera automatiquement.",
-      );
+      showSuccessToast(toast, 'WAIT_STARTED');
       onClose();
     } catch (err: any) {
       console.error("Failed to start wait:", err);
       if (err.message?.includes("MAX_PENDING_CHAPTERS_REACHED")) {
-        toast.warning(
-          "Vous avez déjà 2 chapitres en attente. Veuillez patienter avant d'en démarrer un nouveau.",
-        );
+        showWarningToast(toast, 'WAIT_MAX_TIMERS_REACHED');
       } else if (err.message?.includes("WAIT_ALREADY_ACTIVE")) {
-        toast.warning("Un compte à rebours est déjà actif pour ce chapitre.");
+        showWarningToast(toast, 'WAIT_ALREADY_ACTIVE');
       } else {
-        toast.error(
-          "Erreur lors du démarrage du compte à rebours. Veuillez réessayer.",
-        );
+        showErrorToast(toast, 'WAIT_START_FAILED');
       }
     }
   };
