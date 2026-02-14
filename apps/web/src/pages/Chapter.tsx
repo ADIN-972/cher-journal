@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   useParams,
   useNavigate,
@@ -37,6 +37,7 @@ export default function Chapter() {
     useState<any>(null);
   const [activeWaitsCount, setActiveWaitsCount] = useState(0);
   const [maxWaitsAllowed, setMaxWaitsAllowed] = useState(2); // Default fallback
+  const lastPurchaseStatusRef = useRef<string | null>(null);
 
   // Fetch active waits count
   const fetchActiveWaitsCount = async () => {
@@ -73,16 +74,22 @@ export default function Chapter() {
   useEffect(() => {
     const purchaseStatus = searchParams.get("purchase");
 
-    if (purchaseStatus === "success") {
-      showSuccessToast(toast, 'PURCHASE_SUCCESSFUL');
-      // Remove the query parameter from URL
-      setSearchParams({});
-      // Refresh chapter data to get updated access
-      if (id) {
-        fetchChapter(id);
+    // Only show toast if this is a new purchase status (prevent duplicate toasts)
+    // Use ref to avoid re-renders from triggering the effect again
+    if (purchaseStatus && purchaseStatus !== lastPurchaseStatusRef.current) {
+      console.log(`[Chapter] Payment status changed: ${purchaseStatus}`);
+      lastPurchaseStatusRef.current = purchaseStatus;
+
+      if (purchaseStatus === "success") {
+        showSuccessToast(toast, 'PURCHASE_SUCCESSFUL');
+        // Refresh chapter data to get updated access
+        if (id) {
+          fetchChapter(id);
+        }
+      } else if (purchaseStatus === "cancelled") {
+        showInfoToast(toast, 'PURCHASE_CANCELLED');
       }
-    } else if (purchaseStatus === "cancelled") {
-      showInfoToast(toast, 'PURCHASE_CANCELLED');
+
       // Remove the query parameter from URL
       setSearchParams({});
     }
@@ -112,7 +119,29 @@ export default function Chapter() {
     }
   };
 
-  // Handle purchase of single volume
+  // Handle purchase of single volume (from pricing section)
+  const handlePurchaseVolumeFromPricing = async (volumeNumber: number) => {
+    if (!id) return;
+
+    try {
+      setIsPurchasing(true);
+      const { url } = await api.createCheckoutSession({
+        chapterId: id,
+        type: "VOLUME",
+        volumeNumber,
+        versionScope: "BASE",
+        successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
+        cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
+      });
+      window.location.href = url;
+    } catch (err: any) {
+      console.error("Failed to create checkout session for volume:", err);
+      showErrorToast(toast, 'CHECKOUT_SESSION_FAILED');
+      setIsPurchasing(false);
+    }
+  };
+
+  // Handle purchase of single volume (from purchase drawer)
   const handlePurchaseVolume = async () => {
     if (!id || !selectedVolumeForPurchase) return;
 
@@ -623,6 +652,7 @@ export default function Chapter() {
             pricing={currentChapter.pricing}
             volumes={currentChapter.volumes}
             onPurchase={handleUnlock}
+            onPurchaseVolume={handlePurchaseVolumeFromPricing}
             isPurchasing={isPurchasing}
           />
         )}

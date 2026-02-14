@@ -1,5 +1,3 @@
-import { useToast } from "../hooks/useToast";
-import { showInfoToast } from "../lib/toastHelper";
 import PlanCard from "./common/PlanCard";
 
 interface Volume {
@@ -31,6 +29,7 @@ interface PricingSectionProps {
   pricing: Pricing;
   volumes?: Volume[];
   onPurchase: () => void;
+  onPurchaseVolume?: (volumeNumber: number) => void;
   isPurchasing: boolean;
 }
 
@@ -39,10 +38,9 @@ export default function PricingSection({
   pricing,
   volumes = [],
   onPurchase,
+  onPurchaseVolume,
   isPurchasing,
 }: PricingSectionProps) {
-  const toast = useToast();
-
   // Only show if user hasn't purchased everything
   if (pricing.bundleDiscountedPrice <= 0) {
     return null;
@@ -89,7 +87,9 @@ export default function PricingSection({
             price={nextLockedVolume.price || pricing.priceFreeToRead}
             buttonText="Débloquer ce Volume"
             onPurchase={() => {
-              showInfoToast(toast, 'FEATURE_COMING_SOON_VOLUME_UNLOCK');
+              if (onPurchaseVolume) {
+                onPurchaseVolume(nextLockedVolume.volumeNumber);
+              }
             }}
             isLoading={isPurchasing}
           />

@@ -32,7 +32,7 @@ export default function ReaderDrawer({
   onReadNext,
 }: ReaderDrawerProps) {
   const toast = useToast();
-  const { currentVolume, isLoading } = useReaderStore();
+  const { currentVolume, isLoading, error } = useReaderStore();
 
   // Block body scroll when drawer is open
   useEffect(() => {
@@ -47,13 +47,13 @@ export default function ReaderDrawer({
     };
   }, [isOpen]);
 
-  // Close drawer if content failed to load
+  // Close drawer if content failed to load (only if there's an actual error)
   useEffect(() => {
-    if (isOpen && !isLoading && !currentVolume && volumeId) {
-      // Loading finished but no content - close the drawer
+    if (isOpen && !isLoading && !currentVolume && volumeId && error) {
+      // Loading finished but no content AND there's an error - close the drawer
       onClose();
     }
-  }, [isOpen, isLoading, currentVolume, volumeId, onClose]);
+  }, [isOpen, isLoading, currentVolume, volumeId, error, onClose]);
 
   const handleStartWait = async () => {
     try {

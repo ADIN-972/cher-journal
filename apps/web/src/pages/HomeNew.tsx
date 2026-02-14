@@ -84,20 +84,15 @@ export default function HomeNew() {
         title: featuredChapter.title,
         subtitle: featuredChapter.protagonistName || "Sélection du moment",
         description:
+          featuredChapter.accroche_marketing ??
+          featuredChapter.description ??
           "Plongez dans cet univers captivant et sensuel où les émotions prennent forme...",
         imageUrl: featuredChapter.coverAsset?.url
           ? `${import.meta.env.VITE_API_URL ?? ""}${featuredChapter.coverAsset.url}`
           : undefined,
         id: featuredChapter.id,
       }
-    : {
-        title: "L'Ombre des Désirs",
-        subtitle: "Sélection du moment",
-        description:
-          "Une invitation au creux de l'oreiller, où les mots se font caresses et les silences, promesses. Redécouvrez l'art de la séduction.",
-        imageUrl: undefined,
-        id: "1",
-      };
+    : undefined;
 
   // Get carousel items from filtered chapters
   const carouselItems = filteredChapters.slice(0, 4).map((chapter) => ({
@@ -130,16 +125,28 @@ export default function HomeNew() {
 
   return (
     <div className="min-h-screen">
-      <HeroSection chapters={chapters} heroData={heroData} />
+      {heroData && (
+        <HeroSection
+          chapters={chapters}
+          heroData={heroData}
+        />
+      )}
+
       <AtmospheresFilter
         chapters={chapters}
         atmospheres={ATMOSPHERES}
         selectedAtmosphere={selectedAtmosphere}
         onSelectAtmosphere={setSelectedAtmosphere}
       />
-      <NouveautésSection chapters={filteredChapters} items={carouselItems} />
+      <NouveautésSection
+        chapters={filteredChapters}
+        items={carouselItems}
+      />
       <CherJournalQuote chapters={chapters} />
-      <MostPassionateSection chapters={filteredChapters} items={popularItems} />
+      <MostPassionateSection
+        chapters={filteredChapters}
+        items={popularItems}
+      />
       <WomenOfCherJournalQuote chapters={chapters} />
     </div>
   );

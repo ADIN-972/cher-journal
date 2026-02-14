@@ -1,7 +1,9 @@
 import prisma from '../../../lib/prisma';
 import { ChapterStatus, EntitlementVersionScope, VolumeStatus } from '@prisma/client';
+import { AccessControlService } from '../../../lib/accessControl';
 
 export class LibraryService {
+  private accessControl = new AccessControlService();
   async getLibrary(userId: string) {
     // Get all chapters user has access to
     const entitlements = await prisma.entitlement.findMany({

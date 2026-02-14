@@ -3,6 +3,7 @@ import { ChapterStatus, VolumeStatus, OrderStatus } from '@prisma/client';
 import { priceSchemaService } from '../../admin/price-schemas/price-schemas.service';
 import { resolveAssetUrl } from '../../../lib/assetUtils';
 import { AccessControlService } from '../../../lib/accessControl';
+import momentSelectionService from './moment-selection.service';
 
 // Helper to convert BigInt to number for JSON serialization
 const convertBigIntToNumber = (obj: any): any => {
@@ -122,8 +123,11 @@ export class CatalogService {
       })
     );
 
+    // Add isFavorite flag based on moment selection configuration
+    const chaptersWithFavoriteFlag = await momentSelectionService.enrichChaptersWithFavoriteFlag(chaptersWithCharacterCount);
+
     // Convert BigInt fields to numbers for JSON serialization
-    return convertBigIntToNumber(chaptersWithCharacterCount);
+    return convertBigIntToNumber(chaptersWithFavoriteFlag);
   }
 
   async getChapter(id: string, userId?: string) {
@@ -351,8 +355,11 @@ export class CatalogService {
       } : null,
     };
 
+    // Add isFavorite flag based on moment selection configuration
+    const responseWithFavoriteFlag = await momentSelectionService.enrichChapterWithFavoriteFlag(response);
+
     // Convert BigInt fields (like Volume.waitDuration) to numbers for JSON serialization
-    return convertBigIntToNumber(response);
+    return convertBigIntToNumber(responseWithFavoriteFlag);
   }
 
   // ============= HELPER METHODS FOR PRICING =============

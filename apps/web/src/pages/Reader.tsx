@@ -54,9 +54,12 @@ export default function Reader({
       loadAttemptIdRef.current = `${volumeId}-${Date.now()}`;
       // Reset error tracking for new volume
       shownErrorForAttemptRef.current = null;
+      // Close any error toasts from previous attempts
+      toast.clearAll();
+      console.log(`[Reader] Starting new volume load: ${volumeId}`);
       loadVolume(volumeId);
     }
-  }, [volumeId, loadVolume]);
+  }, [volumeId, loadVolume, toast]);
 
   // Send progress to API (debounced)
   const sendProgressToAPI = async (progress: number) => {
@@ -86,6 +89,8 @@ export default function Reader({
     const currentAttemptId = loadAttemptIdRef.current;
     const attemptVolumeId = currentAttemptVolumeIdRef.current;
 
+    console.log(`[Reader Error Effect] error=${error}, currentVolume=${!!currentVolume}, isLoading=${isLoading}, attemptVolumeId=${attemptVolumeId}, volumeId=${volumeId}, shownFor=${shownErrorForAttemptRef.current}, currentAttemptId=${currentAttemptId}`);
+
     // Only show error if it's for the current volume being loaded
     if (
       currentAttemptId &&
@@ -93,10 +98,12 @@ export default function Reader({
       shownErrorForAttemptRef.current !== currentAttemptId
     ) {
       if (error) {
+        console.log(`[Reader] Showing error toast: ${error}`);
         shownErrorForAttemptRef.current = currentAttemptId;
         showErrorToast(toast, error);
       } else if (!currentVolume && isLoading === false) {
         // Volume failed to load without explicit error
+        console.log(`[Reader] Showing generic LOAD_ERROR (no currentVolume, isLoading=false)`);
         shownErrorForAttemptRef.current = currentAttemptId;
         showErrorToast(toast, "LOAD_ERROR");
       }
@@ -249,18 +256,24 @@ export default function Reader({
               </svg>
             </div>
             <h2 className="text-sm font-bold uppercase tracking-widest hidden md:block font-ornate">
-              Éros & Plume
+              CHer journal
             </h2>
           </div>
 
           <div className="relative flex gap-4 items-center">
             {onClose && (
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex items-center justify-center rounded-lg h-8 w-8 hover:bg-gold/10 text-gold  transition-colors">
-                <span className="material-symbols-outlined">close</span>
-              </button>
+              <>
+                <button
+                  onClick={onClose} className="flex items-center justify-center rounded-lg h-8 px-4 hover:bg-gold/20 text-gold border border-gold/40 transition-all text-[10px] font-bold uppercase tracking-widest font-ornate">
+                  Retour au chapitre
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex items-center justify-center rounded-lg h-8 w-8 hover:bg-gold/10 text-gold  transition-colors">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </>
             )}
             <button
               type="button"

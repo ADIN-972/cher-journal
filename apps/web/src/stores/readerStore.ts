@@ -34,6 +34,7 @@ interface ReaderState {
   error: string | null;
   settings: ReadingSettings;
   progress: Record<string, ReadingProgress>;
+  loadingRequestId: string | null; // Track current load request to prevent stale responses
 
   // Actions
   loadVolume: (volumeId: string, perspective?: Perspective) => Promise<void>;
@@ -51,6 +52,7 @@ export const useReaderStore = create<ReaderState>()(
       perspective: 'narrator',
       isLoading: false,
       error: null,
+      loadingRequestId: null,
       settings: {
         fontSize: 18,
         fontFamily: 'serif',
@@ -63,32 +65,59 @@ export const useReaderStore = create<ReaderState>()(
        * Load volume content
        */
       loadVolume: async (volumeId: string, perspective?: Perspective) => {
-        set({ isLoading: true, error: null });
-
         const currentPerspective = perspective || get().perspective;
+        const requestId = `${volumeId}-${Date.now()}-${Math.random()}`;
+
+        set({ isLoading: true, error: null, loadingRequestId: requestId });
 
         try {
+          console.log(`[Reader] Loading volume: ${volumeId}`);
           const volume = await api.getVolumeText(volumeId);
+          console.log(`[Reader] Received volume response:`, volume);
 
-          set({
-            currentVolume: volume,
-            perspective: currentPerspective,
-            isLoading: false,
-            error: null,
-          });
+          // Only update state if this response is for the current request
+          // This prevents old API responses from updating state after user has switched volumes
+          const state = get();
+          console.log(`[Reader] Current request ID: ${state.loadingRequestId}, response request ID: ${requestId}`);
 
-          // Restore scroll position if exists
-          const progress = get().getProgress(volumeId);
-          if (progress) {
-            setTimeout(() => {
-              window.scrollTo(0, progress.scrollPosition);
-            }, 100);
+          if (state.loadingRequestId === requestId) {
+            // Validate response has required fields
+            if (!volume || !volume.content) {
+              console.error(`[Reader] Invalid response: missing content`);
+              throw new Error('Invalid response: missing content');
+            }
+
+            console.log(`[Reader] Setting volume content, isLoading: false`);
+            set({
+              currentVolume: volume,
+              perspective: currentPerspective,
+              isLoading: false,
+              error: null,
+              loadingRequestId: null,
+            });
+
+            // Restore scroll position if exists
+            const progress = get().getProgress(volumeId);
+            if (progress) {
+              setTimeout(() => {
+                window.scrollTo(0, progress.scrollPosition);
+              }, 100);
+            }
+          } else {
+            console.log(`[Reader] Ignoring response for old request. Current: ${state.loadingRequestId}, Response: ${requestId}`);
           }
         } catch (error: any) {
-          set({
-            error: error.message || 'Failed to load volume',
-            isLoading: false,
-          });
+          console.error(`[Reader] Error loading volume:`, error);
+          // Only update error if this is still the current request
+          const state = get();
+          if (state.loadingRequestId === requestId) {
+            console.log(`[Reader] Setting error state:`, error.message);
+            set({
+              error: error.message || 'Failed to load volume',
+              isLoading: false,
+              loadingRequestId: null,
+            });
+          }
         }
       },
 

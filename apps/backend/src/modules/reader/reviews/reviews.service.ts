@@ -1,7 +1,9 @@
 import prisma from '../../../lib/prisma';
 import { ReviewStatus } from '@prisma/client';
+import { AccessControlService } from '../../../lib/accessControl';
 
 export class ReviewsService {
+  private accessControl = new AccessControlService();
   /**
    * Create or update a chapter review
    */
@@ -22,14 +24,8 @@ export class ReviewsService {
     }
 
     // Check if user has access to this chapter
-    const entitlement = await prisma.entitlement.findFirst({
-      where: {
-        userId,
-        chapterId,
-      },
-    });
-
-    if (!entitlement) {
+    const hasAccess = await this.accessControl.canAccessChapter(userId, chapterId);
+    if (!hasAccess) {
       throw new Error('You must have access to this chapter to review it');
     }
 

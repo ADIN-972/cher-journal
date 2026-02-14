@@ -253,97 +253,103 @@ export default function Catalogue() {
                   ? "grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                   : "space-y-4"
               }>
-              {filteredChapters.map((chapter, index) => (
-                <Link
-                  key={chapter.id}
-                  to={`/chapters/${chapter.id}`}
-                  className={
-                    viewMode === "grid" ? "group" : "flex gap-4 group"
-                  }>
-                  <div
+              {filteredChapters.map((chapter, index) => {
+                debugger;
+
+                console.log("here !!!!!!!!!!!!!!!!!!!");
+                return (
+                  <Link
+                    key={chapter.id}
+                    to={`/chapters/${chapter.id}`}
                     className={
-                      viewMode === "grid"
-                        ? "aspect-[3/4] !text-md overflow-hidden rounded-lg mb-3 relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
-                        : "w-20 h-28 shrink-0 rounded-lg overflow-hidden relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
+                      viewMode === "grid" ? "group" : "flex gap-4 group"
                     }>
-                    {chapter.coverAsset?.url ? (
-                      <ChapterCover
-                        imageUrl={`${import.meta.env.VITE_API_URL ?? ""}${chapter.coverAsset.url}`}
-                        title={chapter.title}
-                        showPremiumBadge={false}
-                        showLimitedEditionBadge={false}
-                        textSize="md"
-                      />
-                    ) : (
-                      <div
-                        className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700"
-                        style={{
-                          backgroundImage: `url('assets/images/404_bg.png')`,
-                        }}
-                      />
+                    <div
+                      className={
+                        viewMode === "grid"
+                          ? "aspect-[3/4] !text-md overflow-hidden rounded-lg mb-3 relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
+                          : "w-20 h-28 shrink-0 rounded-lg overflow-hidden relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
+                      }>
+                      {chapter.coverAsset?.url ? (
+                        <ChapterCover
+                          imageUrl={`${import.meta.env.VITE_API_URL ?? ""}${chapter.coverAsset.url}`}
+                          title={chapter.title}
+                          showPremiumBadge={false}
+                          showLimitedEditionBadge={false}
+                          textSize="md"
+                          showBookmarkIcon={chapter.hasStartedReading}
+                        />
+                      ) : (
+                        <div
+                          className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700"
+                          style={{
+                            backgroundImage: `url('assets/images/404_bg.png')`,
+                          }}
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-boudoir-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+
+                      {/* Lire l'extrait Button */}
+                      <div className="absolute inset-0 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          type="button"
+                          className="bg-gold text-charcoal px-6 py-2 rounded-full text-xs font-bold uppercase tracking-wide hover:bg-gold-light transition-colors">
+                          Lire l'extrait
+                        </button>
+                      </div>
+                    </div>
+
+                    {viewMode === "list" && (
+                      <div className="flex flex-col justify-center min-w-0 flex-1">
+                        <p className="font-script  text-2xl text-gold mb-1">
+                          {chapter.protagonistName || "Récit"}
+                        </p>
+                        <h5 className="font-semibold text-charcoal dark:text-white/70 dark:text-white group-hover:text-gold transition-colors mb-2 line-clamp-1">
+                          {chapter.title}
+                        </h5>
+                        <ReviewStars
+                          chapterId={chapter.id}
+                          size="sm"
+                        />
+                        <p className="text-xs text-charcoal dark:text-white/70 line-clamp-2 font-light leading-relaxed mt-2">
+                          {chapter.protagonistName
+                            ? "Une histoire captivante qui vous plongera dans les profondeurs du désir."
+                            : "Découvrez cet univers narratif envoûtant."}
+                        </p>
+                        <p className="text-xs text-gray-500 flex items-center gap-2 italic mt-1">
+                          <span className="material-symbols-outlined text-xs">
+                            schedule
+                          </span>{" "}
+                          {chapter.totalCharacterCount
+                            ? `${getReadingTime(chapter.totalCharacterCount)} min de lecture`
+                            : " "}
+                        </p>
+                      </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-boudoir-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
 
-                    {/* Lire l'extrait Button */}
-                    <div className="absolute inset-0 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        type="button"
-                        className="bg-gold text-charcoal px-6 py-2 rounded-full text-xs font-bold uppercase tracking-wide hover:bg-gold-light transition-colors">
-                        Lire l'extrait
-                      </button>
-                    </div>
-                  </div>
-
-                  {viewMode === "list" && (
-                    <div className="flex flex-col justify-center min-w-0 flex-1">
-                      <p className="font-script  text-2xl text-gold mb-1">
-                        {chapter.protagonistName || "Récit"}
-                      </p>
-                      <h5 className="font-semibold text-charcoal dark:text-white/70 dark:text-white group-hover:text-gold transition-colors mb-2 line-clamp-1">
-                        {chapter.title}
-                      </h5>
-                      <ReviewStars
-                        chapterId={chapter.id}
-                        size="sm"
-                      />
-                      <p className="text-xs text-charcoal dark:text-white/70 line-clamp-2 font-light leading-relaxed mt-2">
-                        {chapter.protagonistName
-                          ? "Une histoire captivante qui vous plongera dans les profondeurs du désir."
-                          : "Découvrez cet univers narratif envoûtant."}
-                      </p>
-                      <p className="text-xs text-gray-500 flex items-center gap-2 italic mt-1">
-                        <span className="material-symbols-outlined text-xs">
-                          schedule
-                        </span>{" "}
-                        {chapter.totalCharacterCount
-                          ? `${getReadingTime(chapter.totalCharacterCount)} min de lecture`
-                          : " "}
-                      </p>
-                    </div>
-                  )}
-
-                  {viewMode === "grid" && (
-                    <div className="flex flex-col justify-center min-w-0 flex-1">
-                      <h4 className="font-serif text-sm text-charcoal dark:text-white/70 dark:text-white/70 group-hover:text-gold transition-colors line-clamp-2 mb-2">
-                        {chapter.title}
-                      </h4>
-                      <ReviewStars
-                        chapterId={chapter.id}
-                        size="sm"
-                        showCount={false}
-                      />
-                      <p className="text-sm text-gray-500 flex items-center gap-2 italic mt-1">
-                        <span className="material-symbols-outlined text-xs">
-                          schedule
-                        </span>{" "}
-                        {chapter.totalCharacterCount
-                          ? `${getReadingTime(chapter.totalCharacterCount)} min de lecture`
-                          : " "}
-                      </p>
-                    </div>
-                  )}
-                </Link>
-              ))}
+                    {viewMode === "grid" && (
+                      <div className="flex flex-col justify-center min-w-0 flex-1">
+                        <h4 className="font-serif text-sm text-charcoal dark:text-white/70 dark:text-white/70 group-hover:text-gold transition-colors line-clamp-2 mb-2">
+                          {chapter.title}
+                        </h4>
+                        <ReviewStars
+                          chapterId={chapter.id}
+                          size="sm"
+                          showCount={false}
+                        />
+                        <p className="text-sm text-gray-500 flex items-center gap-2 italic mt-1">
+                          <span className="material-symbols-outlined text-xs">
+                            schedule
+                          </span>{" "}
+                          {chapter.totalCharacterCount
+                            ? `${getReadingTime(chapter.totalCharacterCount)} min de lecture`
+                            : " "}
+                        </p>
+                      </div>
+                    )}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         ) : (
@@ -399,6 +405,7 @@ export default function Catalogue() {
                               title={chapter.title}
                               showPremiumBadge={false}
                               showLimitedEditionBadge={false}
+                              showBookmarkIcon={chapter.hasStartedReading}
                             />
                           ) : (
                             <div

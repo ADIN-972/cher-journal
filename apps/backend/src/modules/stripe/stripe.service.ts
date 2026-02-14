@@ -3,6 +3,7 @@ import { config } from '@cher-journal/config';
 import Stripe from 'stripe';
 import { OrderType, OrderStatus, EntitlementVersionScope, EntitlementSource, UnlockTriggeredBy } from '@prisma/client';
 import { priceSchemaService } from '../admin/price-schemas/price-schemas.service';
+import { AccessControlService } from '../../lib/accessControl';
 
 const stripe = new Stripe(config.stripe.secretKey, {
   apiVersion: '2023-10-16' as any,
@@ -19,6 +20,8 @@ interface CreateCheckoutOptions {
 }
 
 export class StripeService {
+  private accessControl = new AccessControlService();
+
   async createCheckoutSession(options: CreateCheckoutOptions) {
     const chapter = await prisma.chapter.findUnique({
       where: { id: options.chapterId },
@@ -31,14 +34,6 @@ export class StripeService {
 
     // Get pricing from database
     const prices = await priceSchemaService.getChapterPrices(options.chapterId);
-
-    // Get user's existing entitlements for this chapter
-    const existingEntitlements = await prisma.entitlement.findMany({
-      where: {
-        userId: options.userId,
-        chapterId: options.chapterId,
-      },
-    });
 
     // Determine line items based on order type
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
@@ -74,14 +69,17 @@ export class StripeService {
 
       // Check if user already PURCHASED this volume
       // Allow purchase even if user has FREE entitlement (from wait-to-read)
-      const hasPurchasedEntitlement = existingEntitlements.some(
-        (ent) =>
-          options.volumeNumber! >= ent.volumeFrom &&
-          options.volumeNumber! <= ent.volumeTo &&
-          ent.source === EntitlementSource.PURCHASE
+      const entitlement = await this.accessControl.getUserEntitlement(
+        options.userId,
+        options.chapterId
       );
 
-      if (hasPurchasedEntitlement) {
+      if (
+        entitlement &&
+        entitlement.source === EntitlementSource.PURCHASE &&
+        options.volumeNumber! >= entitlement.volumeFrom &&
+        options.volumeNumber! <= entitlement.volumeTo
+      ) {
         throw new Error('USER_ALREADY_HAS_ACCESS');
       }
 
@@ -105,6 +103,12 @@ export class StripeService {
       let bundleOriginalPrice = 0;
       let alreadyAccessiblePrice = 0;
 
+      // Get user's entitlements for this chapter (for bundle pricing calculation)
+      const entitlement = await this.accessControl.getUserEntitlement(
+        options.userId,
+        options.chapterId
+      );
+
       chapter.volumes.forEach((volume: any) => {
         if (!volume.isFree) {
           let volumePrice = 0;
@@ -121,12 +125,12 @@ export class StripeService {
 
           // Check if user already PURCHASED this volume
           // Only count PURCHASE entitlements (not free wait-to-read ones)
-          const hasPurchasedVolume = existingEntitlements.some(
-            (ent) =>
-              volume.volumeNumber >= ent.volumeFrom &&
-              volume.volumeNumber <= ent.volumeTo &&
-              ent.source === EntitlementSource.PURCHASE
-          );
+          const hasPurchasedVolume =
+            entitlement &&
+            entitlement.source === EntitlementSource.PURCHASE &&
+            volume.volumeNumber >= entitlement.volumeFrom &&
+            volume.volumeNumber <= entitlement.volumeTo;
+
           if (hasPurchasedVolume) {
             alreadyAccessiblePrice += volumePrice;
           }
@@ -149,7 +153,6 @@ export class StripeService {
       console.log('[Stripe Debug] discountedPrice:', discountedPrice);
       console.log('[Stripe Debug] prices:', prices);
       console.log('[Stripe Debug] chapter.volumes:', chapter.volumes.length);
-      console.log('[Stripe Debug] existingEntitlements:', existingEntitlements);
 
       lineItems.push({
         price_data: {

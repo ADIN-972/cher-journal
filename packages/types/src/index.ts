@@ -135,6 +135,7 @@ export interface Chapter {
   totalCharacterCount?: number;
   hasStartedReading?: boolean; // True if user has started reading any volume (progress > 0)
   hasAccess?: boolean; // True if user has entitlement to this chapter
+  isFavorite?: boolean; // True if this chapter is marked as "Sélection du moment"
   versionScope?: EntitlementVersionScope | null; // Version scope of user's entitlement
   accroche_classic?: string | null;
   accroche_dark?: string | null;

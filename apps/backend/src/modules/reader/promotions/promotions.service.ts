@@ -1,5 +1,6 @@
 import prisma from '../../../lib/prisma';
 import type { PriceScope, PromotionType } from '@cher-journal/types';
+import { AccessControlService } from '../../../lib/accessControl';
 
 export interface ApplicablePromotion {
   id: string;
@@ -23,6 +24,7 @@ export interface ApplicablePromotion {
 }
 
 export class PromotionsService {
+  private accessControl = new AccessControlService();
 
   async getUserApplicablePromotions(userId: string): Promise<ApplicablePromotion[]> {
     // 1. Query active promotions within validity date
@@ -114,8 +116,15 @@ export class PromotionsService {
       }
 
       // Check ownership (filter out if user already owns the content)
-      if (this.userOwnsContent(promo.scope, promo.refId, userEntitlements)) {
-        continue;
+      if (promo.refId) {
+        const owns = await this.accessControl.userOwnsContent(
+          userId,
+          promo.scope as 'CHAPTER' | 'VOLUME',
+          promo.refId
+        );
+        if (owns) {
+          continue;
+        }
       }
 
       // Enrich with content details
@@ -220,30 +229,6 @@ export class PromotionsService {
       return true;
     }
 
-    return false;
-  }
-
-  private userOwnsContent(scope: string, refId: string | null | undefined, entitlements: any[]): boolean {
-    if (!refId) {
-      return false;
-    }
-
-    if (scope === 'VOLUME') {
-      // refId format: "chapterId:volumeNumber"
-      const [chapterId, volumeNumberStr] = refId.split(':');
-      const volumeNumber = parseInt(volumeNumberStr);
-
-      return entitlements.some(
-        (ent) => ent.chapterId === chapterId && volumeNumber >= ent.volumeFrom && volumeNumber <= ent.volumeTo
-      );
-    }
-
-    if (scope === 'CHAPTER') {
-      // refId is just the chapterId
-      return entitlements.some((ent) => ent.chapterId === refId);
-    }
-
-    // For other scopes (EPILOGUE, POV, COLORING, BUNDLE, SUBSCRIPTION), we don't have ownership info
     return false;
   }
 

@@ -1,16 +1,19 @@
 import prisma from "../../../lib/prisma";
 import { config } from "@cher-journal/config";
-import { UnlockTriggeredBy } from "@prisma/client";
+import { UnlockTriggeredBy, EntitlementSource } from "@prisma/client";
 import { StartWaitInput, GetWaitStatusInput } from "./wait.schemas";
 import { ConfigService } from "../../admin/config/config.service";
 import { priceSchemaService } from "../../admin/price-schemas/price-schemas.service";
 import { resolveAssetUrl } from "../../../lib/assetUtils";
+import { AccessControlService } from "../../../lib/accessControl";
 
 export class WaitService {
   private configService: ConfigService;
+  private accessControl: AccessControlService;
 
   constructor() {
     this.configService = new ConfigService();
+    this.accessControl = new AccessControlService();
   }
   async startWait(userId: string, data: StartWaitInput) {
     // Check if chapter exists and get all volumes
@@ -41,7 +44,23 @@ export class WaitService {
       throw new Error("REQUIRES_UPGRADE");
     }
 
-    // Check if user already has an entitlement (purchased or free)
+    // Check if user already has a PURCHASE entitlement for this volume
+    // Only PURCHASE entitlements mean they don't need to wait
+    const purchasedEntitlement = await prisma.entitlement.findFirst({
+      where: {
+        userId,
+        chapterId: data.chapterId,
+        source: EntitlementSource.PURCHASE,
+        volumeFrom: { lte: volumeNumber },
+        volumeTo: { gte: volumeNumber },
+      },
+    });
+
+    if (purchasedEntitlement) {
+      throw new Error("ALREADY_HAS_ACCESS");
+    }
+
+    // Check if user already has any entitlement (purchased or free)
     let entitlement = await prisma.entitlement.findFirst({
       where: {
         userId,

@@ -27,6 +27,7 @@ import { priceHistoryRoutes } from "./modules/admin/prices/price-history.routes"
 import { priceSchemaRoutes } from "./modules/admin/price-schemas/price-schemas.routes";
 import { adminAuditRoutes } from "./modules/admin/audit/audit.routes";
 import { adminConfigRoutes } from "./modules/admin/config/config.routes";
+import { contentConfigRoutes } from "./modules/admin/content-config/content-config.routes";
 import assetTagsRoutes from "./modules/admin/asset-tags/asset-tags.routes";
 import { bundlesRoutes } from "./modules/admin/bundles/bundles.routes";
 import { adminReviewsRoutes } from "./modules/admin/reviews/reviews.routes";
@@ -176,6 +177,7 @@ export async function createApp(): Promise<FastifyInstance> {
     adminSettingsRoutes,
     adminAuditRoutes,
     adminConfigRoutes,
+    contentConfigRoutes,
     bundlesRoutes,
     promotionsRoutes,
     priceHistoryRoutes,

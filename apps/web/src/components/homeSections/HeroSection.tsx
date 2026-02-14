@@ -10,6 +10,7 @@ interface HeroSectionProps {
     description: string;
     imageUrl?: string;
     id: string;
+    hasStartedReading?: boolean;
   };
 }
 
@@ -22,12 +23,12 @@ export default function HeroSection({ chapters, heroData }: HeroSectionProps) {
 
       {/* Hero Content */}
       <div className="relative h-full max-w-[1280px] mx-auto px-6 flex flex-col justify-center items-start">
-        <div className="max-w-xl space-y-6">
+        <div className="max-w-4xl space-y-6">
           {/* Badge */}
           <span className="inline-block bg-primary text-white text-[10px] uppercase tracking-[0.15em] font-semibold px-3 py-1.5 rounded">
             La sélection du moment
           </span>
-          <div className="grid grid-cols-[150px_1fr] gap-2">
+          <div className="grid grid-cols-[150px_1fr] w-full gap-2">
             <div>
               <div className="aspect-[3/4] shrink-0 rounded-lg overflow-hidden relative bg-gradient-to-br from-boudoir-200 to-boudoir-300 dark:from-boudoir-800 dark:to-boudoir-900 shadow-sm">
                 {heroData.imageUrl ? (
@@ -36,6 +37,7 @@ export default function HeroSection({ chapters, heroData }: HeroSectionProps) {
                     title={heroData.title}
                     showPremiumBadge={false}
                     showLimitedEditionBadge={false}
+                    showBookmarkIcon={heroData.hasStartedReading}
                   />
                 ) : (
                   <div
@@ -71,8 +73,7 @@ export default function HeroSection({ chapters, heroData }: HeroSectionProps) {
             <Link
               to="/catalogue"
               className="border border-charcoal dark:border-white/20 hover:bg-white/5 text-charcoal dark:text-white px-8 py-4 rounded-lg font-bold tracking-wide transition-all whitespace-nowrap">
-               LE CATALOGUE
-             
+              LE CATALOGUE
             </Link>
           </div>
         </div>

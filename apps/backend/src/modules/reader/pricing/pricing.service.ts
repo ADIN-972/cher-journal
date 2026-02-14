@@ -1,11 +1,14 @@
 import prisma from "../../../lib/prisma.js";
 import { priceSchemaService } from "../../admin/price-schemas/price-schemas.service.js";
+import { AccessControlService } from "../../../lib/accessControl.js";
 
 interface GetVolumePriceOptions {
   chapterId: string;
   volumeNumber: number;
   userId?: string;
 }
+
+const accessControl = new AccessControlService();
 
 export const pricingService = {
   /**
@@ -43,16 +46,9 @@ export const pricingService = {
     let canWait = true;
 
     if (userId) {
-      const entitlement = await prisma.entitlement.findFirst({
-        where: {
-          userId,
-          chapterId,
-          volumeFrom: { lte: volumeNumber },
-          volumeTo: { gte: volumeNumber },
-        },
-      });
+      const entitlement = await accessControl.getUserEntitlement(userId, chapterId);
 
-      if (entitlement) {
+      if (entitlement && entitlement.volumeFrom <= volumeNumber && entitlement.volumeTo >= volumeNumber) {
         hasAccess = true;
       }
 
