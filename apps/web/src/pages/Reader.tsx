@@ -37,8 +37,8 @@ export default function Reader({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const lastProgressSentRef = useRef<number>(0);
   const progressUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastErrorShownRef = useRef<string | null>(null);
-  const errorToastShownRef = useRef(false);
+  const loadAttemptIdRef = useRef<string | null>(null);
+  const shownErrorForAttemptRef = useRef<string | null>(null);
 
   const coverImageUrl = currentVolume?.illustrationUrl
     ? `${import.meta.env.VITE_API_URL ?? ""}${currentVolume.illustrationUrl}`
@@ -46,9 +46,8 @@ export default function Reader({
   // Load volume on mount or when volumeId changes
   useEffect(() => {
     if (volumeId) {
-      // Reset error tracking when loading a new volume
-      lastErrorShownRef.current = null;
-      errorToastShownRef.current = false;
+      // Generate new attempt ID to track this load attempt
+      loadAttemptIdRef.current = `${volumeId}-${Date.now()}`;
       loadVolume(volumeId);
     }
   }, [volumeId, loadVolume]);
@@ -76,17 +75,17 @@ export default function Reader({
   // Handle error state with toast notification
   // Toast is shown independently from page navigation behavior
   // User can close the toast and navigate freely
-  // Prevents toast cascade - shows only one toast per load attempt
+  // Guarantees one toast per load attempt using attempt ID
   useEffect(() => {
-    if (!errorToastShownRef.current) {
-      if (error && error !== lastErrorShownRef.current) {
-        lastErrorShownRef.current = error;
-        errorToastShownRef.current = true;
+    const currentAttemptId = loadAttemptIdRef.current;
+
+    if (currentAttemptId && shownErrorForAttemptRef.current !== currentAttemptId) {
+      if (error) {
+        shownErrorForAttemptRef.current = currentAttemptId;
         showErrorToast(toast, error);
-      } else if (!currentVolume && isLoading === false && lastErrorShownRef.current === null) {
-        // Volume failed to load without explicit error (only show once)
-        lastErrorShownRef.current = "LOAD_ERROR";
-        errorToastShownRef.current = true;
+      } else if (!currentVolume && isLoading === false) {
+        // Volume failed to load without explicit error
+        shownErrorForAttemptRef.current = currentAttemptId;
         showErrorToast(toast, "LOAD_ERROR");
       }
     }
