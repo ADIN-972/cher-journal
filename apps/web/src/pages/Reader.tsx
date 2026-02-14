@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useReaderStore } from "../stores/readerStore";
 import { useThemeStore } from "../stores/themeStore";
 import { useToast } from "../hooks/useToast";
+import { showErrorToast } from "../lib/toastHelper";
 import api from "../lib/api";
 
 export default function Reader({
@@ -71,9 +72,9 @@ export default function Reader({
     if ((error || !currentVolume) && !errorShownRef.current) {
       errorShownRef.current = true;
       if (error) {
-        toast.error(error);
+        showErrorToast(toast, error);
       } else {
-        toast.error("Impossible de charger le volume");
+        showErrorToast(toast, "LOAD_ERROR");
       }
       handleExit();
     }
