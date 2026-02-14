@@ -25,7 +25,7 @@ type Genre =
   | "MEMOIRE_DU_CORPS";
 type ViewMode = "grid" | "list";
 
-const GENRES: Record<Genre, { label: string; icon: string }> = {
+export const GENRES: Record<Genre, { label: string; icon: string }> = {
   all: { label: "Tous les genres", icon: "category" },
   PASSIONS_CHARNELLES: {
     label: "Passions Charnelles",
@@ -76,10 +76,38 @@ const THEMATIC_SECTIONS = [
   },
 ];
 
+// LocalStorage keys
+const CATALOGUE_STORAGE_KEYS = {
+  SELECTED_GENRE: "catalogue_selectedGenre",
+  VIEW_MODE: "catalogue_viewMode",
+};
+
+// Get initial genre from localStorage or default to "all"
+const getInitialGenre = (): Genre => {
+  const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.SELECTED_GENRE);
+  return (stored as Genre) || "all";
+};
+
+// Get initial view mode from localStorage or default to "grid"
+const getInitialViewMode = (): ViewMode => {
+  const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.VIEW_MODE);
+  return (stored as ViewMode) || "grid";
+};
+
 export default function Catalogue() {
   const { chapters, isLoading, error, fetchChapters } = useCatalogStore();
-  const [selectedGenre, setSelectedGenre] = useState<Genre>("all");
-  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [selectedGenre, setSelectedGenre] = useState<Genre>(getInitialGenre());
+  const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode());
+
+  // Save selectedGenre to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem(CATALOGUE_STORAGE_KEYS.SELECTED_GENRE, selectedGenre);
+  }, [selectedGenre]);
+
+  // Save viewMode to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem(CATALOGUE_STORAGE_KEYS.VIEW_MODE, viewMode);
+  }, [viewMode]);
 
   useEffect(() => {
     fetchChapters();
@@ -248,36 +276,32 @@ export default function Catalogue() {
             </div>
 
             <div
-              className={
+              className={`${
                 viewMode === "grid"
                   ? "grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                   : "space-y-4"
-              }>
+              }`}>
               {filteredChapters.map((chapter, index) => {
-                debugger;
-
-                console.log("here !!!!!!!!!!!!!!!!!!!");
                 return (
                   <Link
                     key={chapter.id}
                     to={`/chapters/${chapter.id}`}
-                    className={
-                      viewMode === "grid" ? "group" : "flex gap-4 group"
-                    }>
+                    className={` dark:border-white/30 dark:bg-white/5 border p-3 rounded-md  ${viewMode === "grid" ? "group" : "flex gap-4 group"}`}>
                     <div
-                      className={
+                      className={` ${
                         viewMode === "grid"
                           ? "aspect-[3/4] !text-md overflow-hidden rounded-lg mb-3 relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
                           : "w-20 h-28 shrink-0 rounded-lg overflow-hidden relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
-                      }>
+                      }`}>
                       {chapter.coverAsset?.url ? (
                         <ChapterCover
                           imageUrl={`${import.meta.env.VITE_API_URL ?? ""}${chapter.coverAsset.url}`}
-                          title={chapter.title}
+                          title={chapter.protagonistName || chapter.title}
                           showPremiumBadge={false}
                           showLimitedEditionBadge={false}
                           textSize="md"
-                          showBookmarkIcon={chapter.hasStartedReading}
+                          // showBookmarkIcon={chapter.hasStartedReading}
+                          showTitleOverlay={viewMode === "grid"}
                         />
                       ) : (
                         <div
@@ -290,13 +314,13 @@ export default function Catalogue() {
                       <div className="absolute inset-0 bg-gradient-to-t from-boudoir-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
 
                       {/* Lire l'extrait Button */}
-                      <div className="absolute inset-0 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {/* <div className="absolute inset-0 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           type="button"
                           className="bg-gold text-charcoal px-6 py-2 rounded-full text-xs font-bold uppercase tracking-wide hover:bg-gold-light transition-colors">
                           Lire l'extrait
                         </button>
-                      </div>
+                      </div> */}
                     </div>
 
                     {viewMode === "list" && (
@@ -312,9 +336,7 @@ export default function Catalogue() {
                           size="sm"
                         />
                         <p className="text-xs text-charcoal dark:text-white/70 line-clamp-2 font-light leading-relaxed mt-2">
-                          {chapter.protagonistName
-                            ? "Une histoire captivante qui vous plongera dans les profondeurs du désir."
-                            : "Découvrez cet univers narratif envoûtant."}
+                          {chapter.accroche_love || chapter.accroche_classic}
                         </p>
                         <p className="text-xs text-gray-500 flex items-center gap-2 italic mt-1">
                           <span className="material-symbols-outlined text-xs">
@@ -382,7 +404,7 @@ export default function Catalogue() {
                   className={
                     viewMode === "grid"
                       ? "grid grid-cols-2 md:grid-cols-4 gap-6"
-                      : "space-y-4"
+                      : "grid grid-cols-1 md:grid-cols-3 gap-4"
                   }>
                   {chapters
                     .slice(sectionIndex * 4, (sectionIndex + 1) * 4 + 2)
@@ -390,22 +412,23 @@ export default function Catalogue() {
                       <Link
                         key={chapter.id}
                         to={`/chapters/${chapter.id}`}
-                        className={
-                          viewMode === "grid" ? "group" : "flex gap-4 group"
-                        }>
+                        className={`  dark:border-white/30 dark:bg-white/5 border p-3 rounded-md ${viewMode === "grid" ? "group" : "flex gap-4 group"}`}>
                         <div
                           className={
                             viewMode === "grid"
-                              ? "aspect-[1/1] overflow-hidden rounded-lg mb-3 relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
+                              ? "aspect-[3/4] overflow-hidden rounded-lg mb-3 relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
                               : "w-20 h-28 shrink-0 rounded-lg overflow-hidden relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
                           }>
                           {chapter.coverAsset?.url ? (
                             <ChapterCover
                               imageUrl={`${import.meta.env.VITE_API_URL ?? ""}${chapter.coverAsset.url}`}
-                              title={chapter.title}
+                              title={chapter.protagonistName || chapter.title}
                               showPremiumBadge={false}
                               showLimitedEditionBadge={false}
-                              showBookmarkIcon={chapter.hasStartedReading}
+                              showBookmarkIcon={
+                                viewMode === "grid" && chapter.hasStartedReading
+                              }
+                              showTitleOverlay={viewMode === "grid"}
                             />
                           ) : (
                             <div
@@ -418,13 +441,13 @@ export default function Catalogue() {
                           <div className="absolute inset-0 bg-gradient-to-t from-boudoir-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
 
                           {/* Lire l'extrait Button */}
-                          <div className="absolute inset-0 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {/* <div className="absolute inset-0 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                               type="button"
                               className="bg-gold text-charcoal px-6 py-2 rounded-full text-xs font-bold uppercase tracking-wide hover:bg-gold-light transition-colors">
                               Lire l'extrait
                             </button>
-                          </div>
+                          </div> */}
                         </div>
 
                         {viewMode === "list" && (
@@ -439,10 +462,9 @@ export default function Catalogue() {
                               chapterId={chapter.id}
                               size="sm"
                             />
-                            <p className="text-xs text-charcoal dark:text-white/70 line-clamp-2 font-light leading-relaxed mt-2">
-                              {chapter.protagonistName
-                                ? "Une histoire captivante qui vous plongera dans les profondeurs du désir."
-                                : "Découvrez cet univers narratif envoûtant."}
+                            <p className="text-xs text-charcoal dark:text-white/70  font-light leading-relaxed mt-2">
+                              {chapter.accroche_dark_collection ||
+                                chapter.accroche_classic}
                             </p>
                             <p className="text-xs text-gray-500 flex items-center gap-2 italic mt-1">
                               <span className="material-symbols-outlined text-xs">
