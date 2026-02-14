@@ -165,28 +165,30 @@ export class CatalogService {
           volumeNumber: u.volumeNumber,
           unlocksAt: u.unlocksAt,
         }));
-
-        // Fetch user's volume reads to track progression
-        const userReads = await prisma.volumeRead.findMany({
-          where: {
-            userId,
-            chapterId: id,
-          },
-          select: {
-            volumeNumber: true,
-            firstOpenedAt: true,
-            progress: true,
-            canStartWaitFrom: true,
-          },
-        });
-
-        volumeReads = userReads.map(r => ({
-          volumeNumber: r.volumeNumber,
-          firstReadAt: r.firstOpenedAt,
-          progress: r.progress,
-          canStartWaitFrom: r.canStartWaitFrom,
-        }));
       }
+
+      // Fetch user's volume reads to track progression
+      // This should be OUTSIDE the entitlement check because users can read free volumes
+      // or volumes they're waiting on without having an entitlement
+      const userReads = await prisma.volumeRead.findMany({
+        where: {
+          userId,
+          chapterId: id,
+        },
+        select: {
+          volumeNumber: true,
+          firstOpenedAt: true,
+          progress: true,
+          canStartWaitFrom: true,
+        },
+      });
+
+      volumeReads = userReads.map(r => ({
+        volumeNumber: r.volumeNumber,
+        firstReadAt: r.firstOpenedAt,
+        progress: r.progress,
+        canStartWaitFrom: r.canStartWaitFrom,
+      }));
     }
 
     // Find last read volume number (highest volume that was read)
