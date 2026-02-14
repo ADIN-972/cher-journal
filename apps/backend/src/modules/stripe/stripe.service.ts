@@ -72,12 +72,16 @@ export class StripeService {
         volumeTypeLabel = 'Epilogue Volume';
       }
 
-      // Check if user already has access
-      const hasEntitlement = existingEntitlements.some(
-        (ent) => options.volumeNumber! >= ent.volumeFrom && options.volumeNumber! <= ent.volumeTo
+      // Check if user already PURCHASED this volume
+      // Allow purchase even if user has FREE entitlement (from wait-to-read)
+      const hasPurchasedEntitlement = existingEntitlements.some(
+        (ent) =>
+          options.volumeNumber! >= ent.volumeFrom &&
+          options.volumeNumber! <= ent.volumeTo &&
+          ent.source === EntitlementSource.PURCHASE
       );
 
-      if (hasEntitlement) {
+      if (hasPurchasedEntitlement) {
         throw new Error('USER_ALREADY_HAS_ACCESS');
       }
 
@@ -115,12 +119,15 @@ export class StripeService {
 
           bundleOriginalPrice += volumePrice;
 
-          // Check if user already has access to this volume
-          // Entitlements use volumeFrom and volumeTo to define a range
-          const hasEntitlement = existingEntitlements.some(
-            (ent) => volume.volumeNumber >= ent.volumeFrom && volume.volumeNumber <= ent.volumeTo
+          // Check if user already PURCHASED this volume
+          // Only count PURCHASE entitlements (not free wait-to-read ones)
+          const hasPurchasedVolume = existingEntitlements.some(
+            (ent) =>
+              volume.volumeNumber >= ent.volumeFrom &&
+              volume.volumeNumber <= ent.volumeTo &&
+              ent.source === EntitlementSource.PURCHASE
           );
-          if (hasEntitlement) {
+          if (hasPurchasedVolume) {
             alreadyAccessiblePrice += volumePrice;
           }
         }
