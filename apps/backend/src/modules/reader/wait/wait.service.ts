@@ -198,7 +198,11 @@ export class WaitService {
       include: {
         chapter: {
           include: {
-            volumes: true,
+            volumes: {
+              include: {
+                illustrationAsset: true,
+              },
+            },
             coverAsset: true,
           },
         },
@@ -243,10 +247,15 @@ export class WaitService {
           }
         });
 
-        // Resolve asset URL (use thumbnail if available)
+        // Resolve asset URLs (use thumbnail if available)
         let coverImageUrl = null;
         if (unlock.chapter.coverAsset) {
           coverImageUrl = resolveAssetUrl(unlock.chapter.coverAsset);
+        }
+
+        let volumeIllustrationUrl = null;
+        if (volume && volume.illustrationAsset) {
+          volumeIllustrationUrl = resolveAssetUrl(volume.illustrationAsset);
         }
 
         return {
@@ -259,6 +268,7 @@ export class WaitService {
           volumePrice,
           chapterPrice,
           coverImageUrl,
+          volumeIllustrationUrl,
         };
       }),
     );
