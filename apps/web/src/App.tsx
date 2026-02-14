@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { I18nProvider } from './lib/i18n';
+import { ToastProvider } from './context/ToastContext';
+import { ToastContainer } from './components/Toast/ToastContainer';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import HomeNew from './pages/HomeNew';
@@ -15,16 +17,15 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import ScrollToTop from './components/common/ScrollToTop';
 import { initializeTheme } from './stores/themeStore';
 
-function App() {
+function AppContent() {
   useEffect(() => {
     initializeTheme();
   }, []);
 
   return (
-    <I18nProvider>
-      <BrowserRouter>
-        <ScrollToTop />
-        <Routes>
+    <BrowserRouter>
+      <ScrollToTop />
+      <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -96,7 +97,7 @@ function App() {
           }
         />
         <Route
-          path="/account"
+          path="/account/:section?"
           element={
             <ProtectedRoute>
               <LayoutNew>
@@ -109,7 +110,17 @@ function App() {
         {/* Catch all - redirect to home */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      </BrowserRouter>
+      <ToastContainer />
+    </BrowserRouter>
+  );
+}
+
+function App() {
+  return (
+    <I18nProvider>
+      <ToastProvider>
+        <AppContent />
+      </ToastProvider>
     </I18nProvider>
   );
 }
