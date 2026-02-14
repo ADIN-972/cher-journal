@@ -5,7 +5,8 @@ const service = new CatalogService();
 
 export class CatalogController {
   async listChapters(request: FastifyRequest, reply: FastifyReply) {
-    const chapters = await service.listChapters();
+    const userId = request.user?.id;
+    const chapters = await service.listChapters(userId);
     return reply.send({ success: true, data: chapters });
   }
 

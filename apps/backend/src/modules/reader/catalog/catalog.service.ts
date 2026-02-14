@@ -23,7 +23,7 @@ const convertBigIntToNumber = (obj: any): any => {
 export class CatalogService {
   private accessControl = new AccessControlService();
 
-  async listChapters() {
+  async listChapters(userId?: string) {
     const chapters = await prisma.chapter.findMany({
       where: {
         status: ChapterStatus.PUBLISHED,
@@ -58,6 +58,29 @@ export class CatalogService {
       orderBy: { createdAt: 'desc' },
     });
 
+    // If user authenticated, fetch all their volume reads in one query for efficiency
+    let userVolumeReadsMap = new Map<string, number[]>(); // Map of chapterId -> volumeNumbers with progress > 0
+    if (userId) {
+      const userReads = await prisma.volumeRead.findMany({
+        where: {
+          userId,
+          progress: { gt: 0 } // Only get volumes with progress > 0
+        },
+        select: {
+          chapterId: true,
+          volumeNumber: true,
+        },
+      });
+
+      // Group by chapterId for efficient lookup
+      for (const read of userReads) {
+        if (!userVolumeReadsMap.has(read.chapterId)) {
+          userVolumeReadsMap.set(read.chapterId, []);
+        }
+        userVolumeReadsMap.get(read.chapterId)!.push(read.volumeNumber);
+      }
+    }
+
     // Calculate totalCharacterCount for each chapter and serialize assets
     const chaptersWithCharacterCount = await Promise.all(
       chapters.map(async (chapter) => {
@@ -82,9 +105,13 @@ export class CatalogService {
         // Resolve cover asset URL (use thumbnail if it exists)
         const coverAssetUrl = await resolveAssetUrl(chapter.coverAsset);
 
+        // Check if user has started reading this chapter (has any volume with progress > 0)
+        const hasStartedReading = userVolumeReadsMap.has(chapter.id);
+
         return {
           ...chapter,
           totalCharacterCount: result._sum.characterCount || 0,
+          hasStartedReading,
           // Replace coverAsset with serialized version containing the resolved URL
           coverAsset: chapter.coverAsset ? {
             id: chapter.coverAsset.id,
@@ -305,11 +332,15 @@ export class CatalogService {
     // Resolve chapter cover asset URL (use thumbnail if it exists)
     const coverAssetUrl = await resolveAssetUrl(chapter.coverAsset);
 
+    // Check if user has started reading any volume (progress > 0 for at least one volume)
+    const hasStartedReading = volumesWithAccessibility.some(vol => vol.progress > 0);
+
     const response = {
       ...chapter,
       volumes: volumesWithAccessibility,
       hasAccess,
       versionScope,
+      hasStartedReading,
       pricing,
       totalCharacterCount,
       // Replace coverAsset with serialized version containing the resolved URL
