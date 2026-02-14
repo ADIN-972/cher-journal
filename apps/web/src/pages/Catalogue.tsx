@@ -82,16 +82,41 @@ const CATALOGUE_STORAGE_KEYS = {
   VIEW_MODE: "catalogue_viewMode",
 };
 
+// Valid genres for validation
+const VALID_GENRES: Genre[] = [
+  "all", "PASSIONS_CHARNELLES", "ROMANCES_TENDRES", "MYSTERIES_SENSUELS",
+  "INTERDITS", "CONQUETES", "REVES_SECRETS", "PASSION_BRUTALE",
+  "AMOUR_COMPLIQUE", "DESIR_NOCTURNE", "LIBERATION", "DECOUVERTE_DE_SOI",
+  "INTIMITE_PSYCHOLOGIQUE", "EVEIL_DU_DESIR", "RELATIONS_TRANSFORMATRICES",
+  "MEMOIRE_DU_CORPS",
+];
+
 // Get initial genre from localStorage or default to "all"
 const getInitialGenre = (): Genre => {
-  const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.SELECTED_GENRE);
-  return (stored as Genre) || "all";
+  try {
+    const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.SELECTED_GENRE);
+    if (stored && VALID_GENRES.includes(stored as Genre)) {
+      return stored as Genre;
+    }
+  } catch (e) {
+    // localStorage might not be available in SSR
+    console.warn("localStorage not available:", e);
+  }
+  return "all";
 };
 
 // Get initial view mode from localStorage or default to "grid"
 const getInitialViewMode = (): ViewMode => {
-  const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.VIEW_MODE);
-  return (stored as ViewMode) || "grid";
+  try {
+    const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.VIEW_MODE);
+    if (stored === "list" || stored === "grid") {
+      return stored as ViewMode;
+    }
+  } catch (e) {
+    // localStorage might not be available in SSR
+    console.warn("localStorage not available:", e);
+  }
+  return "grid";
 };
 
 export default function Catalogue() {
@@ -101,12 +126,20 @@ export default function Catalogue() {
 
   // Save selectedGenre to localStorage when it changes
   useEffect(() => {
-    localStorage.setItem(CATALOGUE_STORAGE_KEYS.SELECTED_GENRE, selectedGenre);
+    try {
+      localStorage.setItem(CATALOGUE_STORAGE_KEYS.SELECTED_GENRE, selectedGenre);
+    } catch (e) {
+      console.warn("Failed to save genre preference:", e);
+    }
   }, [selectedGenre]);
 
   // Save viewMode to localStorage when it changes
   useEffect(() => {
-    localStorage.setItem(CATALOGUE_STORAGE_KEYS.VIEW_MODE, viewMode);
+    try {
+      localStorage.setItem(CATALOGUE_STORAGE_KEYS.VIEW_MODE, viewMode);
+    } catch (e) {
+      console.warn("Failed to save view mode preference:", e);
+    }
   }, [viewMode]);
 
   useEffect(() => {
