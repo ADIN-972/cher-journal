@@ -39,18 +39,20 @@ export default function Reader({
   const progressUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const loadAttemptIdRef = useRef<string | null>(null);
   const shownErrorForAttemptRef = useRef<string | null>(null);
+  const loadedVolumeIdRef = useRef<string | null>(null);
 
   const coverImageUrl = currentVolume?.illustrationUrl
     ? `${import.meta.env.VITE_API_URL ?? ""}${currentVolume.illustrationUrl}`
     : undefined;
   // Load volume on mount or when volumeId changes
   useEffect(() => {
-    if (volumeId && !isLoading) {
-      // Generate new attempt ID to track this load attempt
+    if (volumeId && loadedVolumeIdRef.current !== volumeId) {
+      // Only load if not already loaded this volumeId
+      loadedVolumeIdRef.current = volumeId;
       loadAttemptIdRef.current = `${volumeId}-${Date.now()}`;
       loadVolume(volumeId);
     }
-  }, [volumeId, isLoading, loadVolume]);
+  }, [volumeId, loadVolume]);
 
   // Send progress to API (debounced)
   const sendProgressToAPI = async (progress: number) => {
