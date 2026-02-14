@@ -71,6 +71,7 @@ export function createErrorToast(
     type: 'error',
     title,
     message,
+    duration: 10000, // 10 seconds default for error toasts
     actions: actions.length > 0 ? actions : undefined,
   };
 }
