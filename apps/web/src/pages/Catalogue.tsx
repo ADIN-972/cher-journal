@@ -363,7 +363,7 @@ export default function Catalogue() {
                         onClick={() => setSortBy(option)}
                         className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap capitalize ${
                           sortBy === option
-                            ? "bg-accent-gold text-charcoal"
+                            ? "border-2 border-gold text-gold"
                             : "bg-boudoir-300/50 dark:bg-boudoir-900/50 border border-boudoir-800 text-charcoal dark:text-white/70 hover:border-gold/50"
                         }`}>
                         {option}
