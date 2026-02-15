@@ -7,6 +7,9 @@ import ReviewStars from "../components/common/ReviewStars";
 import ChapterIntensityIndicators from "../components/common/ChapterIntensityIndicators";
 import { getReadingTime } from "../lib/functions";
 
+type ViewMode = "grid" | "list";
+type ViewType = "catalog" | "selection";
+type SortBy = "intensite" | "douceur" | "danger" | "transformation";
 type Genre =
   | "all"
   | "PASSIONS_CHARNELLES"
@@ -24,7 +27,6 @@ type Genre =
   | "EVEIL_DU_DESIR"
   | "RELATIONS_TRANSFORMATRICES"
   | "MEMOIRE_DU_CORPS";
-type ViewMode = "grid" | "list";
 
 export const GENRES: Record<Genre, { label: string; icon: string }> = {
   all: { label: "Tous les genres", icon: "category" },
@@ -54,56 +56,39 @@ export const GENRES: Record<Genre, { label: string; icon: string }> = {
   MEMOIRE_DU_CORPS: { label: "Mémoire du Corps", icon: "self_improvement" },
 };
 
-const THEMATIC_SECTIONS = [
-  {
-    id: "passion",
-    title: "Passions Charnelles",
-    subtitle: "L'exploration intense des sens",
-    description:
-      "Des récits qui font monter la température et révèlent les facettes cachées du désir.",
-  },
-  {
-    id: "romance",
-    title: "Romances Interdites",
-    subtitle: "Quand l'amour franchit les limites",
-    description:
-      "Des histoires complexes où le cœur lutte contre les conventions.",
-  },
-  {
-    id: "mystery",
-    title: "Mystères Chuchotés",
-    subtitle: "L'intrigue rencontre la sensualité",
-    description: "Des secrets enfouis et des révélations qui captivent.",
-  },
-];
-
 // LocalStorage keys
 const CATALOGUE_STORAGE_KEYS = {
-  SELECTED_GENRE: "catalogue_selectedGenre",
+  VIEW_TYPE: "catalogue_viewType",
+  SORT_BY: "catalogue_sortBy",
   VIEW_MODE: "catalogue_viewMode",
 };
 
-// Valid genres for validation
-const VALID_GENRES: Genre[] = [
-  "all", "PASSIONS_CHARNELLES", "ROMANCES_TENDRES", "MYSTERIES_SENSUELS",
-  "INTERDITS", "CONQUETES", "REVES_SECRETS", "PASSION_BRUTALE",
-  "AMOUR_COMPLIQUE", "DESIR_NOCTURNE", "LIBERATION", "DECOUVERTE_DE_SOI",
-  "INTIMITE_PSYCHOLOGIQUE", "EVEIL_DU_DESIR", "RELATIONS_TRANSFORMATRICES",
-  "MEMOIRE_DU_CORPS",
-];
-
-// Get initial genre from localStorage or default to "all"
-const getInitialGenre = (): Genre => {
+// Get initial view type from localStorage or default to "selection"
+const getInitialViewType = (): ViewType => {
   try {
-    const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.SELECTED_GENRE);
-    if (stored && VALID_GENRES.includes(stored as Genre)) {
-      return stored as Genre;
+    const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.VIEW_TYPE);
+    if (stored === "catalog" || stored === "selection") {
+      return stored as ViewType;
     }
   } catch (e) {
     // localStorage might not be available in SSR
     console.warn("localStorage not available:", e);
   }
-  return "all";
+  return "selection";
+};
+
+// Get initial sort by from localStorage or default to "intensite"
+const getInitialSortBy = (): SortBy => {
+  try {
+    const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.SORT_BY);
+    if (stored === "intensite" || stored === "douceur" || stored === "danger" || stored === "transformation") {
+      return stored as SortBy;
+    }
+  } catch (e) {
+    // localStorage might not be available in SSR
+    console.warn("localStorage not available:", e);
+  }
+  return "intensite";
 };
 
 // Get initial view mode from localStorage or default to "grid"
@@ -122,17 +107,173 @@ const getInitialViewMode = (): ViewMode => {
 
 export default function Catalogue() {
   const { chapters, isLoading, error, fetchChapters } = useCatalogStore();
-  const [selectedGenre, setSelectedGenre] = useState<Genre>(getInitialGenre());
+  const [viewType, setViewType] = useState<ViewType>(getInitialViewType());
+  const [sortBy, setSortBy] = useState<SortBy>(getInitialSortBy());
   const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode());
 
-  // Save selectedGenre to localStorage when it changes
+  const THEMATIC_SECTIONS = [{
+      id: "frissons",
+      title: "Frissons Silencieux",
+      subtitle: "Quand tout commence dans un regard",
+      description:
+        "Des récits de lente montée. Peu de bruit, beaucoup de tension intérieure. Le frisson naît dans le silence.",
+      list: [...chapters]
+        .sort((a, b) => {
+          const scoreA = a.niveau_douceur * 2 + a.niveau_transformation;
+          const scoreB = b.niveau_douceur * 2 + b.niveau_transformation;
+          return scoreB - scoreA;
+        })
+        .slice(0, 6),
+    },
+    {
+      id: "fievre",
+      title: "Fièvre des Sens",
+      subtitle: "Là où la peau parle avant les mots",
+      description:
+        "Des récits d’intensité pure. Le désir s’impose, les corps s’appellent, la tension ne retient rien. Ici, la passion est directe, assumée, presque brûlante.",
+      list: [...chapters]
+        .sort((a, b) => {
+          const scoreA = a.niveau_intensite * 2 + a.niveau_danger;
+          const scoreB = b.niveau_intensite * 2 + b.niveau_danger;
+          return scoreB - scoreA;
+        })
+        .slice(0, 6),
+    },
+    {
+      id: "eveils_delicats",
+      title: "Éveils Délicats",
+      subtitle: "Le premier frisson n’est jamais innocent",
+      description:
+        "Des récits lumineux, où la douceur domine et où le désir s’apprend dans la confiance.",
+      list: [...chapters]
+        .sort((a, b) => {
+          const scoreA = a.niveau_douceur * 2 + a.niveau_transformation;
+          const scoreB = b.niveau_douceur * 2 + b.niveau_transformation;
+          return scoreB - scoreA;
+        })
+        .slice(0, 6),
+    },
+    {
+      id: "vertiges",
+      title: "Vertiges Interdits",
+      subtitle: "Aimer quand tout vacille",
+      description:
+        "Des histoires où le danger rend l’amour plus brûlant. Là où les conventions tremblent et où l’attirance devient risque.",
+      list: [...chapters]
+        .sort((a, b) => {
+          const scoreA = a.niveau_danger * 2 + a.niveau_intensite;
+          const scoreB = b.niveau_danger * 2 + b.niveau_intensite;
+          return scoreB - scoreA;
+        })
+        .slice(0, 6),
+    },
+    
+    {
+      id: "passion",
+      title: "Passions Abyssales",
+      subtitle: "Plonger sans garantie de remonter intact",
+      description:
+        "Des histoires profondes, parfois dangereuses, où aimer signifie accepter de se perdre.",
+      list: [...chapters]
+        .sort((a, b) => {
+          const scoreA = a.niveau_danger * 2 + a.niveau_transformation;
+          const scoreB = b.niveau_danger * 2 + b.niveau_transformation;
+          return scoreB - scoreA;
+        })
+        .slice(0, 6),
+    },
+    {
+      id: "etreintes_sauvages",
+      title: "Étreintes Sauvages",
+      subtitle: "L’instinct avant la raison",
+      description:
+        "Des amours instinctives, viscérales, presque animales. Le corps parle plus fort que la prudence.",
+      list: [...chapters]
+        .sort((a, b) => {
+          const scoreA =
+            a.niveau_intensite + a.niveau_danger + (5 - a.niveau_douceur);
+          const scoreB =
+            b.niveau_intensite + b.niveau_danger + (5 - b.niveau_douceur);
+          return scoreB - scoreA;
+        })
+        .slice(0, 6),
+    },
+    {
+      id: "rituels_ombre",
+      title: "Rituels de l’Ombre",
+      subtitle: "Le désir comme cérémonie",
+      description:
+        "Des histoires chargées de symboles, de tension maîtrisée, d’intensité intérieure. Le corps devient langage.",
+      list: [...chapters]
+        .sort((a, b) => {
+          const scoreA =
+            a.niveau_transformation + a.niveau_danger + a.niveau_intensite;
+          const scoreB =
+            b.niveau_transformation + b.niveau_danger + b.niveau_intensite;
+          return scoreB - scoreA;
+        })
+        .slice(0, 6),
+    },
+    {
+      id: "jeux_de_pouvoir",
+      title: "Jeux de Pouvoir",
+      subtitle: "Entre contrôle et abandon",
+      description:
+        "Des relations électriques, tendues, intenses. Ici, le désir est un affrontement élégant.",
+      list: [...chapters]
+        .sort((a, b) => {
+          const scoreA = (a.niveau_danger + a.niveau_intensite) * 1.5;
+          const scoreB = (b.niveau_danger + b.niveau_intensite) * 1.5;
+          return scoreB - scoreA;
+        })
+        .slice(0, 6),
+    },
+    {
+      id: "transformations_intimes",
+      title: "Transformations Intimes",
+      subtitle: "Aimer pour devenir autre",
+      description:
+        "Des histoires où l’amour change tout. Le désir devient passage, révélation, métamorphose.",
+      list: [...chapters]
+        .sort((a, b) => {
+          const scoreA = a.niveau_transformation * 2 + a.niveau_douceur;
+          const scoreB = b.niveau_transformation * 2 + b.niveau_douceur;
+          return scoreB - scoreA;
+        })
+        .slice(0, 6),
+    },
+    {
+      id: "amours_fondateurs",
+      title: "Amours Fondateurs",
+      subtitle: "Les histoires qui rendent le reste possible",
+      description:
+        "Des récits structurants, émotionnellement denses, où la douceur et la transformation s’équilibrent.",
+      list: [...chapters]
+        .sort((a, b) => {
+          const scoreA = a.niveau_transformation + a.niveau_douceur;
+          const scoreB = b.niveau_transformation + b.niveau_douceur;
+          return scoreB - scoreA;
+        })
+        .slice(0, 6),
+    },
+  ];
+  // Save viewType to localStorage when it changes
   useEffect(() => {
     try {
-      localStorage.setItem(CATALOGUE_STORAGE_KEYS.SELECTED_GENRE, selectedGenre);
+      localStorage.setItem(CATALOGUE_STORAGE_KEYS.VIEW_TYPE, viewType);
     } catch (e) {
-      console.warn("Failed to save genre preference:", e);
+      console.warn("Failed to save view type preference:", e);
     }
-  }, [selectedGenre]);
+  }, [viewType]);
+
+  // Save sortBy to localStorage when it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(CATALOGUE_STORAGE_KEYS.SORT_BY, sortBy);
+    } catch (e) {
+      console.warn("Failed to save sort preference:", e);
+    }
+  }, [sortBy]);
 
   // Save viewMode to localStorage when it changes
   useEffect(() => {
@@ -147,13 +288,12 @@ export default function Catalogue() {
     fetchChapters();
   }, [fetchChapters]);
 
-  // Filter chapters by selected genre
-  const filteredChapters =
-    selectedGenre === "all"
-      ? chapters
-      : chapters.filter((chapter) =>
-          chapter.genres?.some((g) => g.genre === selectedGenre),
-        );
+  // Sort chapters by selected intensity metric
+  const sortedChapters = [...chapters].sort((a, b) => {
+    const scoreA = a[`niveau_${sortBy}` as keyof typeof a] as number || 0;
+    const scoreB = b[`niveau_${sortBy}` as keyof typeof b] as number || 0;
+    return scoreB - scoreA;
+  });
 
   if (isLoading) {
     return (
@@ -178,54 +318,60 @@ export default function Catalogue() {
     );
   }
 
-  const isFiltered = selectedGenre !== "all";
-
-  // Calculate available genres (genres that have at least one chapter)
-  const availableGenres = Object.entries(GENRES).filter(
-    ([genre]) =>
-      genre === "all" ||
-      chapters.some((ch) => ch.genres?.some((g) => g.genre === genre)),
-  );
-
-  // Reset filter if selected genre has no chapters
-  if (
-    isFiltered &&
-    !chapters.some((ch) => ch.genres?.some((g) => g.genre === selectedGenre))
-  ) {
-    setSelectedGenre("all");
-  }
-
   return (
     <div className="min-h-screen">
       {/* Sticky Filter Section */}
       <section className="sticky top-12 z-40 bg-boudoir-950/95 backdrop-blur-xl border-b border-boudoir-800">
         <div className="max-w-[1280px] mx-auto px-6 py-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            {/* Filters */}
-            <div className="w-full md:w-auto flex items-center gap-3 flex-wrap">
-              <span className="text-xs uppercase tracking-[0.2em] text-charcoal dark:text-white/70 font-semibold">
-                Filtrer par :
-              </span>
-              <div className="flex gap-2 flex-wrap">
-                {(availableGenres as [Genre, (typeof GENRES)[Genre]][]).map(
-                  ([genre, config]) => (
-                    <button
-                      key={genre}
-                      type="button"
-                      onClick={() => setSelectedGenre(genre)}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
-                        selectedGenre === genre
-                          ? "bg-primary text-white"
-                          : "bg-boudoir-300/50 dark:bg-boudoir-900/50 border border-boudoir-800 text-charcoal dark:text-white/70 hover:border-gold/50"
-                      }`}>
-                      <span className="material-symbols-outlined text-sm">
-                        {config.icon}
-                      </span>
-                      <span className="hidden sm:inline">{config.label}</span>
-                    </button>
-                  ),
-                )}
+            {/* View Type Filters */}
+            <div className="flex flex-col gap-3 w-full md:w-auto">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setViewType("selection")}
+                  className={`px-4 py-2 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                    viewType === "selection"
+                      ? "bg-primary text-white"
+                      : "bg-boudoir-300/50 dark:bg-boudoir-900/50 border border-boudoir-800 text-charcoal dark:text-white/70 hover:border-gold/50"
+                  }`}>
+                  Notre sélection
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewType("catalog")}
+                  className={`px-4 py-2 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                    viewType === "catalog"
+                      ? "bg-primary text-white"
+                      : "bg-boudoir-300/50 dark:bg-boudoir-900/50 border border-boudoir-800 text-charcoal dark:text-white/70 hover:border-gold/50"
+                  }`}>
+                  Tout le catalogue
+                </button>
               </div>
+
+              {/* Sort By Buttons - only show when in catalog view */}
+              {viewType === "catalog" && (
+                <div className="flex gap-2 flex-wrap">
+                  <span className="text-xs uppercase tracking-[0.2em] text-charcoal dark:text-white/70 font-semibold self-center">
+                    Trier par :
+                  </span>
+                  {(["intensite", "douceur", "danger", "transformation"] as const).map(
+                    (option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => setSortBy(option)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap capitalize ${
+                          sortBy === option
+                            ? "bg-accent-gold text-charcoal"
+                            : "bg-boudoir-300/50 dark:bg-boudoir-900/50 border border-boudoir-800 text-charcoal dark:text-white/70 hover:border-gold/50"
+                        }`}>
+                        {option}
+                      </button>
+                    )
+                  )}
+                </div>
+              )}
             </div>
 
             {/* View Toggle */}
@@ -275,37 +421,19 @@ export default function Catalogue() {
               De nouvelles histoires arrivent bientôt...
             </p>
           </div>
-        ) : filteredChapters.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-boudoir-900 flex items-center justify-center">
-              <span className="material-symbols-outlined text-charcoal dark:text-white/70 text-5xl">
-                search
-              </span>
-            </div>
-            <h3 className="text-xl font-serif text-white mb-2">
-              Aucune histoire trouvée
-            </h3>
-            <p className="text-charcoal dark:text-white/70 mb-4">
-              Aucune œuvre disponible pour ce genre
-            </p>
-            <button
-              type="button"
-              onClick={() => setSelectedGenre("all")}
-              className="text-gold hover:text-gold-light transition-colors text-sm font-semibold">
-              Voir tous les genres
-            </button>
-          </div>
-        ) : isFiltered ? (
-          // Filtered view - single list
+        ) : viewType === "catalog" ? (
+          // Catalog view - all chapters sorted by intensity metric
           <div>
             <div className="mb-8">
               <h2 className="text-3xl font-bold text-accent-gold mb-2 italic">
-                {GENRES[selectedGenre].label}
+                Tout le catalogue
               </h2>
               <p className="text-sm text-charcoal dark:text-white/70">
-                {filteredChapters.length} œuvre
-                {filteredChapters.length > 1 ? "s" : ""} disponible
-                {filteredChapters.length > 1 ? "s" : ""}
+                {sortedChapters.length} œuvre
+                {sortedChapters.length > 1 ? "s" : ""} disponible
+                {sortedChapters.length > 1 ? "s" : ""}
+                {" — Triée par "}
+                <span className="capitalize font-semibold">{sortBy}</span>
               </p>
             </div>
 
@@ -315,7 +443,7 @@ export default function Catalogue() {
                   ? "grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                   : "space-y-4"
               }`}>
-              {filteredChapters.map((chapter, index) => {
+              {sortedChapters.map((chapter, index) => {
                 return (
                   <Link
                     key={chapter.id}
@@ -402,7 +530,12 @@ export default function Catalogue() {
                             : " "}
                         </p>
 
-                        {chapter && <ChapterIntensityIndicators chapter={chapter} variant="compact" />}
+                        {chapter && (
+                          <ChapterIntensityIndicators
+                            chapter={chapter}
+                            variant="compact"
+                          />
+                        )}
                       </div>
                     )}
                   </Link>
@@ -442,99 +575,112 @@ export default function Catalogue() {
                       ? "grid grid-cols-2 md:grid-cols-4 gap-6"
                       : "grid grid-cols-1 md:grid-cols-3 gap-4"
                   }>
-                  {chapters
-                    .slice(sectionIndex * 4, (sectionIndex + 1) * 4 + 2)
-                    .map((chapter, index) => (
-                      <Link
-                        key={chapter.id}
-                        to={`/chapters/${chapter.id}`}
-                        className={`  dark:border-white/30 dark:bg-white/5 border p-3 rounded-md ${viewMode === "grid" ? "group" : "flex gap-4 group"}`}>
-                        <div
-                          className={
-                            viewMode === "grid"
-                              ? "aspect-[3/4] overflow-hidden rounded-lg mb-3 relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
-                              : "w-20 h-28 shrink-0 rounded-lg overflow-hidden relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
-                          }>
-                          {chapter.coverAsset?.url ? (
-                            <ChapterCover
-                              imageUrl={`${import.meta.env.VITE_API_URL ?? ""}${chapter.coverAsset.url}`}
-                              title={chapter.protagonistName || chapter.title}
-                              showPremiumBadge={false}
-                              showLimitedEditionBadge={false}
-                              showBookmarkIcon={
-                                viewMode === "grid" && chapter.hasStartedReading
-                              }
-                              showTitleOverlay={viewMode === "grid"}
-                            />
-                          ) : (
-                            <div
-                              className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700"
-                              style={{
-                                backgroundImage: `url('assets/images/404_bg.png')`,
-                              }}
-                            />
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-boudoir-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                  {section.list.map((chapter, index) => (
+                    <Link
+                      key={chapter.id}
+                      to={`/chapters/${chapter.id}`}
+                      className={`  dark:border-white/30 dark:bg-white/5 border p-3 rounded-md ${viewMode === "grid" ? "group" : "flex gap-4 group"}`}>
+                      <div
+                        className={`relative ${
+                          viewMode === "grid"
+                            ? "aspect-[3/4] overflow-hidden rounded-lg mb-3 relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
+                            : "w-20 h-28 shrink-0 rounded-lg overflow-hidden relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
+                        }`}>
+                        {index < 3 && (
+                          <div
+                            className={`absolute top-2 left-2 z-20 flex items-center justify-center w-8 h-8 rounded-full border-2 shadow-lg bg-gradient-to-br ${index === 0 ? "border-[#D4AF37]/50 from-[#D4AF37] via-[#FBF5B7] to-[#8B5E3C]" : index === 1 ? "border-stone-300/50 from-[#C0C0C0] via-[#F5F5F5] to-[#7A7A7A]" : "border-[#CD7F32]/50 from-[#CD7F32] via-[#E6BE8A] to-[#633517]"} `}>
+                            <span className="text-velvet-brown font-display font-bold text-sm">
+                              {/* {index + 1} */}
+                            </span>
+                          </div>
+                        )}
+                        {chapter.coverAsset?.url ? (
+                          <ChapterCover
+                            imageUrl={`${import.meta.env.VITE_API_URL ?? ""}${chapter.coverAsset.url}`}
+                            title={chapter.protagonistName || chapter.title}
+                            showPremiumBadge={false}
+                            showLimitedEditionBadge={false}
+                            showBookmarkIcon={
+                              viewMode === "grid" && chapter.hasStartedReading
+                            }
+                            showTitleOverlay={viewMode === "grid"}
+                          />
+                        ) : (
+                          <div
+                            className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700"
+                            style={{
+                              backgroundImage: `url('assets/images/404_bg.png')`,
+                            }}
+                          />
+                        )}
 
-                          {/* Lire l'extrait Button */}
-                          {/* <div className="absolute inset-0 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="absolute inset-0 bg-gradient-to-t from-boudoir-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+
+                        {/* Lire l'extrait Button */}
+                        {/* <div className="absolute inset-0 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                               type="button"
                               className="bg-gold text-charcoal px-6 py-2 rounded-full text-xs font-bold uppercase tracking-wide hover:bg-gold-light transition-colors">
                               Lire l'extrait
                             </button>
                           </div> */}
+                      </div>
+
+                      {viewMode === "list" && (
+                        <div className="flex flex-col justify-center min-w-0 flex-1">
+                          <p className="font-script  text-2xl text-gold mb-1">
+                            {chapter.protagonistName || "Récit"}
+                          </p>
+                          <h5 className="font-semibold text-charcoal dark:text-white/70 dark:text-white group-hover:text-gold transition-colors mb-2 line-clamp-1">
+                            {chapter.title}
+                          </h5>
+                          <ReviewStars
+                            chapterId={chapter.id}
+                            size="sm"
+                          />
+                          <p className="text-xs text-charcoal dark:text-white/70  font-light leading-relaxed mt-2">
+                            {chapter.accroche_dark_collection ||
+                              chapter.accroche_classic}
+                          </p>
+                          <p className="text-xs text-gray-500 flex items-center gap-2 italic mt-1">
+                            <span className="material-symbols-outlined text-xs">
+                              schedule
+                            </span>{" "}
+                            {chapter.totalCharacterCount
+                              ? `${getReadingTime(chapter.totalCharacterCount)} min de lecture`
+                              : " "}
+                          </p>
                         </div>
+                      )}
 
-                        {viewMode === "list" && (
-                          <div className="flex flex-col justify-center min-w-0 flex-1">
-                            <p className="font-script  text-2xl text-gold mb-1">
-                              {chapter.protagonistName || "Récit"}
-                            </p>
-                            <h5 className="font-semibold text-charcoal dark:text-white/70 dark:text-white group-hover:text-gold transition-colors mb-2 line-clamp-1">
-                              {chapter.title}
-                            </h5>
-                            <ReviewStars
-                              chapterId={chapter.id}
-                              size="sm"
+                      {viewMode === "grid" && (
+                        <div className="flex flex-col justify-center min-w-0 flex-1">
+                          <h4 className="font-serif text-sm text-charcoal dark:text-white/70 dark:text-white/70 group-hover:text-gold transition-colors line-clamp-2 mb-2">
+                            {chapter.title}
+                          </h4>
+                          <ReviewStars
+                            chapterId={chapter.id}
+                            size="sm"
+                            showCount={false}
+                          />
+                          <p className="text-sm text-gray-500 flex items-center gap-2 italic mt-1">
+                            <span className="material-symbols-outlined text-xs">
+                              schedule
+                            </span>{" "}
+                            {chapter.totalCharacterCount
+                              ? `${getReadingTime(chapter.totalCharacterCount)} min de lecture`
+                              : " "}
+                          </p>
+                          {chapter && (
+                            <ChapterIntensityIndicators
+                              chapter={chapter}
+                              variant="full"
                             />
-                            <p className="text-xs text-charcoal dark:text-white/70  font-light leading-relaxed mt-2">
-                              {chapter.accroche_dark_collection ||
-                                chapter.accroche_classic}
-                            </p>
-                            <p className="text-xs text-gray-500 flex items-center gap-2 italic mt-1">
-                              <span className="material-symbols-outlined text-xs">
-                                schedule
-                              </span>{" "}
-                              {chapter.totalCharacterCount
-                                ? `${getReadingTime(chapter.totalCharacterCount)} min de lecture`
-                                : " "}
-                            </p>
-                          </div>
-                        )}
-
-                        {viewMode === "grid" && (
-                          <div className="flex flex-col justify-center min-w-0 flex-1">
-                            <h4 className="font-serif text-sm text-charcoal dark:text-white/70 dark:text-white/70 group-hover:text-gold transition-colors line-clamp-2 mb-2">
-                              {chapter.title}
-                            </h4>
-                            <ReviewStars
-                              chapterId={chapter.id}
-                              size="sm"
-                              showCount={false}
-                            />
-                            <p className="text-sm text-gray-500 flex items-center gap-2 italic mt-1">
-                              <span className="material-symbols-outlined text-xs">
-                                schedule
-                              </span>{" "}
-                              {chapter.totalCharacterCount
-                                ? `${getReadingTime(chapter.totalCharacterCount)} min de lecture`
-                                : " "}
-                            </p>
-                          </div>
-                        )}
-                      </Link>
-                    ))}
+                          )}
+                        </div>
+                      )}
+                    </Link>
+                  ))}
                 </div>
               </div>
             ))}
