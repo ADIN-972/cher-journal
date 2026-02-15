@@ -10,6 +10,7 @@ import { getReadingTime } from "../lib/functions";
 type ViewMode = "grid" | "list";
 type ViewType = "catalog" | "selection";
 type SortBy = "intensite" | "douceur" | "danger" | "transformation";
+type SortDirection = "asc" | "desc" | "none";
 type Genre =
   | "all"
   | "PASSIONS_CHARNELLES"
@@ -60,6 +61,7 @@ export const GENRES: Record<Genre, { label: string; icon: string }> = {
 const CATALOGUE_STORAGE_KEYS = {
   VIEW_TYPE: "catalogue_viewType",
   SORT_BY: "catalogue_sortBy",
+  SORT_DIRECTION: "catalogue_sortDirection",
   VIEW_MODE: "catalogue_viewMode",
 };
 
@@ -78,7 +80,7 @@ const getInitialViewType = (): ViewType => {
 };
 
 // Get initial sort by from localStorage or default to "intensite"
-const getInitialSortBy = (): SortBy => {
+const getInitialSortBy = (): SortBy | null => {
   try {
     const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.SORT_BY);
     if (stored === "intensite" || stored === "douceur" || stored === "danger" || stored === "transformation") {
@@ -88,7 +90,21 @@ const getInitialSortBy = (): SortBy => {
     // localStorage might not be available in SSR
     console.warn("localStorage not available:", e);
   }
-  return "intensite";
+  return null;
+};
+
+// Get initial sort direction from localStorage or default to "none"
+const getInitialSortDirection = (): SortDirection => {
+  try {
+    const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.SORT_DIRECTION);
+    if (stored === "asc" || stored === "desc" || stored === "none") {
+      return stored as SortDirection;
+    }
+  } catch (e) {
+    // localStorage might not be available in SSR
+    console.warn("localStorage not available:", e);
+  }
+  return "none";
 };
 
 // Get initial view mode from localStorage or default to "grid"
@@ -108,7 +124,8 @@ const getInitialViewMode = (): ViewMode => {
 export default function Catalogue() {
   const { chapters, isLoading, error, fetchChapters } = useCatalogStore();
   const [viewType, setViewType] = useState<ViewType>(getInitialViewType());
-  const [sortBy, setSortBy] = useState<SortBy>(getInitialSortBy());
+  const [sortBy, setSortBy] = useState<SortBy | null>(getInitialSortBy());
+  const [sortDirection, setSortDirection] = useState<SortDirection>(getInitialSortDirection());
   const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode());
 
   const THEMATIC_SECTIONS = [{
@@ -269,11 +286,24 @@ export default function Catalogue() {
   // Save sortBy to localStorage when it changes
   useEffect(() => {
     try {
-      localStorage.setItem(CATALOGUE_STORAGE_KEYS.SORT_BY, sortBy);
+      if (sortBy) {
+        localStorage.setItem(CATALOGUE_STORAGE_KEYS.SORT_BY, sortBy);
+      } else {
+        localStorage.removeItem(CATALOGUE_STORAGE_KEYS.SORT_BY);
+      }
     } catch (e) {
       console.warn("Failed to save sort preference:", e);
     }
   }, [sortBy]);
+
+  // Save sortDirection to localStorage when it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(CATALOGUE_STORAGE_KEYS.SORT_DIRECTION, sortDirection);
+    } catch (e) {
+      console.warn("Failed to save sort direction preference:", e);
+    }
+  }, [sortDirection]);
 
   // Save viewMode to localStorage when it changes
   useEffect(() => {
@@ -288,12 +318,32 @@ export default function Catalogue() {
     fetchChapters();
   }, [fetchChapters]);
 
+  // Handle sort button clicks with cycling: asc -> desc -> none
+  const handleSortClick = (option: SortBy) => {
+    if (sortBy === option) {
+      // Same option clicked, cycle through directions
+      if (sortDirection === "asc") {
+        setSortDirection("desc");
+      } else if (sortDirection === "desc") {
+        setSortDirection("none");
+        setSortBy(null);
+      }
+    } else {
+      // Different option clicked, start with asc
+      setSortBy(option);
+      setSortDirection("asc");
+    }
+  };
+
   // Sort chapters by selected intensity metric
-  const sortedChapters = [...chapters].sort((a, b) => {
-    const scoreA = a[`niveau_${sortBy}` as keyof typeof a] as number || 0;
-    const scoreB = b[`niveau_${sortBy}` as keyof typeof b] as number || 0;
-    return scoreB - scoreA;
-  });
+  const sortedChapters = sortBy
+    ? [...chapters].sort((a, b) => {
+        const scoreA = a[`niveau_${sortBy}` as keyof typeof a] as number || 0;
+        const scoreB = b[`niveau_${sortBy}` as keyof typeof b] as number || 0;
+        const diff = sortDirection === "asc" ? scoreA - scoreB : scoreB - scoreA;
+        return diff;
+      })
+    : chapters;
 
   if (isLoading) {
     return (
@@ -360,13 +410,18 @@ export default function Catalogue() {
                       <button
                         key={option}
                         type="button"
-                        onClick={() => setSortBy(option)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap capitalize ${
+                        onClick={() => handleSortClick(option)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap capitalize flex items-center gap-1 ${
                           sortBy === option
                             ? "border-2 border-gold text-gold"
                             : "bg-boudoir-300/50 dark:bg-boudoir-900/50 border border-boudoir-800 text-charcoal dark:text-white/70 hover:border-gold/50"
                         }`}>
-                        {option}
+                        <span>{option}</span>
+                        {sortBy === option && (
+                          <span className="text-xs">
+                            {sortDirection === "asc" ? "↑" : "↓"}
+                          </span>
+                        )}
                       </button>
                     )
                   )}
@@ -432,8 +487,14 @@ export default function Catalogue() {
                 {sortedChapters.length} œuvre
                 {sortedChapters.length > 1 ? "s" : ""} disponible
                 {sortedChapters.length > 1 ? "s" : ""}
-                {" — Triée par "}
-                <span className="capitalize font-semibold">{sortBy}</span>
+                {sortBy && (
+                  <>
+                    {" — Triée par "}
+                    <span className="capitalize font-semibold">
+                      {sortBy} {sortDirection === "asc" ? "↑" : "↓"}
+                    </span>
+                  </>
+                )}
               </p>
             </div>
 
