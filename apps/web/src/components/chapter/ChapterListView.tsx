@@ -6,14 +6,49 @@ import { getReadingTime } from "../../lib/functions";
 
 interface ChapterListViewProps {
   chapter: Chapter;
+  top3?: boolean;
+  index?: number;
 }
 
-export default function ChapterListView({ chapter }: ChapterListViewProps) {
+const getRankingStyles = (index: number) => {
+  const styles = {
+    0: {
+      border: "border-[#D4AF37]/50",
+      gradient: "from-[#D4AF37] via-[#FBF5B7] to-[#8B5E3C]",
+      label: "Or",
+    },
+    1: {
+      border: "border-stone-300/50",
+      gradient: "from-[#C0C0C0] via-[#F5F5F5] to-[#7A7A7A]",
+      label: "Argent",
+    },
+    2: {
+      border: "border-[#CD7F32]/50",
+      gradient: "from-[#CD7F32] via-[#E6BE8A] to-[#633517]",
+      label: "Bronze",
+    },
+  };
+  return styles[index as keyof typeof styles] || null;
+};
+
+export default function ChapterListView({
+  chapter,
+  top3 = false,
+  index,
+}: ChapterListViewProps) {
   return (
     <Link
       to={`/chapters/${chapter.id}`}
       className="dark:border-white/30 dark:bg-white/5 border p-3 rounded-md flex gap-4 group">
       <div className="w-20 h-28 shrink-0 rounded-lg overflow-hidden relative bg-gradient-to-br from-boudoir-800 to-boudoir-900">
+        {top3 && index !== undefined && index < 3 && getRankingStyles(index) && (
+          <div
+            className={`absolute top-2 left-2 z-20 flex items-center justify-center w-8 h-8 rounded-full border-2 shadow-lg bg-gradient-to-br ${getRankingStyles(index)?.border} ${getRankingStyles(index)?.gradient}`}>
+            <span className="text-velvet-brown font-display font-bold text-sm">
+              {index + 1}
+            </span>
+          </div>
+        )}
         {chapter.coverAsset?.url ? (
           <ChapterCover
             imageUrl={`${import.meta.env.VITE_API_URL ?? ""}${chapter.coverAsset.url}`}
