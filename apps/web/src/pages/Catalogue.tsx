@@ -5,6 +5,8 @@ import ErrorMessage from "../components/common/ErrorMessage";
 import ChapterCover from "../components/common/ChapterCover";
 import ReviewStars from "../components/common/ReviewStars";
 import ChapterIntensityIndicators from "../components/common/ChapterIntensityIndicators";
+import ChapterListView from "../components/chapter/ChapterListView";
+import ChapterGridView from "../components/chapter/ChapterGridView";
 import { getReadingTime } from "../lib/functions";
 
 type ViewMode = "grid" | "list";
@@ -403,30 +405,35 @@ export default function Catalogue() {
                   <span className="text-xs uppercase tracking-[0.2em] text-charcoal dark:text-white/70 font-semibold self-center">
                     Trier par :
                   </span>
-                  {(["intensite", "douceur", "danger", "transformation"] as const).map(
-                    (option) => {
-                      const direction = sortMetrics[option];
-                      const isActive = direction !== "none";
-                      return (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() => handleSortClick(option)}
-                          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap capitalize flex items-center gap-1 ${
-                            isActive
-                              ? "border-2 border-gold text-gold"
-                              : "bg-boudoir-300/50 dark:bg-boudoir-900/50 border border-boudoir-800 text-charcoal dark:text-white/70 hover:border-gold/50"
-                          }`}>
-                          <span>{option}</span>
-                          {isActive && (
-                            <span className="text-xs">
-                              {direction === "asc" ? "↑" : "↓"}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    }
-                  )}
+                  {(
+                    [
+                      "intensite",
+                      "douceur",
+                      "danger",
+                      "transformation",
+                    ] as const
+                  ).map((option) => {
+                    const direction = sortMetrics[option];
+                    const isActive = direction !== "none";
+                    return (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => handleSortClick(option)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap capitalize flex items-center gap-1 ${
+                          isActive
+                            ? "border-2 border-gold text-gold"
+                            : "bg-boudoir-300/50 dark:bg-boudoir-900/50 border border-boudoir-800 text-charcoal dark:text-white/70 hover:border-gold/50"
+                        }`}>
+                        <span>{option}</span>
+                        {isActive && (
+                          <span className="text-xs">
+                            {direction === "asc" ? "↑" : "↓"}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -496,7 +503,7 @@ export default function Catalogue() {
                       {activeMetrics
                         .map(
                           ([metric, direction]) =>
-                            `${metric} ${direction === "asc" ? "↑" : "↓"}`
+                            `${metric} ${direction === "asc" ? "↑" : "↓"}`,
                         )
                         .join(", ")}
                     </span>
@@ -511,104 +518,13 @@ export default function Catalogue() {
                   ? "grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                   : "space-y-4"
               }`}>
-              {sortedChapters.map((chapter, index) => {
-                return (
-                  <Link
-                    key={chapter.id}
-                    to={`/chapters/${chapter.id}`}
-                    className={` dark:border-white/30 dark:bg-white/5 border p-3 rounded-md  ${viewMode === "grid" ? "group" : "flex gap-4 group"}`}>
-                    <div
-                      className={` ${
-                        viewMode === "grid"
-                          ? "aspect-[3/4] !text-md overflow-hidden rounded-lg mb-3 relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
-                          : "w-20 h-28 shrink-0 rounded-lg overflow-hidden relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
-                      }`}>
-                      {chapter.coverAsset?.url ? (
-                        <ChapterCover
-                          imageUrl={`${import.meta.env.VITE_API_URL ?? ""}${chapter.coverAsset.url}`}
-                          title={chapter.protagonistName || chapter.title}
-                          showPremiumBadge={false}
-                          showLimitedEditionBadge={false}
-                          textSize="md"
-                          // showBookmarkIcon={chapter.hasStartedReading}
-                          showTitleOverlay={viewMode === "grid"}
-                        />
-                      ) : (
-                        <div
-                          className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700"
-                          style={{
-                            backgroundImage: `url('assets/images/404_bg.png')`,
-                          }}
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-boudoir-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-
-                      {/* Lire l'extrait Button */}
-                      {/* <div className="absolute inset-0 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          type="button"
-                          className="bg-gold text-charcoal px-6 py-2 rounded-full text-xs font-bold uppercase tracking-wide hover:bg-gold-light transition-colors">
-                          Lire l'extrait
-                        </button>
-                      </div> */}
-                    </div>
-
-                    {viewMode === "list" && (
-                      <div className="flex flex-col justify-center min-w-0 flex-1">
-                        <p className="font-script  text-2xl text-gold mb-1">
-                          {chapter.protagonistName || "Récit"}
-                        </p>
-                        <h5 className="font-semibold text-charcoal dark:text-white/70 dark:text-white group-hover:text-gold transition-colors mb-2 line-clamp-1">
-                          {chapter.title}
-                        </h5>
-                        <ReviewStars
-                          chapterId={chapter.id}
-                          size="sm"
-                        />
-                        <p className="text-xs text-charcoal dark:text-white/70 line-clamp-2 font-light leading-relaxed mt-2">
-                          {chapter.accroche_love || chapter.accroche_classic}
-                        </p>
-                        <p className="text-xs text-gray-500 flex items-center gap-2 italic mt-1">
-                          <span className="material-symbols-outlined text-xs">
-                            schedule
-                          </span>{" "}
-                          {chapter.totalCharacterCount
-                            ? `${getReadingTime(chapter.totalCharacterCount)} min de lecture`
-                            : " "}
-                        </p>
-                      </div>
-                    )}
-
-                    {viewMode === "grid" && (
-                      <div className="flex flex-col justify-center min-w-0 flex-1">
-                        <h4 className="font-serif text-sm text-charcoal dark:text-white/70 dark:text-white/70 group-hover:text-gold transition-colors line-clamp-2 mb-2">
-                          {chapter.title}
-                        </h4>
-                        <ReviewStars
-                          chapterId={chapter.id}
-                          size="sm"
-                          showCount={false}
-                        />
-                        <p className="text-sm text-gray-500 flex items-center gap-2 italic mt-1">
-                          <span className="material-symbols-outlined text-xs">
-                            schedule
-                          </span>{" "}
-                          {chapter.totalCharacterCount
-                            ? `${getReadingTime(chapter.totalCharacterCount)} min de lecture`
-                            : " "}
-                        </p>
-
-                        {chapter && (
-                          <ChapterIntensityIndicators
-                            chapter={chapter}
-                            variant="compact"
-                          />
-                        )}
-                      </div>
-                    )}
-                  </Link>
-                );
-              })}
+              {sortedChapters.map((chapter) =>
+                viewMode === "grid" ? (
+                  <ChapterGridView key={chapter.id} chapter={chapter} />
+                ) : (
+                  <ChapterListView key={chapter.id} chapter={chapter} />
+                )
+              )}
             </div>
           </div>
         ) : (
@@ -640,14 +556,14 @@ export default function Catalogue() {
                 <div
                   className={
                     viewMode === "grid"
-                      ? "grid grid-cols-2 md:grid-cols-4 gap-6"
+                      ? "grid grid-cols-1 md:grid-cols-4 gap-6"
                       : "grid grid-cols-1 md:grid-cols-3 gap-4"
                   }>
                   {section.list.map((chapter, index) => (
                     <Link
                       key={chapter.id}
                       to={`/chapters/${chapter.id}`}
-                      className={`  dark:border-white/30 dark:bg-white/5 border p-3 rounded-md ${viewMode === "grid" ? "group" : "flex gap-4 group"}`}>
+                      className={`  dark:border-white/30 dark:bg-white/5 border p-3 rounded-md ${viewMode === "grid" ? "group grid grid-cols-2 gap-2" : "flex gap-4 group"}`}>
                       <div
                         className={`relative ${
                           viewMode === "grid"
@@ -710,6 +626,12 @@ export default function Catalogue() {
                             {chapter.accroche_dark_collection ||
                               chapter.accroche_classic}
                           </p>
+                          {chapter && (
+                            <ChapterIntensityIndicators
+                              chapter={chapter}
+                              variant="compact"
+                            />
+                          )}
                           <p className="text-xs text-gray-500 flex items-center gap-2 italic mt-1">
                             <span className="material-symbols-outlined text-xs">
                               schedule
@@ -742,7 +664,7 @@ export default function Catalogue() {
                           {chapter && (
                             <ChapterIntensityIndicators
                               chapter={chapter}
-                              variant="full"
+                              variant="compact"
                             />
                           )}
                         </div>
