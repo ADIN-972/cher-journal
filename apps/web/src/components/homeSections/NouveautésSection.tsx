@@ -8,6 +8,8 @@ interface CarouselItem {
   volumeCount: number;
   imageUrl?: string;
   fallbackTitle: string;
+  protagonistName?: string;
+  hasStartedReading?: boolean;
 }
 
 interface NouveautésSectionProps {
@@ -34,7 +36,7 @@ export default function NouveautésSection({
         <Link
           to="/catalogue"
           className="text-xs uppercase tracking-[0.15em] text-gold hover:text-gold-light transition-colors flex items-center gap-2">
-          Voir l'intégralité
+          Catalogue
           <span className="material-symbols-outlined text-sm">
             arrow_forward
           </span>
@@ -52,9 +54,11 @@ export default function NouveautésSection({
               {item.imageUrl ? (
                 <ChapterCover
                   imageUrl={item.imageUrl}
-                  title={item.title}
+                  title={item.protagonistName || item.title}
                   showPremiumBadge={false}
                   showLimitedEditionBadge={false}
+                  showBookmarkIcon={item.hasStartedReading}
+                  hasGrayscaleEffect={true}
                 />
               ) : (
                 <div
@@ -73,7 +77,7 @@ export default function NouveautésSection({
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-boudoir-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
             </div>
-            <h4 className="font-serif text-xl font-bold text-charcoal dark:text-white/70 group-hover:text-gold transition-colors">
+            <h4 className=" text-sm font-bold text-charcoal dark:text-white/70 group-hover:text-gold transition-colors newsreader">
               {item.title || item.fallbackTitle}
             </h4>
             <p className="text-sm text-charcoal dark:text-white/70 flex items-center gap-2 italic">
