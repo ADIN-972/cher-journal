@@ -11,6 +11,7 @@ type ViewMode = "grid" | "list";
 type ViewType = "catalog" | "selection";
 type SortBy = "intensite" | "douceur" | "danger" | "transformation";
 type SortDirection = "asc" | "desc" | "none";
+type SortMetrics = Record<SortBy, SortDirection>;
 type Genre =
   | "all"
   | "PASSIONS_CHARNELLES"
@@ -60,9 +61,16 @@ export const GENRES: Record<Genre, { label: string; icon: string }> = {
 // LocalStorage keys
 const CATALOGUE_STORAGE_KEYS = {
   VIEW_TYPE: "catalogue_viewType",
-  SORT_BY: "catalogue_sortBy",
-  SORT_DIRECTION: "catalogue_sortDirection",
+  SORT_METRICS: "catalogue_sortMetrics",
   VIEW_MODE: "catalogue_viewMode",
+};
+
+// Default sort metrics (all "none")
+const DEFAULT_SORT_METRICS: SortMetrics = {
+  intensite: "none",
+  douceur: "none",
+  danger: "none",
+  transformation: "none",
 };
 
 // Get initial view type from localStorage or default to "selection"
@@ -79,32 +87,18 @@ const getInitialViewType = (): ViewType => {
   return "selection";
 };
 
-// Get initial sort by from localStorage or default to "intensite"
-const getInitialSortBy = (): SortBy | null => {
+// Get initial sort metrics from localStorage or default to all "none"
+const getInitialSortMetrics = (): SortMetrics => {
   try {
-    const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.SORT_BY);
-    if (stored === "intensite" || stored === "douceur" || stored === "danger" || stored === "transformation") {
-      return stored as SortBy;
+    const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.SORT_METRICS);
+    if (stored) {
+      return JSON.parse(stored) as SortMetrics;
     }
   } catch (e) {
     // localStorage might not be available in SSR
     console.warn("localStorage not available:", e);
   }
-  return null;
-};
-
-// Get initial sort direction from localStorage or default to "none"
-const getInitialSortDirection = (): SortDirection => {
-  try {
-    const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.SORT_DIRECTION);
-    if (stored === "asc" || stored === "desc" || stored === "none") {
-      return stored as SortDirection;
-    }
-  } catch (e) {
-    // localStorage might not be available in SSR
-    console.warn("localStorage not available:", e);
-  }
-  return "none";
+  return DEFAULT_SORT_METRICS;
 };
 
 // Get initial view mode from localStorage or default to "grid"
@@ -124,8 +118,7 @@ const getInitialViewMode = (): ViewMode => {
 export default function Catalogue() {
   const { chapters, isLoading, error, fetchChapters } = useCatalogStore();
   const [viewType, setViewType] = useState<ViewType>(getInitialViewType());
-  const [sortBy, setSortBy] = useState<SortBy | null>(getInitialSortBy());
-  const [sortDirection, setSortDirection] = useState<SortDirection>(getInitialSortDirection());
+  const [sortMetrics, setSortMetrics] = useState<SortMetrics>(getInitialSortMetrics());
   const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode());
 
   const THEMATIC_SECTIONS = [{
@@ -283,27 +276,14 @@ export default function Catalogue() {
     }
   }, [viewType]);
 
-  // Save sortBy to localStorage when it changes
+  // Save sortMetrics to localStorage when it changes
   useEffect(() => {
     try {
-      if (sortBy) {
-        localStorage.setItem(CATALOGUE_STORAGE_KEYS.SORT_BY, sortBy);
-      } else {
-        localStorage.removeItem(CATALOGUE_STORAGE_KEYS.SORT_BY);
-      }
+      localStorage.setItem(CATALOGUE_STORAGE_KEYS.SORT_METRICS, JSON.stringify(sortMetrics));
     } catch (e) {
-      console.warn("Failed to save sort preference:", e);
+      console.warn("Failed to save sort metrics preference:", e);
     }
-  }, [sortBy]);
-
-  // Save sortDirection to localStorage when it changes
-  useEffect(() => {
-    try {
-      localStorage.setItem(CATALOGUE_STORAGE_KEYS.SORT_DIRECTION, sortDirection);
-    } catch (e) {
-      console.warn("Failed to save sort direction preference:", e);
-    }
-  }, [sortDirection]);
+  }, [sortMetrics]);
 
   // Save viewMode to localStorage when it changes
   useEffect(() => {
@@ -319,31 +299,49 @@ export default function Catalogue() {
   }, [fetchChapters]);
 
   // Handle sort button clicks with cycling: asc -> desc -> none
-  const handleSortClick = (option: SortBy) => {
-    if (sortBy === option) {
-      // Same option clicked, cycle through directions
-      if (sortDirection === "asc") {
-        setSortDirection("desc");
-      } else if (sortDirection === "desc") {
-        setSortDirection("none");
-        setSortBy(null);
-      }
+  const handleSortClick = (metric: SortBy) => {
+    const currentDirection = sortMetrics[metric];
+    let newDirection: SortDirection;
+
+    if (currentDirection === "asc") {
+      newDirection = "desc";
+    } else if (currentDirection === "desc") {
+      newDirection = "none";
     } else {
-      // Different option clicked, start with asc
-      setSortBy(option);
-      setSortDirection("asc");
+      newDirection = "asc";
     }
+
+    setSortMetrics({
+      ...sortMetrics,
+      [metric]: newDirection,
+    });
   };
 
-  // Sort chapters by selected intensity metric
-  const sortedChapters = sortBy
-    ? [...chapters].sort((a, b) => {
-        const scoreA = a[`niveau_${sortBy}` as keyof typeof a] as number || 0;
-        const scoreB = b[`niveau_${sortBy}` as keyof typeof b] as number || 0;
-        const diff = sortDirection === "asc" ? scoreA - scoreB : scoreB - scoreA;
-        return diff;
-      })
-    : chapters;
+  // Get active metrics (those that are not "none")
+  const activeMetrics: Array<[SortBy, SortDirection]> = (
+    ["intensite", "douceur", "danger", "transformation"] as const
+  )
+    .filter((metric) => sortMetrics[metric] !== "none")
+    .map((metric) => [metric, sortMetrics[metric]]);
+
+  // Sort chapters by multiple metrics
+  const sortedChapters = [...chapters].sort((a, b) => {
+    // If no active metrics, return original order
+    if (activeMetrics.length === 0) return 0;
+
+    // Compare by each active metric in order
+    for (const [metric, direction] of activeMetrics) {
+      const scoreA = a[`niveau_${metric}` as keyof typeof a] as number || 0;
+      const scoreB = b[`niveau_${metric}` as keyof typeof b] as number || 0;
+
+      if (scoreA !== scoreB) {
+        return direction === "asc" ? scoreA - scoreB : scoreB - scoreA;
+      }
+    }
+
+    // If all metrics are equal, maintain original order
+    return 0;
+  });
 
   if (isLoading) {
     return (
@@ -406,24 +404,28 @@ export default function Catalogue() {
                     Trier par :
                   </span>
                   {(["intensite", "douceur", "danger", "transformation"] as const).map(
-                    (option) => (
-                      <button
-                        key={option}
-                        type="button"
-                        onClick={() => handleSortClick(option)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap capitalize flex items-center gap-1 ${
-                          sortBy === option
-                            ? "border-2 border-gold text-gold"
-                            : "bg-boudoir-300/50 dark:bg-boudoir-900/50 border border-boudoir-800 text-charcoal dark:text-white/70 hover:border-gold/50"
-                        }`}>
-                        <span>{option}</span>
-                        {sortBy === option && (
-                          <span className="text-xs">
-                            {sortDirection === "asc" ? "↑" : "↓"}
-                          </span>
-                        )}
-                      </button>
-                    )
+                    (option) => {
+                      const direction = sortMetrics[option];
+                      const isActive = direction !== "none";
+                      return (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => handleSortClick(option)}
+                          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap capitalize flex items-center gap-1 ${
+                            isActive
+                              ? "border-2 border-gold text-gold"
+                              : "bg-boudoir-300/50 dark:bg-boudoir-900/50 border border-boudoir-800 text-charcoal dark:text-white/70 hover:border-gold/50"
+                          }`}>
+                          <span>{option}</span>
+                          {isActive && (
+                            <span className="text-xs">
+                              {direction === "asc" ? "↑" : "↓"}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    }
                   )}
                 </div>
               )}
@@ -487,11 +489,16 @@ export default function Catalogue() {
                 {sortedChapters.length} œuvre
                 {sortedChapters.length > 1 ? "s" : ""} disponible
                 {sortedChapters.length > 1 ? "s" : ""}
-                {sortBy && (
+                {activeMetrics.length > 0 && (
                   <>
                     {" — Triée par "}
                     <span className="capitalize font-semibold">
-                      {sortBy} {sortDirection === "asc" ? "↑" : "↓"}
+                      {activeMetrics
+                        .map(
+                          ([metric, direction]) =>
+                            `${metric} ${direction === "asc" ? "↑" : "↓"}`
+                        )
+                        .join(", ")}
                     </span>
                   </>
                 )}
