@@ -118,7 +118,7 @@ export class StripeService {
       );
 
       if (!canAccessVolume.hasAccess) {
-        throw new Error('NO_VOLUME_ACCESS: User must have access to the volume to unlock perspectives');
+        throw new Error('NO_VOLUME_ACCESS');
       }
 
       // Check if user already has protagonist access
