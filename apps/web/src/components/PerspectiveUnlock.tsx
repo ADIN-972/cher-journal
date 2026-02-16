@@ -23,17 +23,7 @@ export default function PerspectiveUnlock({
   const toast = useToast();
   const [perspectivePrice, setPerspectivePrice] = useState<number | null>(initialPrice || null);
 
-  useEffect(() => {
-    // For now, always show the unlock button for volumes the user can access
-    // The server will handle validation when they attempt to purchase
-    if (canAccessVolume) {
-      setLoading(false);
-      // TODO: In the future, we could check if protagonist is already unlocked
-      // by passing volumeId as a prop and using getVolumeText
-    } else {
-      setLoading(false);
-    }
-  }, [canAccessVolume]);
+  // Component is ready when canAccessVolume is determined
 
   // Get perspective price from pricing info if not provided
   useEffect(() => {
