@@ -34,10 +34,12 @@ export default function HeroSection({ chapters, heroData }: HeroSectionProps) {
                 {heroData.imageUrl ? (
                   <ChapterCover
                     imageUrl={heroData.imageUrl}
-                    title={heroData.title}
+                    title={heroData.subtitle}
                     showPremiumBadge={false}
                     showLimitedEditionBadge={false}
                     showBookmarkIcon={heroData.hasStartedReading}
+                    textSize={"2xl"}
+                    hasGrayscaleEffect={true}
                   />
                 ) : (
                   <div

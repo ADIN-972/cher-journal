@@ -120,10 +120,13 @@ const getInitialViewMode = (): ViewMode => {
 export default function Catalogue() {
   const { chapters, isLoading, error, fetchChapters } = useCatalogStore();
   const [viewType, setViewType] = useState<ViewType>(getInitialViewType());
-  const [sortMetrics, setSortMetrics] = useState<SortMetrics>(getInitialSortMetrics());
+  const [sortMetrics, setSortMetrics] = useState<SortMetrics>(
+    getInitialSortMetrics(),
+  );
   const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode());
 
-  const THEMATIC_SECTIONS = [{
+  const THEMATIC_SECTIONS = [
+    {
       id: "frissons",
       title: "Frissons Silencieux",
       subtitle: "Quand tout commence dans un regard",
@@ -131,8 +134,10 @@ export default function Catalogue() {
         "Des récits de lente montée. Peu de bruit, beaucoup de tension intérieure. Le frisson naît dans le silence.",
       list: [...chapters]
         .sort((a, b) => {
-          const scoreA = a.niveau_douceur * 2 + a.niveau_transformation;
-          const scoreB = b.niveau_douceur * 2 + b.niveau_transformation;
+          const scoreA =
+            a.niveau_douceur * 2 + a.niveau_transformation + a.niveau_intensite;
+          const scoreB =
+            b.niveau_douceur * 2 + b.niveau_transformation + b.niveau_intensite;
           return scoreB - scoreA;
         })
         .slice(0, 6),
@@ -179,7 +184,7 @@ export default function Catalogue() {
         })
         .slice(0, 6),
     },
-    
+
     {
       id: "passion",
       title: "Passions Abyssales",
@@ -281,7 +286,10 @@ export default function Catalogue() {
   // Save sortMetrics to localStorage when it changes
   useEffect(() => {
     try {
-      localStorage.setItem(CATALOGUE_STORAGE_KEYS.SORT_METRICS, JSON.stringify(sortMetrics));
+      localStorage.setItem(
+        CATALOGUE_STORAGE_KEYS.SORT_METRICS,
+        JSON.stringify(sortMetrics),
+      );
     } catch (e) {
       console.warn("Failed to save sort metrics preference:", e);
     }
@@ -333,8 +341,8 @@ export default function Catalogue() {
 
     // Compare by each active metric in order
     for (const [metric, direction] of activeMetrics) {
-      const scoreA = a[`niveau_${metric}` as keyof typeof a] as number || 0;
-      const scoreB = b[`niveau_${metric}` as keyof typeof b] as number || 0;
+      const scoreA = (a[`niveau_${metric}` as keyof typeof a] as number) || 0;
+      const scoreB = (b[`niveau_${metric}` as keyof typeof b] as number) || 0;
 
       if (scoreA !== scoreB) {
         return direction === "asc" ? scoreA - scoreB : scoreB - scoreA;
@@ -372,15 +380,15 @@ export default function Catalogue() {
     <div className="min-h-screen">
       {/* Sticky Filter Section */}
       <section className="sticky top-12 z-40 bg-boudoir-950/95 backdrop-blur-xl border-b border-boudoir-800">
-        <div className="max-w-[1280px] mx-auto px-6 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="mx-auto px-6 py-5">
+          <div className="flex justify-between items-start md:items-center gap-6">
             {/* View Type Filters */}
-            <div className="flex flex-col gap-3 w-full md:w-auto">
+            <div className="flex flex-wrap  gap-3 w-full md:w-auto">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setViewType("selection")}
-                  className={`px-4 py-2 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                  className={`p-2 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
                     viewType === "selection"
                       ? "bg-primary text-white"
                       : "bg-boudoir-300/50 dark:bg-boudoir-900/50 border border-boudoir-800 text-charcoal dark:text-white/70 hover:border-gold/50"
@@ -399,6 +407,33 @@ export default function Catalogue() {
                 </button>
               </div>
 
+              {/* View Toggle */}
+              <div className="flex gap-2 border border-boudoir-800 rounded-lg p-1 h-10">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("grid")}
+                  className={`items-center justify-center p-1 rounded transition-colors ${
+                    viewMode === "grid"
+                      ? "bg-boudoir-800 text-gold"
+                      : "text-charcoal dark:text-white/70 hover:text-charcoal dark:text-white/70"
+                  }`}
+                  title="Grid view">
+                  <div className="material-symbols-outlined m-auto">
+                    grid_view
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("list")}
+                  className={`items-center justify-center p-1 rounded transition-colors ${
+                    viewMode === "list"
+                      ? "bg-boudoir-800 text-gold"
+                      : "text-charcoal dark:text-white/70 hover:text-charcoal dark:text-white/70"
+                  }`}
+                  title="List view">
+                  <span className="material-symbols-outlined">list</span>
+                </button>
+              </div>
               {/* Sort By Buttons - only show when in catalog view */}
               {viewType === "catalog" && (
                 <div className="flex gap-2 flex-wrap">
@@ -407,28 +442,55 @@ export default function Catalogue() {
                   </span>
                   {(
                     [
-                      "intensite",
-                      "douceur",
-                      "danger",
-                      "transformation",
+                      {
+                        label: "intensite",
+
+                        icon: "local_fire_department",
+                        color: "bg-red-500",
+                        textColor: "text-red-600 dark:text-red-600",
+                      },
+                      {
+                        label: "douceur",
+                        icon: "favorite",
+                        color: "bg-pink-500",
+                        textColor: "text-pink-600 dark:text-pink-600",
+                      },
+                      {
+                        label: "danger",
+                        icon: "warning",
+                        color: "bg-amber-500",
+                        textColor: "text-amber-600 dark:text-amber-600",
+                      },
+                      {
+                        label: "transformation",
+                        icon: "auto_fix_high",
+                        color: "bg-purple-500",
+                        textColor: "text-purple-600 dark:text-purple-600",
+                      },
                     ] as const
                   ).map((option) => {
-                    const direction = sortMetrics[option];
+                    const direction = sortMetrics[option.label];
                     const isActive = direction !== "none";
                     return (
                       <button
-                        key={option}
+                        key={option.label}
                         type="button"
-                        onClick={() => handleSortClick(option)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap capitalize flex items-center gap-1 ${
+                        onClick={() => handleSortClick(option.label)}
+                        className={`p-2 rounded-full text-xs font-medium transition-all whitespace-nowrap capitalize flex items-center gap-1 ${
                           isActive
                             ? "border-2 border-gold text-gold"
                             : "bg-boudoir-300/50 dark:bg-boudoir-900/50 border border-boudoir-800 text-charcoal dark:text-white/70 hover:border-gold/50"
                         }`}>
-                        <span>{option}</span>
+                        <span
+                          className={`material-symbols-outlined text-sm ${option.textColor}`}>
+                          {option.icon}
+                        </span>
+                        <span className="hidden md:flex">{option.label}</span>
                         {isActive && (
-                          <span className="text-xs">
-                            {direction === "asc" ? "↑" : "↓"}
+                          <span className="material-symbols-outlined text-sm font-bold">
+                            {direction === "asc"
+                              ? "trending_up"
+                              : "trending_down"}
                           </span>
                         )}
                       </button>
@@ -436,34 +498,6 @@ export default function Catalogue() {
                   })}
                 </div>
               )}
-            </div>
-
-            {/* View Toggle */}
-            <div className="flex gap-2 border border-boudoir-800 rounded-lg p-1 h-10">
-              <button
-                type="button"
-                onClick={() => setViewMode("grid")}
-                className={`items-center justify-center p-1 rounded transition-colors ${
-                  viewMode === "grid"
-                    ? "bg-boudoir-800 text-gold"
-                    : "text-charcoal dark:text-white/70 hover:text-charcoal dark:text-white/70"
-                }`}
-                title="Grid view">
-                <div className="material-symbols-outlined m-auto">
-                  grid_view
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode("list")}
-                className={`items-center justify-center p-1 rounded transition-colors ${
-                  viewMode === "list"
-                    ? "bg-boudoir-800 text-gold"
-                    : "text-charcoal dark:text-white/70 hover:text-charcoal dark:text-white/70"
-                }`}
-                title="List view">
-                <span className="material-symbols-outlined">list</span>
-              </button>
             </div>
           </div>
         </div>
@@ -499,6 +533,7 @@ export default function Catalogue() {
                 {activeMetrics.length > 0 && (
                   <>
                     {" — Triée par "}
+
                     <span className="capitalize font-semibold">
                       {activeMetrics
                         .map(
@@ -520,10 +555,16 @@ export default function Catalogue() {
               }`}>
               {sortedChapters.map((chapter) =>
                 viewMode === "grid" ? (
-                  <ChapterGridView key={chapter.id} chapter={chapter} />
+                  <ChapterGridView
+                    key={chapter.id}
+                    chapter={chapter}
+                  />
                 ) : (
-                  <ChapterListView key={chapter.id} chapter={chapter} />
-                )
+                  <ChapterListView
+                    key={chapter.id}
+                    chapter={chapter}
+                  />
+                ),
               )}
             </div>
           </div>
@@ -556,121 +597,26 @@ export default function Catalogue() {
                 <div
                   className={
                     viewMode === "grid"
-                      ? "grid grid-cols-1 md:grid-cols-4 gap-6"
+                      ? "grid grid-cols-2 md:grid-cols-4 gap-3"
                       : "grid grid-cols-1 md:grid-cols-3 gap-4"
                   }>
-                  {section.list.map((chapter, index) => (
-                    <Link
-                      key={chapter.id}
-                      to={`/chapters/${chapter.id}`}
-                      className={`  dark:border-white/30 dark:bg-white/5 border p-3 rounded-md ${viewMode === "grid" ? "group grid grid-cols-2 gap-2" : "flex gap-4 group"}`}>
-                      <div
-                        className={`relative ${
-                          viewMode === "grid"
-                            ? "aspect-[3/4] overflow-hidden rounded-lg mb-3 relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
-                            : "w-20 h-28 shrink-0 rounded-lg overflow-hidden relative bg-gradient-to-br from-boudoir-800 to-boudoir-900"
-                        }`}>
-                        {index < 3 && (
-                          <div
-                            className={`absolute top-2 left-2 z-20 flex items-center justify-center w-8 h-8 rounded-full border-2 shadow-lg bg-gradient-to-br ${index === 0 ? "border-[#D4AF37]/50 from-[#D4AF37] via-[#FBF5B7] to-[#8B5E3C]" : index === 1 ? "border-stone-300/50 from-[#C0C0C0] via-[#F5F5F5] to-[#7A7A7A]" : "border-[#CD7F32]/50 from-[#CD7F32] via-[#E6BE8A] to-[#633517]"} `}>
-                            <span className="text-velvet-brown font-display font-bold text-sm">
-                              {/* {index + 1} */}
-                            </span>
-                          </div>
-                        )}
-                        {chapter.coverAsset?.url ? (
-                          <ChapterCover
-                            imageUrl={`${import.meta.env.VITE_API_URL ?? ""}${chapter.coverAsset.url}`}
-                            title={chapter.protagonistName || chapter.title}
-                            showPremiumBadge={false}
-                            showLimitedEditionBadge={false}
-                            showBookmarkIcon={
-                              viewMode === "grid" && chapter.hasStartedReading
-                            }
-                            showTitleOverlay={viewMode === "grid"}
-                          />
-                        ) : (
-                          <div
-                            className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700"
-                            style={{
-                              backgroundImage: `url('assets/images/404_bg.png')`,
-                            }}
-                          />
-                        )}
-
-                        <div className="absolute inset-0 bg-gradient-to-t from-boudoir-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-
-                        {/* Lire l'extrait Button */}
-                        {/* <div className="absolute inset-0 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
-                              type="button"
-                              className="bg-gold text-charcoal px-6 py-2 rounded-full text-xs font-bold uppercase tracking-wide hover:bg-gold-light transition-colors">
-                              Lire l'extrait
-                            </button>
-                          </div> */}
-                      </div>
-
-                      {viewMode === "list" && (
-                        <div className="flex flex-col justify-center min-w-0 flex-1">
-                          <p className="font-script  text-2xl text-gold mb-1">
-                            {chapter.protagonistName || "Récit"}
-                          </p>
-                          <h5 className="font-semibold text-charcoal dark:text-white/70 dark:text-white group-hover:text-gold transition-colors mb-2 line-clamp-1">
-                            {chapter.title}
-                          </h5>
-                          <ReviewStars
-                            chapterId={chapter.id}
-                            size="sm"
-                          />
-                          <p className="text-xs text-charcoal dark:text-white/70  font-light leading-relaxed mt-2">
-                            {chapter.accroche_dark_collection ||
-                              chapter.accroche_classic}
-                          </p>
-                          {chapter && (
-                            <ChapterIntensityIndicators
-                              chapter={chapter}
-                              variant="compact"
-                            />
-                          )}
-                          <p className="text-xs text-gray-500 flex items-center gap-2 italic mt-1">
-                            <span className="material-symbols-outlined text-xs">
-                              schedule
-                            </span>{" "}
-                            {chapter.totalCharacterCount
-                              ? `${getReadingTime(chapter.totalCharacterCount)} min de lecture`
-                              : " "}
-                          </p>
-                        </div>
-                      )}
-
-                      {viewMode === "grid" && (
-                        <div className="flex flex-col justify-center min-w-0 flex-1">
-                          <h4 className="font-serif text-sm text-charcoal dark:text-white/70 dark:text-white/70 group-hover:text-gold transition-colors line-clamp-2 mb-2">
-                            {chapter.title}
-                          </h4>
-                          <ReviewStars
-                            chapterId={chapter.id}
-                            size="sm"
-                            showCount={false}
-                          />
-                          <p className="text-sm text-gray-500 flex items-center gap-2 italic mt-1">
-                            <span className="material-symbols-outlined text-xs">
-                              schedule
-                            </span>{" "}
-                            {chapter.totalCharacterCount
-                              ? `${getReadingTime(chapter.totalCharacterCount)} min de lecture`
-                              : " "}
-                          </p>
-                          {chapter && (
-                            <ChapterIntensityIndicators
-                              chapter={chapter}
-                              variant="compact"
-                            />
-                          )}
-                        </div>
-                      )}
-                    </Link>
-                  ))}
+                  {section.list.map((chapter, index) =>
+                    viewMode === "grid" ? (
+                      <ChapterGridView
+                        key={chapter.id}
+                        chapter={chapter}
+                        index={index}
+                        top3={true}
+                      />
+                    ) : (
+                      <ChapterListView
+                        key={chapter.id}
+                        chapter={chapter}
+                        index={index}
+                        top3={true}
+                      />
+                    ),
+                  )}
                 </div>
               </div>
             ))}

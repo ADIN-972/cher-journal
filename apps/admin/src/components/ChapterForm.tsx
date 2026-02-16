@@ -490,9 +490,17 @@ export default function ChapterForm({
         </h3>
 
         <div className="grid grid-cols-2 gap-4">
-          <div>
+          <div className="grid grid-rows-[1fr_auto]">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {t("chapter_form.niveau_intensite", "Intensité")}
+              <span className="text-xs text-gray-500">
+                (
+                {t(
+                  "chapter_form.niveau_intensite_description",
+                  "force du désir, tension charnelle",
+                )}
+                )
+              </span>
             </label>
             <div className="flex items-center gap-3">
               <input
@@ -515,9 +523,17 @@ export default function ChapterForm({
             </div>
           </div>
 
-          <div>
+          <div className="grid grid-rows-[1fr_auto]">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("chapter_form.niveau_douceur", "Douceur")}
+              {t("chapter_form.niveau_douceur", "Douceur")}{" "}
+              <span className="text-xs text-gray-500 italic px-2">
+                (
+                {t(
+                  "chapter_form.niveau_douceur_description",
+                  "tendresse, vulnérabilité, délicatesse",
+                )}
+                )
+              </span>
             </label>
             <div className="flex items-center gap-3">
               <input
@@ -540,9 +556,17 @@ export default function ChapterForm({
             </div>
           </div>
 
-          <div>
+          <div className="grid grid-rows-[1fr_auto]">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("chapter_form.niveau_danger", "Danger")}
+              {t("chapter_form.niveau_danger", "Danger")}{" "}
+              <span className="text-xs text-gray-500 italic px-2">
+                (
+                {t(
+                  "chapter_form.niveau_danger_description",
+                  "risque émotionnel, social, moral ou physique",
+                )}
+                )
+              </span>
             </label>
             <div className="flex items-center gap-3">
               <input
@@ -565,9 +589,17 @@ export default function ChapterForm({
             </div>
           </div>
 
-          <div>
+          <div className="grid grid-rows-[1fr_auto]">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("chapter_form.niveau_transformation", "Transformation")}
+              {t("chapter_form.niveau_transformation", "Transformation")}{" "}
+              <span className="text-xs text-gray-500 italic px-2">
+                (
+                {t(
+                  "chapter_form.niveau_transformation_description",
+                  "évolution des personnages, changements majeurs, impact profond sur les personnages et l'intrigue",
+                )}
+                )
+              </span>
             </label>
             <div className="flex items-center gap-3">
               <input

@@ -163,6 +163,27 @@ export default function Chapter() {
     }
   };
 
+  // Handle purchase of perspective
+  const handlePurchasePerspective = async (volumeNumber: number) => {
+    if (!id) return;
+
+    try {
+      setIsPurchasing(true);
+      const { url } = await api.createCheckoutSession({
+        chapterId: id,
+        type: "PERSPECTIVE",
+        volumeNumber,
+        successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
+        cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
+      });
+      window.location.href = url;
+    } catch (err: any) {
+      console.error("Failed to create checkout session for perspective:", err);
+      showErrorToast(toast, 'CHECKOUT_SESSION_FAILED');
+      setIsPurchasing(false);
+    }
+  };
+
   // Handle purchase of full chapter
   const handlePurchaseFullChapter = async () => {
     if (!id) return;
@@ -370,8 +391,8 @@ export default function Chapter() {
             <ChapterCover
               imageUrl={coverImageUrl}
               title={currentChapter.title}
-              showPremiumBadge={true}
-              showLimitedEditionBadge={true}
+             // showPremiumBadge={true}
+             // showLimitedEditionBadge={true}
             />
           </div>
           {/* Details Section */}
@@ -690,6 +711,7 @@ export default function Chapter() {
               })()
             }
             onReadNext={handleReadNext}
+            onPurchasePerspective={handlePurchasePerspective}
           />
         )}
 

@@ -11,6 +11,8 @@ interface PopularItem {
   description?: string | null;
   genres: any[];
   imageUrl?: string;
+  hasStartedReading?: boolean;
+  isFavorite?: boolean;
 }
 
 interface MostPassionateSectionProps {
@@ -34,16 +36,21 @@ export default function MostPassionateSection({
       {/* Popular Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {items.map((item: any, index: number) => (
-          <Link key={item.id} to={`/chapters/${item.id}`}>
+          <Link
+            key={item.id}
+            to={`/chapters/${item.id}`}>
             <ChapterCard
               imageUrl={item.imageUrl}
               title={item.title}
+              protagonistName={item.protagonistName}
               badge={item.badge}
               badgeColor={item.badgeColor}
               subtitle={item.subtitle}
               description={item.accroche_marketing || item.description}
               genres={item.genres}
               fallbackImageIndex={index}
+              hasStartedReading={item.hasStartedReading}
+              isFavorite={item.isFavorite}
             />
           </Link>
         ))}

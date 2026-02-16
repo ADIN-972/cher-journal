@@ -6,6 +6,9 @@ interface ChapterCoverProps {
   className?: string;
   textSize?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
   showBookmarkIcon?: boolean;
+  showFavoriteIcon?: boolean;
+  hasGrayscaleEffect?: boolean;
+  showTitleOverlay?: boolean;
 }
 
 export default function ChapterCover({
@@ -14,45 +17,60 @@ export default function ChapterCover({
   showPremiumBadge = false,
   showLimitedEditionBadge = false,
   showBookmarkIcon = false,
+  showFavoriteIcon = false,
   className = "",
   textSize = "md",
+  hasGrayscaleEffect = false,
+  showTitleOverlay = true,
 }: ChapterCoverProps) {
   const textSizeClass = {
-    sm: "text-sm",
-    md: "text-md",
-    lg: "text-lg",
-    xl: "text-xl",
-    "2xl": "text-2xl",
-    "3xl": "text-3xl",
+    sm: "xl:text-sm",
+    md: "xl:text-md",
+    lg: "xl:text-lg",
+    xl: "xl:text-xl",
+    "2xl": "xl:text-2xl",
+    "3xl": "xl:text-3xl",
   }[textSize];
   return (
     <div className={`relative group ${className}`}>
       <div className="absolute -inset-1 opacity-25 group-hover:opacity-40 transition duration-1000"></div>
       <div className="relative bg-background-dark rounded-lg overflow-hidden aspect-[3/4] shadow-2xl">
         {showBookmarkIcon && (
-          <div className="absolute -top-1 right-8 flex flex-col items-center group cursor-pointer">
+          <div className="absolute -top-1 right-[5%] flex flex-col items-center group cursor-pointer">
             <div className="bg-gold h-16 w-8 shadow-lg flex items-end justify-center pb-2 rounded-b-sm transition-all group-hover:h-20 z-[1]">
-              <span className="material-symbols-outlined text-cream text-lg select-none">
+              {/* <span className="material-symbols-outlined text-cream text-lg select-none">
                 bookmark
-              </span>
+              </span> */}
             </div>
 
             <div className="w-0 h-0 border-l-[16px] border-l-transparent border-r-[16px] border-r-transparent border-t-[8px] border-t-gold z-[1]"></div>
           </div>
         )}
+        {showFavoriteIcon && (
+          <div className="absolute -top-1 right-[15%] flex flex-col items-center group cursor-pointer">
+            <div className="bg-pink-700 h-16 w-8 shadow-lg flex items-end justify-center pb-2 rounded-b-sm transition-all group-hover:h-20 z-[1]">
+              <span className="material-symbols-outlined text-cream text-lg select-none">
+                favorite
+              </span>
+            </div>
+            <div className="w-0 h-0 border-l-[16px] border-l-transparent border-r-[16px] border-r-transparent border-t-[8px] border-t-pink-700 z-[1]"></div>
+          </div>
+        )}
+
         <div className="absolute -inset-2 bg-accent-gold/5 rounded-xl blur-2xl opacity-50 group-hover:opacity-100 transition duration-1000"></div>
 
-        <div className="relative grid grid-rows-[auto_1fr] bg-black rounded-[4px] overflow-hidden aspect-[3/4] book-edge ring-1 ring-white/10 transition-transform duration-500 group-hover:scale-[1.01]">
+        <div className="relative grid grid-rows-[auto_1fr] bg-[#53273F] rounded-[4px] overflow-hidden aspect-[3/4] book-edge ring-1 ring-white/10 transition-transform duration-500 group-hover:scale-[1.01]">
           <img
-            className="w-full h-auto object-cover"
-            // src={imageUrl.replace(".png", "-thumb.png")}
+            className={`w-full h-auto aspect-[3/4] object-cover ${hasGrayscaleEffect ? "grayscale" : ""} group-hover:grayscale-0 opacity-90 group-hover:opacity-100 transition-opacity duration-500`}
             src={imageUrl ?? "/assets/images/404_bg.png"}
             alt={title}
           />
-          <div
-            className={`relative flex px-8 items-center bg-[#53273F] handwriting leading-4 ${textSizeClass}`}>
-            {title}
-          </div>
+          {showTitleOverlay && (
+            <div
+              className={`absolute bottom-0 grid text-center w-full items-center handwriting leading-4 bg-[#833963]/80  text-shadow-[0_35px_35px_rgb(83_39_63_/_0.85)] text-[calc(10%+5vw)] md:text-[calc(10%+3vw)] ${textSizeClass} text-charcoal dark:text-white px-2 py-[10%] transition-colors duration-300 group-hover:text-gold`}>
+              {title}
+            </div>
+          )}
 
           {/* <div className="book-texture"></div> */}
           <div className="book-spine-effect"></div>
@@ -61,7 +79,7 @@ export default function ChapterCover({
           <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/10"></div> */}
           {showLimitedEditionBadge && (
             <div className="absolute bg-white bottom-2 w-full z-20 items-center flex justify-center  z-[0]">
-              <span className="px-3 py-1 bg-accent-gold text-background-dark text-[10px] font-black rounded-sm shadow-lg uppercase tracking-[0.2em]">
+              <span className="px-3 py-1 bg-accent-gold text-background-dark text-[10px] font-black rounded-sm shadow-lg uppercase tracking-[0.2em] text-shadow-md">
                 Édition Limitée
               </span>
             </div>
@@ -70,7 +88,7 @@ export default function ChapterCover({
 
         {showPremiumBadge && (
           <div className="absolute bottom-2 left-3 right-6 z-[1]">
-            <span className="px-3 py-1 bg-primary text-white text-xs font-bold rounded-full uppercase tracking-widest">
+            <span className="px-3 py-1 bg-primary text-white text-xs font-bold rounded-full uppercase tracking-widest text-shadow-md">
               Premium
             </span>
           </div>

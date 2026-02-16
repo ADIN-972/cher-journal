@@ -335,8 +335,8 @@ class ApiClient {
    */
   async createCheckoutSession(data: {
     chapterId: string;
-    type: 'CHAPTER' | 'PREORDER' | 'BUNDLE' | 'COLORING' | 'VERSION_PACK' | 'VOLUME';
-    volumeNumber?: number;  // For VOLUME type orders
+    type: 'CHAPTER' | 'PREORDER' | 'BUNDLE' | 'COLORING' | 'VERSION_PACK' | 'VOLUME' | 'PERSPECTIVE';
+    volumeNumber?: number;  // For VOLUME and PERSPECTIVE type orders
     versionScope?: 'BASE' | 'ALL';
     successUrl: string;
     cancelUrl: string;

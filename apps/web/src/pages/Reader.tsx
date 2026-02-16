@@ -5,6 +5,7 @@ import { useThemeStore } from "../stores/themeStore";
 import { useToast } from "../hooks/useToast";
 import { showErrorToast } from "../lib/toastHelper";
 import api from "../lib/api";
+import PerspectiveUnlock from "../components/PerspectiveUnlock";
 
 export default function Reader({
   volumeId,
@@ -12,12 +13,16 @@ export default function Reader({
   onClose,
   scrollContainerId,
   chapterId,
+  onPurchasePerspective,
+  isPurchasing,
 }: {
   volumeId?: string;
   footer?: React.ReactNode;
   onClose?: () => void;
   scrollContainerId?: string;
   chapterId?: string;
+  onPurchasePerspective?: (volumeNumber: number) => void;
+  isPurchasing?: boolean;
 }) {
   //const { volumeId } = useParams<{ volumeId: string }>();
   const navigate = useNavigate();
@@ -451,6 +456,16 @@ export default function Reader({
                 </div>
               </div>
             )} */}
+
+            {chapterId && currentVolume && onPurchasePerspective && (
+              <PerspectiveUnlock
+                chapterId={chapterId}
+                volumeNumber={currentVolume.volumeNumber}
+                canAccessVolume={true}
+                onPurchase={onPurchasePerspective}
+                isPurchasing={isPurchasing}
+              />
+            )}
 
             <h1 className="text-slate-900 dark:text-white font-ornate tracking-wide text-[26px] md:text-[40px] font-medium leading-tight text-center pb-6 pt-2 ">
               Vol {currentVolume.volumeNumber}: {currentVolume.title}

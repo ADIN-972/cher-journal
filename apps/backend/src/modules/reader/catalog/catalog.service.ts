@@ -275,6 +275,7 @@ export class CatalogService {
     const priceFreeToRead = await this.getPriceFreeToRead(id);
     const pricePaywall = await this.getPricePaywall(id);
     const priceEpilogue = await this.getPriceEpilogue(id);
+    const priceProtagonistUnlock = await this.getPriceProtagonistUnlock(id);
 
     // Calculate bundle pricing (sum of all individual volume prices)
     let bundleOriginalPrice = 0;
@@ -321,6 +322,7 @@ export class CatalogService {
       priceFreeToRead,
       pricePaywall,
       priceEpilogue,
+      priceProtagonistUnlock,
       totalVolumes: volumesWithAccessibility.length,
       bundleOriginalPrice,
       bundleDiscountedPrice,
@@ -386,5 +388,13 @@ export class CatalogService {
   private async getPriceEpilogue(chapterId: string): Promise<number> {
     const prices = await priceSchemaService.getChapterPrices(chapterId);
     return prices.priceEpilogue;
+  }
+
+  /**
+   * Get protagonist perspective unlock price for a chapter
+   */
+  private async getPriceProtagonistUnlock(chapterId: string): Promise<number> {
+    const prices = await priceSchemaService.getChapterPrices(chapterId);
+    return prices.priceProtagonistUnlock;
   }
 }

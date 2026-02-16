@@ -42,6 +42,7 @@ enum OrderType {
   COLORING
   VERSION_PACK
   VOLUME
+  PERSPECTIVE
 }
 
 enum OrderStatus {
@@ -590,6 +591,7 @@ model PriceSchema {
   priceFreeToRead Int       @default(199)
   pricePaywall    Int       @default(299)
   priceEpilogue   Int       @default(399)
+  priceProtagonistUnlock Int @default(99)  // Price to unlock protagonist perspective
   
   // Metadata
   isActive        Boolean   @default(true)
@@ -621,6 +623,7 @@ model ChapterPriceOverride {
   priceFreeToRead Int?
   pricePaywall    Int?
   priceEpilogue   Int?
+  priceProtagonistUnlock Int?
   
   // Raison de l'exception
   reason          String?

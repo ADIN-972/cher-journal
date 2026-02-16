@@ -56,6 +56,24 @@ export class StripeController {
           error: { code: 'USER_ALREADY_HAS_ACCESS', message: 'You already have access to this volume' },
         });
       }
+      if (error.message === 'NO_VOLUME_ACCESS') {
+        return reply.status(400).send({
+          success: false,
+          error: { code: 'NO_VOLUME_ACCESS', message: 'You must have access to the volume to unlock perspectives' },
+        });
+      }
+      if (error.message === 'ALREADY_HAS_PROTAGONIST_ACCESS') {
+        return reply.status(400).send({
+          success: false,
+          error: { code: 'ALREADY_HAS_PROTAGONIST_ACCESS', message: 'You already have access to the protagonist perspective' },
+        });
+      }
+      if (error.message === 'NO_ENTITLEMENT_FOR_PERSPECTIVE_UNLOCK') {
+        return reply.status(400).send({
+          success: false,
+          error: { code: 'NO_ENTITLEMENT_FOR_PERSPECTIVE_UNLOCK', message: 'Unable to grant perspective access' },
+        });
+      }
       if (error.message.startsWith('INVALID_AMOUNT')) {
         return reply.status(400).send({
           success: false,

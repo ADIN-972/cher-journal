@@ -98,6 +98,59 @@ export class StripeService {
         },
         quantity: 1,
       });
+    } else if (options.type === OrderType.PERSPECTIVE) {
+      // Handle protagonist perspective unlock
+      if (!options.volumeNumber) {
+        throw new Error('VOLUME_NUMBER_REQUIRED');
+      }
+
+      const volume = chapter.volumes.find((v: any) => v.volumeNumber === options.volumeNumber);
+      if (!volume) {
+        throw new Error('VOLUME_NOT_FOUND');
+      }
+
+      // Check if user has access to this volume
+      const canAccessVolume = await this.accessControl.canAccessVolume(
+        options.userId,
+        options.chapterId,
+        options.volumeNumber,
+        'NARRATOR' as any
+      );
+
+      if (!canAccessVolume.hasAccess) {
+        throw new Error('NO_VOLUME_ACCESS: User must have access to the volume to unlock perspectives');
+      }
+
+      // Check if user already has protagonist access
+      const canAccessProtagonist = await this.accessControl.canAccessVolume(
+        options.userId,
+        options.chapterId,
+        options.volumeNumber,
+        'PROTAGONIST' as any
+      );
+
+      if (canAccessProtagonist.hasAccess) {
+        throw new Error('ALREADY_HAS_PROTAGONIST_ACCESS');
+      }
+
+      // Get protagonist unlock price
+      const protagonistPrice = prices.priceProtagonistUnlock || 99;
+
+      if (protagonistPrice < 50) {
+        throw new Error('INVALID_AMOUNT: Le montant calculé est inférieur à 0.50€');
+      }
+
+      lineItems.push({
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: `${chapter.title} - Volume ${options.volumeNumber} - Protagonist Perspective`,
+            description: `Unlock protagonist perspective for volume ${options.volumeNumber}`,
+          },
+          unit_amount: protagonistPrice,
+        },
+        quantity: 1,
+      });
     } else if (options.type === OrderType.CHAPTER) {
       // Calculate total bundle price and subtract already owned volumes
       let bundleOriginalPrice = 0;
@@ -368,6 +421,41 @@ export class StripeService {
           },
         });
         console.log('[Stripe Webhook] ✅ Unlock updated to PURCHASE with immediate access');
+      }
+    } else if (orderType === 'PERSPECTIVE') {
+      // Handle protagonist perspective unlock
+      if (!volumeNumber) {
+        console.log('[Stripe Webhook] ❌ Missing volumeNumber for PERSPECTIVE purchase');
+        return;
+      }
+
+      const volNum = parseInt(volumeNumber as string, 10);
+      console.log('[Stripe Webhook] Granting protagonist perspective for volume', volNum);
+
+      // Find existing entitlement for this volume
+      const existingEntitlement = await prisma.entitlement.findFirst({
+        where: {
+          userId,
+          chapterId,
+          volumeFrom: { lte: volNum },
+          volumeTo: { gte: volNum },
+        },
+      });
+
+      if (existingEntitlement) {
+        // Update existing entitlement to include ALL perspective
+        console.log('[Stripe Webhook] Updating entitlement versionScope to ALL');
+        await prisma.entitlement.update({
+          where: { id: existingEntitlement.id },
+          data: {
+            versionScope: EntitlementVersionScope.ALL,
+          },
+        });
+        console.log('[Stripe Webhook] ✅ Entitlement updated with protagonist perspective');
+      } else {
+        console.log('[Stripe Webhook] ⚠️  No entitlement found for volume', volNum);
+        // This shouldn't happen if checks were done correctly on checkout creation
+        throw new Error('NO_ENTITLEMENT_FOR_PERSPECTIVE_UNLOCK');
       }
     } else if (orderType === 'CHAPTER') {
       console.log('[Stripe Webhook] Granting chapter entitlement...');

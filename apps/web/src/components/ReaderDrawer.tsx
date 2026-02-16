@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import api from "../lib/api";
 import { useToast } from "../hooks/useToast";
 import { useReaderStore } from "../stores/readerStore";
@@ -30,9 +30,20 @@ export default function ReaderDrawer({
   volumeNumber,
   nextVolume,
   onReadNext,
-}: ReaderDrawerProps) {
+  onPurchasePerspective,
+}: ReaderDrawerProps & {
+  onPurchasePerspective?: (volumeNumber: number) => void;
+}) {
   const toast = useToast();
   const { currentVolume, isLoading, error } = useReaderStore();
+  const [isPerspectivePurchasing, setIsPerspectivePurchasing] = useState(false);
+
+  const handlePerspectivePurchase = (volumeNumber: number) => {
+    if (onPurchasePerspective) {
+      setIsPerspectivePurchasing(true);
+      onPurchasePerspective(volumeNumber);
+    }
+  };
 
   // Block body scroll when drawer is open
   useEffect(() => {
@@ -117,6 +128,8 @@ export default function ReaderDrawer({
         chapterId={chapterId}
         onClose={onClose}
         scrollContainerId="reader-drawer"
+        onPurchasePerspective={handlePerspectivePurchase}
+        isPurchasing={isPerspectivePurchasing}
         footer={
           <EndOfVolumeUI
             volumeNumber={volumeNumber}

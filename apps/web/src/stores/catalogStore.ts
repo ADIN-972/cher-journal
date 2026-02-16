@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import api from '../lib/api';
+import { create } from "zustand";
+import api from "../lib/api";
 
 interface CoverAsset {
   id: string;
@@ -39,11 +39,20 @@ export interface Chapter {
   hasAccess?: boolean;
   hasStartedReading?: boolean; // True if user has progress > 0 in any volume
   isFavorite?: boolean; // True if this chapter is marked as "Sélection du moment"
-  versionScope?: 'BASE' | 'ALL' | null;
+  versionScope?: "BASE" | "ALL" | null;
   pricing?: Pricing;
   totalCharacterCount?: number;
   description?: string | null;
-  accroche_marketing?: string | null;
+
+  accroche_classic: string | null;
+  accroche_dark: string | null;
+  accroche_love: string | null;
+  accroche_marketing: string | null;
+  accroche_dark_collection: string | null;
+  niveau_intensite: number;
+  niveau_douceur: number;
+  niveau_danger: number;
+  niveau_transformation: number;
 }
 
 interface Volume {
@@ -111,7 +120,7 @@ export const useCatalogStore = create<CatalogState>((set) => ({
       });
     } catch (error: any) {
       set({
-        error: error.message || 'Failed to fetch chapters',
+        error: error.message || "Failed to fetch chapters",
         isLoading: false,
       });
     }
@@ -133,7 +142,7 @@ export const useCatalogStore = create<CatalogState>((set) => ({
       });
     } catch (error: any) {
       set({
-        error: error.message || 'Failed to fetch chapter',
+        error: error.message || "Failed to fetch chapter",
         isLoading: false,
       });
     }

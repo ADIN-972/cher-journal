@@ -115,6 +115,43 @@ export default function HomeNew() {
     protagonistName: chapter.protagonistName,
   }));
 
+  // Calculate intensity scores for each chapter and get top 3
+  const topIntensityChapters = useMemo(() => {
+    return chapters
+      .map((chapter) => ({
+        ...chapter,
+        intensityScore:
+          ((chapter.niveau_intensite ?? 0) +
+            (chapter.niveau_douceur ?? 0) +
+            (chapter.niveau_danger ?? 0) +
+            (chapter.niveau_transformation ?? 0)) /
+          4,
+      }))
+      .sort((a, b) => b.intensityScore - a.intensityScore)
+      .slice(0, 3)
+      .map((chapter, index) => ({
+        id: chapter.id,
+        title: chapter.title,
+        badge: ["Coup de foudre", "Mystère", "Audace"][index] || "Populaire",
+        badgeColor: [
+          "text-charcoal dark:text-white/70",
+          "text-charcoal dark:text-white/70",
+          "text-charcoal dark:text-white/70",
+        ][index],
+        subtitle: chapter.protagonistName || "",
+        description:
+          chapter.accroche_marketing ?? chapter.description ?? undefined,
+        genres: chapter.genres || [],
+        imageUrl: chapter.coverAsset?.url
+          ? `${import.meta.env.VITE_API_URL ?? ""}${chapter.coverAsset.url}`
+          : undefined,
+        hasStartedReading: chapter.hasStartedReading,
+        isFavorite: chapter.isFavorite,
+        protagonistName: chapter.protagonistName,
+      }));
+  }, [chapters]);
+
+
   return (
     <div className="min-h-screen">
       {heroData && (
@@ -123,13 +160,13 @@ export default function HomeNew() {
           heroData={heroData}
         />
       )}
-
+      {/* 
       <AtmospheresFilter
         chapters={chapters}
         atmospheres={ATMOSPHERES}
         selectedAtmosphere={selectedAtmosphere}
         onSelectAtmosphere={setSelectedAtmosphere}
-      />
+      /> */}
       <NouveautésSection
         chapters={filteredChapters}
         items={carouselItems}
@@ -137,7 +174,7 @@ export default function HomeNew() {
       <CherJournalQuote chapters={chapters} />
       <MostPassionateSection
         chapters={filteredChapters}
-        items={popularItems}
+        items={topIntensityChapters}
       />
       <WomenOfCherJournalQuote chapters={chapters} />
     </div>
