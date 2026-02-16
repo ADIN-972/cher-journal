@@ -1,21 +1,21 @@
-import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { I18nProvider } from './lib/i18n';
-import { ToastProvider } from './context/ToastContext';
-import { ToastContainer } from './components/Toast/ToastContainer';
-import Login from './pages/Auth/Login';
-import Register from './pages/Auth/Register';
-import HomeNew from './pages/HomeNew';
-import Catalogue from './pages/Catalogue';
-import Chapter from './pages/Chapter';
-import Library from './pages/Library';
-import Profile from './pages/Profile';
-import ActiveTimers from './pages/ActiveTimers';
-import Account from './pages/Account';
-import LayoutNew from './components/common/LayoutNew';
-import ProtectedRoute from './components/common/ProtectedRoute';
-import ScrollToTop from './components/common/ScrollToTop';
-import { initializeTheme } from './stores/themeStore';
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { I18nProvider } from "./lib/i18n";
+import { ToastProvider } from "./context/ToastContext";
+import { ToastContainer } from "./components/Toast/ToastContainer";
+import Login from "./pages/Auth/Login";
+import Register from "./pages/Auth/Register";
+import HomeNew from "./pages/HomeNew";
+import Catalogue from "./pages/Catalogue";
+import Chapter from "./pages/Chapter";
+import Library from "./pages/Library";
+import Profile from "./pages/Profile";
+import ActiveTimers from "./pages/ActiveTimers";
+import Account from "./pages/Account";
+import LayoutNew from "./components/common/LayoutNew";
+import ProtectedRoute from "./components/common/ProtectedRoute";
+import ScrollToTop from "./components/common/ScrollToTop";
+import { initializeTheme } from "./stores/themeStore";
 
 function AppContent() {
   useEffect(() => {
@@ -27,8 +27,14 @@ function AppContent() {
       <ScrollToTop />
       <Routes>
         {/* Public Routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route
+          path="/login"
+          element={<Login />}
+        />
+        <Route
+          path="/register"
+          element={<Register />}
+        />
 
         {/* Protected Routes */}
         <Route
@@ -64,7 +70,12 @@ function AppContent() {
         {/* Legacy reader route - redirect to catalogue */}
         <Route
           path="/reader/:volumeId"
-          element={<Navigate to="/catalogue" replace />}
+          element={
+            <Navigate
+              to="/catalogue"
+              replace
+            />
+          }
         />
         <Route
           path="/library"
@@ -108,7 +119,15 @@ function AppContent() {
         />
 
         {/* Catch all - redirect to home */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+          path="*"
+          element={
+            <Navigate
+              to="/"
+              replace
+            />
+          }
+        />
       </Routes>
       <ToastContainer />
     </BrowserRouter>

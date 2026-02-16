@@ -1,745 +1,523 @@
-import { useEffect, useState, useRef } from "react";
-import {
-  useParams,
-  useNavigate,
-  Link,
-  useSearchParams,
-} from "react-router-dom";
-import { useCatalogStore } from "../stores/catalogStore";
-import api from "../lib/api";
-import { useToast } from "../hooks/useToast";
-import { showSuccessToast, showErrorToast, showWarningToast, showInfoToast } from "../lib/toastHelper";
-import ReaderDrawer from "../components/ReaderDrawer";
-import PurchaseDrawer from "../components/PurchaseDrawer";
-import ErrorMessage from "../components/common/ErrorMessage";
-import ChapterCover from "../components/common/ChapterCover";
-import PricingSection from "../components/PricingSection";
-import ReviewsSection from "../components/ReviewsSection";
-import WaitTimer from "../components/WaitTimer";
-import { NotificationService } from "../lib/notifications";
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useToast } from '../hooks/useToast';
+import { showErrorToast } from '../lib/toastHelper';
+import api from '../lib/api';
+import ReaderDrawer from '../components/ReaderDrawer';
+import PurchaseDrawer from '../components/PurchaseDrawer';
+import type { Chapter as ChapterType } from '../stores/catalogStore';
+
+/**
+ * Decorative Shelf SVG Component
+ */
+function ShelfSVG() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" width="252.531" height="267.95" viewBox="0 0 252.531 267.95" className="w-full h-full">
+      <defs>
+        <linearGradient id="shelf-grad-1" x1="0.5" x2="0.5" y2="1" gradientUnits="objectBoundingBox">
+          <stop offset="0" stopColor="#e3dcce"/>
+          <stop offset="1" stopColor="#ede5dc"/>
+        </linearGradient>
+        <linearGradient id="shelf-grad-2" x1="0.5" x2="0.5" y2="1" gradientUnits="objectBoundingBox">
+          <stop offset="0" stopOpacity="0.322"/>
+          <stop offset="1" stopOpacity="0"/>
+        </linearGradient>
+        <linearGradient id="shelf-grad-3" x1="0.5" x2="1" gradientUnits="objectBoundingBox">
+          <stop offset="0" stopOpacity="0.722"/>
+          <stop offset="1" stopColor="#545454" stopOpacity="0.588"/>
+        </linearGradient>
+        <linearGradient id="shelf-grad-4" x1="0.619" y1="0.169" x2="1" y2="0.11" gradientUnits="objectBoundingBox">
+          <stop offset="0" stopOpacity="0.31"/>
+          <stop offset="1" stopColor="#545454" stopOpacity="0"/>
+        </linearGradient>
+        <linearGradient id="shelf-grad-5" x1="-0.264" x2="1" gradientUnits="objectBoundingBox">
+          <stop offset="0" stopOpacity="0.502"/>
+          <stop offset="1" stopOpacity="0"/>
+        </linearGradient>
+        <linearGradient id="shelf-grad-6" y1="0.552" x2="1" y2="0.552" gradientUnits="objectBoundingBox">
+          <stop offset="0" stopOpacity="0"/>
+          <stop offset="0.707" stopOpacity="0.439"/>
+          <stop offset="1" stopOpacity="0"/>
+        </linearGradient>
+      </defs>
+      <g transform="translate(0 0)">
+        <path d="M10.039,0H241.274l11.077,29H0Z" fill="url(#shelf-grad-1)"/>
+        <path d="M10.039,18.95H241.274L252.352,0H0Z" fill="url(#shelf-grad-2)"/>
+        <rect width="252" height="8" y="29" fill="#f5f1eb"/>
+        <g transform="translate(174 45)">
+          <rect width="119" height="222" fill="#53273f"/>
+          <path d="M0,0H155L112.027,21H0Z" fill="url(#shelf-grad-3)"/>
+          <path d="M0,0H116.862L155,24V204H0Z" fill="url(#shelf-grad-4)"/>
+          <rect width="119" height="217" fill="#fff" stroke="#d8d8d8" strokeWidth="1"/>
+          <rect width="119" height="224" fill="#fff" stroke="#d8d8d8" strokeWidth="1" y="-4"/>
+          <rect width="119" height="229" fill="#fff" stroke="#d8d8d8" strokeWidth="1" y="-8"/>
+          <path d="M5,0H137a2,2,0,0,1,2,2V232a2,2,0,0,1-2,2H5a5,5,0,0,1-5-5V5A5,5,0,0,1,5,0Z" fill="#53273f"/>
+          <path d="M5,0h6a0,0,0,0,1,0,0V234a0,0,0,0,1,0,0H5a5,5,0,0,1-5-5V5A5,5,0,0,1,5,0Z" fill="url(#shelf-grad-5)"/>
+          <rect width="10" height="234" fill="url(#shelf-grad-6)" x="-11"/>
+        </g>
+      </g>
+    </svg>
+  );
+}
+
+/**
+ * MODERN BOOKSHELF Chapter Page
+ * Design inspired by premium online bookstores
+ * - Featured volume with 3D perspective
+ * - Grid of book cards with metadata
+ * - Accessible and locked volume sections
+ */
 
 export default function Chapter() {
-  const { id } = useParams<{ id: string }>();
+  const { id: chapterId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const { currentChapter, isLoading, error, fetchChapter } = useCatalogStore();
   const toast = useToast();
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [isPurchasing, setIsPurchasing] = useState(false);
-  const [isStartingWait, setIsStartingWait] = useState(false);
+
+  const [chapter, setChapter] = useState<ChapterType | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [readerOpen, setReaderOpen] = useState(false);
+  const [selectedVolume, setSelectedVolume] = useState<{ id: string; volumeNumber: number } | null>(null);
   const [purchaseDrawerOpen, setPurchaseDrawerOpen] = useState(false);
-  const [selectedVolume, setSelectedVolume] = useState<{
-    id: string;
-    volumeNumber: number;
-  } | null>(null);
-  const [selectedVolumeForPurchase, setSelectedVolumeForPurchase] =
-    useState<any>(null);
-  const [activeWaitsCount, setActiveWaitsCount] = useState(0);
-  const [maxWaitsAllowed, setMaxWaitsAllowed] = useState(2); // Default fallback
-  const lastPurchaseStatusRef = useRef<string | null>(null);
+  const [selectedVolumeForPurchase, setSelectedVolumeForPurchase] = useState<any>(null);
+  const [isPurchasing, setIsPurchasing] = useState(false);
 
-  // Fetch active waits count
-  const fetchActiveWaitsCount = async () => {
-    try {
-      const response = await api.get("/wait/active");
-      if (response.success && response.data) {
-        setActiveWaitsCount(response.data.length);
+  useEffect(() => {
+    if (!chapterId) return;
+
+    const fetchChapter = async () => {
+      try {
+        setLoading(true);
+        const data = await api.getChapter(chapterId);
+        setChapter(data);
+        setError(null);
+      } catch (err) {
+        showErrorToast(toast, 'CHAPTER_NOT_FOUND');
+        setError('Failed to load chapter');
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to fetch active waits:", error);
-    }
+    };
+
+    fetchChapter();
+  }, [chapterId, toast]);
+
+  const handleReadVolume = (volume: any) => {
+    setSelectedVolume({
+      id: volume.id,
+      volumeNumber: volume.volumeNumber,
+    });
+    setReaderOpen(true);
   };
 
-  // Fetch wait configuration
-  const fetchWaitConfig = async () => {
-    try {
-      const config = await api.getWaitConfig();
-      setMaxWaitsAllowed(config.maxSimultaneousTimers);
-    } catch (error) {
-      console.error("Failed to fetch wait config:", error);
-      // Keep default value of 2 on error
-    }
-  };
-
-  useEffect(() => {
-    if (id) {
-      fetchChapter(id);
-      fetchActiveWaitsCount();
-      fetchWaitConfig();
-    }
-  }, [id, fetchChapter]);
-
-  // Handle payment return (success or cancelled)
-  useEffect(() => {
-    const purchaseStatus = searchParams.get("purchase");
-
-    // Only show toast if this is a new purchase status (prevent duplicate toasts)
-    // Use ref to avoid re-renders from triggering the effect again
-    if (purchaseStatus && purchaseStatus !== lastPurchaseStatusRef.current) {
-      console.log(`[Chapter] Payment status changed: ${purchaseStatus}`);
-      lastPurchaseStatusRef.current = purchaseStatus;
-
-      if (purchaseStatus === "success") {
-        showSuccessToast(toast, 'PURCHASE_SUCCESSFUL');
-        // Refresh chapter data to get updated access
-        if (id) {
-          fetchChapter(id);
-        }
-      } else if (purchaseStatus === "cancelled") {
-        showInfoToast(toast, 'PURCHASE_CANCELLED');
-      }
-
-      // Remove the query parameter from URL
-      setSearchParams({});
-    }
-  }, [searchParams, setSearchParams, toast, id, fetchChapter]);
-
-  // Update timer every minute
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000); // Update every minute
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // Handle opening volume in reader drawer
-  const handleOpenVolume = (volume: any) => {
-    if (volume.isAccessible || volume.isUnlocked) {
-      setSelectedVolume({
-        id: volume.id,
-        volumeNumber: volume.volumeNumber,
-      });
-      setReaderOpen(true);
-    } else {
-      // Open purchase drawer for locked volumes
+  const handlePurchaseVolume = (volumeNumber: number) => {
+    const volume = chapter?.volumes?.find((v: any) => v.volumeNumber === volumeNumber);
+    if (volume) {
       setSelectedVolumeForPurchase(volume);
       setPurchaseDrawerOpen(true);
     }
   };
 
-  // Handle purchase of single volume (from pricing section)
-  const handlePurchaseVolumeFromPricing = async (volumeNumber: number) => {
-    if (!id) return;
-
-    try {
-      setIsPurchasing(true);
-      const { url } = await api.createCheckoutSession({
-        chapterId: id,
-        type: "VOLUME",
-        volumeNumber,
-        versionScope: "BASE",
-        successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
-        cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
-      });
-      window.location.href = url;
-    } catch (err: any) {
-      console.error("Failed to create checkout session for volume:", err);
-      showErrorToast(toast, 'CHECKOUT_SESSION_FAILED');
-      setIsPurchasing(false);
-    }
-  };
-
-  // Handle purchase of single volume (from purchase drawer)
-  const handlePurchaseVolume = async () => {
-    if (!id || !selectedVolumeForPurchase) return;
-
-    try {
-      setIsPurchasing(true);
-      const { url } = await api.createCheckoutSession({
-        chapterId: id,
-        type: "VOLUME",
-        volumeNumber: selectedVolumeForPurchase.volumeNumber,
-        versionScope: "BASE",
-        successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
-        cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
-      });
-      window.location.href = url;
-    } catch (err: any) {
-      console.error("Failed to create checkout session for volume:", err);
-      showErrorToast(toast, 'CHECKOUT_SESSION_FAILED');
-      setIsPurchasing(false);
-    }
-  };
-
-  // Handle purchase of perspective
   const handlePurchasePerspective = async (volumeNumber: number) => {
-    if (!id) return;
-
+    if (!chapterId) return;
     try {
       setIsPurchasing(true);
       const { url } = await api.createCheckoutSession({
-        chapterId: id,
-        type: "PERSPECTIVE",
+        chapterId,
+        type: 'PERSPECTIVE',
         volumeNumber,
-        successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
-        cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
+        successUrl: `${window.location.origin}/chapters/${chapterId}?purchase=success`,
+        cancelUrl: `${window.location.origin}/chapters/${chapterId}?purchase=cancelled`,
       });
       window.location.href = url;
     } catch (err: any) {
-      console.error("Failed to create checkout session for perspective:", err);
+      console.error('Failed to create checkout session:', err);
       showErrorToast(toast, 'CHECKOUT_SESSION_FAILED');
       setIsPurchasing(false);
     }
   };
 
-  // Handle purchase of full chapter
-  const handlePurchaseFullChapter = async () => {
-    if (!id) return;
-
-    try {
-      setIsPurchasing(true);
-      const { url } = await api.createCheckoutSession({
-        chapterId: id,
-        type: "CHAPTER",
-        versionScope: "BASE",
-        successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
-        cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
-      });
-      window.location.href = url;
-    } catch (err: any) {
-      console.error("Failed to create checkout session:", err);
-      toast.error(
-        "Erreur lors de la création de la session de paiement. Veuillez réessayer."
-      );
-      setIsPurchasing(false);
-    }
-  };
-
-  const getReadingTime = (characterCount: number) => {
-    const wordsPerMinute = 200;
-    const averageWordLength = 5;
-    const words = characterCount / averageWordLength;
-    return Math.round(words / wordsPerMinute);
-  };
-
-  // Handle reading next volume from EndOfVolumeUI
-  const handleReadNext = (nextVolumeId: string, nextVolumeNumber: number) => {
-    setSelectedVolume({
-      id: nextVolumeId,
-      volumeNumber: nextVolumeNumber,
-    });
-    // Reader will automatically load the new volume since volumeId prop changed
-  };
-
-  // Handle purchase/unlock
-  const handleUnlock = async () => {
-    if (!id) return;
-
-    // If user already has access, open last accessible volume in drawer
-    if (currentChapter?.hasAccess) {
-      const accessibleVolumes =
-        currentChapter.volumes?.filter((v) => v.isAccessible || v.isUnlocked) ||
-        [];
-
-      // Find the last accessible volume
-      const lastAccessibleVolume =
-        accessibleVolumes[accessibleVolumes.length - 1];
-
-      if (lastAccessibleVolume) {
-        handleOpenVolume(lastAccessibleVolume);
-        return;
-      }
-    }
-
-    // Otherwise, redirect to Stripe checkout
-    try {
-      setIsPurchasing(true);
-
-      const { url } = await api.createCheckoutSession({
-        chapterId: id,
-        type: "CHAPTER",
-        versionScope: "BASE", // Default to narrator perspective only
-        successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
-        cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
-      });
-
-      // Redirect to Stripe checkout
-      window.location.href = url;
-    } catch (err: any) {
-      console.error("Failed to create checkout session:", err);
-      showErrorToast(toast, 'CHECKOUT_SESSION_FAILED');
-      setIsPurchasing(false);
-    }
-  };
-
-  // Handle start wait-to-read timer
-  const handleStartWait = async (volumeNumber: number) => {
-    if (!id) return;
-
-    try {
-      setIsStartingWait(true);
-
-      // Request notification permission when starting a timer
-      await NotificationService.requestPermission();
-
-      await api.startWait({
-        chapterId: id,
-        volumeNumber,
-      });
-
-      // Refresh chapter data to get updated unlock status
-      await fetchChapter(id);
-      await fetchActiveWaitsCount();
-
-      showSuccessToast(toast, 'WAIT_STARTED');
-
-      setIsStartingWait(false);
-    } catch (err: any) {
-      console.error("Failed to start wait timer:", err);
-
-      if (err.message?.includes("MAX_PENDING_CHAPTERS_REACHED")) {
-        showWarningToast(toast, 'WAIT_MAX_TIMERS_REACHED');
-      } else if (err.message?.includes("WAIT_ALREADY_ACTIVE")) {
-        showInfoToast(toast, 'WAIT_ALREADY_ACTIVE');
-      } else {
-        showErrorToast(toast, 'WAIT_START_FAILED');
-      }
-
-      setIsStartingWait(false);
-    }
-  };
-
-  // Determine button text based on accessible volumes
-  const accessibleVolumes =
-    currentChapter?.volumes?.filter((v) => v.isAccessible || v.isUnlocked) ||
-    [];
-  const onlyFirstVolumeAccessible =
-    accessibleVolumes.length === 1 && accessibleVolumes[0]?.volumeNumber === 1;
-  const readButtonText = onlyFirstVolumeAccessible
-    ? "Commencer la lecture"
-    : "Continuer la lecture";
-
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-amber-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-charcoal dark:text-white/70 font-light">
-            Chargement...
-          </p>
+          <div className="w-12 h-12 mx-auto mb-4 border-2 border-amber-200 border-t-eros-gold rounded-full animate-spin"></div>
+          <p className="text-amber-900/60 font-light">Chargement...</p>
         </div>
       </div>
     );
   }
 
-  if (error || !currentChapter) {
+  if (error || !chapter) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-10">
-        <Link
-          to="/catalogue"
-          className="text-primary hover:underline mb-4 inline-block">
-          ← Retour au catalogue
-        </Link>
-        <ErrorMessage
-          title="Erreur de chargement"
-          message={error || "Chapitre introuvable"}
-          onRetry={() => id && fetchChapter(id)}
-          variant="inline"
-        />
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-amber-50 flex items-center justify-center p-4">
+        <div className="text-center max-w-md bg-white rounded-lg shadow-sm p-12 border border-amber-100">
+          <h2 className="text-xl font-serif text-amber-900 mb-4">Chapitre Introuvable</h2>
+          <p className="text-amber-800/70 font-light mb-8">Ce chapitre n'existe pas ou n'est pas accessible.</p>
+          <button
+            type="button"
+            onClick={() => navigate('/catalogue')}
+            className="px-8 py-2.5 bg-eros-gold text-amber-950 font-medium hover:bg-eros-gold/90 transition-all rounded text-sm"
+          >
+            Retour
+          </button>
+        </div>
       </div>
     );
   }
 
-  const coverImageUrl = currentChapter.coverAsset?.url
-    ? `${import.meta.env.VITE_API_URL ?? ""}${currentChapter.coverAsset.url}`
-    : null;
-
-  // Calculate total reading time (rough estimate)
-  const totalReadingTime =
-    currentChapter.volumes?.reduce(
-      (acc, vol) => acc + (vol.wordCount || 0),
-      0,
-    ) || 0;
-  const readingHours = Math.floor(totalReadingTime / 200 / 60); // ~200 words per minute
-  const readingMinutes = Math.floor((totalReadingTime / 200) % 60);
-
-  // Calculate average rating (placeholder)
-  const rating = 4.9;
-  const reviewCount = 124;
+  const allVolumes = chapter.volumes || [];
+  const accessibleVolumes = allVolumes.filter((v: any) => v.isAccessible);
+  const lockedVolumes = allVolumes.filter((v: any) => !v.isAccessible);
+  const featuredVolume = accessibleVolumes[0];
 
   return (
-    <main className="max-w-7xl mx-auto px-6 py-10 text-charcoal dark:text-white/70 dark:text-white">
-        {/* Breadcrumbs */}
-        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
-          <Link
-            className="hover:text-primary transition-colors"
-            to="/">
-            Accueil
-          </Link>
-          <span className="material-symbols-outlined text-xs">
-            chevron_right
-          </span>
-          <Link
-            className="hover:text-primary transition-colors"
-            to="/catalogue">
-            Catalogue
-          </Link>
-          <span className="material-symbols-outlined text-xs">
-            chevron_right
-          </span>
-          <span className="text-gray-900 dark:text-gray-100">
-            {currentChapter.title}
-          </span>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-amber-50 relative overflow-hidden">
+      {/* Decorative Shelf SVG Background */}
+      <div className="absolute top-0 right-0 opacity-5 pointer-events-none w-1/3 h-1/3">
+        <ShelfSVG />
+      </div>
 
-        {/* Product Header Section */}
-        <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] lg:grid-cols-12 gap-12 mb-16">
-          {/* Cover Image */}
-          <div className="lg:col-span-4">
-            <ChapterCover
-              imageUrl={coverImageUrl}
-              title={currentChapter.title}
-             // showPremiumBadge={true}
-             // showLimitedEditionBadge={true}
-            />
-          </div>
-          {/* Details Section */}
-          <div className="lg:col-span-8 flex flex-col justify-center ">
-            <div className="flex gap-4 mb-4">
-              <span className="flex items-center gap-1 text-accent-gold text-sm font-semibold italic">
-                <span className="material-symbols-outlined text-sm gold-fill">
-                  star
-                </span>
-                {rating} ({reviewCount} avis)
-              </span>
-              <span className="text-gray-400">|</span>
-              <span className="text-sm text-gray-400">
-                Temps de lecture :{" "}
-                {getReadingTime(currentChapter.totalCharacterCount || 0)} min
-              </span>
-            </div>
+      {/* Header Section */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 relative z-10">
+        <h1 className="text-3xl md:text-4xl font-serif text-amber-950 mb-2">
+          {chapter.title}
+        </h1>
+        {chapter.accroche_marketing && (
+          <p className="text-amber-800/60 font-light text-sm">
+            {chapter.accroche_marketing}
+          </p>
+        )}
+      </div>
 
-            <h1
-              className="text-umber dark:text-white text-5xl lg:text-7xl font-medium mb-6 leading-tight italic"
-              style={{ fontFamily: "newsreader, serif" }}>
-              {currentChapter.title}
-            </h1>
+      {/* Featured Section */}
+      {featuredVolume && (
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 mb-8">
+          <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12">
+            <div className="grid md:grid-cols-3 gap-8 items-center">
+              {/* Featured Book Info */}
+              <div className="md:col-span-1">
+                <p className="text-xs text-eros-gold font-semibold uppercase tracking-widest mb-3">
+                  À Découvrir
+                </p>
+                <h2 className="text-2xl font-serif text-amber-950 mb-3">
+                  {featuredVolume.title}
+                </h2>
+                <p className="text-amber-800/70 font-light text-sm leading-relaxed mb-6">
+                  {(featuredVolume as any).description || chapter.description}
+                </p>
 
-            <div className="space-y-6 max-w-2xl">
-              <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed italic newsreader">
-                Plongez dans un récit où la passion rencontre le mystère. Dans
-                le silence feutré d'un manoir oublié, deux âmes s'apprivoisent
-                entre secrets interdits et caresses volées.
-              </p>
-              <p className="text-base text-gray-500 dark:text-gray-400  newsreader">
-                Ce conte vous transporte à travers des paysages oniriques et des
-                rencontres d'une intensité rare, écrit avec une plume délicate
-                et envoûtante par {currentChapter.protagonistName || "l'auteur"}
-                .
-              </p>
-            </div>
-
-            <div className="mt-10 flex flex-wrap gap-4 items-center">
-              <button
-                onClick={handleUnlock}
-                disabled={isPurchasing}
-                className="bg-primary hover:bg-primary/90 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-10 py-4 rounded-full font-bold text-lg flex items-center gap-3 transition-transform active:scale-95 shadow-lg shadow-primary/20">
-                <span className="material-symbols-outlined">
-                  {isPurchasing
-                    ? "hourglass_empty"
-                    : currentChapter.hasAccess
-                      ? "auto_stories"
-                      : "shopping_cart"}
-                </span>
-                {isPurchasing
-                  ? "Chargement..."
-                  : currentChapter.hasAccess
-                    ? readButtonText
-                    : "Débloquer l'aventure"}
-              </button>
-              {!currentChapter.hasAccess &&
-                currentChapter.pricing?.bundleDiscountedPrice && (
-                  <div className="flex flex-col">
-                    <span className="text-xs text-gray-500 uppercase tracking-widest font-bold">
-                      Prix de l'œuvre
-                    </span>
-                    <span className="text-2xl font-display font-bold">
-                      {(
-                        currentChapter.pricing.bundleDiscountedPrice / 100
-                      ).toFixed(2)}{" "}
-                      €
-                    </span>
+                {/* Stats */}
+                {(featuredVolume as any).wordCount && (
+                  <div className="flex gap-6 mb-6 text-sm text-amber-900/70">
+                    <div>
+                      <p className="text-xs uppercase tracking-wide font-semibold text-amber-950">
+                        {(((featuredVolume as any).wordCount || 0) / 1000).toFixed(0)}k
+                      </p>
+                      <p className="text-xs">Mots</p>
+                    </div>
                   </div>
                 )}
+
+                {/* CTA Buttons */}
+                <div className="flex flex-col gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleReadVolume(featuredVolume)}
+                    className="w-full py-3 bg-eros-gold text-amber-950 font-semibold rounded-lg hover:bg-eros-gold/90 transition-all text-sm uppercase tracking-wide"
+                  >
+                    📖 Lire Maintenant
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handlePurchasePerspective(featuredVolume.volumeNumber)}
+                    className="w-full py-3 border-2 border-eros-lavande text-eros-lavande font-semibold rounded-lg hover:bg-eros-lavande/10 transition-all text-sm uppercase tracking-wide"
+                  >
+                    🔓 Perspective Protagoniste
+                  </button>
+                </div>
+              </div>
+
+              {/* Featured Book Cover - 3D */}
+              <div className="md:col-span-2 flex justify-center">
+                <div className="relative w-full max-w-xs">
+                  <div className="relative" style={{ perspective: '1200px' }}>
+                    {/* Shadow */}
+                    <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-4/5 h-8 bg-black/8 blur-2xl rounded-full"></div>
+
+                    {/* Book Cover */}
+                    <div
+                      className="relative rounded-lg overflow-hidden shadow-2xl"
+                      style={{
+                        backgroundImage: (featuredVolume as any).illustrationAsset?.url
+                          ? `url(${(featuredVolume as any).illustrationAsset.url})`
+                          : undefined,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        aspectRatio: '3/4',
+                        transform: 'rotateY(-12deg) rotateX(4deg)',
+                      }}
+                    >
+                      {/* Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-black/15 to-transparent"></div>
+
+                      {/* Book Spine */}
+                      <div className="absolute left-0 top-0 bottom-0 w-4 bg-black/20"></div>
+                    </div>
+                  </div>
+
+                  {/* Volume Badge */}
+                  <div className="absolute -top-4 -right-4 w-14 h-14 bg-eros-gold text-amber-950 rounded-full flex items-center justify-center font-bold text-lg shadow-lg border-4 border-white">
+                    {featuredVolume.volumeNumber}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+      )}
 
-        {/* Chapters List */}
-        <section className="mb-20">
-          <h2 className="text-3xl font-bold mb-8 border-b border-white/10 pb-4 newsreader italic">
-            Table des Matières
-          </h2>
-          <div className="grid grid-cols-1 gap-4">
-            {currentChapter.volumes && currentChapter.volumes.length > 0 ? (
-              (() => {
-                // Filter volumes: show all accessible + first non-accessible
-                const volumes = currentChapter.volumes || [];
-                const firstLockedIndex = volumes.findIndex(
-                  (v) => !v.isAccessible,
-                );
-                const displayedVolumes =
-                  firstLockedIndex === -1
-                    ? volumes // All volumes are accessible
-                    : volumes.slice(0, firstLockedIndex + 1); // All accessible + first locked
+      {/* Accessible Volumes Section */}
+      {accessibleVolumes.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 mb-12">
+          <h3 className="text-xs font-semibold text-eros-gold uppercase tracking-widest mb-6">
+            Volumes Accessibles
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {accessibleVolumes.map((volume: any) => (
+              <VolumeCard
+                key={volume.volumeNumber}
+                volume={volume}
+                onRead={() => handleReadVolume(volume)}
+                onBuyPerspective={() => handlePurchasePerspective(volume.volumeNumber)}
+                isPurchasing={isPurchasing}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
-                return displayedVolumes.map((volume, index) => {
-                  // Use isAccessible from API response
-                  const isUnlocked = volume.isAccessible || false;
+      {/* Locked Volumes Section */}
+      {lockedVolumes.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+          <h3 className="text-xs font-semibold text-eros-pink uppercase tracking-widest mb-6">
+            Volumes Verrouillés
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {lockedVolumes.map((volume: any) => (
+              <LockedVolumeCard
+                key={volume.volumeNumber}
+                volume={volume}
+                onBuy={() => handlePurchaseVolume(volume.volumeNumber)}
+                isPurchasing={isPurchasing}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
-                  // Determine blockage type from API response
-                  const blockageType = volume.blockageType;
-                  const blockageInfo = volume.blockageInfo || {};
+      {/* Reader Drawer */}
+      {selectedVolume && chapter && (
+        <ReaderDrawer
+          isOpen={readerOpen}
+          onClose={() => {
+            setReaderOpen(false);
+            if (chapterId) {
+              api.getChapter(chapterId).then(setChapter);
+            }
+          }}
+          volumeId={selectedVolume.id}
+          chapterId={chapterId!}
+          volumeNumber={selectedVolume.volumeNumber}
+          onPurchasePerspective={handlePurchasePerspective}
+        />
+      )}
 
-                  // Map blockage types to UI states
-                  const needsUpgrade =
-                    blockageType === "PAYWALL" || blockageType === "EPILOGUE";
-                  const needsEntitlement = blockageType === "WAIT_OR_PAY";
+      {/* Purchase Drawer */}
+      {selectedVolumeForPurchase && chapter && (
+        <PurchaseDrawer
+          isOpen={purchaseDrawerOpen}
+          onClose={() => {
+            setPurchaseDrawerOpen(false);
+            setSelectedVolumeForPurchase(null);
+          }}
+          volume={selectedVolumeForPurchase}
+          chapter={chapter}
+          chapterTitle={chapter.title}
+          onPurchaseVolume={async () => {
+            if (!chapterId) return;
+            try {
+              setIsPurchasing(true);
+              const { url } = await api.createCheckoutSession({
+                chapterId,
+                type: 'VOLUME',
+                volumeNumber: selectedVolumeForPurchase.volumeNumber,
+                versionScope: 'BASE',
+                successUrl: `${window.location.origin}/chapters/${chapterId}?purchase=success`,
+                cancelUrl: `${window.location.origin}/chapters/${chapterId}?purchase=cancelled`,
+              });
+              window.location.href = url;
+            } catch (err: any) {
+              console.error('Failed to create checkout session:', err);
+              showErrorToast(toast, 'CHECKOUT_SESSION_FAILED');
+              setIsPurchasing(false);
+            }
+          }}
+          onPurchaseChapter={async () => {
+            if (!chapterId) return;
+            try {
+              setIsPurchasing(true);
+              const { url } = await api.createCheckoutSession({
+                chapterId,
+                type: 'CHAPTER',
+                versionScope: 'BASE',
+                successUrl: `${window.location.origin}/chapters/${chapterId}?purchase=success`,
+                cancelUrl: `${window.location.origin}/chapters/${chapterId}?purchase=cancelled`,
+              });
+              window.location.href = url;
+            } catch (err: any) {
+              console.error('Failed to create checkout session:', err);
+              showErrorToast(toast, 'CHECKOUT_SESSION_FAILED');
+              setIsPurchasing(false);
+            }
+          }}
+        />
+      )}
+    </div>
+  );
+}
 
-                  // Check if wait timer is active
-                  const hasActiveWait =
-                    blockageInfo.waitRemaining &&
-                    blockageInfo.waitRemaining > 0;
+/**
+ * Volume Card - Accessible volumes
+ */
+function VolumeCard({
+  volume,
+  onRead,
+  onBuyPerspective,
+  isPurchasing,
+}: {
+  volume: any;
+  onRead?: () => void;
+  onBuyPerspective?: () => void;
+  isPurchasing?: boolean;
+}) {
+  const coverUrl = (volume as any).illustrationAsset?.url;
+  const protag = volume.pricing?.priceProtagonistUnlock ? (volume.pricing.priceProtagonistUnlock / 100).toFixed(2) : null;
+  const [showActions, setShowActions] = useState(false);
 
-                  // Backend determines if user can start wait timer
-                  const canStartWait = volume.canStartWait || false;
-                  const progression = volume.progress || 0;
-                  return (
-                    <div
-                      key={volume.id}
-                      onClick={() => handleOpenVolume(volume)}
-                      className={`relative grid grid-cols-[1fr_auto] group flex items-center justify-between p-8  border  rounded-xl hover:border-rose-gold/40 hover:bg-rose-gold/[0.02] transition-all silk-shadow overflow-hidden cursor-pointer ${
-                        isUnlocked
-                          ? "bg-white dark:bg-opacity-10 dark:border-opacity-30 border-silk-border"
-                          : "bg-white/40 dark:bg-black/20 border-silk-border/50  grayscale hover:grayscale-0 hover:opacity-100 transition-all"
-                      }`}>
-                      <div className=" grid grid-cols-[auto_1fr] w-full items-center gap-8">
-                        <div
-                          className={`text-3xl font-display group-hover:text-rose-gold transition-colors ${isUnlocked ? " text-rose-gold/30" : "text-umber dark:text-gray-400 text-opacity-20 "} `}>
-                          {String(volume.volumeNumber).padStart(2, "0")}
-                        </div>
-                        <div className="">
-                          <h3
-                            className={`text-lg font-bold group-hover:text-terracotta transition-colors  ${isUnlocked ? "  text-terracotta" : "text-umber dark:text-gray-400 text-opacity-50"}`}>
-                            {volume.title}
-                          </h3>
-                          <p className="text-sm text-gray-400 italic">
-                            {isUnlocked
-                              ? "Une histoire captivante..."
-                              : needsUpgrade
-                                ? "Volume Premium - Mise à niveau requise"
-                                : needsEntitlement
-                                  ? "Déverrouillez pour découvrir ce chapitre secret..."
-                                  : hasActiveWait
-                                    ? "Compte à rebours en cours..."
-                                    : "Volume verrouillé"}
-                          </p>
-                          {isUnlocked && (
-                            <div className="">
-                              <div className="w-full bg-black/10 dark:bg-white/10 h-1 rounded-full overflow-hidden">
-                                <div
-                                  className="bg-gold h-full rounded-full"
-                                  style={{ width: `${progression}%` }}></div>
-                              </div>
-                              <p
-                                className={`${progression === 0 ? "text-black/40 dark:text-white/40" : "text-gold"}  text-[10px] uppercase font-bold mt-1 tracking-widest`}>
-                                {`${progression >= 100 ? "Terminé" : progression === 0 ? "Pas commencé" : `${progression}% Lu`}`}{" "}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      {isUnlocked ? (
-                        <span className="material-symbols-outlined rose-gold-fill text-2xl opacity-60">
-                          check_circle
-                        </span>
-                      ) : needsUpgrade ? (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // TODO: Navigate to upgrade page
-                            showInfoToast(toast, 'FEATURE_COMING_SOON_UPGRADE');
-                          }}
-                          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-full font-semibold text-sm flex items-center gap-2 transition-all">
-                          <span className="material-symbols-outlined text-sm">
-                            upgrade
-                          </span>
-                          Mettre à niveau
-                        </button>
-                      ) : hasActiveWait ? (
-                        <div className="flex flex-col gap-2 items-center">
-                          <WaitTimer
-                            remainingMs={blockageInfo.waitRemaining || 0}
-                            variant="badge"
-                            onComplete={() => {
-                              // Refresh chapter data when timer completes
-                              if (id) fetchChapter(id);
-                            }}
-                          />
-                          <button
-                            type="button"
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              if (!id) return;
-                              setIsPurchasing(true);
-                              try {
-                                const { url } = await api.createCheckoutSession({
-                                  chapterId: id,
-                                  type: "VOLUME",
-                                  volumeNumber: volume.volumeNumber,
-                                  versionScope: "BASE",
-                                  successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
-                                  cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
-                                });
-                                if (url) window.location.href = url;
-                              } catch (err: any) {
-                                console.error("Failed to create checkout session for volume:", err);
-                                const errorMessage = err.response?.data?.error?.message || "Erreur lors de la création de la session de paiement.";
-                                toast.error(errorMessage);
-                                setIsPurchasing(false);
-                              }
-                            }}
-                            disabled={isPurchasing}
-                            className="bg-primary hover:bg-primary/90 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 transition-all">
-                            <span className="material-symbols-outlined text-sm">
-                              {isPurchasing
-                                ? "hourglass_empty"
-                                : "shopping_cart"}
-                            </span>
-                            {isPurchasing
-                              ? "Chargement..."
-                              : `Acheter le volume ${volume.volumeNumber}`}
-                          </button>
-                        </div>
-                      ) : canStartWait ? (
-                        <div className="flex flex-col gap-2">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleUnlock();
-                            }}
-                            disabled={isPurchasing}
-                            className="bg-primary hover:bg-primary/90 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 transition-all">
-                            <span className="material-symbols-outlined text-sm">
-                              {isPurchasing
-                                ? "hourglass_empty"
-                                : "shopping_cart"}
-                            </span>
-                            {isPurchasing
-                              ? "Chargement..."
-                              : "Acheter le chapitre"}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleStartWait(volume.volumeNumber);
-                            }}
-                            disabled={isStartingWait}
-                            className="bg-accent-gold hover:bg-accent-gold/90 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 transition-all">
-                            <span className="material-symbols-outlined text-sm">
-                              {isStartingWait ? "hourglass_empty" : "timer"}
-                            </span>
-                            {isStartingWait
-                              ? "Chargement..."
-                              : "Attendre gratuitement"}
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="material-symbols-outlined rose-gold-fill text-2xl opacity-60">
-                          lock
-                        </span>
-                      )}
-                    </div>
-                  );
-                });
-              })()
-            ) : (
-              <div className="text-center py-12 text-gray-400">
-                Aucun volume disponible pour le moment.
-              </div>
+  return (
+    <div
+      className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
+      onMouseEnter={() => setShowActions(true)}
+      onMouseLeave={() => setShowActions(false)}
+    >
+      {/* Cover Image */}
+      <div
+        className="relative w-full aspect-[3/4] bg-gradient-to-br from-amber-100 to-amber-50 overflow-hidden"
+        style={{
+          backgroundImage: coverUrl ? `url(${coverUrl})` : undefined,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/* Hover Overlay */}
+        {showActions && (
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex flex-col justify-end p-4 space-y-3">
+            <button
+              type="button"
+              onClick={onRead}
+              disabled={isPurchasing}
+              className="w-full py-2.5 bg-eros-gold text-amber-950 font-semibold text-xs rounded-lg hover:bg-eros-gold/90 transition-all disabled:opacity-50 uppercase tracking-wide"
+            >
+              Lire
+            </button>
+            {protag && (
+              <button
+                type="button"
+                onClick={onBuyPerspective}
+                disabled={isPurchasing}
+                className="w-full py-2.5 bg-eros-lavande text-white font-semibold text-xs rounded-lg hover:bg-eros-lavande/90 transition-all disabled:opacity-50 uppercase tracking-wide"
+              >
+                Protag. {protag}€
+              </button>
             )}
           </div>
-        </section>
-
-        {/* Pricing Section - Only show if user hasn't purchased everything */}
-        {currentChapter.pricing && (
-          <PricingSection
-            chapterTitle={currentChapter.title}
-            pricing={currentChapter.pricing}
-            volumes={currentChapter.volumes}
-            onPurchase={handleUnlock}
-            onPurchaseVolume={handlePurchaseVolumeFromPricing}
-            isPurchasing={isPurchasing}
-          />
         )}
+      </div>
 
-        {/* Reader Reviews */}
-        <ReviewsSection
-          onWriteReview={() =>
-            showInfoToast(toast, 'FEATURE_COMING_SOON_REVIEWS')
-          }
-        />
+      {/* Info Section */}
+      <div className="p-4">
+        <p className="text-xs text-eros-gold font-semibold uppercase tracking-wider mb-2">
+          Vol. {volume.volumeNumber}
+        </p>
+        <h4 className="font-serif text-sm text-amber-950 leading-tight line-clamp-2">
+          {volume.title}
+        </h4>
+      </div>
+    </div>
+  );
+}
 
-        {/* Reader Drawer */}
-        {selectedVolume && currentChapter && (
-          <ReaderDrawer
-            isOpen={readerOpen}
-            onClose={() => {
-              setReaderOpen(false);
-              // Refresh chapter data when drawer closes
-              if (id) {
-                fetchChapter(id);
-              }
-            }}
-            volumeId={selectedVolume.id}
-            chapterId={id!}
-            volumeNumber={selectedVolume.volumeNumber}
-            nextVolume={
-              (() => {
-                const vol = currentChapter.volumes?.find(
-                  (v) => v.volumeNumber === selectedVolume.volumeNumber + 1,
-                );
-                return vol ? {
-                  ...vol,
-                  blockageType: vol.blockageType ?? undefined,
-                } : null;
-              })()
-            }
-            onReadNext={handleReadNext}
-            onPurchasePerspective={handlePurchasePerspective}
-          />
+/**
+ * Locked Volume Card
+ */
+function LockedVolumeCard({
+  volume,
+  onBuy,
+  isPurchasing,
+}: {
+  volume: any;
+  onBuy?: () => void;
+  isPurchasing?: boolean;
+}) {
+  const coverUrl = (volume as any).illustrationAsset?.url;
+  const [showAction, setShowAction] = useState(false);
+
+  return (
+    <div
+      className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
+      onMouseEnter={() => setShowAction(true)}
+      onMouseLeave={() => setShowAction(false)}
+    >
+      {/* Cover Image - Grayscale */}
+      <div
+        className="relative w-full aspect-[3/4] bg-gradient-to-br from-gray-200 to-gray-100 overflow-hidden opacity-60 hover:opacity-75 transition-opacity"
+        style={{
+          backgroundImage: coverUrl ? `url(${coverUrl})` : undefined,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          filter: 'grayscale(100%)',
+        }}
+      >
+        {/* Lock Icon */}
+        <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+          <span className="text-4xl">🔒</span>
+        </div>
+
+        {/* Hover Overlay */}
+        {showAction && (
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-end p-4">
+            <button
+              type="button"
+              onClick={onBuy}
+              disabled={isPurchasing}
+              className="w-full py-2.5 bg-eros-pink text-white font-semibold text-xs rounded-lg hover:bg-eros-pink/90 transition-all disabled:opacity-50 uppercase tracking-wide"
+            >
+              Acheter
+            </button>
+          </div>
         )}
+      </div>
 
-        {/* Purchase Drawer */}
-        {selectedVolumeForPurchase && currentChapter && (
-          <PurchaseDrawer
-            isOpen={purchaseDrawerOpen}
-            onClose={() => {
-              setPurchaseDrawerOpen(false);
-              setSelectedVolumeForPurchase(null);
-            }}
-            volume={selectedVolumeForPurchase}
-            chapterTitle={currentChapter.title}
-            chapter={currentChapter}
-            bundlePrice={currentChapter.pricing?.bundleDiscountedPrice}
-            onPurchaseVolume={handlePurchaseVolume}
-            onPurchaseChapter={handlePurchaseFullChapter}
-            onStartWaitTimer={handleStartWait}
-            onRefreshChapter={() => {
-              if (id) {
-                fetchChapter(id);
-                fetchActiveWaitsCount();
-              }
-            }}
-            activeWaitsCount={activeWaitsCount}
-            maxWaitsAllowed={maxWaitsAllowed}
-          />
-        )}
-      </main>
+      {/* Info Section */}
+      <div className="p-4">
+        <p className="text-xs text-eros-pink font-semibold uppercase tracking-wider mb-2">
+          Vol. {volume.volumeNumber}
+        </p>
+        <h4 className="font-serif text-sm text-amber-950 leading-tight line-clamp-2">
+          {volume.title}
+        </h4>
+      </div>
+    </div>
   );
 }

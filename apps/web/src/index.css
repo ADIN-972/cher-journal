@@ -22,6 +22,12 @@ body {
   --caramel: #8b5e3c;
   --prune: #4a1d33;
   --velvet: #2d1b14;
+
+  /* Eros Luxury Color Palette */
+  --eros-gold: #d4af37;
+  --eros-pink: #e91e63;
+  --eros-lavande: #b39ddb;
+  --eros-amber: #ffc107;
 }
 .selection\:bg-primary-caramel\/30::selection {
   background-color: rgb(139 94 60 / 0.3);
