@@ -242,6 +242,20 @@ function VolumeGridView({
         defaultVisible: true,
       },
       {
+        id: "protagonistPrice",
+        header: "Protagonist (€)",
+        render: (volume) => {
+          const price = getProtagonistPriceCents(chapter) / 100;
+          return (
+            <span className="text-purple-600 font-medium">
+              {price.toFixed(2)} €
+            </span>
+          );
+        },
+        align: "right",
+        defaultVisible: true,
+      },
+      {
         id: "waitDuration",
         header: t("volume_view.table.wait_duration"),
         render: (volume) => `${getWaitDurationHours(volume)}h`,
@@ -459,6 +473,11 @@ function getVolumePriceCents(chapter: Chapter, volume: Volume, _index: number) {
   }
   // Volumes 1-8: use priceFreeToRead
   return chapter.pricing?.priceFreeToRead ?? 199;
+}
+
+function getProtagonistPriceCents(chapter: Chapter) {
+  // Protagonist perspective price
+  return (chapter.pricing as any)?.priceProtagonistUnlock ?? 99;
 }
 
 function getWaitDurationHours(volume: Volume) {
