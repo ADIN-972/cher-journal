@@ -15,21 +15,7 @@ interface ChapterOverride {
   priceFreeToRead: number | null;
   pricePaywall: number | null;
   priceEpilogue: number | null;
-  reason?: string;
-  isActive: boolean;
-}
-
-interface ChapterOverride {
-  id: string;
-  chapterId: string;
-  schemaId: string;
-  chapter: {
-    id: string;
-    title: string;
-  };
-  priceFreeToRead: number | null;
-  pricePaywall: number | null;
-  priceEpilogue: number | null;
+  priceProtagonistUnlock?: number | null;
   reason?: string;
   isActive: boolean;
 }
@@ -53,6 +39,7 @@ export default function ChapterPricesPage() {
     priceFreeToRead: null as number | null,
     pricePaywall: null as number | null,
     priceEpilogue: null as number | null,
+    priceProtagonistUnlock: null as number | null,
     reason: "",
   });
 
@@ -167,6 +154,12 @@ export default function ChapterPricesPage() {
         align: "right" as const,
       },
       {
+        id: "protagonist",
+        header: "Protagonist (€)",
+        render: (item: ChapterOverride) => formatPrice(item.priceProtagonistUnlock),
+        align: "right" as const,
+      },
+      {
         id: "reason",
         header: "Reason",
         render: (item: ChapterOverride) => item.reason || "-",
@@ -196,10 +189,12 @@ export default function ChapterPricesPage() {
       {
         onClick: (override: ChapterOverride) => {
           setFormData({
+            chapterId: override.chapterId,
             schemaId: override.schemaId,
             priceFreeToRead: override.priceFreeToRead,
             pricePaywall: override.pricePaywall,
             priceEpilogue: override.priceEpilogue,
+            priceProtagonistUnlock: override.priceProtagonistUnlock || null,
             reason: override.reason || "",
           });
           setEditingId(override.chapterId);
@@ -210,10 +205,12 @@ export default function ChapterPricesPage() {
             icon={<MdEdit />}
             onClick={() => {
               setFormData({
+                chapterId: override.chapterId,
                 schemaId: override.schemaId,
                 priceFreeToRead: override.priceFreeToRead,
                 pricePaywall: override.pricePaywall,
                 priceEpilogue: override.priceEpilogue,
+                priceProtagonistUnlock: override.priceProtagonistUnlock || null,
                 reason: override.reason || "",
               });
               setEditingId(override.chapterId);
@@ -290,10 +287,12 @@ export default function ChapterPricesPage() {
             setShowForm(true);
             setEditingId(null);
             setFormData({
+              chapterId: "",
               schemaId: "",
               priceFreeToRead: null,
               pricePaywall: null,
               priceEpilogue: null,
+              priceProtagonistUnlock: null,
               reason: "",
             });
           }}
@@ -466,6 +465,30 @@ export default function ChapterPricesPage() {
                     setFormData({
                       ...formData,
                       priceEpilogue: e.target.value
+                        ? parseInt(e.target.value)
+                        : null,
+                    })
+                  }
+                  placeholder="Laisser vide pour utiliser le schéma"
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Protagonist Perspective (€)
+                  <span className="text-xs text-green-600 ml-2">
+                    ✓ Vide = hérite du schéma
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.priceProtagonistUnlock || ""}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      priceProtagonistUnlock: e.target.value
                         ? parseInt(e.target.value)
                         : null,
                     })

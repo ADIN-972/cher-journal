@@ -20,6 +20,7 @@ export default function PriceSchemasPage() {
     priceFreeToRead: 199,
     pricePaywall: 299,
     priceEpilogue: 399,
+    priceProtagonistUnlock: 99,
     appliedFrom: new Date().toISOString().slice(0, 10), // YYYY-MM-DD
     appliedTo: "", // Nouvelle date de fin (optionnelle)
   });
@@ -65,6 +66,7 @@ export default function PriceSchemasPage() {
         priceFreeToRead: 199,
         pricePaywall: 299,
         priceEpilogue: 399,
+        priceProtagonistUnlock: 99,
         appliedFrom: new Date().toISOString().slice(0, 10),
         appliedTo: "",
       });
@@ -81,6 +83,7 @@ export default function PriceSchemasPage() {
       priceFreeToRead: schema.priceFreeToRead,
       pricePaywall: schema.pricePaywall,
       priceEpilogue: schema.priceEpilogue,
+      priceProtagonistUnlock: (schema as any).priceProtagonistUnlock || 99,
       appliedFrom: schema.appliedFrom
         ? new Date(schema.appliedFrom).toISOString().slice(0, 10)
         : new Date().toISOString().slice(0, 10),
@@ -138,6 +141,12 @@ export default function PriceSchemasPage() {
         id: "epilogue",
         header: "Epilogue (€)",
         render: (item: PriceSchema) => `${formatPrice(item.priceEpilogue)}€`,
+        align: "right" as const,
+      },
+      {
+        id: "protagonist",
+        header: "Protagonist (€)",
+        render: (item: PriceSchema) => `${formatPrice((item as any).priceProtagonistUnlock || 99)}€`,
         align: "right" as const,
       },
       {
@@ -266,7 +275,9 @@ export default function PriceSchemasPage() {
               priceFreeToRead: 199,
               pricePaywall: 299,
               priceEpilogue: 399,
+              priceProtagonistUnlock: 99,
               appliedFrom: new Date().toISOString().slice(0, 10),
+              appliedTo: "",
             });
           }}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -413,6 +424,32 @@ export default function PriceSchemasPage() {
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   = {formatPrice(formData.priceEpilogue || 0)} €
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Protagonist Perspective (¢ cents)
+                  <span className="text-xs text-gray-500 ml-2">
+                    (Déverrouillage perspective protagoniste)
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  required
+                  min="0"
+                  value={formData.priceProtagonistUnlock}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      priceProtagonistUnlock: parseInt(e.target.value),
+                    })
+                  }
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                  placeholder="99"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  = {formatPrice(formData.priceProtagonistUnlock || 99)} €
                 </p>
               </div>
 
