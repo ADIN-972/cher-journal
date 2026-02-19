@@ -65,9 +65,10 @@ export class AccessControlService {
       return { hasAccess: true };
     }
 
-    // Free volumes are always accessible (no wait, no entitlement required)
-    if (volume.isFree) {
-      console.log(`[AccessControlService] Volume ${volumeNumber} is free`);
+    // Free volumes only apply to NARRATOR perspective
+    // PROTAGONIST always requires payment/entitlement even if volume is free for NARRATOR
+    if (volume.isFree && perspective === Perspective.NARRATOR) {
+      console.log(`[AccessControlService] Volume ${volumeNumber} is free for NARRATOR perspective`);
       return { hasAccess: true };
     }
 
@@ -215,8 +216,9 @@ export class AccessControlService {
       };
     }
 
-    // Free volumes are always accessible
-    if (volume.isFree) {
+    // Free volumes only apply to NARRATOR perspective
+    // PROTAGONIST always requires payment/entitlement even if volume is free for NARRATOR
+    if (volume.isFree && perspective === Perspective.NARRATOR) {
       return {
         isAccessible: true,
         blockageType: null,
