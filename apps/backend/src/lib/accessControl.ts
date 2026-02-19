@@ -164,7 +164,8 @@ export class AccessControlService {
   async getVolumeAccessInfo(
     userId: string | undefined,
     chapterId: string,
-    volumeNumber: number
+    volumeNumber: number,
+    perspective: Perspective = Perspective.NARRATOR
   ): Promise<VolumeAccessInfo> {
     const volume = await prisma.volume.findFirst({
       where: {
@@ -194,7 +195,7 @@ export class AccessControlService {
     }
 
     // Check full access (PURCHASE or BUNDLE entitlement, excluding SUBSCRIPTION)
-    const hasFullAccess = await this.checkFullAccess(userId, chapterId, volumeNumber);
+    const hasFullAccess = await this.checkFullAccess(userId, chapterId, volumeNumber, perspective);
     if (hasFullAccess) {
       return {
         isAccessible: true,
@@ -222,6 +223,20 @@ export class AccessControlService {
         blockageInfo: null,
         canStartWait: false,
       };
+    }
+
+    // Check perspective access: volume 1 is always accessible for NARRATOR, but other perspectives need ALL versionScope
+    if (perspective !== Perspective.NARRATOR && volumeNumber === 1) {
+      // For PROTAGONIST perspective on volume 1, need ALL versionScope entitlement
+      const hasAllAccess = await this.checkEntitlementWithVersionScope(userId, chapterId, 'ALL');
+      if (!hasAllAccess) {
+        return {
+          isAccessible: false,
+          blockageType: 'WAIT_OR_PAY',
+          blockageInfo: { waitDuration: volume.waitDuration },
+          canStartWait: false,
+        };
+      }
     }
 
     // For non-free volumes, determine blockage type and access
@@ -362,7 +377,7 @@ export class AccessControlService {
    * Check if user has full access via PURCHASE or BUNDLE entitlement
    * (but NOT SUBSCRIPTION which is free wait-to-read)
    */
-  private async checkFullAccess(userId: string, chapterId: string, volumeNumber: number): Promise<boolean> {
+  private async checkFullAccess(userId: string, chapterId: string, volumeNumber: number, perspective: Perspective = Perspective.NARRATOR): Promise<boolean> {
     const entitlement = await prisma.entitlement.findFirst({
       where: {
         userId,
@@ -372,7 +387,31 @@ export class AccessControlService {
       },
     });
 
-    return entitlement ? entitlement.source !== 'SUBSCRIPTION' : false;
+    if (!entitlement || entitlement.source === 'SUBSCRIPTION') {
+      return false;
+    }
+
+    // Check versionScope: BASE only grants NARRATOR access, ALL grants all perspectives
+    if (entitlement.versionScope === 'BASE' && perspective !== Perspective.NARRATOR) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Check if user has an entitlement with specific versionScope for this chapter
+   */
+  private async checkEntitlementWithVersionScope(userId: string, chapterId: string, versionScope: string): Promise<boolean> {
+    const entitlement = await prisma.entitlement.findFirst({
+      where: {
+        userId,
+        chapterId,
+        versionScope: versionScope as any,
+      },
+    });
+
+    return !!entitlement;
   }
 
   /**

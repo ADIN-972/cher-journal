@@ -241,14 +241,29 @@ export class CatalogService {
         return null; // Exclude unpublished volumes
       }
 
-      // Use centralized AccessControlService for all access verification
-      const accessInfo = await this.accessControl.getVolumeAccessInfo(
+      // Get access info for both perspectives
+      const narratorAccessInfo = await this.accessControl.getVolumeAccessInfo(
         userId,
         id,
-        volume.volumeNumber
+        volume.volumeNumber,
+        'NARRATOR' as any
       );
 
-      const { isAccessible, blockageType, blockageInfo, canStartWait } = accessInfo;
+      const protagonistAccessInfo = await this.accessControl.getVolumeAccessInfo(
+        userId,
+        id,
+        volume.volumeNumber,
+        'PROTAGONIST' as any
+      );
+
+      // For backward compatibility, use NARRATOR access as default
+      const { isAccessible, blockageType, blockageInfo, canStartWait } = narratorAccessInfo;
+
+      // Store access by perspective
+      const accessByPerspective = {
+        NARRATOR: narratorAccessInfo,
+        PROTAGONIST: protagonistAccessInfo,
+      };
 
       // Get reading progress for this volume per perspective
       const volumeReadsForVolume = volumeReads.filter(r => r.volumeNumber === volume.volumeNumber);
@@ -272,6 +287,7 @@ export class CatalogService {
         canStartWait,
         progress,
         progressByPerspective,
+        accessByPerspective,
         // Replace illustrationAsset with serialized version containing the resolved URL
         illustrationAsset: volume.illustrationAsset ? {
           id: volume.illustrationAsset.id,

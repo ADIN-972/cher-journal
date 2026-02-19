@@ -88,6 +88,20 @@ interface Volume {
     NARRATOR?: number;
     PROTAGONIST?: number;
   }; // Reading progress per perspective
+  accessByPerspective?: {
+    NARRATOR?: {
+      isAccessible: boolean;
+      blockageType: string | null;
+      blockageInfo?: any;
+      canStartWait?: boolean;
+    };
+    PROTAGONIST?: {
+      isAccessible: boolean;
+      blockageType: string | null;
+      blockageInfo?: any;
+      canStartWait?: boolean;
+    };
+  }; // Access info per perspective
 }
 
 interface CatalogState {
