@@ -234,9 +234,9 @@ export default function Chapter() {
     setSelectedPerspective(perspective);
 
     // Scroll to chapters list section with slight delay
-    setTimeout(() => {
-      chaptersListRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+    // setTimeout(() => {
+    //   chaptersListRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // }, 100);
   };
 
   // Handle reading next volume from EndOfVolumeUI

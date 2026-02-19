@@ -156,7 +156,14 @@ export class UsersService {
         },
         reads: {
           orderBy: { firstOpenedAt: "desc" },
-          include: {
+          select: {
+            id: true,
+            chapterId: true,
+            volumeNumber: true,
+            perspective: true,
+            progress: true,
+            firstOpenedAt: true,
+            completedAt: true,
             chapter: {
               select: {
                 id: true,

@@ -188,6 +188,8 @@ export default function UserDetail() {
     id: string;
     chapterId: string;
     volumeNumber: number;
+    perspective: 'NARRATOR' | 'PROTAGONIST';
+    progress: number; // 0-100
     firstOpenedAt: string;
     completedAt: string | null;
     chapter: {
@@ -753,6 +755,113 @@ export default function UserDetail() {
                             </div>
                             <div className="text-center text-sm text-gray-600">
                               {promo.scope}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Started Chapters with Reading Progress */}
+                {user.reads && user.reads.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                      <MdBook className="text-purple-600" size={24} />
+                      Chapitres Entamés - Progression de Lecture
+                    </h3>
+                    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                      <div className="space-y-4 p-6">
+                        {Array.from(
+                          new Map(
+                            user.reads.map((read) => [
+                              read.chapterId,
+                              {
+                                chapterId: read.chapterId,
+                                chapterTitle: read.chapter.title,
+                                volumes: [],
+                              },
+                            ])
+                          )
+                            .entries()
+                            .map(([_, chapter]) => ({
+                              ...chapter,
+                              volumes: user.reads
+                                .filter((r) => r.chapterId === chapter.chapterId)
+                                .sort(
+                                  (a, b) => a.volumeNumber - b.volumeNumber
+                                ),
+                            }))
+                        ).map((chapter) => (
+                          <div
+                            key={chapter.chapterId}
+                            className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                            {/* Chapter Title */}
+                            <div className="mb-4">
+                              <h4 className="text-base font-semibold text-gray-900">
+                                {chapter.chapterTitle}
+                              </h4>
+                            </div>
+
+                            {/* Volume Progress Grid */}
+                            <div className="space-y-3">
+                              {chapter.volumes.map((read) => (
+                                <div
+                                  key={read.id}
+                                  className="bg-gray-50 rounded-lg p-3">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm font-medium text-gray-900">
+                                        Vol. {read.volumeNumber}
+                                      </span>
+                                      <span
+                                        className={`text-xs px-2 py-1 rounded-full font-medium ${
+                                          read.perspective ===
+                                          "NARRATOR"
+                                            ? "bg-blue-100 text-blue-700"
+                                            : "bg-purple-100 text-purple-700"
+                                        }`}>
+                                        {read.perspective ===
+                                        "NARRATOR"
+                                          ? "📖 Narrateur"
+                                          : "🔓 Protagoniste"}
+                                      </span>
+                                    </div>
+                                    <span className="text-sm font-bold text-gray-900">
+                                      {read.progress}%
+                                    </span>
+                                  </div>
+
+                                  {/* Progress Bar */}
+                                  <div className="w-full bg-gray-200 rounded-full h-2">
+                                    <div
+                                      className={`h-2 rounded-full transition-all ${
+                                        read.perspective ===
+                                        "NARRATOR"
+                                          ? "bg-blue-500"
+                                          : "bg-purple-500"
+                                      }`}
+                                      style={{
+                                        width: `${read.progress}%`,
+                                      }}
+                                    />
+                                  </div>
+
+                                  {/* Metadata */}
+                                  <div className="mt-2 flex items-center justify-between text-xs text-gray-600">
+                                    <span>
+                                      Ouvert le{" "}
+                                      {formatDate(read.firstOpenedAt)}
+                                    </span>
+                                    {read.completedAt && (
+                                      <span className="flex items-center gap-1 text-green-600 font-medium">
+                                        <MdCheckCircle size={14} />
+                                        Terminé
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         ))}
