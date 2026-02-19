@@ -424,18 +424,19 @@ model Unlock {
 }
 
 model VolumeRead {
-  id               String    @id @default(uuid())
+  id               String       @id @default(uuid())
   userId           String
   chapterId        String
   volumeNumber     Int
-  progress         Int       @default(0) // Reading progress percentage (0-100)
-  firstOpenedAt    DateTime  @default(now())
+  perspective      Perspective  @default(NARRATOR) // NEW: Track reading progress per perspective
+  progress         Int          @default(0) // Reading progress percentage (0-100)
+  firstOpenedAt    DateTime     @default(now())
   completedAt      DateTime?
-  canStartWaitFrom DateTime? // Timestamp when 65% scroll was reached (for next volume unlock)
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chapter          Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  canStartWaitFrom DateTime?    // Timestamp when 65% scroll was reached (for next volume unlock)
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter          Chapter      @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, chapterId, volumeNumber])
+  @@unique([userId, chapterId, volumeNumber, perspective])
   @@index([userId, chapterId])
   @@map("volume_reads")
 }

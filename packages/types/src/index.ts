@@ -313,8 +313,11 @@ export interface VolumeRead {
   userId: string;
   chapterId: string;
   volumeNumber: number;
+  perspective: Perspective;
+  progress?: number;
   firstOpenedAt: Date;
   completedAt: Date | null;
+  canStartWaitFrom?: Date | null;
 }
 
 // Auth DTOs

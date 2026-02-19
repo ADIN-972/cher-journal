@@ -287,6 +287,7 @@ export class ReaderController {
         chapterId: string;
         volumeNumber: number;
         progress: number;
+        perspective?: 'NARRATOR' | 'PROTAGONIST';
       };
     }>,
     reply: FastifyReply
@@ -296,7 +297,8 @@ export class ReaderController {
         request.user!.id,
         request.body.chapterId,
         request.body.volumeNumber,
-        request.body.progress
+        request.body.progress,
+        request.body.perspective || 'NARRATOR'
       );
 
       return reply.send(result);

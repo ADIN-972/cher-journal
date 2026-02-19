@@ -165,7 +165,7 @@ export class CatalogService {
     let hasAccess = false;
     let versionScope = null;
     let unlocks: { volumeNumber: number; unlocksAt: Date }[] = [];
-    let volumeReads: { volumeNumber: number; firstReadAt: Date; progress: number; canStartWaitFrom: Date | null }[] = [];
+    let volumeReads: { volumeNumber: number; perspective: string; firstReadAt: Date; progress: number; canStartWaitFrom: Date | null }[] = [];
     let entitlement: any = null;
 
     if (userId) {
@@ -208,6 +208,7 @@ export class CatalogService {
         },
         select: {
           volumeNumber: true,
+          perspective: true,
           firstOpenedAt: true,
           progress: true,
           canStartWaitFrom: true,
@@ -216,6 +217,7 @@ export class CatalogService {
 
       volumeReads = userReads.map(r => ({
         volumeNumber: r.volumeNumber,
+        perspective: r.perspective,
         firstReadAt: r.firstOpenedAt,
         progress: r.progress,
         canStartWaitFrom: r.canStartWaitFrom,
@@ -248,9 +250,16 @@ export class CatalogService {
 
       const { isAccessible, blockageType, blockageInfo, canStartWait } = accessInfo;
 
-      // Get reading progress for this volume
-      const volumeRead = volumeReads.find(r => r.volumeNumber === volume.volumeNumber);
-      const progress = volumeRead?.progress || 0;
+      // Get reading progress for this volume per perspective
+      const volumeReadsForVolume = volumeReads.filter(r => r.volumeNumber === volume.volumeNumber);
+      const progressByPerspective: { NARRATOR?: number; PROTAGONIST?: number } = {};
+
+      for (const read of volumeReadsForVolume) {
+        progressByPerspective[read.perspective as 'NARRATOR' | 'PROTAGONIST'] = read.progress;
+      }
+
+      // Default to 0 for perspectives that haven't been read
+      const progress = progressByPerspective.NARRATOR ?? 0;
 
       // Resolve illustration asset URL (use thumbnail if it exists)
       const illustrationAssetUrl = await resolveAssetUrl(volume.illustrationAsset);
@@ -262,6 +271,7 @@ export class CatalogService {
         blockageInfo,
         canStartWait,
         progress,
+        progressByPerspective,
         // Replace illustrationAsset with serialized version containing the resolved URL
         illustrationAsset: volume.illustrationAsset ? {
           id: volume.illustrationAsset.id,

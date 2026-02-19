@@ -363,6 +363,7 @@ class ApiClient {
     chapterId: string;
     volumeNumber: number;
     progress: number;
+    perspective?: 'NARRATOR' | 'PROTAGONIST';
   }): Promise<{ success: boolean; progress: number }> {
     return this.post('/reader/update-progress', data);
   }

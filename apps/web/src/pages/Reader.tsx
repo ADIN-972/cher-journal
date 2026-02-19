@@ -15,6 +15,7 @@ export default function Reader({
   chapterId,
   onPurchasePerspective,
   isPurchasing,
+  perspective,
 }: {
   volumeId?: string;
   footer?: React.ReactNode;
@@ -23,6 +24,7 @@ export default function Reader({
   chapterId?: string;
   onPurchasePerspective?: (volumeNumber: number) => void;
   isPurchasing?: boolean;
+  perspective?: 'NARRATOR' | 'PROTAGONIST';
 }) {
   //const { volumeId } = useParams<{ volumeId: string }>();
   const navigate = useNavigate();
@@ -59,12 +61,10 @@ export default function Reader({
       loadAttemptIdRef.current = `${volumeId}-${Date.now()}`;
       // Reset error tracking for new volume
       shownErrorForAttemptRef.current = null;
-      // Close any error toasts from previous attempts
-      toast.clearAll();
       console.log(`[Reader] Starting new volume load: ${volumeId}`);
       loadVolume(volumeId);
     }
-  }, [volumeId, loadVolume, toast]);
+  }, [volumeId, loadVolume]);
 
   // Send progress to API (debounced)
   const sendProgressToAPI = async (progress: number) => {
@@ -79,6 +79,7 @@ export default function Reader({
         chapterId: chapterId ?? currentVolume.chapterId,
         volumeNumber: currentVolume.volumeNumber,
         progress,
+        perspective: perspective || 'NARRATOR',
       });
       lastProgressSentRef.current = progress;
     } catch (error) {
@@ -102,7 +103,7 @@ export default function Reader({
       attemptVolumeId === volumeId &&
       shownErrorForAttemptRef.current !== currentAttemptId
     ) {
-      if (error) {
+      if (error && isLoading === false) {
         console.log(`[Reader] Showing error toast: ${error}`);
         shownErrorForAttemptRef.current = currentAttemptId;
         showErrorToast(toast, error);
@@ -113,7 +114,7 @@ export default function Reader({
         showErrorToast(toast, "LOAD_ERROR");
       }
     }
-  }, [error, currentVolume, isLoading, volumeId]);
+  }, [error, currentVolume, isLoading, volumeId, toast]);
 
   // Calculate scroll progress
   useEffect(() => {

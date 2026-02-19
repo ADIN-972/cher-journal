@@ -37,7 +37,7 @@ export default function HeroSection({ chapters, heroData }: HeroSectionProps) {
                     title={heroData.subtitle}
                     showPremiumBadge={false}
                     showLimitedEditionBadge={false}
-                    showBookmarkIcon={heroData.hasStartedReading}
+                    showBookmarkIcon={false}
                     textSize={"2xl"}
                     hasGrayscaleEffect={true}
                   />

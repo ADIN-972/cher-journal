@@ -83,7 +83,11 @@ interface Volume {
   illustrationAsset?: CoverAsset | null;
   isFree?: boolean;
   status?: string;
-  progress?: number; // Reading progress percentage (0-100)
+  progress?: number; // Reading progress percentage (0-100) - defaults to NARRATOR perspective
+  progressByPerspective?: {
+    NARRATOR?: number;
+    PROTAGONIST?: number;
+  }; // Reading progress per perspective
 }
 
 interface CatalogState {

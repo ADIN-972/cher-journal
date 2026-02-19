@@ -597,7 +597,9 @@ export default function Chapter() {
 
                 // Backend determines if user can start wait timer
                 const canStartWait = volume.canStartWait || false;
-                const progression = volume.progress || 0;
+                // Get progress for the selected perspective, fallback to NARRATOR
+                const perspectiveKey = selectedPerspective === 'protagonist' ? 'PROTAGONIST' : 'NARRATOR';
+                const progression = volume.progressByPerspective?.[perspectiveKey] ?? volume.progress ?? 0;
                 return (
                   <div
                     key={volume.id}
@@ -792,6 +794,7 @@ export default function Chapter() {
           volumeId={selectedVolume.id}
           chapterId={id!}
           volumeNumber={selectedVolume.volumeNumber}
+          perspective={selectedPerspective as 'NARRATOR' | 'PROTAGONIST'}
           nextVolume={(() => {
             const vol = currentChapter.volumes?.find(
               (v) => v.volumeNumber === selectedVolume.volumeNumber + 1,

@@ -344,18 +344,20 @@ export class ReaderService {
   async trackVolumeRead(
     userId: string,
     chapterId: string,
-    volumeNumber: number
+    volumeNumber: number,
+    perspective: 'NARRATOR' | 'PROTAGONIST' = 'NARRATOR'
   ): Promise<{
     success: boolean;
     error?: string;
   }> {
-    // Check if this is the first time reading this volume
+    // Check if this is the first time reading this volume for this perspective
     const existingRead = await prisma.volumeRead.findUnique({
       where: {
-        userId_chapterId_volumeNumber: {
+        userId_chapterId_volumeNumber_perspective: {
           userId,
           chapterId,
           volumeNumber,
+          perspective: perspective as any,
         },
       },
     });
@@ -367,6 +369,7 @@ export class ReaderService {
           userId,
           chapterId,
           volumeNumber,
+          perspective: perspective as any,
         },
       });
     }
@@ -382,15 +385,17 @@ export class ReaderService {
   async markCanStartWait(
     userId: string,
     chapterId: string,
-    volumeNumber: number
+    volumeNumber: number,
+    perspective: 'NARRATOR' | 'PROTAGONIST' = 'NARRATOR'
   ): Promise<void> {
     // Sécurité : Vérifier que l'utilisateur a bien lu le volume
     const volumeRead = await prisma.volumeRead.findUnique({
       where: {
-        userId_chapterId_volumeNumber: {
+        userId_chapterId_volumeNumber_perspective: {
           userId,
           chapterId,
-          volumeNumber
+          volumeNumber,
+          perspective: perspective as any,
         }
       }
     });
@@ -417,16 +422,18 @@ export class ReaderService {
 
     await prisma.volumeRead.upsert({
       where: {
-        userId_chapterId_volumeNumber: {
+        userId_chapterId_volumeNumber_perspective: {
           userId,
           chapterId,
-          volumeNumber: nextVolumeNumber
+          volumeNumber: nextVolumeNumber,
+          perspective: perspective as any,
         }
       },
       create: {
         userId,
         chapterId,
         volumeNumber: nextVolumeNumber,
+        perspective: perspective as any,
         canStartWaitFrom: new Date()
       },
       update: {
@@ -443,31 +450,34 @@ export class ReaderService {
     userId: string,
     chapterId: string,
     volumeNumber: number,
-    progress: number
+    progress: number,
+    perspective: 'NARRATOR' | 'PROTAGONIST' = 'NARRATOR'
   ): Promise<{ success: boolean; progress: number }> {
     // Validate progress is between 0 and 100
     if (progress < 0 || progress > 100) {
       throw new Error('INVALID_PROGRESS');
     }
 
-    // Get current volume read
+    // Get current volume read for this perspective
     const volumeRead = await prisma.volumeRead.findUnique({
       where: {
-        userId_chapterId_volumeNumber: {
+        userId_chapterId_volumeNumber_perspective: {
           userId,
           chapterId,
-          volumeNumber
+          volumeNumber,
+          perspective: perspective as any
         }
       }
     });
 
     if (!volumeRead) {
-      // Create new volume read with progress
+      // Create new volume read with progress for this perspective
       const newRead = await prisma.volumeRead.create({
         data: {
           userId,
           chapterId,
           volumeNumber,
+          perspective: perspective as any,
           progress
         }
       });
@@ -478,10 +488,11 @@ export class ReaderService {
     if (progress > volumeRead.progress) {
       const updated = await prisma.volumeRead.update({
         where: {
-          userId_chapterId_volumeNumber: {
+          userId_chapterId_volumeNumber_perspective: {
             userId,
             chapterId,
-            volumeNumber
+            volumeNumber,
+            perspective: perspective as any
           }
         },
         data: {

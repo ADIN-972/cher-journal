@@ -12,6 +12,7 @@ interface ReaderDrawerProps {
   volumeId: string;
   chapterId: string;
   volumeNumber: number;
+  perspective?: 'NARRATOR' | 'PROTAGONIST';
   nextVolume?: {
     id?: string;
     volumeNumber?: number;
@@ -28,6 +29,7 @@ export default function ReaderDrawer({
   volumeId,
   chapterId,
   volumeNumber,
+  perspective,
   nextVolume,
   onReadNext,
   onPurchasePerspective,
@@ -126,6 +128,7 @@ export default function ReaderDrawer({
       <Reader
         volumeId={volumeId}
         chapterId={chapterId}
+        perspective={perspective}
         onClose={onClose}
         scrollContainerId="reader-drawer"
         onPurchasePerspective={handlePerspectivePurchase}
