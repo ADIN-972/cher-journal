@@ -47,21 +47,35 @@ export default forwardRef<
       );
     }
 
-    // Filter volumes: show all accessible + first non-accessible
+    // Get perspective-specific access info
+    const perspectiveKey =
+      selectedPerspective === "protagonist" ? "PROTAGONIST" : "NARRATOR";
+
+    // Filter volumes: show all accessible + first non-accessible for selected perspective
     const volumes = chapter.volumes || [];
-    const firstLockedIndex = volumes.findIndex((v) => !v.isAccessible);
+    const firstLockedIndex = volumes.findIndex((v) => {
+      const perspectiveAccess = v.accessByPerspective?.[perspectiveKey];
+      return perspectiveAccess ? !perspectiveAccess.isAccessible : !v.isAccessible;
+    });
     const displayedVolumes =
       firstLockedIndex === -1
         ? volumes // All volumes are accessible
         : volumes.slice(0, firstLockedIndex + 1); // All accessible + first locked
 
     return displayedVolumes.map((volume) => {
-      // Use isAccessible from API response
-      const isUnlocked = volume.isAccessible || false;
+      // Get perspective-specific access info, fallback to volume-level access for compatibility
+      const perspectiveAccess = volume.accessByPerspective?.[perspectiveKey];
+      const isUnlocked = perspectiveAccess
+        ? perspectiveAccess.isAccessible
+        : volume.isAccessible || false;
 
-      // Determine blockage type from API response
-      const blockageType = volume.blockageType;
-      const blockageInfo = volume.blockageInfo || {};
+      // Determine blockage type and info from perspective-specific data
+      const blockageType = perspectiveAccess
+        ? perspectiveAccess.blockageType
+        : volume.blockageType;
+      const blockageInfo = perspectiveAccess
+        ? perspectiveAccess.blockageInfo || {}
+        : volume.blockageInfo || {};
 
       // Map blockage types to UI states
       const needsUpgrade =
@@ -72,12 +86,12 @@ export default forwardRef<
       const hasActiveWait =
         blockageInfo.waitRemaining && blockageInfo.waitRemaining > 0;
 
-      // Backend determines if user can start wait timer
-      const canStartWait = volume.canStartWait || false;
+      // Backend determines if user can start wait timer (perspective-specific)
+      const canStartWait = perspectiveAccess
+        ? perspectiveAccess.canStartWait || false
+        : volume.canStartWait || false;
 
       // Get progress for the selected perspective, fallback to NARRATOR
-      const perspectiveKey =
-        selectedPerspective === "protagonist" ? "PROTAGONIST" : "NARRATOR";
       const progression =
         volume.progressByPerspective?.[perspectiveKey] ??
         volume.progress ??
@@ -180,11 +194,13 @@ export default forwardRef<
                   e.stopPropagation();
                   if (!chapterId) return;
                   try {
+                    const volumeVersionScope =
+                      selectedPerspective === "protagonist" ? "ALL" : "BASE";
                     const { url } = await api.createCheckoutSession({
                       chapterId: chapterId,
                       type: "VOLUME",
                       volumeNumber: volume.volumeNumber,
-                      versionScope: "BASE",
+                      versionScope: volumeVersionScope,
                       successUrl: `${window.location.origin}/chapters/${chapterId}?purchase=success`,
                       cancelUrl: `${window.location.origin}/chapters/${chapterId}?purchase=cancelled`,
                     });
@@ -207,7 +223,7 @@ export default forwardRef<
                 </span>
                 {isPurchasing
                   ? "Chargement..."
-                  : `Acheter le volume ${volume.volumeNumber}`}
+                  : `Acheter juste ce volume`}
               </button>
             </div>
           ) : canStartWait ? (
@@ -223,7 +239,11 @@ export default forwardRef<
                 <span className="material-symbols-outlined text-sm">
                   {isPurchasing ? "hourglass_empty" : "shopping_cart"}
                 </span>
-                {isPurchasing ? "Chargement..." : "Acheter le chapitre"}
+                {isPurchasing
+                  ? "Chargement..."
+                  : selectedPerspective === "protagonist"
+                    ? "Débloquer - Point de vue de la protagoniste"
+                    : "Débloquer - Point de vue du narrateur"}
               </button>
               <button
                 type="button"
