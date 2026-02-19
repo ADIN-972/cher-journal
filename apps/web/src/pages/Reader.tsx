@@ -499,7 +499,7 @@ export default function Reader({
                       <div className="relative w-full aspect-[4/5] flex items-center justify-center">
                         <img
                           alt=""
-                          className="w-full h-full object-cover vignette-mask opacity-80 mix-blend-multiply transition-opacity duration-700 hover:opacity-100 shadow-md rounded-md"
+                          className="w-full h-full object-cover vignette-mask mix-blend-multiply transition-opacity duration-700 shadow-md rounded-md"
                           src={coverImageUrl}
                         />
                       </div>

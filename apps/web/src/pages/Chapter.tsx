@@ -609,7 +609,7 @@ export default function Chapter() {
           volumeId={selectedVolume.id}
           chapterId={id!}
           volumeNumber={selectedVolume.volumeNumber}
-          perspective={selectedPerspective as 'NARRATOR' | 'PROTAGONIST'}
+          perspective={selectedPerspective === 'protagonist' ? 'PROTAGONIST' : 'NARRATOR'}
           nextVolume={(() => {
             const vol = currentChapter.volumes?.find(
               (v) => v.volumeNumber === selectedVolume.volumeNumber + 1,
