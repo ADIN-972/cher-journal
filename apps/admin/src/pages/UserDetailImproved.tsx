@@ -376,13 +376,23 @@ export default function UserDetailImproved() {
                   </div>
 
                   {/* Reading Progress Section */}
-                  {user.reads && user.reads.length > 0 && (
+                  {user.reads && (
                     <div className="bg-white rounded-2xl shadow-sm p-6">
                       <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                         <MdBook className="text-purple-500" />
                         Chapitres entamés - Progression de lecture
                       </h2>
                       <div className="space-y-6">
+                      
+   {(chapters.length === 0 && (
+    
+      <div className="text-center py-8 text-gray-500">
+        <MdBook size={48} className="mx-auto mb-2 opacity-50" />
+        <p>Aucun accès à des chapitres</p>
+      </div>
+    );
+  }
+
                         {Array.from(
                           user.reads.reduce((map, read) => {
                             const chapter = map.get(read.chapterId) || {
