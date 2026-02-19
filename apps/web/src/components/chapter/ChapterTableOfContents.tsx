@@ -55,7 +55,8 @@ export default forwardRef<
     const volumes = chapter.volumes || [];
     const firstLockedIndex = volumes.findIndex((v) => {
       const perspectiveAccess = v.accessByPerspective?.[perspectiveKey];
-      return perspectiveAccess ? !perspectiveAccess.isAccessible : !v.isAccessible;
+      const isAccessible = perspectiveAccess?.isAccessible || false;
+      return !isAccessible;
     });
     const displayedVolumes =
       firstLockedIndex === -1
@@ -63,19 +64,13 @@ export default forwardRef<
         : volumes.slice(0, firstLockedIndex + 1); // All accessible + first locked
 
     return displayedVolumes.map((volume) => {
-      // Get perspective-specific access info, fallback to volume-level access for compatibility
+      // Get perspective-specific access info
       const perspectiveAccess = volume.accessByPerspective?.[perspectiveKey];
-      const isUnlocked = perspectiveAccess
-        ? perspectiveAccess.isAccessible
-        : volume.isAccessible || false;
+      const isUnlocked = perspectiveAccess?.isAccessible || false;
 
       // Determine blockage type and info from perspective-specific data
-      const blockageType = perspectiveAccess
-        ? perspectiveAccess.blockageType
-        : volume.blockageType;
-      const blockageInfo = perspectiveAccess
-        ? perspectiveAccess.blockageInfo || {}
-        : volume.blockageInfo || {};
+      const blockageType = perspectiveAccess?.blockageType || null;
+      const blockageInfo = perspectiveAccess?.blockageInfo || {};
 
       // Map blockage types to UI states
       const needsUpgrade =
@@ -87,15 +82,10 @@ export default forwardRef<
         blockageInfo.waitRemaining && blockageInfo.waitRemaining > 0;
 
       // Backend determines if user can start wait timer (perspective-specific)
-      const canStartWait = perspectiveAccess
-        ? perspectiveAccess.canStartWait || false
-        : volume.canStartWait || false;
+      const canStartWait = perspectiveAccess?.canStartWait || false;
 
-      // Get progress for the selected perspective, fallback to NARRATOR
-      const progression =
-        volume.progressByPerspective?.[perspectiveKey] ??
-        volume.progress ??
-        0;
+      // Get progress for the selected perspective
+      const progression = volume.progressByPerspective?.[perspectiveKey] ?? 0;
 
       return (
         <div

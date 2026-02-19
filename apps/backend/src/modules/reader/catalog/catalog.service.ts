@@ -281,11 +281,6 @@ export class CatalogService {
 
       return {
         ...volume,
-        isAccessible,
-        blockageType,
-        blockageInfo,
-        canStartWait,
-        progress,
         progressByPerspective,
         accessByPerspective,
         // Replace illustrationAsset with serialized version containing the resolved URL
@@ -329,14 +324,18 @@ export class CatalogService {
       // Add to total bundle price
       bundleOriginalPrice += volumePrice;
 
+      // Get NARRATOR perspective access info for bundle pricing (default perspective)
+      const narratorAccess = vol.accessByPerspective?.NARRATOR;
+      const isAccessibleForPricing = narratorAccess?.isAccessible || false;
+
       // If user already has access to this volume, subtract from what they need to pay
       // (only if the volume isn't free, since free volumes were never part of the cost)
-      if (vol.isAccessible && !vol.isFree) {
+      if (isAccessibleForPricing && !vol.isFree) {
         alreadyAccessiblePrice += volumePrice;
       }
 
       // Find the first non-accessible, non-free volume (this is the next volume to purchase)
-      if (!vol.isAccessible && !vol.isFree && nextVolumePrice === null) {
+      if (!isAccessibleForPricing && !vol.isFree && nextVolumePrice === null) {
         nextVolumePrice = volumePrice;
       }
     });
@@ -364,8 +363,11 @@ export class CatalogService {
     // Resolve chapter cover asset URL (use thumbnail if it exists)
     const coverAssetUrl = await resolveAssetUrl(chapter.coverAsset);
 
-    // Check if user has started reading any volume (progress > 0 for at least one volume)
-    const hasStartedReading = volumesWithAccessibility.some(vol => vol.progress > 0);
+    // Check if user has started reading any volume (progress > 0 for at least one perspective)
+    const hasStartedReading = volumesWithAccessibility.some(vol => {
+      const progressByPerspective = vol.progressByPerspective || {};
+      return Object.values(progressByPerspective).some((p: any) => (p ?? 0) > 0);
+    });
 
     const response = {
       ...chapter,

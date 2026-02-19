@@ -116,9 +116,21 @@ export default function Chapter() {
     return () => clearInterval(interval);
   }, []);
 
+  // Helper to get perspective key from selectedPerspective
+  const getPerspectiveKey = (): "NARRATOR" | "PROTAGONIST" => {
+    return selectedPerspective === "protagonist" ? "PROTAGONIST" : "NARRATOR";
+  };
+
+  // Helper to check if volume is accessible for current perspective
+  const isVolumeAccessible = (volume: any): boolean => {
+    const perspectiveKey = getPerspectiveKey();
+    const perspectiveAccess = volume.accessByPerspective?.[perspectiveKey];
+    return perspectiveAccess?.isAccessible || volume.isUnlocked || false;
+  };
+
   // Handle opening volume in reader drawer
   const handleOpenVolume = (volume: any) => {
-    if (volume.isAccessible || volume.isUnlocked) {
+    if (isVolumeAccessible(volume)) {
       setSelectedVolume({
         id: volume.id,
         volumeNumber: volume.volumeNumber,
@@ -255,7 +267,7 @@ export default function Chapter() {
     // If user already has access, open last accessible volume in drawer
     if (currentChapter?.hasAccess) {
       const accessibleVolumes =
-        currentChapter.volumes?.filter((v) => v.isAccessible || v.isUnlocked) ||
+        currentChapter.volumes?.filter((v) => isVolumeAccessible(v)) ||
         [];
 
       // Find the last accessible volume
@@ -272,10 +284,12 @@ export default function Chapter() {
     try {
       setIsPurchasing(true);
 
+      const chapterVersionScope =
+        selectedPerspective === "protagonist" ? "ALL" : "BASE";
       const { url } = await api.createCheckoutSession({
         chapterId: id,
         type: "CHAPTER",
-        versionScope: "BASE", // Default to narrator perspective only
+        versionScope: chapterVersionScope,
         successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
         cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
       });
@@ -328,7 +342,7 @@ export default function Chapter() {
 
   // Determine button text based on accessible volumes
   const accessibleVolumes =
-    currentChapter?.volumes?.filter((v) => v.isAccessible || v.isUnlocked) ||
+    currentChapter?.volumes?.filter((v) => isVolumeAccessible(v)) ||
     [];
   const onlyFirstVolumeAccessible =
     accessibleVolumes.length === 1 && accessibleVolumes[0]?.volumeNumber === 1;
@@ -614,10 +628,12 @@ export default function Chapter() {
             const vol = currentChapter.volumes?.find(
               (v) => v.volumeNumber === selectedVolume.volumeNumber + 1,
             );
+            const perspectiveKey = getPerspectiveKey();
+            const blockageType = vol?.accessByPerspective?.[perspectiveKey]?.blockageType;
             return vol
               ? {
                   ...vol,
-                  blockageType: vol.blockageType ?? undefined,
+                  blockageType: blockageType ?? undefined,
                 }
               : null;
           })()}

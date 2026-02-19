@@ -105,7 +105,7 @@ function BookClosed({
             transform="translate(-15758.535 -11794)"
             fill="#fff"
             stroke="#d8d8d8"
-            stroke-width="1">
+            strokeWidth="1">
             <rect
               width="145"
               height="217"
@@ -125,7 +125,7 @@ function BookClosed({
             transform="translate(-15759.534 -11798)"
             fill="#fff"
             stroke="#d8d8d8"
-            stroke-width="1">
+            strokeWidth="1">
             <rect
               width="144"
               height="224"
@@ -145,7 +145,7 @@ function BookClosed({
             transform="translate(-15762.536 -11800)"
             fill="#fff"
             stroke="#d8d8d8"
-            stroke-width="1">
+            strokeWidth="1">
             <rect
               width="145"
               height="229"
@@ -277,7 +277,7 @@ function BookClosed({
           <g
             id="selected-2"
             transform="translate(-15754.535 -11797)"
-            stroke-width="2"
+            strokeWidth="2"
             fill={selected ? color || "#53273f" : "none"}
             stroke={selected ? color || "#53273f" : "none"}
             className={`${selected ? "blur-md" : "hidden"}`}
@@ -301,7 +301,7 @@ function BookClosed({
             transform="translate(-15758.535 -11794)"
             fill="#fff"
             stroke="#d8d8d8"
-            stroke-width="1">
+            strokeWidth="1">
             <rect
               width="145"
               height="217"
@@ -321,7 +321,7 @@ function BookClosed({
             transform="translate(-15759.534 -11798)"
             fill="#fff"
             stroke="#d8d8d8"
-            stroke-width="1">
+            strokeWidth="1">
             <rect
               width="144"
               height="224"
@@ -341,7 +341,7 @@ function BookClosed({
             transform="translate(-15762.536 -11800)"
             fill="#fff"
             stroke="#d8d8d8"
-            stroke-width="1">
+            strokeWidth="1">
             <rect
               width="145"
               height="229"

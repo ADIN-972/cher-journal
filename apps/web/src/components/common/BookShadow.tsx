@@ -17,17 +17,17 @@ function BookShadow() {
           gradientUnits="objectBoundingBox">
           <stop
             offset="0"
-            stop-opacity="0.361"
+           stopOpacity="0.361"
           />
           <stop
             offset="0.85"
-            stop-color="#070707"
-            stop-opacity="0"
+           stopColor="#070707"
+           stopOpacity="0"
           />
           <stop
             offset="1"
-            stop-color="#545454"
-            stop-opacity="0"
+           stopColor="#545454"
+           stopOpacity="0"
           />
         </radialGradient>
         <linearGradient
@@ -37,11 +37,11 @@ function BookShadow() {
           gradientUnits="objectBoundingBox">
           <stop
             offset="0"
-            stop-opacity="0.502"
+           stopOpacity="0.502"
           />
           <stop
             offset="1"
-            stop-opacity="0"
+           stopOpacity="0"
           />
         </linearGradient>
         <linearGradient
@@ -52,15 +52,15 @@ function BookShadow() {
           gradientUnits="objectBoundingBox">
           <stop
             offset="0"
-            stop-opacity="0"
+           stopOpacity="0"
           />
           <stop
             offset="0.707"
-            stop-opacity="0.439"
+           stopOpacity="0.439"
           />
           <stop
             offset="1"
-            stop-opacity="0"
+           stopOpacity="0"
           />
         </linearGradient>
       </defs>
@@ -97,7 +97,7 @@ function BookShadow() {
             transform="translate(-15757.535 -11794)"
             fill="#fff"
             stroke="#d8d8d8"
-            stroke-width="1">
+            strokeWidth="1">
             <rect
               width="145"
               height="217"
@@ -117,7 +117,7 @@ function BookShadow() {
             transform="translate(-15759.535 -11798)"
             fill="#fff"
             stroke="#d8d8d8"
-            stroke-width="1">
+            strokeWidth="1">
             <rect
               width="144"
               height="224"
@@ -137,7 +137,7 @@ function BookShadow() {
             transform="translate(-15762.535 -11800)"
             fill="#fff"
             stroke="#d8d8d8"
-            stroke-width="1">
+            strokeWidth="1">
             <rect
               width="145"
               height="229"

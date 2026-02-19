@@ -66,28 +66,19 @@ interface Volume {
   isPurchased?: boolean;
   canWaitToRead?: boolean;
   waitDuration?: number;
-  isAccessible?: boolean;
   isUnlocked?: boolean;
   needsEntitlement?: boolean;
   needsUpgrade?: boolean;
   unlocksAt?: string | null;
-  canStartWait?: boolean;
-  // New properties from backend accessibility system
-  blockageType?: string | null;
-  blockageInfo?: {
-    waitRemaining?: number | null;
-    priceFreeToRead?: number;
-    pricePaywall?: number;
-    priceEpilogue?: number;
-  } | null;
   illustrationAsset?: CoverAsset | null;
   isFree?: boolean;
   status?: string;
-  progress?: number; // Reading progress percentage (0-100) - defaults to NARRATOR perspective
+  // Reading progress per perspective (all access and progress is now here)
   progressByPerspective?: {
     NARRATOR?: number;
     PROTAGONIST?: number;
-  }; // Reading progress per perspective
+  };
+  // Access info per perspective (consolidated from volume level)
   accessByPerspective?: {
     NARRATOR?: {
       isAccessible: boolean;
@@ -101,7 +92,7 @@ interface Volume {
       blockageInfo?: any;
       canStartWait?: boolean;
     };
-  }; // Access info per perspective
+  };
 }
 
 interface CatalogState {
