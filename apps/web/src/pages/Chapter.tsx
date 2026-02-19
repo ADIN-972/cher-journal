@@ -47,8 +47,9 @@ export default function Chapter() {
   const [maxWaitsAllowed, setMaxWaitsAllowed] = useState(2); // Default fallback
   const [selectedPerspective, setSelectedPerspective] = useState<
     "narrateur" | "protagonist" | "coloriage" | null
-  >(null);
+  >("narrateur");
   const lastPurchaseStatusRef = useRef<string | null>(null);
+  const chaptersListRef = useRef<HTMLDivElement>(null);
 
   // Fetch active waits count
   const fetchActiveWaitsCount = async () => {
@@ -226,14 +227,16 @@ export default function Chapter() {
   };
 
   // Handle perspective selection
-  const handleSelectPerspective = (perspective: "narrateur" | "protagonist" | "coloriage") => {
-    if (selectedPerspective === perspective) {
-      // Toggle off if same perspective clicked
-      setSelectedPerspective(null);
-    } else {
-      // Select new perspective
-      setSelectedPerspective(perspective);
-    }
+  const handleSelectPerspective = (
+    perspective: "narrateur" | "protagonist" | "coloriage",
+  ) => {
+    // Select perspective and scroll to chapters list
+    setSelectedPerspective(perspective);
+
+    // Scroll to chapters list section with slight delay
+    setTimeout(() => {
+      chaptersListRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   };
 
   // Handle reading next volume from EndOfVolumeUI
@@ -488,67 +491,67 @@ export default function Chapter() {
           </div>
         </div>
       </div>
-      <section className="flex flex-row gap-2 mb-20 text-center">
+      <section className="flex flex-row gap-2 mb-20 text-center h-[250px]">
         {/* Narrateur */}
         <div
           onClick={() => handleSelectPerspective("narrateur")}
-          className="cursor-pointer transition-all">
+          className={`relative cursor-pointer transition-all  ${selectedPerspective === "narrateur" ? "w-[200px] h-[300px]" : "w-[195px] h-[250px]"}`}>
           <BookClosed
             className=""
             color={"#3e5977"}
             selected={selectedPerspective === "narrateur"}
           />
-        </div>
-        <div className={`relative grid grid-rows-[1fr_auto] aspect-[3/4] items-center justify-center newsreader font-bold leading-4 mr-4 cursor-pointer rounded-lg transition-all ${selectedPerspective === "narrateur" ? "ring-2 ring-gold bg-gold/10" : ""}`} onClick={() => handleSelectPerspective("narrateur")}>
-          <div className="">Version Narrateur</div>
+          <div
+            className={`absolute grid grid-rows-[1fr_auto] top-0  ${selectedPerspective === "narrateur" ? "w-[185px] text-2xl leading-6" : "w-[150px] text-md"} pl-8 pr-2 aspect-[3/4] items-center justify-center newsreader font-bold leading-4 mr-8 cursor-pointer rounded-lg transition-all text-white`}
+            onClick={() => handleSelectPerspective("narrateur")}>
+            <div className="">Version Narrateur</div>
 
-          <button className="border border-gold bg-gold/10 text-gold px-2 py-2 rounded-full font-normal ">
-            Voir la version
-          </button>
+            {/* <button className="border border-gold bg-gold/10 text-gold px-2 py-2 rounded-full font-normal ">
+              Voir la version
+            </button> */}
+          </div>
         </div>
 
         {/* Protagonist */}
         <div
           onClick={() => handleSelectPerspective("protagonist")}
-          className="cursor-pointer transition-all">
+          className={`relative cursor-pointer transition-all  ${selectedPerspective === "protagonist" ? "w-[200px] h-[300px]" : "w-[195px] h-[250px]"}`}>
           <BookClosed
             className=""
             color={"#6e3e77"}
             selected={selectedPerspective === "protagonist"}
           />
-        </div>
+          <div
+            className={`absolute grid grid-rows-[1fr_auto] top-0  ${selectedPerspective === "protagonist" ? "w-[185px] text-2xl leading-6" : "w-[150px] text-md"} pl-8 pr-2 aspect-[3/4] items-center justify-center newsreader font-bold leading-4 mr-8 cursor-pointer rounded-lg transition-all text-white`}
+            onClick={() => handleSelectPerspective("protagonist")}>
+            <div className="">Version {currentChapter.protagonistName}</div>
 
-        <div className={`relative grid grid-rows-[1fr_auto] aspect-[3/4] items-center justify-center newsreader font-bold leading-4 mr-4 cursor-pointer rounded-lg transition-all ${selectedPerspective === "protagonist" ? "ring-2 ring-gold bg-gold/10" : ""}`} onClick={() => handleSelectPerspective("protagonist")}>
-          <div className="">Version {currentChapter.protagonistName}</div>
-
-          <button className="border border-gold bg-gold/10 text-gold px-2 py-2 rounded-full font-normal ">
-            Voir la version
-          </button>
+            {/* <button className="border border-gold bg-gold/10 text-gold px-2 py-2 rounded-full font-normal ">
+              Voir la version
+            </button> */}
+          </div>
         </div>
 
         {/* Coloriage */}
         <div
           onClick={() => handleSelectPerspective("coloriage")}
-          className={`relative grid aspect-[3/4] grayscale rounded-md shadow-md items-center justify-center h-[200px] cursor-pointer transition-all ${selectedPerspective === "coloriage" ? "ring-2 ring-gold" : ""}`}>
-          <ChapterCover
-            imageUrl={coverImageUrl}
-            title={currentChapter.title}
-            showTitleOverlay={false}
-
-            // showPremiumBadge={true}
-            // showLimitedEditionBadge={true}
+          className={`relative cursor-pointer transition-all  ${selectedPerspective === "coloriage" ? "w-[200px] h-[300px]" : "w-[195px] h-[250px]"}`}>
+          <BookClosed
+            className={` `}
+            color={"#3e774f"}
+            selected={selectedPerspective === "coloriage"}
           />
-          <div className="absolute top-[5%]  w-[115%] h-auto">
-            <BookShadow />
+          <div
+            className={`absolute grid grid-rows-[1fr_auto] top-0  ${selectedPerspective === "coloriage" ? "w-[185px] text-2xl leading-6" : "w-[150px] text-md"} pl-8 pr-2 aspect-[3/4] items-center justify-center newsreader font-bold leading-4 mr-8 cursor-pointer rounded-lg transition-all text-white`}
+            onClick={() => handleSelectPerspective("coloriage")}>
+            <div className="">Livre de coloriage</div>
+
+            {/* <button className="border border-gold bg-gold/10 text-gold px-2 py-2 rounded-full font-normal ">
+              Voir la version
+            </button> */}
           </div>
         </div>
-        <div className={`relative grid grid-rows-[1fr_auto] aspect-[3/4] items-center justify-center newsreader font-bold leading-4 mr-4 cursor-pointer rounded-lg transition-all ${selectedPerspective === "coloriage" ? "ring-2 ring-gold bg-gold/10" : ""}`} onClick={() => handleSelectPerspective("coloriage")}>
-          <div className=""> Livres de coloriage</div>
 
-          <button className="border border-gold bg-gold/10 text-gold px-2 py-2 rounded-full font-normal ">
-            Voir la version
-          </button>
-        </div>
         <div className="grid aspect-[3/4] p-2 bg-gold/50 border-gold border rounded-md shadow-md items-center justify-center h-[150px]">
           Courriers
         </div>
@@ -558,9 +561,9 @@ export default function Chapter() {
       </section>
 
       {/* Chapters List */}
-      <section className="mb-20">
+      <section ref={chaptersListRef} className="mb-20">
         <h2 className="text-3xl font-bold mb-8 border-b border-white/10 pb-4 newsreader italic">
-          Table des Matières
+          Table des Matières{selectedPerspective && ` - Version ${selectedPerspective === "protagonist" ? currentChapter.protagonistName : selectedPerspective === "coloriage" ? "Coloriage" : "Narrateur"}`}
         </h2>
         <div className="grid grid-cols-1 gap-4">
           {currentChapter.volumes && currentChapter.volumes.length > 0 ? (
