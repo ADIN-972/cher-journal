@@ -21,6 +21,7 @@ interface PurchaseDrawerProps {
   chapter: Chapter;
   chapterTitle: string;
   bundlePrice?: number;
+  selectedPerspective?: "narrateur" | "protagonist" | "coloriage" | null;
   onPurchaseVolume: () => void;
   onPurchaseChapter: () => void;
   onStartWaitTimer?: (volumeNumber: number) => Promise<void>;
@@ -36,6 +37,7 @@ export default function PurchaseDrawer({
   chapterTitle,
   chapter,
   bundlePrice,
+  selectedPerspective,
   onPurchaseVolume,
   onPurchaseChapter,
   onStartWaitTimer,
@@ -44,6 +46,7 @@ export default function PurchaseDrawer({
   maxWaitsAllowed = 2,
 }: PurchaseDrawerProps) {
   const [isStartingWait, setIsStartingWait] = useState(false);
+  const isPerspectiveProtagonist = selectedPerspective === "protagonist";
   // Close drawer on ESC key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -83,6 +86,35 @@ export default function PurchaseDrawer({
     }
   };
 
+  // Calculate volume price based on volume number and chapter pricing
+  const getVolumePriceByNumber = (volumeNum: number) => {
+    if (volumeNum <= 8) {
+      return chapter.pricing?.priceFreeToRead ?? 0;
+    } else if (volumeNum <= 10) {
+      return chapter.pricing?.pricePaywall ?? 0;
+    } else {
+      return chapter.pricing?.priceEpilogue ?? 0;
+    }
+  };
+
+  // Calculate total price for all volumes in PROTAGONIST perspective
+  const calculateProtagenistBundlePrice = () => {
+    if (!chapter.volumes) return 0;
+    const perspectiveKey = "PROTAGONIST";
+    let totalPrice = 0;
+
+    chapter.volumes.forEach((vol) => {
+      const perspectiveAccess = vol.accessByPerspective?.[perspectiveKey];
+      // Only count volumes not yet accessible
+      if (!perspectiveAccess?.isAccessible) {
+        totalPrice += getVolumePriceByNumber(vol.volumeNumber);
+      }
+    });
+
+    // Apply 25% discount like narrator bundle
+    return Math.round(totalPrice * 0.75);
+  };
+
   return (
     <>
       {/* Backdrop */}
@@ -95,9 +127,16 @@ export default function PurchaseDrawer({
       <div className="fixed right-0 top-0 bottom-0 w-full sm:w-[450px] bg-background-light dark:bg-gray-900 z-[70] shadow-2xl border-l border-border-warm dark:border-white/5 flex flex-col animate-slide-in">
         {/* Header */}
         <div className="p-6 sm:p-8 flex justify-between items-center border-b border-border-warm dark:border-white/5">
-          <h2 className="text-2xl sm:text-3xl font-display italic font-bold text-charcoal dark:text-white">
-            Débloquer le Volume
-          </h2>
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-display italic font-bold text-charcoal dark:text-white">
+              Débloquer le Volume
+            </h2>
+            {isPerspectiveProtagonist && (
+              <p className="text-xs uppercase tracking-wider text-rose-600 dark:text-rose-400 font-semibold mt-1">
+                Point de vue de la protagoniste
+              </p>
+            )}
+          </div>
           <button
             type="button"
             onClick={onClose}
@@ -268,17 +307,13 @@ export default function PurchaseDrawer({
                   {String(volume.volumeNumber).padStart(2, "0")}. {volume.title}
                 </h3>
                 <p className="text-sm text-charcoal/40 dark:text-gray-500 mt-1">
-                  Déblocage immédiat du récit
+                  {isPerspectiveProtagonist
+                    ? "Point de vue de la protagoniste"
+                    : "Déblocage immédiat du récit"}
                 </p>
               </div>
               <div className="text-2xl font-display font-bold text-accent-gold dark:text-gold">
-                {(
-                  ((volume.volumeNumber <= 8
-                    ? chapter.pricing?.priceFreeToRead
-                    : volume.volumeNumber <= 10
-                      ? chapter.pricing?.pricePaywall
-                      : chapter.pricing?.pricePaywall) ?? 0) / 100
-                ).toFixed(2)}
+                {(getVolumePriceByNumber(volume.volumeNumber) / 100).toFixed(2)}
                 €
               </div>
             </div>
@@ -287,49 +322,74 @@ export default function PurchaseDrawer({
               onClick={onPurchaseVolume}
               className="w-full mt-4 py-4 bg-white/50 hover:bg-white/70 dark:bg-white/5 dark:hover:bg-white/10 border border-border-warm dark:border-white/10 hover:border-primary/50 rounded-lg font-bold transition-all flex items-center justify-center gap-2 text-charcoal dark:text-white">
               <span className="material-symbols-outlined">shopping_cart</span>
-              Acheter ce volume
+              {isPerspectiveProtagonist
+                ? "Acheter ce volume (Protagoniste)"
+                : "Acheter ce volume"}
             </button>
           </div>
 
           {/* Option 2: Full Chapter Bundle */}
-          {chapter.pricing?.bundleDiscountedPrice && (
-            <div className="p-6 rounded-xl bg-primary/10 dark:bg-primary/5 border border-primary/30 dark:border-primary/40 relative overflow-hidden ring-1 ring-primary/20 hover:ring-primary/40 transition-all">
-              <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/20 dark:bg-primary/10 blur-3xl rounded-full"></div>
+          {(isPerspectiveProtagonist
+            ? calculateProtagenistBundlePrice() > 0
+            : chapter.pricing?.bundleDiscountedPrice) && (
+            <div
+              className={`p-6 rounded-xl relative overflow-hidden ring-1 transition-all ${
+                isPerspectiveProtagonist
+                  ? "bg-rose-500/10 dark:bg-rose-500/5 border border-rose-500/30 dark:border-rose-500/40 ring-rose-500/20 hover:ring-rose-500/40"
+                  : "bg-primary/10 dark:bg-primary/5 border border-primary/30 dark:border-primary/40 ring-primary/20 hover:ring-primary/40"
+              }`}>
+              <div
+                className={`absolute -top-10 -right-10 w-32 h-32 blur-3xl rounded-full ${
+                  isPerspectiveProtagonist
+                    ? "bg-rose-500/20 dark:bg-rose-500/10"
+                    : "bg-primary/20 dark:bg-primary/10"
+                }`}></div>
               <div className="flex justify-between items-start mb-4">
-                <span className="px-2 py-1 bg-accent-gold dark:bg-gold text-background-dark dark:text-gray-900 text-[9px] font-black rounded-sm uppercase tracking-wider">
-                  Offre Privilège
-                </span>
-                <span className="text-xs text-accent-gold/60 dark:text-gold/60 line-through italic">
-                  {chapter.pricing?.bundleOriginalPrice
-                    ? (chapter.pricing.bundleOriginalPrice / 100).toFixed(2)
-                    : "0.00"}
-                  €
+                <span
+                  className={`px-2 py-1 text-background-dark dark:text-gray-900 text-[9px] font-black rounded-sm uppercase tracking-wider ${
+                    isPerspectiveProtagonist
+                      ? "bg-rose-500 dark:bg-rose-400"
+                      : "bg-accent-gold dark:bg-gold"
+                  }`}>
+                  {isPerspectiveProtagonist ? "Offre Complète" : "Offre Privilège"}
                 </span>
               </div>
               <div className="flex justify-between items-end mb-2">
                 <div>
                   <h3 className="text-xl font-display italic font-bold text-charcoal dark:text-white">
-                    L'Intégrale du Chapitre
+                    {isPerspectiveProtagonist
+                      ? "Tous les volumes du Chapitre (Protagoniste)"
+                      : "L'Intégrale du Chapitre"}
                   </h3>
                   <p className="text-sm text-charcoal/60 dark:text-gray-400 mt-1 italic">
-                    Tous les volumes + Économisez 25%
+                    {isPerspectiveProtagonist
+                      ? "Déblocage complet - Économisez 25%"
+                      : "Tous les volumes + Économisez 25%"}
                   </p>
                 </div>
                 <div className="text-3xl font-display font-bold text-charcoal dark:text-white">
-                  {chapter.pricing?.bundleDiscountedPrice
-                    ? (chapter.pricing.bundleDiscountedPrice / 100).toFixed(2)
-                    : "0.00"}
+                  {isPerspectiveProtagonist
+                    ? (calculateProtagenistBundlePrice() / 100).toFixed(2)
+                    : chapter.pricing?.bundleDiscountedPrice
+                      ? (chapter.pricing.bundleDiscountedPrice / 100).toFixed(2)
+                      : "0.00"}
                   €
                 </div>
               </div>
               <button
                 type="button"
                 onClick={onPurchaseChapter}
-                className="w-full mt-6 py-4 bg-primary hover:bg-primary/90 text-white rounded-lg font-bold transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2">
+                className={`w-full mt-6 py-4 text-white rounded-lg font-bold transition-all shadow-xl flex items-center justify-center gap-2 ${
+                  isPerspectiveProtagonist
+                    ? "bg-rose-500 hover:bg-rose-600 shadow-rose-500/20"
+                    : "bg-primary hover:bg-primary/90 shadow-primary/20"
+                }`}>
                 <span className="material-symbols-outlined text-xl">
                   auto_awesome
                 </span>
-                Débloquer le chapitre entier
+                {isPerspectiveProtagonist
+                  ? "Débloquer tous les volumes (Protagoniste)"
+                  : "Débloquer le chapitre entier"}
               </button>
             </div>
           )}

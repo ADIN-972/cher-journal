@@ -654,6 +654,7 @@ export default function Chapter() {
           chapterTitle={currentChapter.title}
           chapter={currentChapter}
           bundlePrice={currentChapter.pricing?.bundleDiscountedPrice}
+          selectedPerspective={selectedPerspective}
           onPurchaseVolume={handlePurchaseVolume}
           onPurchaseChapter={handlePurchaseFullChapter}
           onStartWaitTimer={handleStartWait}
