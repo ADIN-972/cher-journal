@@ -59,9 +59,10 @@ export class AccessControlService {
       return { hasAccess: false, reason: 'VOLUME_NOT_FOUND' };
     }
 
-    // Volume 1 is always accessible immediately
-    if (volumeNumber === 1) {
-      console.log(`[AccessControlService] Volume 1 is always accessible`);
+    // Volume 1 is always accessible immediately for NARRATOR
+    // PROTAGONIST requires entitlement even for volume 1
+    if (volumeNumber === 1 && perspective === Perspective.NARRATOR) {
+      console.log(`[AccessControlService] Volume 1 is always accessible for NARRATOR perspective`);
       return { hasAccess: true };
     }
 
@@ -206,8 +207,8 @@ export class AccessControlService {
       };
     }
 
-    // Volume 1 is always accessible for authenticated users
-    if (volumeNumber === 1) {
+    // Volume 1 is always accessible for NARRATOR, but PROTAGONIST needs entitlement
+    if (volumeNumber === 1 && perspective === Perspective.NARRATOR) {
       return {
         isAccessible: true,
         blockageType: null,
