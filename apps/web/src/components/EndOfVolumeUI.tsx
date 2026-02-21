@@ -5,6 +5,7 @@ interface EndOfVolumeUIProps {
   nextVolume?: {
     id?: string;
     volumeNumber?: number;
+    isFree?: boolean;
     price?: number;
     isAccessible?: boolean;
     blockageType?: string;
@@ -230,7 +231,10 @@ export default function EndOfVolumeUI({
     // General case: WAIT_OR_PAY blockage (volumes 1-7)
     if (nextVolume.blockageType === 'WAIT_OR_PAY') {
       const { waitRemaining } = nextVolume.blockageInfo || {};
-      const price = isProtagonist ? protagonistPrice : nextVolume.price;
+      // For PROTAGONIST: only show price if volume is NOT free. For NARRATOR: use volume price
+      const volumeIsFree = nextVolume.isFree ?? false;
+      const price = isProtagonist && volumeIsFree ? 0 : (isProtagonist ? protagonistPrice : nextVolume.price);
+      const isFree = volumeIsFree || !price || price === 0;
 
       return (
         <div className="mt-12 max-w-2xl mx-auto">
@@ -252,8 +256,8 @@ export default function EndOfVolumeUI({
             </p>
 
             <div className="flex flex-col gap-4 justify-center">
-              {/* Wait option - only for NARRATOR */}
-              {!isProtagonist && (
+              {/* Wait option - only for NARRATOR and when volume is free */}
+              {!isProtagonist && isFree && (
                 <button
                   type="button"
                   onClick={onStartWait}
@@ -272,25 +276,27 @@ export default function EndOfVolumeUI({
                 </button>
               )}
 
-              {/* Buy volume button */}
-              <button
-                type="button"
-                onClick={() => onPurchase?.('freeToRead')}
-                className={`${isProtagonist || !nextVolume ? 'flex-1' : 'flex-1 sm:flex-none'} px-6 py-4 ${isProtagonist
-                  ? 'bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 shadow-lg shadow-rose-500/30 hover:shadow-rose-500/50'
-                  : 'bg-gradient-to-r from-gold to-amber-500 hover:from-gold/90 hover:to-amber-500/90'} text-white rounded-lg shadow-md hover:shadow-lg transition-all`}>
-                <div className="flex items-center justify-center gap-2 mb-1">
-                  <span className="material-symbols-outlined">
-                    lock_open
-                  </span>
-                  <span className="font-semibold">
-                    {isProtagonist ? 'Ce volume' : 'Débloquer maintenant'}
-                  </span>
-                </div>
-                <p className="text-sm text-white/90">
-                  {price ? formatPrice(price) : 'Prix non disponible'}
-                </p>
-              </button>
+              {/* Buy volume button - only show if volume has a price */}
+              {!isFree && (
+                <button
+                  type="button"
+                  onClick={() => onPurchase?.('freeToRead')}
+                  className={`${isProtagonist || !nextVolume ? 'flex-1' : 'flex-1 sm:flex-none'} px-6 py-4 ${isProtagonist
+                    ? 'bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 shadow-lg shadow-rose-500/30 hover:shadow-rose-500/50'
+                    : 'bg-gradient-to-r from-gold to-amber-500 hover:from-gold/90 hover:to-amber-500/90'} text-white rounded-lg shadow-md hover:shadow-lg transition-all`}>
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    <span className="material-symbols-outlined">
+                      lock_open
+                    </span>
+                    <span className="font-semibold">
+                      {isProtagonist ? 'Ce volume' : 'Débloquer maintenant'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-white/90">
+                    {price ? formatPrice(price) : 'Prix non disponible'}
+                  </p>
+                </button>
+              )}
 
               {/* Buy chapter button - hidden if all volumes owned */}
               {!allVolumesOwned && (

@@ -17,6 +17,8 @@ interface ReaderDrawerProps {
   nextVolume?: {
     id?: string;
     volumeNumber?: number;
+    isFree?: boolean;
+    price?: number;
     isAccessible?: boolean;
     blockageType?: string;
     blockageInfo?: any;
