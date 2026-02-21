@@ -16,6 +16,7 @@ import {
 } from "../lib/toastHelper";
 import ReaderDrawer from "../components/ReaderDrawer";
 import PurchaseDrawer from "../components/PurchaseDrawer";
+import ProtagonistPurchaseDrawer from "../components/ProtagonistPurchaseDrawer";
 import ErrorMessage from "../components/common/ErrorMessage";
 import ChapterCover from "../components/common/ChapterCover";
 import PricingSection from "../components/PricingSection";
@@ -37,6 +38,8 @@ export default function Chapter() {
   const [isStartingWait, setIsStartingWait] = useState(false);
   const [readerOpen, setReaderOpen] = useState(false);
   const [purchaseDrawerOpen, setPurchaseDrawerOpen] = useState(false);
+  const [protagonistPurchaseDrawerOpen, setProtagonistPurchaseDrawerOpen] =
+    useState(false);
   const [selectedVolume, setSelectedVolume] = useState<{
     id: string;
     volumeNumber: number;
@@ -137,9 +140,13 @@ export default function Chapter() {
       });
       setReaderOpen(true);
     } else {
-      // Open purchase drawer for locked volumes
+      // Open purchase drawer for locked volumes based on perspective
       setSelectedVolumeForPurchase(volume);
-      setPurchaseDrawerOpen(true);
+      if (selectedPerspective === "protagonist") {
+        setProtagonistPurchaseDrawerOpen(true);
+      } else {
+        setPurchaseDrawerOpen(true);
+      }
     }
   };
 
@@ -171,11 +178,13 @@ export default function Chapter() {
 
     try {
       setIsPurchasing(true);
+      const versionScope =
+        selectedPerspective === "protagonist" ? "ALL" : "BASE";
       const { url } = await api.createCheckoutSession({
         chapterId: id,
         type: "VOLUME",
         volumeNumber: selectedVolumeForPurchase.volumeNumber,
-        versionScope: "BASE",
+        versionScope,
         successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
         cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
       });
@@ -645,32 +654,51 @@ export default function Chapter() {
         />
       )}
 
-      {/* Purchase Drawer */}
-      {selectedVolumeForPurchase && currentChapter && (
-        <PurchaseDrawer
-          isOpen={purchaseDrawerOpen}
-          onClose={() => {
-            setPurchaseDrawerOpen(false);
-            setSelectedVolumeForPurchase(null);
-          }}
-          volume={selectedVolumeForPurchase}
-          chapterTitle={currentChapter.title}
-          chapter={currentChapter}
-          bundlePrice={currentChapter.pricing?.bundleDiscountedPrice}
-          selectedPerspective={selectedPerspective}
-          onPurchaseVolume={handlePurchaseVolume}
-          onPurchaseChapter={handlePurchaseFullChapter}
-          onStartWaitTimer={handleStartWait}
-          onRefreshChapter={() => {
-            if (id) {
-              fetchChapter(id);
-              fetchActiveWaitsCount();
-            }
-          }}
-          activeWaitsCount={activeWaitsCount}
-          maxWaitsAllowed={maxWaitsAllowed}
-        />
-      )}
+      {/* Purchase Drawer - NARRATOR */}
+      {selectedVolumeForPurchase &&
+        currentChapter &&
+        selectedPerspective !== "protagonist" && (
+          <PurchaseDrawer
+            isOpen={purchaseDrawerOpen}
+            onClose={() => {
+              setPurchaseDrawerOpen(false);
+              setSelectedVolumeForPurchase(null);
+            }}
+            volume={selectedVolumeForPurchase}
+            chapterTitle={currentChapter.title}
+            chapter={currentChapter}
+            bundlePrice={currentChapter.pricing?.bundleDiscountedPrice}
+            onPurchaseVolume={handlePurchaseVolume}
+            onPurchaseChapter={handlePurchaseFullChapter}
+            onStartWaitTimer={handleStartWait}
+            onRefreshChapter={() => {
+              if (id) {
+                fetchChapter(id);
+                fetchActiveWaitsCount();
+              }
+            }}
+            activeWaitsCount={activeWaitsCount}
+            maxWaitsAllowed={maxWaitsAllowed}
+          />
+        )}
+
+      {/* Purchase Drawer - PROTAGONIST */}
+      {selectedVolumeForPurchase &&
+        currentChapter &&
+        selectedPerspective === "protagonist" && (
+          <ProtagonistPurchaseDrawer
+            isOpen={protagonistPurchaseDrawerOpen}
+            onClose={() => {
+              setProtagonistPurchaseDrawerOpen(false);
+              setSelectedVolumeForPurchase(null);
+            }}
+            volume={selectedVolumeForPurchase}
+            chapterTitle={currentChapter.title}
+            chapter={currentChapter}
+            onPurchaseVolume={handlePurchaseVolume}
+            onPurchaseChapter={handlePurchaseFullChapter}
+          />
+        )}
     </main>
   );
 }
