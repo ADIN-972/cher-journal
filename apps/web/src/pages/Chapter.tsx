@@ -775,7 +775,24 @@ export default function Chapter() {
               return access?.isAccessible === true && !access?.blockageType;
             }) ?? false;
           })()}
-          chapterPrice={currentChapter.pricing?.bundleDiscountedPrice}
+          chapterPrice={(() => {
+            if (selectedPerspective === 'protagonist') {
+              // PROTAGONIST: Calculate total price from volume prices
+              // Count volumes with WAIT_OR_PAY blockage to get individual prices
+              const perspectiveKey = getPerspectiveKey();
+              const totalPrice = currentChapter.volumes?.reduce((sum, vol) => {
+                const access = vol.accessByPerspective?.[perspectiveKey];
+                if (!access?.isAccessible && access?.blockageInfo?.priceFreeToRead) {
+                  return sum + access.blockageInfo.priceFreeToRead;
+                }
+                return sum;
+              }, 0) ?? 0;
+              return totalPrice > 0 ? totalPrice : currentChapter.pricing?.priceProtagonistUnlock;
+            } else {
+              // NARRATOR: Use bundle discounted price
+              return currentChapter.pricing?.bundleDiscountedPrice;
+            }
+          })()}
         />
       )}
 
