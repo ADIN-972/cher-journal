@@ -5,6 +5,7 @@ import { useReaderStore } from "../stores/readerStore";
 import { showSuccessToast, showErrorToast, showWarningToast } from "../lib/toastHelper";
 import EndOfVolumeUI from "./EndOfVolumeUI";
 import Reader from "../pages/Reader";
+import ProtagonistReader from "../pages/ProtagonistReader";
 
 interface ReaderDrawerProps {
   isOpen: boolean;
@@ -121,11 +122,13 @@ export default function ReaderDrawer({
 
   if (!isOpen) return null;
 
+  const ReaderComponent = perspective === 'PROTAGONIST' ? ProtagonistReader : Reader;
+
   return (
     <div
       id="reader-drawer"
       className="fixed inset-0 z-50 overflow-y-auto">
-      <Reader
+      <ReaderComponent
         volumeId={volumeId}
         chapterId={chapterId}
         perspective={perspective}
