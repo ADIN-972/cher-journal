@@ -82,8 +82,18 @@ export default function ProtagonistReader({
         perspective: perspective || 'PROTAGONIST',
       });
       lastProgressSentRef.current = progress;
-    } catch (error) {
-      console.error("Failed to update progress:", error);
+    } catch (error: any) {
+      console.error(`[ProtagonistReader] PROGRESS_UPDATE_FAILED`, {
+        volumeId: currentVolume?.id,
+        volumeNumber: currentVolume?.volumeNumber,
+        chapterId: chapterId ?? currentVolume?.chapterId,
+        perspective: perspective || 'PROTAGONIST',
+        progress,
+        errorMessage: error?.message,
+        errorCode: error?.code,
+        cause: 'Failed to save reading progress to API (PROTAGONIST perspective)',
+        timestamp: new Date().toISOString()
+      });
     }
   };
 
@@ -98,12 +108,36 @@ export default function ProtagonistReader({
       shownErrorForAttemptRef.current !== currentAttemptId
     ) {
       if (error && isLoading === false) {
+        console.log(`[ProtagonistReader] DISPLAYING_ERROR_TOAST`, {
+          volumeId,
+          error,
+          currentAttemptId,
+          attemptVolumeId,
+          isLoading,
+          cause: `API returned explicit error message: "${error}" (PROTAGONIST perspective)`,
+          timestamp: new Date().toISOString()
+        });
         shownErrorForAttemptRef.current = currentAttemptId;
         showErrorToast(toast, error);
       } else if (!currentVolume && isLoading === false) {
+        console.log(`[ProtagonistReader] DISPLAYING_GENERIC_LOAD_ERROR`, {
+          volumeId,
+          currentAttemptId,
+          currentVolumeExists: !!currentVolume,
+          isLoading,
+          cause: 'Volume failed to load without returning explicit error (PROTAGONIST perspective) - API may have returned null/undefined',
+          timestamp: new Date().toISOString()
+        });
         shownErrorForAttemptRef.current = currentAttemptId;
         showErrorToast(toast, "LOAD_ERROR");
       }
+    } else if (currentAttemptId && attemptVolumeId !== volumeId) {
+      console.log(`[ProtagonistReader] SKIPPING_ERROR_DISPLAY_WRONG_VOLUME`, {
+        expectedVolumeId: volumeId,
+        attemptVolumeId,
+        currentAttemptId,
+        cause: 'Error is for different volume than currently requested (PROTAGONIST perspective)'
+      });
     }
   }, [error, currentVolume, isLoading, volumeId, toast]);
 

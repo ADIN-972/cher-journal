@@ -311,7 +311,7 @@ export default function PurchaseDrawer({
                     L'Intégrale du Chapitre
                   </h3>
                   <p className="text-sm text-charcoal/60 dark:text-gray-400 mt-1 italic">
-                    Tous les volumes + Économisez 25%
+                  Tous les volumes accessibles  {/*  + Économisez 25% */}
                   </p>
                 </div>
                 <div className="text-3xl font-display font-bold text-charcoal dark:text-white">

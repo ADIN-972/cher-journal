@@ -84,7 +84,13 @@ export const useReaderStore = create<ReaderState>()(
           if (state.loadingRequestId === requestId) {
             // Validate response has required fields
             if (!volume || !volume.content) {
-              console.error(`[Reader] Invalid response: missing content`);
+              console.error(`[Reader] VALIDATION_ERROR: Invalid API response - Missing content field`, {
+                volumeId,
+                perspective: currentPerspective,
+                volumeExists: !!volume,
+                contentExists: volume?.content ? true : false,
+                fullResponse: volume
+              });
               throw new Error('Invalid response: missing content');
             }
 
@@ -108,15 +114,37 @@ export const useReaderStore = create<ReaderState>()(
             console.log(`[Reader] Ignoring response for old request. Current: ${state.loadingRequestId}, Response: ${requestId}`);
           }
         } catch (error: any) {
-          console.error(`[Reader] Error loading volume:`, error);
+          console.error(`[Reader] API_ERROR_CAUGHT - Failed to load volume`, {
+            volumeId,
+            perspective: currentPerspective,
+            errorMessage: error?.message,
+            errorCode: error?.code,
+            errorStatus: error?.status,
+            errorDetails: error,
+            requestId,
+            timestamp: new Date().toISOString()
+          });
           // Only update error if this is still the current request
           const state = get();
           if (state.loadingRequestId === requestId) {
-            console.log(`[Reader] Setting error state:`, error.message);
+            const errorMessage = error?.message || 'Failed to load volume';
+            console.log(`[Reader] UPDATING_ERROR_STATE`, {
+              volumeId,
+              errorMessage,
+              requestId,
+              perspective: currentPerspective,
+              cause: error?.message || 'Unknown error'
+            });
             set({
-              error: error.message || 'Failed to load volume',
+              error: errorMessage,
               isLoading: false,
               loadingRequestId: null,
+            });
+          } else {
+            console.log(`[Reader] IGNORING_ERROR_FOR_OLD_REQUEST`, {
+              currentRequestId: state.loadingRequestId,
+              responseRequestId: requestId,
+              volumeId
             });
           }
         }
