@@ -362,6 +362,12 @@ export default function Chapter() {
     // Update state
     setSelectedPerspective(perspective);
 
+    // Close any open drawers when switching perspectives
+    setPurchaseDrawerOpen(false);
+    setProtagonistPurchaseDrawerOpen(false);
+    setSelectedVolumeForPurchase(null);
+    setReaderOpen(false);
+
     // Update URL to persist perspective
     if (id) {
       navigate(`/chapters/${id}/${perspective}`, { replace: true });
