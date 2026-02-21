@@ -75,10 +75,11 @@ export default function EndOfVolumeUI({
                 : 'Envie de découvrir la suite ?'}
             </p>
 
-            <div className={`flex ${isProtagonist ? 'flex-col' : 'flex-col sm:flex-row'} gap-4 justify-center`}>
+            <div className={`flex ${isProtagonist ? 'flex-col sm:flex-row' : 'flex-col sm:flex-row'} gap-4 justify-center`}>
               {/* Wait option - only for NARRATOR */}
               {!isProtagonist && (
                 <button
+                  type="button"
                   onClick={onStartWait}
                   className="flex-1 sm:flex-none px-6 py-4 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:border-gold hover:bg-gold/5 dark:hover:border-gold dark:hover:bg-gold/10 transition-all group">
                   <div className="flex items-center justify-center gap-2 mb-1">
@@ -97,8 +98,9 @@ export default function EndOfVolumeUI({
 
               {/* Pay option */}
               <button
+                type="button"
                 onClick={() => onPurchase?.('freeToRead')}
-                className={`${isProtagonist ? 'w-full' : 'flex-1 sm:flex-none'} px-6 py-4 ${isProtagonist
+                className={`${isProtagonist ? 'flex-1' : 'flex-1 sm:flex-none'} px-6 py-4 ${isProtagonist
                   ? 'bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 shadow-lg shadow-rose-500/30 hover:shadow-rose-500/50'
                   : 'bg-gradient-to-r from-gold to-amber-500 hover:from-gold/90 hover:to-amber-500/90'} text-white rounded-lg shadow-md hover:shadow-lg transition-all`}>
                 <div className="flex items-center justify-center gap-2 mb-1">
@@ -106,13 +108,33 @@ export default function EndOfVolumeUI({
                     lock_open
                   </span>
                   <span className="font-semibold">
-                    Débloquer maintenant
+                    {isProtagonist ? 'Ce volume' : 'Débloquer maintenant'}
                   </span>
                 </div>
                 <p className="text-sm text-white/90">
                   {price ? formatPrice(price) : 'Prix non disponible'}
                 </p>
               </button>
+
+              {/* Protagonist chapter option - only for PROTAGONIST */}
+              {isProtagonist && (
+                <button
+                  type="button"
+                  onClick={() => onPurchase?.('protagonistChapter')}
+                  className="flex-1 px-6 py-4 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white rounded-lg shadow-lg shadow-rose-600/40 hover:shadow-rose-600/60 transition-all border-2 border-rose-400/50">
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    <span className="material-symbols-outlined">
+                      auto_awesome
+                    </span>
+                    <span className="font-semibold">
+                      Tout le chapitre
+                    </span>
+                  </div>
+                  <p className="text-sm text-white/90">
+                    Tous les volumes
+                  </p>
+                </button>
+              )}
             </div>
           </div>
         </div>

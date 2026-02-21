@@ -86,31 +86,46 @@ export default function ReaderDrawer({
     }
   };
 
-  const handlePurchase = async (type: "freeToRead" | "paywall" | "epilogue") => {
+  const handlePurchase = async (type: "freeToRead" | "paywall" | "epilogue" | "protagonistChapter") => {
     if (!nextVolume?.id) {
       showErrorToast(toast, 'CHECKOUT_SESSION_FAILED');
       return;
     }
 
     try {
-      let orderType: 'CHAPTER' | 'VOLUME';
+      let url: string;
 
-      if (type === 'freeToRead') {
-        // Individual volume purchase (volumes 1-8)
-        orderType = 'VOLUME';
+      if (type === 'protagonistChapter') {
+        // PROTAGONIST perspective: purchase all volumes for PROTAGONIST perspective
+        const result = await api.createProtagonistCheckoutSession({
+          chapterId,
+          type: 'CHAPTER',
+          successUrl: `${window.location.origin}/chapters/${chapterId}/protagonist?purchase=success`,
+          cancelUrl: `${window.location.origin}/chapters/${chapterId}/protagonist?purchase=cancelled`,
+        });
+        url = result.url;
       } else {
-        // Paywall or epilogue: purchase full chapter
-        orderType = 'CHAPTER';
-      }
+        // NARRATOR perspective
+        let orderType: 'CHAPTER' | 'VOLUME';
 
-      const { url } = await api.createCheckoutSession({
-        chapterId,
-        type: orderType,
-        volumeNumber: type === 'freeToRead' ? nextVolume.volumeNumber : undefined,
-        versionScope: "BASE",
-        successUrl: `${window.location.origin}/chapters/${chapterId}?purchase=success`,
-        cancelUrl: `${window.location.origin}/chapters/${chapterId}?purchase=cancelled`,
-      });
+        if (type === 'freeToRead') {
+          // Individual volume purchase (volumes 1-8)
+          orderType = 'VOLUME';
+        } else {
+          // Paywall or epilogue: purchase full chapter
+          orderType = 'CHAPTER';
+        }
+
+        const result = await api.createCheckoutSession({
+          chapterId,
+          type: orderType,
+          volumeNumber: type === 'freeToRead' ? nextVolume.volumeNumber : undefined,
+          versionScope: "BASE",
+          successUrl: `${window.location.origin}/chapters/${chapterId}?purchase=success`,
+          cancelUrl: `${window.location.origin}/chapters/${chapterId}?purchase=cancelled`,
+        });
+        url = result.url;
+      }
 
       // Redirect to Stripe checkout
       window.location.href = url;
