@@ -97,7 +97,6 @@ export default function PricingSection({
               coloringBundlePrice
             }
             price={completeExperienceFinalPrice}
-            savingsText="Économisez jusqu'à 40% en une seule transaction"
             buttonText="L'Expérience Ultime"
             onPurchase={onPurchaseCompleteExperience}
             isLoading={isPurchasing}
@@ -112,7 +111,6 @@ export default function PricingSection({
           description={`Accédez immédiatement à l'ensemble des ${pricing.totalVolumes} volumes. Une immersion totale sans aucune interruption.`}
           originalPrice={pricing.bundleOriginalPrice}
           price={pricing.bundleDiscountedPrice}
-          savingsText="Économisez 25% avec ce bundle complet"
           buttonText="Acheter l'Intégrale"
           onPurchase={onPurchase}
           isLoading={isPurchasing}
@@ -145,7 +143,6 @@ export default function PricingSection({
             description={`Découvrez les ${pricing.totalVolumes} volumes du point de vue exclusif de la protagoniste. Une perspective intime et captivante.`}
             originalPrice={protagonistBundleOriginal}
             price={protagonistBundleDiscounted}
-            savingsText="Économisez 25% avec ce bundle complet"
             buttonText="Débloquer le Protagoniste"
             onPurchase={onPurchaseProtagonistBundle}
             isLoading={isPurchasing}

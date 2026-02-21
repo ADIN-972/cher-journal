@@ -227,9 +227,16 @@ export default function ProtagonistReader({
   return (
     <div className="font-display transition-colors duration-500 overflow-x-auto bg-rose-50 dark:bg-background-dark">
       {/* Rose Ambient Background */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.01]" style={{
-        backgroundImage: "radial-gradient(circle at 20% 50%, #e91e63 0%, transparent 50%), radial-gradient(circle at 80% 80%, #f06292 0%, transparent 50%)",
-      }}></div>
+
+      <div className="curtain-left hidden xl:block"></div>
+      <div className="curtain-right hidden xl:block"></div>
+      <div className="frame-top hidden xl:block"></div>
+      <div
+        className="fixed inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.01]"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 20% 50%, #e91e63 0%, transparent 50%), radial-gradient(circle at 80% 80%, #f06292 0%, transparent 50%)",
+        }}></div>
 
       {/* Fixed Header - PROTAGONIST Theme */}
       <div className="fixed top-0 left-0 w-full z-50 flex justify-center py-6 px-10 pointer-events-none">
@@ -295,7 +302,9 @@ export default function ProtagonistReader({
                         onClick={decreaseFontSize}
                         disabled={settings.fontSize <= 14}
                         className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <span className="material-symbols-outlined">remove</span>
+                        <span className="material-symbols-outlined">
+                          remove
+                        </span>
                       </button>
                       <span className="flex-1 text-center text-sm text-gray-600 dark:text-gray-400">
                         {settings.fontSize}px
@@ -319,7 +328,9 @@ export default function ProtagonistReader({
                         onClick={decreaseLineHeight}
                         disabled={settings.lineHeight <= 1.5}
                         className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <span className="material-symbols-outlined">remove</span>
+                        <span className="material-symbols-outlined">
+                          remove
+                        </span>
                       </button>
                       <span className="flex-1 text-center text-sm text-gray-600 dark:text-gray-400">
                         {settings.lineHeight.toFixed(1)}
@@ -382,7 +393,9 @@ export default function ProtagonistReader({
                             ? "bg-rose-500 text-white"
                             : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                         }`}>
-                        <span className="material-symbols-outlined text-sm">light_mode</span>
+                        <span className="material-symbols-outlined text-sm">
+                          light_mode
+                        </span>
                         Clair
                       </button>
                       <button
@@ -392,7 +405,9 @@ export default function ProtagonistReader({
                             ? "bg-rose-500 text-white"
                             : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                         }`}>
-                        <span className="material-symbols-outlined text-sm">dark_mode</span>
+                        <span className="material-symbols-outlined text-sm">
+                          dark_mode
+                        </span>
                         Sombre
                       </button>
                     </div>
@@ -445,7 +460,9 @@ export default function ProtagonistReader({
                 (index + 1) % 5 === 0 && index < paragraphs.length - 1;
               const isFirstParagraph = index === 0;
               return (
-                <div className="relative" key={index}>
+                <div
+                  className="relative"
+                  key={index}>
                   {isFirstParagraph && coverImageUrl && (
                     <div className="antique-float flex flex-col items-center gap-4">
                       <div className="relative w-full aspect-[4/5] flex items-center justify-center">

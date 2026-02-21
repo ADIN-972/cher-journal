@@ -55,7 +55,7 @@ export default function EndOfVolumeUI({
   const isProtagonist = perspective === 'PROTAGONIST';
 
   // Determine if this is the last volume
-  const isLastVolume = volumeNumber >= totalVolumes || (!nextVolume && allVolumesOwned);
+  const isLastVolume =( volumeNumber >= totalVolumes )|| (!nextVolume && allVolumesOwned);
 
   // If last volume: Show minimal completion message
   if (isLastVolume) {
@@ -104,7 +104,7 @@ export default function EndOfVolumeUI({
               : 'Envie de découvrir la suite ?'}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col gap-4 justify-center">
             {/* Read next volume button */}
             <button
               type="button"
@@ -249,7 +249,7 @@ export default function EndOfVolumeUI({
                 : 'Envie de découvrir la suite ?'}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col gap-4 justify-center">
               {/* Wait option - only for NARRATOR */}
               {!isProtagonist && (
                 <button
