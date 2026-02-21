@@ -22,6 +22,7 @@ interface Pricing {
   priceFreeToRead: number;
   pricePaywall: number;
   priceEpilogue: number;
+  priceProtagonistUnlock?: number;
 }
 
 interface PricingSectionProps {
@@ -30,6 +31,8 @@ interface PricingSectionProps {
   volumes?: Volume[];
   onPurchase: () => void;
   onPurchaseVolume?: (volumeNumber: number) => void;
+  onPurchaseProtagonistBundle?: () => void;
+  onPurchaseColoring?: () => void;
   isPurchasing: boolean;
 }
 
@@ -39,6 +42,8 @@ export default function PricingSection({
   volumes = [],
   onPurchase,
   onPurchaseVolume,
+  onPurchaseProtagonistBundle,
+  onPurchaseColoring,
   isPurchasing,
 }: PricingSectionProps) {
   // Only show if user hasn't purchased everything
@@ -51,6 +56,15 @@ export default function PricingSection({
     (v) => !v.isAccessible && v.blockageType === "WAIT_OR_PAY"
   );
 
+  // Calculate protagonist bundle price
+  const protagonistPrice = pricing.priceProtagonistUnlock || 99;
+  const protagonistBundleOriginal = protagonistPrice * pricing.totalVolumes;
+  const protagonistBundleDiscounted = Math.round(protagonistBundleOriginal * 0.75);
+
+  // Calculate coloring bundle price (coming soon - placeholder)
+  // In future, this will be based on number of coloring pages and their price
+  const coloringBundlePrice = 0; // To be implemented
+
   return (
     <section className="mb-24">
       <div className="flex flex-col w-full mb-8">
@@ -62,8 +76,8 @@ export default function PricingSection({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-        {/* Full Chapter Bundle */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        {/* Full Chapter Bundle - NARRATOR */}
         <PlanCard
           badge={{ text: "Conseillé", show: true }}
           icon="collections_bookmark"
@@ -92,6 +106,37 @@ export default function PricingSection({
               }
             }}
             isLoading={isPurchasing}
+          />
+        )}
+
+        {/* Full Chapter Bundle - PROTAGONIST */}
+        {onPurchaseProtagonistBundle && (
+          <PlanCard
+            badge={{ text: "Protagoniste", show: true }}
+            icon="favorite"
+            title={`Point de vue de la Protagoniste`}
+            description={`Découvrez les ${pricing.totalVolumes} volumes du point de vue exclusif de la protagoniste. Une perspective intime et captivante.`}
+            originalPrice={protagonistBundleOriginal}
+            price={protagonistBundleDiscounted}
+            savingsText="Économisez 25% avec ce bundle complet"
+            buttonText="Débloquer le Protagoniste"
+            onPurchase={onPurchaseProtagonistBundle}
+            isLoading={isPurchasing}
+          />
+        )}
+
+        {/* Coloring Book Bundle */}
+        {onPurchaseColoring && (
+          <PlanCard
+            badge={{ text: "Bientôt", show: true }}
+            icon="palette"
+            title={`Tout le Coloriage de ${chapterTitle}`}
+            description="Plongez dans l'univers créatif et relaxant du coloriage. Toutes les illustrations du chapitre pour vous évader."
+            price={0}
+            buttonText="Bientôt disponible"
+            onPurchase={onPurchaseColoring}
+            isLoading={isPurchasing}
+            isDisabled={true}
           />
         )}
       </div>

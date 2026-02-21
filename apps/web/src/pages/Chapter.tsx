@@ -299,6 +299,31 @@ export default function Chapter() {
     }
   };
 
+  // Handle purchase of PROTAGONIST chapter bundle
+  const handlePurchaseProtagonistBundle = async () => {
+    if (!id) return;
+
+    try {
+      setIsPurchasing(true);
+      const result = await api.createProtagonistCheckoutSession({
+        chapterId: id,
+        type: "CHAPTER",
+        successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
+        cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
+      });
+      window.location.href = result.url;
+    } catch (err: any) {
+      console.error("Failed to create protagonist checkout session:", err);
+      showErrorToast(toast, "CHECKOUT_SESSION_FAILED");
+      setIsPurchasing(false);
+    }
+  };
+
+  // Handle coloring purchase (coming soon)
+  const handlePurchaseColoring = () => {
+    showInfoToast(toast, "FEATURE_COMING_SOON_PURCHASE");
+  };
+
   const getReadingTime = (characterCount: number) => {
     const wordsPerMinute = 200;
     const averageWordLength = 5;
@@ -666,6 +691,8 @@ export default function Chapter() {
           volumes={currentChapter.volumes}
           onPurchase={handleUnlock}
           onPurchaseVolume={handlePurchaseVolumeFromPricing}
+          onPurchaseProtagonistBundle={handlePurchaseProtagonistBundle}
+          onPurchaseColoring={handlePurchaseColoring}
           isPurchasing={isPurchasing}
         />
       )}

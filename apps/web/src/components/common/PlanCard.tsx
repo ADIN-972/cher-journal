@@ -12,6 +12,7 @@ interface PlanCardProps {
   buttonText: string;
   onPurchase: () => void;
   isLoading?: boolean;
+  isDisabled?: boolean;
 }
 
 export default function PlanCard({
@@ -25,6 +26,7 @@ export default function PlanCard({
   buttonText,
   onPurchase,
   isLoading = false,
+  isDisabled = false,
 }: PlanCardProps) {
   const formatPrice = (cents: number) => `${(cents / 100).toFixed(2)} €`;
 
@@ -66,7 +68,7 @@ export default function PlanCard({
         )}
         <button
           onClick={onPurchase}
-          disabled={isLoading}
+          disabled={isLoading || isDisabled}
           className="bg-powder-pink dark:bg-opacity-40 hover:bg-powder-pink/80 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-8 py-3 rounded-full font-bold text-sm uppercase tracking-widest transition-all hover:scale-[1.05] shadow-md border border-powder-pink/50">
           {isLoading ? "Chargement..." : buttonText}
         </button>
