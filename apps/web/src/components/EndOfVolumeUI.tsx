@@ -231,10 +231,11 @@ export default function EndOfVolumeUI({
     // General case: WAIT_OR_PAY blockage (volumes 1-7)
     if (nextVolume.blockageType === 'WAIT_OR_PAY') {
       const { waitRemaining } = nextVolume.blockageInfo || {};
-      // For PROTAGONIST: only show price if volume is NOT free. For NARRATOR: use volume price
+      // isFree only applies to NARRATOR - PROTAGONIST always has a price (€0.99)
       const volumeIsFree = nextVolume.isFree ?? false;
-      const price = isProtagonist && volumeIsFree ? 0 : (isProtagonist ? protagonistPrice : nextVolume.price);
-      const isFree = volumeIsFree || !price || price === 0;
+      const price = isProtagonist ? protagonistPrice : nextVolume.price;
+      // Only consider free if NARRATOR AND volume is free
+      const isFree = !isProtagonist && volumeIsFree;
 
       return (
         <div className="mt-12 max-w-2xl mx-auto">
