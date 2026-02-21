@@ -13,7 +13,7 @@ interface EndOfVolumeUIProps {
   } | null;
   onClose: () => void;
   onStartWait?: () => void;
-  onPurchase?: (type: 'freeToRead' | 'paywall' | 'epilogue' | 'narratorChapter' | 'protagonistChapter') => void;
+  onPurchase?: (type: 'freeToRead' | 'protagonistVolume' | 'paywall' | 'epilogue' | 'narratorChapter' | 'protagonistChapter') => void;
   onReadNext?: (volumeId: string, volumeNumber: number) => void;
   totalVolumes?: number;
   allVolumesOwned?: boolean;
@@ -281,7 +281,7 @@ export default function EndOfVolumeUI({
               {!isFree && (
                 <button
                   type="button"
-                  onClick={() => onPurchase?.('freeToRead')}
+                  onClick={() => onPurchase?.(isProtagonist ? 'protagonistVolume' : 'freeToRead')}
                   className={`${isProtagonist || !nextVolume ? 'flex-1' : 'flex-1 sm:flex-none'} px-6 py-4 ${isProtagonist
                     ? 'bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 shadow-lg shadow-rose-500/30 hover:shadow-rose-500/50'
                     : 'bg-gradient-to-r from-gold to-amber-500 hover:from-gold/90 hover:to-amber-500/90'} text-white rounded-lg shadow-md hover:shadow-lg transition-all`}>

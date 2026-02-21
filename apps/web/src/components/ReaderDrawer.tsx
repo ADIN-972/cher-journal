@@ -94,7 +94,7 @@ export default function ReaderDrawer({
     }
   };
 
-  const handlePurchase = async (type: "freeToRead" | "paywall" | "epilogue" | "narratorChapter" | "protagonistChapter") => {
+  const handlePurchase = async (type: "freeToRead" | "protagonistVolume" | "paywall" | "epilogue" | "narratorChapter" | "protagonistChapter") => {
     if (!nextVolume?.id) {
       showErrorToast(toast, 'CHECKOUT_SESSION_FAILED');
       return;
@@ -108,6 +108,16 @@ export default function ReaderDrawer({
         const result = await api.createProtagonistCheckoutSession({
           chapterId,
           type: 'CHAPTER',
+          successUrl: `${window.location.origin}/chapters/${chapterId}/protagonist?purchase=success`,
+          cancelUrl: `${window.location.origin}/chapters/${chapterId}/protagonist?purchase=cancelled`,
+        });
+        url = result.url;
+      } else if (type === 'protagonistVolume') {
+        // PROTAGONIST perspective: purchase individual volume for PROTAGONIST perspective
+        const result = await api.createProtagonistCheckoutSession({
+          chapterId,
+          type: 'VOLUME',
+          volumeNumber: nextVolume.volumeNumber,
           successUrl: `${window.location.origin}/chapters/${chapterId}/protagonist?purchase=success`,
           cancelUrl: `${window.location.origin}/chapters/${chapterId}/protagonist?purchase=cancelled`,
         });
