@@ -777,19 +777,16 @@ export default function Chapter() {
           })()}
           chapterPrice={(() => {
             if (selectedPerspective === 'protagonist') {
-              // PROTAGONIST: Calculate total price from volume prices
-              // Count volumes with WAIT_OR_PAY blockage to get individual prices
+              // PROTAGONIST: Calculate total price = (count of non-free, non-accessible volumes) × priceProtagonistUnlock
               const perspectiveKey = getPerspectiveKey();
-              const totalPrice = currentChapter.volumes?.reduce((sum, vol) => {
+              const inaccessibleNonFreeVolumes = currentChapter.volumes?.filter(vol => {
                 const access = vol.accessByPerspective?.[perspectiveKey];
-                if (!access?.isAccessible && access?.blockageInfo?.priceFreeToRead) {
-                  return sum + access.blockageInfo.priceFreeToRead;
-                }
-                return sum;
-              }, 0) ?? 0;
-              return totalPrice > 0 ? totalPrice : currentChapter.pricing?.priceProtagonistUnlock;
+                return !vol.isFree && !access?.isAccessible;
+              }) ?? [];
+              const pricePerVolume = currentChapter.pricing?.priceProtagonistUnlock ?? 99;
+              return inaccessibleNonFreeVolumes.length * pricePerVolume;
             } else {
-              // NARRATOR: Use bundle discounted price
+              // NARRATOR: Use bundle discounted price (remaining volumes to purchase)
               return currentChapter.pricing?.bundleDiscountedPrice;
             }
           })()}

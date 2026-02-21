@@ -214,9 +214,9 @@ export class StripeService {
         }
       }
 
-      // Subtract already owned volumes, then apply 25% discount
+      // Subtract already owned volumes (no discount applied)
       const remainingPrice = bundleOriginalPrice - alreadyAccessiblePrice;
-      let discountedPrice = Math.round(remainingPrice * 0.75);
+      let discountedPrice = remainingPrice;
 
       // Ensure minimum price of 50 cents
       if (discountedPrice < 50) {
@@ -227,7 +227,7 @@ export class StripeService {
       console.log('[Stripe Debug] bundleOriginalPrice:', bundleOriginalPrice);
       console.log('[Stripe Debug] alreadyAccessiblePrice:', alreadyAccessiblePrice);
       console.log('[Stripe Debug] remainingPrice:', remainingPrice);
-      console.log('[Stripe Debug] discountedPrice:', discountedPrice);
+      console.log('[Stripe Debug] discountedPrice (after min check):', discountedPrice);
       console.log('[Stripe Debug] prices:', prices);
       console.log('[Stripe Debug] chapter.volumes:', chapter.volumes.length);
 
@@ -389,9 +389,9 @@ export class StripeService {
         }
       }
 
-      // Subtract already owned volumes, then apply 25% discount
+      // Subtract already owned volumes (no discount applied)
       const remainingPrice = bundleOriginalPrice - alreadyAccessiblePrice;
-      let discountedPrice = Math.round(remainingPrice * 0.75);
+      let discountedPrice = remainingPrice;
 
       // Ensure minimum price of 50 cents
       if (discountedPrice < 50) {

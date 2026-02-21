@@ -340,8 +340,8 @@ export class CatalogService {
       }
     });
 
-    // Subtract already accessible volumes, then apply 25% discount
-    const bundleDiscountedPrice = Math.round((bundleOriginalPrice - alreadyAccessiblePrice) * 0.75);
+    // Subtract already accessible volumes (no discount applied)
+    const bundleDiscountedPrice = bundleOriginalPrice - alreadyAccessiblePrice;
 
     const pricing = {
       priceFreeToRead,
