@@ -178,16 +178,31 @@ export default function Chapter() {
 
     try {
       setIsPurchasing(true);
-      const versionScope =
-        selectedPerspective === "protagonist" ? "ALL" : "BASE";
-      const { url } = await api.createCheckoutSession({
-        chapterId: id,
-        type: "VOLUME",
-        volumeNumber: selectedVolumeForPurchase.volumeNumber,
-        versionScope,
-        successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
-        cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
-      });
+      let url: string;
+
+      if (selectedPerspective === "protagonist") {
+        // Use dedicated PROTAGONIST endpoint (uses priceProtagonistUnlock)
+        const result = await api.createProtagonistCheckoutSession({
+          chapterId: id,
+          type: "VOLUME",
+          volumeNumber: selectedVolumeForPurchase.volumeNumber,
+          successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
+          cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
+        });
+        url = result.url;
+      } else {
+        // Use standard endpoint for NARRATOR
+        const result = await api.createCheckoutSession({
+          chapterId: id,
+          type: "VOLUME",
+          volumeNumber: selectedVolumeForPurchase.volumeNumber,
+          versionScope: "BASE",
+          successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
+          cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
+        });
+        url = result.url;
+      }
+
       window.location.href = url;
     } catch (err: any) {
       console.error("Failed to create checkout session for volume:", err);
@@ -223,16 +238,29 @@ export default function Chapter() {
 
     try {
       setIsPurchasing(true);
-      // Use perspective-specific versionScope
-      const chapterVersionScope =
-        selectedPerspective === "protagonist" ? "ALL" : "BASE";
-      const { url } = await api.createCheckoutSession({
-        chapterId: id,
-        type: "CHAPTER",
-        versionScope: chapterVersionScope,
-        successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
-        cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
-      });
+      let url: string;
+
+      if (selectedPerspective === "protagonist") {
+        // Use dedicated PROTAGONIST endpoint (uses priceProtagonistUnlock)
+        const result = await api.createProtagonistCheckoutSession({
+          chapterId: id,
+          type: "CHAPTER",
+          successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
+          cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
+        });
+        url = result.url;
+      } else {
+        // Use standard endpoint for NARRATOR
+        const result = await api.createCheckoutSession({
+          chapterId: id,
+          type: "CHAPTER",
+          versionScope: "BASE",
+          successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
+          cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
+        });
+        url = result.url;
+      }
+
       window.location.href = url;
     } catch (err: any) {
       console.error("Failed to create checkout session:", err);

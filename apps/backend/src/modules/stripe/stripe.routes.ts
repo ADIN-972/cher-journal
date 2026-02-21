@@ -10,6 +10,12 @@ export async function stripeRoutes(app: FastifyInstance) {
     handler: controller.createCheckoutSession.bind(controller),
   });
 
+  // PROTAGONIST-specific checkout (always uses priceProtagonistUnlock, ignores isFree)
+  app.post('/stripe/create-protagonist-checkout-session', {
+    preHandler: requireAuth,
+    handler: controller.createProtagonistCheckoutSession.bind(controller),
+  });
+
   // Register webhook route with custom parser to preserve raw body for Stripe signature verification
   await app.register(async (webhookPlugin) => {
     // Custom parser that preserves raw body exactly as received from Stripe

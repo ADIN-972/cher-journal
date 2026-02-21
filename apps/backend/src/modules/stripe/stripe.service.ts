@@ -289,6 +289,170 @@ export class StripeService {
     };
   }
 
+  /**
+   * Create checkout session for PROTAGONIST purchases
+   * Always uses versionScope="ALL" and priceProtagonistUnlock
+   * Ignores isFree flag since PROTAGONIST volumes are never free
+   */
+  async createProtagonistCheckoutSession(options: {
+    userId: string;
+    chapterId: string;
+    type: OrderType;
+    volumeNumber?: number;
+    successUrl: string;
+    cancelUrl: string;
+  }) {
+    // Fetch chapter with all volumes
+    const chapter = await prisma.chapter.findUnique({
+      where: { id: options.chapterId },
+      include: {
+        volumes: {
+          orderBy: { volumeNumber: 'asc' },
+        },
+      },
+    });
+
+    if (!chapter) {
+      throw new Error('CHAPTER_NOT_FOUND');
+    }
+
+    // Get pricing from database
+    const prices = await priceSchemaService.getChapterPrices(options.chapterId);
+
+    // Determine line items based on order type
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+
+    if (options.type === OrderType.VOLUME) {
+      // Handle individual PROTAGONIST volume purchase
+      if (!options.volumeNumber) {
+        throw new Error('VOLUME_NUMBER_REQUIRED');
+      }
+
+      const volume = chapter.volumes.find((v: any) => v.volumeNumber === options.volumeNumber);
+      if (!volume) {
+        throw new Error('VOLUME_NOT_FOUND');
+      }
+
+      // PROTAGONIST volumes always cost priceProtagonistUnlock (ignore isFree)
+      const volumePrice = prices.priceProtagonistUnlock || 99;
+
+      // Check if user already has PROTAGONIST access to this volume
+      const protagonistAccess = await this.accessControl.getVolumeAccessInfo(
+        options.userId,
+        options.chapterId,
+        options.volumeNumber,
+        'PROTAGONIST' as any
+      );
+
+      if (protagonistAccess.isAccessible) {
+        throw new Error('USER_ALREADY_HAS_ACCESS');
+      }
+
+      if (volumePrice < 50) {
+        throw new Error(`INVALID_AMOUNT: Le montant calculé est inférieur à 0.50€ (${volumePrice})`);
+      }
+
+      lineItems.push({
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: `${chapter.title} - Volume ${options.volumeNumber} (Protagoniste)`,
+            description: `Unlock PROTAGONIST perspective for volume ${options.volumeNumber} from "${chapter.title}"`,
+          },
+          unit_amount: volumePrice,
+        },
+        quantity: 1,
+      });
+    } else if (options.type === OrderType.CHAPTER) {
+      // Handle full chapter PROTAGONIST purchase (all volumes)
+      const protagonistPrice = prices.priceProtagonistUnlock || 99;
+      let bundleOriginalPrice = 0;
+      let alreadyAccessiblePrice = 0;
+
+      // Calculate which volumes need to be purchased
+      for (const volume of chapter.volumes) {
+        if (!volume.isFree) {
+          // PROTAGONIST volumes cost priceProtagonistUnlock
+          bundleOriginalPrice += protagonistPrice;
+
+          // Check if user already has PROTAGONIST access
+          const protagonistAccess = await this.accessControl.getVolumeAccessInfo(
+            options.userId,
+            options.chapterId,
+            volume.volumeNumber,
+            'PROTAGONIST' as any
+          );
+
+          if (protagonistAccess.isAccessible) {
+            alreadyAccessiblePrice += protagonistPrice;
+          }
+        }
+      }
+
+      // Subtract already owned volumes, then apply 25% discount
+      const remainingPrice = bundleOriginalPrice - alreadyAccessiblePrice;
+      let discountedPrice = Math.round(remainingPrice * 0.75);
+
+      // Ensure minimum price of 50 cents
+      if (discountedPrice < 50) {
+        discountedPrice = 50;
+      }
+
+      lineItems.push({
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: `${chapter.title} - Full Chapter (Protagoniste)`,
+            description: 'PROTAGONIST perspective for all volumes',
+          },
+          unit_amount: discountedPrice,
+        },
+        quantity: 1,
+      });
+    }
+
+    // Create order record
+    const order = await prisma.order.create({
+      data: {
+        userId: options.userId,
+        type: options.type,
+        status: OrderStatus.PENDING,
+        refId: options.chapterId,
+        volumeNumber: options.volumeNumber || undefined,
+        provider: 'stripe',
+      },
+    });
+
+    // Create Stripe checkout session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: lineItems,
+      mode: 'payment',
+      success_url: options.successUrl,
+      cancel_url: options.cancelUrl,
+      metadata: {
+        orderId: order.id,
+        userId: options.userId,
+        chapterId: options.chapterId,
+        orderType: options.type,
+        versionScope: EntitlementVersionScope.ALL,
+        perspective: 'PROTAGONIST',
+        ...(options.volumeNumber && { volumeNumber: String(options.volumeNumber) }),
+      },
+    });
+
+    // Update order with Stripe session ID
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { providerSessionId: session.id },
+    });
+
+    return {
+      sessionId: session.id,
+      url: session.url,
+    };
+  }
+
   async handleWebhook(rawBody: string, signature: string) {
     let event: Stripe.Event;
 

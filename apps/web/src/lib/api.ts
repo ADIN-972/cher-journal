@@ -349,6 +349,24 @@ class ApiClient {
   }
 
   /**
+   * Create checkout session for PROTAGONIST purchases (uses dedicated endpoint)
+   * Always uses versionScope="ALL" and priceProtagonistUnlock pricing
+   */
+  async createProtagonistCheckoutSession(data: {
+    chapterId: string;
+    type: 'CHAPTER' | 'VOLUME';
+    volumeNumber?: number;  // For VOLUME type orders
+    successUrl: string;
+    cancelUrl: string;
+  }): Promise<{ sessionId: string; url: string }> {
+    const response = await this.post<{ success: boolean; data: { sessionId: string; url: string } }>(
+      '/stripe/create-protagonist-checkout-session',
+      data
+    );
+    return response.data;
+  }
+
+  /**
    * Promotions endpoints
    */
   async getApplicablePromotions(): Promise<ApplicablePromotion[]> {

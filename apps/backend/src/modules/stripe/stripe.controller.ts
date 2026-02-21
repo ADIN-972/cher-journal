@@ -84,6 +84,61 @@ export class StripeController {
     }
   }
 
+  async createProtagonistCheckoutSession(
+    request: FastifyRequest<{
+      Body: {
+        chapterId: string;
+        type: OrderType;
+        volumeNumber?: number;
+        successUrl: string;
+        cancelUrl: string;
+      };
+    }>,
+    reply: FastifyReply
+  ) {
+    try {
+      // PROTAGONIST checkout always uses versionScope="ALL"
+      const result = await service.createProtagonistCheckoutSession({
+        userId: request.user!.id,
+        ...request.body,
+      });
+
+      return reply.send({ success: true, data: result });
+    } catch (error: any) {
+      if (error.message === 'CHAPTER_NOT_FOUND') {
+        return reply.status(404).send({
+          success: false,
+          error: { code: 'CHAPTER_NOT_FOUND', message: 'Chapter not found' },
+        });
+      }
+      if (error.message === 'VOLUME_NOT_FOUND') {
+        return reply.status(404).send({
+          success: false,
+          error: { code: 'VOLUME_NOT_FOUND', message: 'Volume not found' },
+        });
+      }
+      if (error.message === 'VOLUME_NUMBER_REQUIRED') {
+        return reply.status(400).send({
+          success: false,
+          error: { code: 'VOLUME_NUMBER_REQUIRED', message: 'Volume number is required for VOLUME order type' },
+        });
+      }
+      if (error.message === 'USER_ALREADY_HAS_ACCESS') {
+        return reply.status(400).send({
+          success: false,
+          error: { code: 'USER_ALREADY_HAS_ACCESS', message: 'You already have access to this volume' },
+        });
+      }
+      if (error.message.startsWith('INVALID_AMOUNT')) {
+        return reply.status(400).send({
+          success: false,
+          error: { code: 'INVALID_AMOUNT', message: error.message },
+        });
+      }
+      throw error;
+    }
+  }
+
   async webhook(request: FastifyRequest, reply: FastifyReply) {
     const signature = request.headers['stripe-signature'] as string;
 
