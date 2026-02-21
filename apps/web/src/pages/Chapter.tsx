@@ -28,7 +28,10 @@ import BookShadow from "../components/common/BookShadow";
 import BookClosed from "../components/common/BookClosed";
 
 export default function Chapter() {
-  const { id } = useParams<{ id: string }>();
+  const { id, perspective: urlPerspective } = useParams<{
+    id: string;
+    perspective?: string;
+  }>();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { currentChapter, isLoading, error, fetchChapter } = useCatalogStore();
@@ -48,9 +51,22 @@ export default function Chapter() {
     useState<any>(null);
   const [activeWaitsCount, setActiveWaitsCount] = useState(0);
   const [maxWaitsAllowed, setMaxWaitsAllowed] = useState(2); // Default fallback
+
+  // Initialize selectedPerspective from URL parameter, fallback to "narrateur"
+  const getInitialPerspective = () => {
+    if (
+      urlPerspective === "narrateur" ||
+      urlPerspective === "protagonist" ||
+      urlPerspective === "coloriage"
+    ) {
+      return urlPerspective;
+    }
+    return "narrateur";
+  };
+
   const [selectedPerspective, setSelectedPerspective] = useState<
     "narrateur" | "protagonist" | "coloriage" | null
-  >("narrateur");
+  >(getInitialPerspective());
   const lastPurchaseStatusRef = useRef<string | null>(null);
   const chaptersListRef = useRef<HTMLDivElement>(null);
 
@@ -84,6 +100,18 @@ export default function Chapter() {
       fetchWaitConfig();
     }
   }, [id, fetchChapter]);
+
+  // Update selectedPerspective when URL parameter changes
+  useEffect(() => {
+    if (urlPerspective) {
+      const validPerspectives = ["narrateur", "protagonist", "coloriage"];
+      if (validPerspectives.includes(urlPerspective)) {
+        setSelectedPerspective(
+          urlPerspective as "narrateur" | "protagonist" | "coloriage"
+        );
+      }
+    }
+  }, [urlPerspective]);
 
   // Handle payment return (success or cancelled)
   useEffect(() => {
@@ -278,17 +306,17 @@ export default function Chapter() {
     return Math.round(words / wordsPerMinute);
   };
 
-  // Handle perspective selection
+  // Handle perspective selection and update URL
   const handleSelectPerspective = (
     perspective: "narrateur" | "protagonist" | "coloriage",
   ) => {
-    // Select perspective and scroll to chapters list
+    // Update state
     setSelectedPerspective(perspective);
 
-    // Scroll to chapters list section with slight delay
-    // setTimeout(() => {
-    //   chaptersListRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    // }, 100);
+    // Update URL to persist perspective
+    if (id) {
+      navigate(`/chapters/${id}/${perspective}`, { replace: true });
+    }
   };
 
   // Handle reading next volume from EndOfVolumeUI

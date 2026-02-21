@@ -67,6 +67,16 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/chapters/:id/:perspective"
+          element={
+            <ProtectedRoute>
+              <LayoutNew>
+                <Chapter />
+              </LayoutNew>
+            </ProtectedRoute>
+          }
+        />
         {/* Legacy reader route - redirect to catalogue */}
         <Route
           path="/reader/:volumeId"
