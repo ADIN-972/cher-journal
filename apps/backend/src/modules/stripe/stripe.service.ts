@@ -162,7 +162,11 @@ export class StripeService {
         options.chapterId
       );
 
-      chapter.volumes.forEach((volume: any) => {
+      // For PROTAGONIST perspective (ALL versionScope), calculate price based on non-accessible volumes for that perspective
+      const isProtagonistBundle = options.versionScope === EntitlementVersionScope.ALL;
+
+      // For PROTAGONIST bundles, we need to check which volumes are already accessible for that perspective
+      for (const volume of chapter.volumes) {
         if (!volume.isFree) {
           let volumePrice = 0;
 
@@ -176,19 +180,33 @@ export class StripeService {
 
           bundleOriginalPrice += volumePrice;
 
-          // Check if user already PURCHASED this volume
-          // Only count PURCHASE entitlements (not free wait-to-read ones)
-          const hasPurchasedVolume =
-            entitlement &&
-            entitlement.source === EntitlementSource.PURCHASE &&
-            volume.volumeNumber >= entitlement.volumeFrom &&
-            volume.volumeNumber <= entitlement.volumeTo;
+          if (isProtagonistBundle) {
+            // For PROTAGONIST: Check if user has access to this volume for PROTAGONIST perspective
+            const protagonistAccess = await this.accessControl.getVolumeAccessInfo(
+              options.userId,
+              options.chapterId,
+              volume.volumeNumber,
+              'PROTAGONIST' as any
+            );
 
-          if (hasPurchasedVolume) {
-            alreadyAccessiblePrice += volumePrice;
+            if (protagonistAccess.isAccessible) {
+              alreadyAccessiblePrice += volumePrice;
+            }
+          } else {
+            // For NARRATOR: Check if user already PURCHASED this volume
+            // Only count PURCHASE entitlements (not free wait-to-read ones)
+            const hasPurchasedVolume =
+              entitlement &&
+              entitlement.source === EntitlementSource.PURCHASE &&
+              volume.volumeNumber >= entitlement.volumeFrom &&
+              volume.volumeNumber <= entitlement.volumeTo;
+
+            if (hasPurchasedVolume) {
+              alreadyAccessiblePrice += volumePrice;
+            }
           }
         }
-      });
+      }
 
       // Subtract already owned volumes, then apply 25% discount
       const remainingPrice = bundleOriginalPrice - alreadyAccessiblePrice;

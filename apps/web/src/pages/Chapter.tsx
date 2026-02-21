@@ -214,10 +214,13 @@ export default function Chapter() {
 
     try {
       setIsPurchasing(true);
+      // Use perspective-specific versionScope
+      const chapterVersionScope =
+        selectedPerspective === "protagonist" ? "ALL" : "BASE";
       const { url } = await api.createCheckoutSession({
         chapterId: id,
         type: "CHAPTER",
-        versionScope: "BASE",
+        versionScope: chapterVersionScope,
         successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
         cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
       });
