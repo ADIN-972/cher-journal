@@ -319,6 +319,30 @@ export default function Chapter() {
     }
   };
 
+  // Handle complete experience purchase (both NARRATOR and PROTAGONIST)
+  const handlePurchaseCompleteExperience = async () => {
+    if (!id) return;
+
+    try {
+      setIsPurchasing(true);
+      // For now, we'll create a CHAPTER order with NARRATOR
+      // User will need to also purchase PROTAGONIST separately
+      // In future, this could be a single transaction for both
+      const result = await api.createCheckoutSession({
+        chapterId: id,
+        type: "CHAPTER",
+        versionScope: "BASE",
+        successUrl: `${window.location.origin}/chapters/${id}/protagonist?purchase=success`,
+        cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
+      });
+      window.location.href = result.url;
+    } catch (err: any) {
+      console.error("Failed to create complete experience checkout session:", err);
+      showErrorToast(toast, "CHECKOUT_SESSION_FAILED");
+      setIsPurchasing(false);
+    }
+  };
+
   // Handle coloring purchase (coming soon)
   const handlePurchaseColoring = () => {
     showInfoToast(toast, "FEATURE_COMING_SOON_PURCHASE");
@@ -692,6 +716,7 @@ export default function Chapter() {
           onPurchase={handleUnlock}
           onPurchaseVolume={handlePurchaseVolumeFromPricing}
           onPurchaseProtagonistBundle={handlePurchaseProtagonistBundle}
+          onPurchaseCompleteExperience={handlePurchaseCompleteExperience}
           onPurchaseColoring={handlePurchaseColoring}
           isPurchasing={isPurchasing}
         />

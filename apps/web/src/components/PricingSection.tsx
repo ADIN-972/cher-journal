@@ -23,6 +23,7 @@ interface Pricing {
   pricePaywall: number;
   priceEpilogue: number;
   priceProtagonistUnlock?: number;
+  priceColoring?: number; // Price for all coloring pages in chapter
 }
 
 interface PricingSectionProps {
@@ -32,6 +33,7 @@ interface PricingSectionProps {
   onPurchase: () => void;
   onPurchaseVolume?: (volumeNumber: number) => void;
   onPurchaseProtagonistBundle?: () => void;
+  onPurchaseCompleteExperience?: () => void;
   onPurchaseColoring?: () => void;
   isPurchasing: boolean;
 }
@@ -43,6 +45,7 @@ export default function PricingSection({
   onPurchase,
   onPurchaseVolume,
   onPurchaseProtagonistBundle,
+  onPurchaseCompleteExperience,
   onPurchaseColoring,
   isPurchasing,
 }: PricingSectionProps) {
@@ -61,9 +64,13 @@ export default function PricingSection({
   const protagonistBundleOriginal = protagonistPrice * pricing.totalVolumes;
   const protagonistBundleDiscounted = Math.round(protagonistBundleOriginal * 0.75);
 
-  // Calculate coloring bundle price (coming soon - placeholder)
-  // In future, this will be based on number of coloring pages and their price
-  const coloringBundlePrice = 0; // To be implemented
+  // Calculate coloring bundle price
+  const coloringBundlePrice = pricing.priceColoring || 0; // Will be implemented with coloring feature
+
+  // Calculate complete experience price (narrator + protagonist + coloring)
+  const completeExperienceOriginal =
+    pricing.bundleDiscountedPrice + protagonistBundleDiscounted + coloringBundlePrice;
+  const completeExperienceFinalPrice = Math.round(completeExperienceOriginal * 0.85); // Additional 15% discount for complete experience
 
   return (
     <section className="mb-24">
@@ -76,7 +83,27 @@ export default function PricingSection({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+        {/* Complete Experience Bundle (NARRATOR + PROTAGONIST + COLORING) - PREMIUM */}
+        {onPurchaseCompleteExperience && (
+          <PlanCard
+            badge={{ text: "Ultime", show: true }}
+            icon="auto_awesome"
+            title={`L'Expérience Complète`}
+            description={`Tous les volumes: Point de vue Narrateur ET Protagoniste. Plus tout le coloriage du chapitre. L'intégralité sous tous les angles.`}
+            originalPrice={
+              pricing.bundleDiscountedPrice +
+              protagonistBundleDiscounted +
+              coloringBundlePrice
+            }
+            price={completeExperienceFinalPrice}
+            savingsText="Économisez jusqu'à 40% en une seule transaction"
+            buttonText="L'Expérience Ultime"
+            onPurchase={onPurchaseCompleteExperience}
+            isLoading={isPurchasing}
+          />
+        )}
+
         {/* Full Chapter Bundle - NARRATOR */}
         <PlanCard
           badge={{ text: "Conseillé", show: true }}
