@@ -1,6 +1,7 @@
 interface EndOfVolumeUIProps {
   volumeNumber: number;
   chapterId: string;
+  perspective?: 'NARRATOR' | 'PROTAGONIST';
   nextVolume?: {
     id?: string;
     volumeNumber?: number;
@@ -38,55 +39,68 @@ function formatTime(ms: number): string {
 export default function EndOfVolumeUI({
   volumeNumber,
   chapterId,
+  perspective,
   nextVolume,
   onClose,
   onStartWait,
   onPurchase,
   onReadNext
 }: EndOfVolumeUIProps) {
+  // PROTAGONIST price per volume (0.99€)
+  const protagonistPrice = 99;
+
   // Volumes 1-7: Wait or Pay
   if (volumeNumber <= 7 && nextVolume && !nextVolume.isAccessible) {
     if (nextVolume.blockageType === 'WAIT_OR_PAY') {
       const { waitRemaining } = nextVolume.blockageInfo || {};
-      const price = nextVolume.price;
+      const price = perspective === 'PROTAGONIST' ? protagonistPrice : nextVolume.price;
+      const isProtagonist = perspective === 'PROTAGONIST';
 
       return (
         <div className="mt-12 max-w-2xl mx-auto">
-          <div className="bg-gradient-to-br from-gold/10 via-amber-50/50 to-gold/10 dark:from-gold/5 dark:via-gray-800/50 dark:to-gold/5 border border-gold/30 dark:border-gold/20 rounded-xl p-8 text-center shadow-lg">
+          <div className={`bg-gradient-to-br ${isProtagonist
+            ? 'from-rose-500/10 via-pink-50/50 to-rose-500/10 dark:from-rose-500/5 dark:via-gray-800/50 dark:to-rose-500/5 border border-rose-500/30 dark:border-rose-500/20'
+            : 'from-gold/10 via-amber-50/50 to-gold/10 dark:from-gold/5 dark:via-gray-800/50 dark:to-gold/5 border border-gold/30 dark:border-gold/20'} rounded-xl p-8 text-center shadow-lg`}>
             <div className="mb-4">
-              <span className="material-symbols-outlined text-5xl text-gold mb-2">
-                auto_stories
+              <span className={`material-symbols-outlined text-5xl ${isProtagonist ? 'text-rose-500' : 'text-gold'} mb-2`}>
+                {isProtagonist ? 'favorite' : 'auto_stories'}
               </span>
             </div>
             <h3 className="text-2xl font-serif mb-2 text-gray-900 dark:text-white">
               Volume terminé !
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Envie de découvrir la suite ?
+            <p className={`${isProtagonist ? 'text-rose-700 dark:text-rose-300' : 'text-gray-600 dark:text-gray-400'} mb-6`}>
+              {isProtagonist
+                ? 'Continuez avec le point de vue de la Protagoniste'
+                : 'Envie de découvrir la suite ?'}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {/* Wait option */}
-              <button
-                onClick={onStartWait}
-                className="flex-1 sm:flex-none px-6 py-4 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:border-gold hover:bg-gold/5 dark:hover:border-gold dark:hover:bg-gold/10 transition-all group">
-                <div className="flex items-center justify-center gap-2 mb-1">
-                  <span className="material-symbols-outlined text-gray-600 dark:text-gray-400 group-hover:text-gold">
-                    schedule
-                  </span>
-                  <span className="font-semibold text-gray-900 dark:text-white">
-                    Attendre gratuitement
-                  </span>
-                </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {waitRemaining ? formatTime(waitRemaining) : 'Disponible bientôt'}
-                </p>
-              </button>
+            <div className={`flex ${isProtagonist ? 'flex-col' : 'flex-col sm:flex-row'} gap-4 justify-center`}>
+              {/* Wait option - only for NARRATOR */}
+              {!isProtagonist && (
+                <button
+                  onClick={onStartWait}
+                  className="flex-1 sm:flex-none px-6 py-4 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:border-gold hover:bg-gold/5 dark:hover:border-gold dark:hover:bg-gold/10 transition-all group">
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    <span className="material-symbols-outlined text-gray-600 dark:text-gray-400 group-hover:text-gold">
+                      schedule
+                    </span>
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      Attendre gratuitement
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {waitRemaining ? formatTime(waitRemaining) : 'Disponible bientôt'}
+                  </p>
+                </button>
+              )}
 
               {/* Pay option */}
               <button
                 onClick={() => onPurchase?.('freeToRead')}
-                className="flex-1 sm:flex-none px-6 py-4 bg-gradient-to-r from-gold to-amber-500 hover:from-gold/90 hover:to-amber-500/90 text-white rounded-lg shadow-md hover:shadow-lg transition-all">
+                className={`${isProtagonist ? 'w-full' : 'flex-1 sm:flex-none'} px-6 py-4 ${isProtagonist
+                  ? 'bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 shadow-lg shadow-rose-500/30 hover:shadow-rose-500/50'
+                  : 'bg-gradient-to-r from-gold to-amber-500 hover:from-gold/90 hover:to-amber-500/90'} text-white rounded-lg shadow-md hover:shadow-lg transition-all`}>
                 <div className="flex items-center justify-center gap-2 mb-1">
                   <span className="material-symbols-outlined">
                     lock_open

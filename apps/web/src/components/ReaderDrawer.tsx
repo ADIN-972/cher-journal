@@ -140,6 +140,7 @@ export default function ReaderDrawer({
           <EndOfVolumeUI
             volumeNumber={volumeNumber}
             chapterId={chapterId}
+            perspective={perspective}
             nextVolume={nextVolume}
             onClose={onClose}
             onStartWait={handleStartWait}
