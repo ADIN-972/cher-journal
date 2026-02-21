@@ -170,12 +170,18 @@ export class StripeService {
         if (!volume.isFree) {
           let volumePrice = 0;
 
-          if (volume.volumeNumber <= 8) {
-            volumePrice = prices.priceFreeToRead;
-          } else if (volume.volumeNumber <= 10) {
-            volumePrice = prices.pricePaywall;
+          if (isProtagonistBundle) {
+            // For PROTAGONIST: All volumes cost the same (priceProtagonistUnlock)
+            volumePrice = prices.priceProtagonistUnlock || 99;
           } else {
-            volumePrice = prices.priceEpilogue;
+            // For NARRATOR: Price varies by volume type
+            if (volume.volumeNumber <= 8) {
+              volumePrice = prices.priceFreeToRead;
+            } else if (volume.volumeNumber <= 10) {
+              volumePrice = prices.pricePaywall;
+            } else {
+              volumePrice = prices.priceEpilogue;
+            }
           }
 
           bundleOriginalPrice += volumePrice;

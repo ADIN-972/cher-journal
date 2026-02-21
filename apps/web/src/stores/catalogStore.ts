@@ -15,6 +15,7 @@ interface Pricing {
   priceFreeToRead: number;
   pricePaywall: number;
   priceEpilogue: number;
+  priceProtagonistUnlock?: number;
   totalVolumes: number;
   bundleOriginalPrice: number;
   bundleDiscountedPrice: number;

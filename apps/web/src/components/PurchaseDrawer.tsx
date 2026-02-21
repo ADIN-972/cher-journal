@@ -86,7 +86,7 @@ export default function PurchaseDrawer({
     }
   };
 
-  // Calculate volume price based on volume number and chapter pricing
+  // Calculate volume price based on volume number and chapter pricing (NARRATOR prices)
   const getVolumePriceByNumber = (volumeNum: number) => {
     if (volumeNum <= 8) {
       return chapter.pricing?.priceFreeToRead ?? 0;
@@ -97,17 +97,23 @@ export default function PurchaseDrawer({
     }
   };
 
+  // Get PROTAGONIST perspective unlock price
+  const getProtagonistVolumePrice = () => {
+    return chapter.pricing?.priceProtagonistUnlock ?? 99; // Default to 0,99€
+  };
+
   // Calculate total price for all volumes in PROTAGONIST perspective
   const calculateProtagenistBundlePrice = () => {
     if (!chapter.volumes) return 0;
     const perspectiveKey = "PROTAGONIST";
+    const protagonistPrice = getProtagonistVolumePrice();
     let totalPrice = 0;
 
     chapter.volumes.forEach((vol) => {
       const perspectiveAccess = vol.accessByPerspective?.[perspectiveKey];
-      // Only count volumes not yet accessible
+      // Only count volumes not yet accessible for PROTAGONIST
       if (!perspectiveAccess?.isAccessible) {
-        totalPrice += getVolumePriceByNumber(vol.volumeNumber);
+        totalPrice += protagonistPrice;
       }
     });
 
@@ -313,7 +319,9 @@ export default function PurchaseDrawer({
                 </p>
               </div>
               <div className="text-2xl font-display font-bold text-accent-gold dark:text-gold">
-                {(getVolumePriceByNumber(volume.volumeNumber) / 100).toFixed(2)}
+                {isPerspectiveProtagonist
+                  ? (getProtagonistVolumePrice() / 100).toFixed(2)
+                  : (getVolumePriceByNumber(volume.volumeNumber) / 100).toFixed(2)}
                 €
               </div>
             </div>
