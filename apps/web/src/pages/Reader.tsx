@@ -115,33 +115,22 @@ export default function Reader({
     if (
       currentAttemptId &&
       attemptVolumeId === volumeId &&
-      shownErrorForAttemptRef.current !== currentAttemptId
+      shownErrorForAttemptRef.current !== currentAttemptId &&
+      error &&
+      isLoading === false
     ) {
-      if (error && isLoading === false) {
-        console.log(`[Reader] DISPLAYING_ERROR_TOAST`, {
-          volumeId,
-          error,
-          currentAttemptId,
-          attemptVolumeId,
-          isLoading,
-          cause: `API returned explicit error message: "${error}"`,
-          timestamp: new Date().toISOString()
-        });
-        shownErrorForAttemptRef.current = currentAttemptId;
-        showErrorToast(toast, error);
-      } else if (!currentVolume && isLoading === false) {
-        // Volume failed to load without explicit error
-        console.log(`[Reader] DISPLAYING_GENERIC_LOAD_ERROR`, {
-          volumeId,
-          currentAttemptId,
-          currentVolumeExists: !!currentVolume,
-          isLoading,
-          cause: 'Volume failed to load without returning explicit error - API may have returned null/undefined',
-          timestamp: new Date().toISOString()
-        });
-        shownErrorForAttemptRef.current = currentAttemptId;
-        showErrorToast(toast, "LOAD_ERROR");
-      }
+      // Only show error if there's an explicit error message from the API
+      console.log(`[Reader] DISPLAYING_ERROR_TOAST`, {
+        volumeId,
+        error,
+        currentAttemptId,
+        attemptVolumeId,
+        isLoading,
+        cause: `API returned explicit error message: "${error}"`,
+        timestamp: new Date().toISOString()
+      });
+      shownErrorForAttemptRef.current = currentAttemptId;
+      showErrorToast(toast, error);
     } else if (currentAttemptId && attemptVolumeId !== volumeId) {
       console.log(`[Reader] SKIPPING_ERROR_DISPLAY_WRONG_VOLUME`, {
         expectedVolumeId: volumeId,
@@ -150,7 +139,7 @@ export default function Reader({
         cause: 'Error is for different volume than currently requested'
       });
     }
-  }, [error, currentVolume, isLoading, volumeId, toast]);
+  }, [error, isLoading, volumeId, toast]);
 
   // Calculate scroll progress
   useEffect(() => {

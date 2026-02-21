@@ -105,32 +105,22 @@ export default function ProtagonistReader({
     if (
       currentAttemptId &&
       attemptVolumeId === volumeId &&
-      shownErrorForAttemptRef.current !== currentAttemptId
+      shownErrorForAttemptRef.current !== currentAttemptId &&
+      error &&
+      isLoading === false
     ) {
-      if (error && isLoading === false) {
-        console.log(`[ProtagonistReader] DISPLAYING_ERROR_TOAST`, {
-          volumeId,
-          error,
-          currentAttemptId,
-          attemptVolumeId,
-          isLoading,
-          cause: `API returned explicit error message: "${error}" (PROTAGONIST perspective)`,
-          timestamp: new Date().toISOString()
-        });
-        shownErrorForAttemptRef.current = currentAttemptId;
-        showErrorToast(toast, error);
-      } else if (!currentVolume && isLoading === false) {
-        console.log(`[ProtagonistReader] DISPLAYING_GENERIC_LOAD_ERROR`, {
-          volumeId,
-          currentAttemptId,
-          currentVolumeExists: !!currentVolume,
-          isLoading,
-          cause: 'Volume failed to load without returning explicit error (PROTAGONIST perspective) - API may have returned null/undefined',
-          timestamp: new Date().toISOString()
-        });
-        shownErrorForAttemptRef.current = currentAttemptId;
-        showErrorToast(toast, "LOAD_ERROR");
-      }
+      // Only show error if there's an explicit error message from the API
+      console.log(`[ProtagonistReader] DISPLAYING_ERROR_TOAST`, {
+        volumeId,
+        error,
+        currentAttemptId,
+        attemptVolumeId,
+        isLoading,
+        cause: `API returned explicit error message: "${error}" (PROTAGONIST perspective)`,
+        timestamp: new Date().toISOString()
+      });
+      shownErrorForAttemptRef.current = currentAttemptId;
+      showErrorToast(toast, error);
     } else if (currentAttemptId && attemptVolumeId !== volumeId) {
       console.log(`[ProtagonistReader] SKIPPING_ERROR_DISPLAY_WRONG_VOLUME`, {
         expectedVolumeId: volumeId,
@@ -139,7 +129,7 @@ export default function ProtagonistReader({
         cause: 'Error is for different volume than currently requested (PROTAGONIST perspective)'
       });
     }
-  }, [error, currentVolume, isLoading, volumeId, toast]);
+  }, [error, isLoading, volumeId, toast]);
 
   // Calculate scroll progress
   useEffect(() => {
@@ -512,9 +502,10 @@ export default function ProtagonistReader({
                     className={`text-justify text-slate-800 dark:text-slate-200 drop-cap ${
                       isFirstParagraph ? "first-letter-ornate" : ""
                     }`}
-                    style={{
-                      color: isFirstParagraph ? "rgb(236, 72, 153)" : undefined,
-                    }}>
+                    // style={{
+                    //   color: isFirstParagraph ? "rgb(236, 72, 153)" : undefined,
+                    // }}
+                    >
                     {paragraph}
                   </p>
                   {shouldAddSeparator && (
