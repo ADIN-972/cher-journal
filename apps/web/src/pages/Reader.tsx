@@ -52,17 +52,19 @@ export default function Reader({
   const coverImageUrl = currentVolume?.illustrationUrl
     ? `${import.meta.env.VITE_API_URL ?? ""}${currentVolume.illustrationUrl}`
     : undefined;
-  // Load volume on mount or when volumeId changes
+  // Load volume on mount or when volumeId or perspective changes
   useEffect(() => {
-    if (volumeId && loadedVolumeIdRef.current !== volumeId) {
-      // Only load if not already loaded this volumeId
-      loadedVolumeIdRef.current = volumeId;
+    // Convert perspective from uppercase to lowercase for store
+    const perspectiveKey = perspective === 'PROTAGONIST' ? 'protagonist' : 'narrator';
+    const loadKey = `${volumeId}-${perspectiveKey}`;
+
+    if (volumeId && loadedVolumeIdRef.current !== loadKey) {
+      // Only load if not already loaded this volumeId+perspective combination
+      loadedVolumeIdRef.current = loadKey;
       currentAttemptVolumeIdRef.current = volumeId;
       loadAttemptIdRef.current = `${volumeId}-${Date.now()}`;
       // Reset error tracking for new volume
       shownErrorForAttemptRef.current = null;
-      // Convert perspective from uppercase to lowercase for store
-      const perspectiveKey = perspective === 'PROTAGONIST' ? 'protagonist' : 'narrator';
       console.log(`[Reader] Starting new volume load: ${volumeId} with perspective: ${perspective}`);
       loadVolume(volumeId, perspectiveKey);
     }
@@ -460,7 +462,7 @@ export default function Reader({
               </div>
             )} */}
 
-            {chapterId && currentVolume && onPurchasePerspective && (
+            {/* {chapterId && currentVolume && onPurchasePerspective && (
               <PerspectiveUnlock
                 chapterId={chapterId}
                 volumeNumber={currentVolume.volumeNumber}
@@ -468,7 +470,7 @@ export default function Reader({
                 onPurchase={onPurchasePerspective}
                 isPurchasing={isPurchasing}
               />
-            )}
+            )} */}
 
             <h1 className="text-slate-900 dark:text-white font-ornate tracking-wide text-[26px] md:text-[40px] font-medium leading-tight text-center pb-6 pt-2 ">
               Vol {currentVolume.volumeNumber}: {currentVolume.title}

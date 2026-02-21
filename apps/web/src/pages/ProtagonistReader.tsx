@@ -52,14 +52,16 @@ export default function ProtagonistReader({
     ? `${import.meta.env.VITE_API_URL ?? ""}${currentVolume.illustrationUrl}`
     : undefined;
 
-  // Load volume on mount or when volumeId changes
+  // Load volume on mount or when volumeId or perspective changes
   useEffect(() => {
-    if (volumeId && loadedVolumeIdRef.current !== volumeId) {
-      loadedVolumeIdRef.current = volumeId;
+    const perspectiveKey = perspective === 'PROTAGONIST' ? 'protagonist' : 'narrator';
+    const loadKey = `${volumeId}-${perspectiveKey}`;
+
+    if (volumeId && loadedVolumeIdRef.current !== loadKey) {
+      loadedVolumeIdRef.current = loadKey;
       currentAttemptVolumeIdRef.current = volumeId;
       loadAttemptIdRef.current = `${volumeId}-${Date.now()}`;
       shownErrorForAttemptRef.current = null;
-      const perspectiveKey = perspective === 'PROTAGONIST' ? 'protagonist' : 'narrator';
       console.log(`[ProtagonistReader] Starting new volume load: ${volumeId} with perspective: ${perspective}`);
       loadVolume(volumeId, perspectiveKey);
     }
@@ -203,7 +205,7 @@ export default function ProtagonistReader({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-rose-50/30 dark:bg-background-dark">
+      <div className="min-h-screen flex items-center justify-center bg-rose-50 dark:bg-background-dark">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500 mx-auto mb-4"></div>
           <p className="text-charcoal dark:text-white font-light">
@@ -223,7 +225,7 @@ export default function ProtagonistReader({
     .filter((p) => p.trim().length > 0);
 
   return (
-    <div className="font-display transition-colors duration-500 overflow-x-auto bg-rose-50/20 dark:bg-background-dark">
+    <div className="font-display transition-colors duration-500 overflow-x-auto bg-rose-50 dark:bg-background-dark">
       {/* Rose Ambient Background */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.01]" style={{
         backgroundImage: "radial-gradient(circle at 20% 50%, #e91e63 0%, transparent 50%), radial-gradient(circle at 80% 80%, #f06292 0%, transparent 50%)",
