@@ -755,11 +755,13 @@ export default function Chapter() {
               (v) => v.volumeNumber === selectedVolume.volumeNumber + 1,
             );
             const perspectiveKey = getPerspectiveKey();
-            const blockageType = vol?.accessByPerspective?.[perspectiveKey]?.blockageType;
+            const access = vol?.accessByPerspective?.[perspectiveKey];
             return vol
               ? {
                   ...vol,
-                  blockageType: blockageType ?? undefined,
+                  isAccessible: access?.isAccessible ?? false,
+                  blockageType: access?.blockageType ?? undefined,
+                  blockageInfo: access?.blockageInfo,
                 }
               : null;
           })()}

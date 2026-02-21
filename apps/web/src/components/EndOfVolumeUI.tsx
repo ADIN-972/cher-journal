@@ -55,7 +55,7 @@ export default function EndOfVolumeUI({
   const isProtagonist = perspective === 'PROTAGONIST';
 
   // Determine if this is the last volume
-  const isLastVolume =( volumeNumber >= totalVolumes )|| (!nextVolume && allVolumesOwned);
+  const isLastVolume = !nextVolume || volumeNumber >= totalVolumes;
 
   // If last volume: Show minimal completion message
   if (isLastVolume) {
