@@ -22,6 +22,8 @@ interface ReaderDrawerProps {
     blockageInfo?: any;
   } | null;
   onReadNext?: (volumeId: string, volumeNumber: number) => void;
+  totalVolumes?: number;
+  allVolumesOwned?: boolean;
 }
 
 export default function ReaderDrawer({
@@ -34,6 +36,8 @@ export default function ReaderDrawer({
   nextVolume,
   onReadNext,
   onPurchasePerspective,
+  totalVolumes,
+  allVolumesOwned,
 }: ReaderDrawerProps & {
   onPurchasePerspective?: (volumeNumber: number) => void;
 }) {
@@ -86,7 +90,7 @@ export default function ReaderDrawer({
     }
   };
 
-  const handlePurchase = async (type: "freeToRead" | "paywall" | "epilogue" | "protagonistChapter") => {
+  const handlePurchase = async (type: "freeToRead" | "paywall" | "epilogue" | "narratorChapter" | "protagonistChapter") => {
     if (!nextVolume?.id) {
       showErrorToast(toast, 'CHECKOUT_SESSION_FAILED');
       return;
@@ -104,8 +108,18 @@ export default function ReaderDrawer({
           cancelUrl: `${window.location.origin}/chapters/${chapterId}/protagonist?purchase=cancelled`,
         });
         url = result.url;
+      } else if (type === 'narratorChapter') {
+        // NARRATOR perspective: purchase all volumes for NARRATOR perspective
+        const result = await api.createCheckoutSession({
+          chapterId,
+          type: 'CHAPTER',
+          versionScope: "BASE",
+          successUrl: `${window.location.origin}/chapters/${chapterId}?purchase=success`,
+          cancelUrl: `${window.location.origin}/chapters/${chapterId}?purchase=cancelled`,
+        });
+        url = result.url;
       } else {
-        // NARRATOR perspective
+        // NARRATOR perspective: individual volumes or paywall
         let orderType: 'CHAPTER' | 'VOLUME';
 
         if (type === 'freeToRead') {
@@ -161,6 +175,8 @@ export default function ReaderDrawer({
             onStartWait={handleStartWait}
             onPurchase={handlePurchase}
             onReadNext={onReadNext}
+            totalVolumes={totalVolumes}
+            allVolumesOwned={allVolumesOwned}
           />
         }
       />

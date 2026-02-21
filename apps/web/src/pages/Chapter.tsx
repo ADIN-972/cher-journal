@@ -765,6 +765,14 @@ export default function Chapter() {
           })()}
           onReadNext={handleReadNext}
           onPurchasePerspective={handlePurchasePerspective}
+          totalVolumes={currentChapter.volumes?.length ?? 10}
+          allVolumesOwned={(() => {
+            const perspectiveKey = getPerspectiveKey();
+            return currentChapter.volumes?.every((vol) => {
+              const access = vol.accessByPerspective?.[perspectiveKey];
+              return access?.isAccessible === true && !access?.blockageType;
+            }) ?? false;
+          })()}
         />
       )}
 
