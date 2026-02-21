@@ -775,6 +775,7 @@ export default function Chapter() {
               return access?.isAccessible === true && !access?.blockageType;
             }) ?? false;
           })()}
+          chapterPrice={currentChapter.pricing?.bundleDiscountedPrice}
         />
       )}
 

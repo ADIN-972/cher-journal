@@ -16,6 +16,7 @@ interface EndOfVolumeUIProps {
   onReadNext?: (volumeId: string, volumeNumber: number) => void;
   totalVolumes?: number;
   allVolumesOwned?: boolean;
+  chapterPrice?: number;
 }
 
 function formatPrice(cents: number): string {
@@ -49,6 +50,7 @@ export default function EndOfVolumeUI({
   onReadNext,
   totalVolumes = 10,
   allVolumesOwned = false,
+  chapterPrice,
 }: EndOfVolumeUIProps) {
   // PROTAGONIST price per volume (0.99€)
   const protagonistPrice = 99;
@@ -139,7 +141,7 @@ export default function EndOfVolumeUI({
                   </span>
                 </div>
                 <p className="text-sm text-white/90">
-                  Tous les volumes
+                  {chapterPrice ? formatPrice(chapterPrice) : 'Tous les volumes'}
                 </p>
               </button>
             )}
@@ -307,7 +309,7 @@ export default function EndOfVolumeUI({
                     </span>
                   </div>
                   <p className="text-sm text-white/90">
-                    Tous les volumes
+                    {chapterPrice ? formatPrice(chapterPrice) : 'Tous les volumes'}
                   </p>
                 </button>
               )}

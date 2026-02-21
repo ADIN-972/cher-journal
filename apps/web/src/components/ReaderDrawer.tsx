@@ -24,6 +24,7 @@ interface ReaderDrawerProps {
   onReadNext?: (volumeId: string, volumeNumber: number) => void;
   totalVolumes?: number;
   allVolumesOwned?: boolean;
+  chapterPrice?: number;
 }
 
 export default function ReaderDrawer({
@@ -38,6 +39,7 @@ export default function ReaderDrawer({
   onPurchasePerspective,
   totalVolumes,
   allVolumesOwned,
+  chapterPrice,
 }: ReaderDrawerProps & {
   onPurchasePerspective?: (volumeNumber: number) => void;
 }) {
@@ -177,6 +179,7 @@ export default function ReaderDrawer({
             onReadNext={onReadNext}
             totalVolumes={totalVolumes}
             allVolumesOwned={allVolumesOwned}
+            chapterPrice={chapterPrice}
           />
         }
       />
