@@ -61,10 +61,12 @@ export default function Reader({
       loadAttemptIdRef.current = `${volumeId}-${Date.now()}`;
       // Reset error tracking for new volume
       shownErrorForAttemptRef.current = null;
-      console.log(`[Reader] Starting new volume load: ${volumeId}`);
-      loadVolume(volumeId);
+      // Convert perspective from uppercase to lowercase for store
+      const perspectiveKey = perspective === 'PROTAGONIST' ? 'protagonist' : 'narrator';
+      console.log(`[Reader] Starting new volume load: ${volumeId} with perspective: ${perspective}`);
+      loadVolume(volumeId, perspectiveKey);
     }
-  }, [volumeId, loadVolume]);
+  }, [volumeId, loadVolume, perspective]);
 
   // Send progress to API (debounced)
   const sendProgressToAPI = async (progress: number) => {

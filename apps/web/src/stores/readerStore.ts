@@ -71,8 +71,9 @@ export const useReaderStore = create<ReaderState>()(
         set({ isLoading: true, error: null, loadingRequestId: requestId });
 
         try {
-          console.log(`[Reader] Loading volume: ${volumeId}`);
-          const volume = await api.getVolumeText(volumeId);
+          console.log(`[Reader] Loading volume: ${volumeId} with perspective: ${currentPerspective}`);
+          const perspectiveUpper = currentPerspective === 'protagonist' ? 'PROTAGONIST' : 'NARRATOR';
+          const volume = await api.getVolumeText(volumeId, perspectiveUpper);
           console.log(`[Reader] Received volume response:`, volume);
 
           // Only update state if this response is for the current request
