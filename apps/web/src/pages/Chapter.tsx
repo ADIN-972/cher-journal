@@ -169,7 +169,15 @@ export default function Chapter() {
       setReaderOpen(true);
     } else {
       // Open purchase drawer for locked volumes based on perspective
-      setSelectedVolumeForPurchase(volume);
+      // Enrich volume with blockage info from the current perspective
+      const perspectiveKey = selectedPerspective === "protagonist" ? "protagonist" : "narrator";
+      const accessInfo = volume.accessByPerspective?.[perspectiveKey];
+      const enrichedVolume = {
+        ...volume,
+        blockageInfo: accessInfo?.blockageInfo,
+        canStartWait: accessInfo?.blockageType === 'WAIT_OR_PAY',
+      };
+      setSelectedVolumeForPurchase(enrichedVolume);
       if (selectedPerspective === "protagonist") {
         setProtagonistPurchaseDrawerOpen(true);
       } else {
