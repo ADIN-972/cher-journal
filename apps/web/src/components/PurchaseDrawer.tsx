@@ -64,7 +64,7 @@ export default function PurchaseDrawer({
   // Use price from API (already calculated on backend)
 
   const hasActiveWait =
-    volume.blockageInfo?.waitRemaining && volume.blockageInfo.waitRemaining > 0;
+    (volume.blockageInfo?.waitRemaining ?? 0) > 0;
   const canStartWait =
     volume.canStartWait && !hasActiveWait && activeWaitsCount < maxWaitsAllowed;
   const reachedWaitLimit = activeWaitsCount >= maxWaitsAllowed;
