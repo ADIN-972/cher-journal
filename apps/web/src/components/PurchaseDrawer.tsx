@@ -66,18 +66,6 @@ export default function PurchaseDrawer({
   const hasActiveWait =
     (volume.blockageInfo?.waitRemaining ?? 0) > 0;
 
-  // Debug logging
-  console.log(`[PurchaseDrawer] Volume blockage check:`, {
-    volumeId: volume.id,
-    volumeNumber: volume.volumeNumber,
-    blockageInfo: volume.blockageInfo,
-    waitRemaining: volume.blockageInfo?.waitRemaining,
-    hasActiveWait,
-    canStartWait: volume.canStartWait,
-    activeWaitsCount,
-    cause: 'Debugging wait timer detection'
-  });
-
   const canStartWait =
     volume.canStartWait && !hasActiveWait && activeWaitsCount < maxWaitsAllowed;
   const reachedWaitLimit = activeWaitsCount >= maxWaitsAllowed;
