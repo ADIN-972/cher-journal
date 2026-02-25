@@ -10,6 +10,7 @@ const perspectives = [
   {
     id: "narrateur" as const,
     label: "Narrateur",
+    icon: "auto_stories",
     lightBg: "bg-blue-50",
     darkBg: "dark:bg-slate-900/40",
     lightText: "text-blue-700",
@@ -20,6 +21,7 @@ const perspectives = [
   {
     id: "protagonist" as const,
     label: (name?: string) => name || "Protagoniste",
+    icon: "favorite",
     lightBg: "bg-purple-50",
     darkBg: "dark:bg-purple-900/30",
     lightText: "text-purple-700",
@@ -30,6 +32,7 @@ const perspectives = [
   {
     id: "coloriage" as const,
     label: "Coloriage",
+    icon: "palette",
     lightBg: "bg-emerald-50",
     darkBg: "dark:bg-emerald-900/30",
     lightText: "text-emerald-700",
@@ -70,7 +73,7 @@ export default function MobilePerspectiveSelector({
                   )
                 }
                 title={`Version ${label}`}
-                className={`relative px-5 py-3 rounded-xl font-serif font-medium text-sm transition-all duration-300 ease-out ${
+                className={`relative px-4 py-3 rounded-xl font-serif font-medium text-sm transition-all duration-300 ease-out flex items-center justify-center gap-2 ${
                   isSelected
                     ? `${perspective.lightBg} ${perspective.darkBg} ${perspective.lightText} ${perspective.darkText} shadow-md ring-1 ${perspective.ringColor}`
                     : `text-boudoir-600 dark:text-boudoir-300 hover:text-boudoir-700 dark:hover:text-boudoir-200 hover:${perspective.lightBg} dark:hover:bg-boudoir-900/20`
@@ -81,7 +84,10 @@ export default function MobilePerspectiveSelector({
                     aria-hidden="true"
                   />
                 )}
-                <span className="relative">{label}</span>
+                <span className="material-symbols-outlined text-lg transition-transform duration-300">
+                  {perspective.icon}
+                </span>
+                <span className="relative hidden sm:inline">{label}</span>
               </button>
             );
           })}
