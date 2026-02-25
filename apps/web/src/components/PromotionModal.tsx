@@ -111,6 +111,19 @@ export default function PromotionModal({
     return '';
   };
 
+  const getScopeDescription = (scope: string): string => {
+    const scopeMap: Record<string, string> = {
+      CHAPTER: 'Débloquer le chapitre complet',
+      VOLUME: 'Débloquer un volume',
+      EPILOGUE: 'Débloquer l\'épilogue',
+      POV: 'Débloquer le point de vue Protagoniste',
+      COLORING: 'Débloquer les pages de coloriage',
+      BUNDLE: 'Débloquer un bundle',
+      SUBSCRIPTION: 'Débloquer un abonnement',
+    };
+    return scopeMap[scope] || scope;
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-[#2d1620] rounded-2xl shadow-2xl max-w-md w-full border border-boudoir-200 dark:border-[#c5a059]/30">
@@ -136,6 +149,16 @@ export default function PromotionModal({
                   ? `${((promotion.value || 0) / 100).toFixed(2)}€ discount`
                   : "Free access"}
             </div>
+          </div>
+
+          {/* Scope info - what does this promotion unlock */}
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-900/10 rounded-lg p-3 border border-purple-300 dark:border-purple-700/50">
+            <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 uppercase mb-1">
+              Type de déblocage
+            </p>
+            <p className="text-sm text-purple-900 dark:text-purple-200">
+              {getScopeDescription(promotion.scope)}
+            </p>
           </div>
 
           {/* Quota info */}

@@ -43,6 +43,19 @@ export default function Promotions() {
     return 'attach_money';
   };
 
+  const getScopeDescription = (scope: string): string => {
+    const scopeMap: Record<string, string> = {
+      CHAPTER: 'Chapitre complet',
+      VOLUME: 'Volume',
+      EPILOGUE: 'Épilogue',
+      POV: 'Point de vue Protagoniste',
+      COLORING: 'Pages de coloriage',
+      BUNDLE: 'Bundle',
+      SUBSCRIPTION: 'Abonnement',
+    };
+    return scopeMap[scope] || scope;
+  };
+
   const formatDate = (date: string | Date): string => {
     return new Date(date).toLocaleDateString('fr-FR', {
       day: 'numeric',
@@ -164,9 +177,16 @@ export default function Promotions() {
               </div>
             </div>
 
+            {/* Scope badge - what this promotion unlocks */}
+            <div className="px-4 pt-4 pb-2">
+              <span className="inline-block bg-purple-500/20 border border-purple-400/50 text-purple-200 text-xs font-semibold px-2 py-1 rounded-full">
+                {getScopeDescription(promotion.scope)}
+              </span>
+            </div>
+
             {/* Content info */}
             {promotion.content && (
-              <div className="p-4 bg-black/40">
+              <div className="p-4 bg-black/40 pt-2">
                 <div className="text-xs text-[#c5a059] mb-3 font-semibold uppercase">
                   {t('account.promotions.unlocks')}
                 </div>
@@ -197,6 +217,15 @@ export default function Promotions() {
                     )}
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* General promotion info - no specific content */}
+            {!promotion.content && (
+              <div className="p-4 bg-black/40 pt-2">
+                <p className="text-xs text-white/60">
+                  💡 Vous pouvez appliquer cette promotion à n\'importe quel {getScopeDescription(promotion.scope).toLowerCase()}
+                </p>
               </div>
             )}
 
