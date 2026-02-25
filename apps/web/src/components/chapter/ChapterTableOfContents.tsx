@@ -1,9 +1,6 @@
 import { ForwardedRef, forwardRef } from "react";
 import type { Chapter } from "../../stores/catalogStore";
-import { useToast } from "../../hooks/useToast";
-import { showInfoToast } from "../../lib/toastHelper";
-import WaitTimer from "../WaitTimer";
-import api from "../../lib/api";
+import VolumeActionButtons from "../VolumeActionButtons";
 
 type Volume = NonNullable<Chapter["volumes"]>[number];
 
@@ -34,8 +31,6 @@ export default forwardRef<HTMLElement, ChapterTableOfContentsProps>(
     },
     ref: ForwardedRef<HTMLElement>,
   ) {
-    const toast = useToast();
-
     const renderVolumesList = () => {
       if (!chapter.volumes || chapter.volumes.length === 0) {
         return (
@@ -151,111 +146,34 @@ export default forwardRef<HTMLElement, ChapterTableOfContentsProps>(
                 )}
               </div>
             </div>
-            {isUnlocked ? (
-              <span className="material-symbols-outlined rose-gold-fill text-2xl opacity-60">
-                check_circle
-              </span>
-            ) : needsUpgrade ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // TODO: Navigate to upgrade page
-                  showInfoToast(toast, "FEATURE_COMING_SOON_UPGRADE");
-                }}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-full font-semibold text-sm flex items-center gap-2 transition-all">
-                <span className="material-symbols-outlined text-sm">
-                  upgrade
+
+            <div className="">
+              {isUnlocked ? (
+                <span className="material-symbols-outlined rose-gold-fill text-2xl opacity-60">
+                  check_circle
                 </span>
-                Mettre à niveau
-              </button>
-            ) : hasActiveWait ? (
-              <div className="flex flex-col gap-2 items-center">
-                <WaitTimer
-                  remainingMs={blockageInfo.waitRemaining || 0}
-                  variant="badge"
-                  onComplete={() => {
-                    // Refresh chapter data when timer completes
-                    onFetchChapter();
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    if (!chapterId) return;
-                    try {
-                      const volumeVersionScope =
-                        selectedPerspective === "protagonist" ? "ALL" : "BASE";
-                      const { url } = await api.createCheckoutSession({
-                        chapterId: chapterId,
-                        type: "VOLUME",
-                        volumeNumber: volume.volumeNumber,
-                        versionScope: volumeVersionScope,
-                        successUrl: `${window.location.origin}/chapters/${chapterId}?purchase=success`,
-                        cancelUrl: `${window.location.origin}/chapters/${chapterId}?purchase=cancelled`,
-                      });
-                      if (url) window.location.href = url;
-                    } catch (err: any) {
-                      console.error(
-                        "Failed to create checkout session for volume:",
-                        err,
-                      );
-                      const errorMessage =
-                        err.response?.data?.error?.message ||
-                        "Erreur lors de la création de la session de paiement.";
-                      toast.error(errorMessage);
-                    }
-                  }}
-                  disabled={isPurchasing}
-                  className="bg-primary hover:bg-primary/90 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 transition-all">
-                  <span className="material-symbols-outlined text-sm">
-                    {isPurchasing ? "hourglass_empty" : "shopping_cart"}
-                  </span>
-                  {isPurchasing ? "Chargement..." : `Acheter juste ce volume`}
-                </button>
-              </div>
-            ) : canStartWait ? (
-              <div className="flex flex-col gap-2">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOpenVolume(volume);
-                    //  onUnlock();
-                  }}
-                  disabled={isPurchasing}
-                  className="bg-primary hover:bg-primary/90 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 transition-all">
-                  <span className="material-symbols-outlined text-sm">
-                    {isPurchasing ? "hourglass_empty" : "shopping_cart"}
-                  </span>
-                  {isPurchasing
-                    ? "Chargement..."
-                    : selectedPerspective === "protagonist"
-                      ? "Débloquer - Point de vue de la protagoniste"
-                      : "Débloquer - Point de vue du narrateur"}
-                </button>
-                {selectedPerspective === "narrateur" && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onStartWait(volume.volumeNumber);
-                    }}
-                    disabled={isStartingWait}
-                    className="bg-accent-gold hover:bg-accent-gold/90 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 transition-all">
-                    <span className="material-symbols-outlined text-sm">
-                      {isStartingWait ? "hourglass_empty" : "timer"}
-                    </span>
-                    {isStartingWait ? "Chargement..." : "Attendre gratuitement"}
-                  </button>
-                )}
-              </div>
-            ) : (
-              <span className="material-symbols-outlined rose-gold-fill text-2xl opacity-60">
-                lock
-              </span>
-            )}
+              ) : (
+                <span className="material-symbols-outlined rose-gold-fill text-2xl opacity-60">
+                  lock
+                </span>
+              )}
+            </div>
+            <div className="flex flex-row col-span-2">
+              <VolumeActionButtons
+                volume={volume}
+                selectedPerspective={selectedPerspective}
+                isPurchasing={isPurchasing}
+                isStartingWait={isStartingWait}
+                needsUpgrade={needsUpgrade}
+                hasActiveWait={hasActiveWait}
+                canStartWait={canStartWait}
+                blockageInfo={blockageInfo}
+                chapterId={chapterId}
+                onOpenVolume={onOpenVolume}
+                onStartWait={onStartWait}
+                onFetchChapter={onFetchChapter}
+              />
+            </div>
           </div>
         );
       });
