@@ -22,6 +22,7 @@ import PricingSection from "../components/PricingSection";
 import ReviewsSection from "../components/ReviewsSection";
 import ChapterTableOfContents from "../components/chapter/ChapterTableOfContents";
 import PerspectiveSelector from "../components/PerspectiveSelector";
+import MobilePerspectiveSelector from "../components/MobilePerspectiveSelector";
 import ChapterHeader from "../components/ChapterHeader";
 import { NotificationService } from "../lib/notifications";
 
@@ -562,6 +563,11 @@ export default function Chapter() {
 
       {/* Perspective Selector */}
       <PerspectiveSelector
+        selectedPerspective={selectedPerspective ?? "narrateur"}
+        onSelectPerspective={handleSelectPerspective}
+        protagonistName={currentChapter.protagonistName}
+      />
+      <MobilePerspectiveSelector
         selectedPerspective={selectedPerspective}
         onSelectPerspective={handleSelectPerspective}
         protagonistName={currentChapter.protagonistName}
@@ -571,7 +577,7 @@ export default function Chapter() {
       <ChapterTableOfContents
         ref={chaptersListRef}
         chapter={currentChapter}
-        selectedPerspective={selectedPerspective}
+        selectedPerspective={selectedPerspective ?? "narrateur"}
         isPurchasing={isPurchasing}
         isStartingWait={isStartingWait}
         onOpenVolume={handleOpenVolume}
@@ -619,7 +625,9 @@ export default function Chapter() {
           volumeId={selectedVolume.id}
           chapterId={id!}
           volumeNumber={selectedVolume.volumeNumber}
-          perspective={selectedPerspective === 'protagonist' ? 'PROTAGONIST' : 'NARRATOR'}
+          perspective={
+            selectedPerspective === "protagonist" ? "PROTAGONIST" : "NARRATOR"
+          }
           nextVolume={(() => {
             const vol = currentChapter.volumes?.find(
               (v) => v.volumeNumber === selectedVolume.volumeNumber + 1,
@@ -640,20 +648,24 @@ export default function Chapter() {
           totalVolumes={currentChapter.volumes?.length ?? 10}
           allVolumesOwned={(() => {
             const perspectiveKey = getPerspectiveKey();
-            return currentChapter.volumes?.every((vol) => {
-              const access = vol.accessByPerspective?.[perspectiveKey];
-              return access?.isAccessible === true && !access?.blockageType;
-            }) ?? false;
+            return (
+              currentChapter.volumes?.every((vol) => {
+                const access = vol.accessByPerspective?.[perspectiveKey];
+                return access?.isAccessible === true && !access?.blockageType;
+              }) ?? false
+            );
           })()}
           chapterPrice={(() => {
-            if (selectedPerspective === 'protagonist') {
+            if (selectedPerspective === "protagonist") {
               // PROTAGONIST: Calculate total price = (count of non-free, non-accessible volumes) × priceProtagonistUnlock
               const perspectiveKey = getPerspectiveKey();
-              const inaccessibleNonFreeVolumes = currentChapter.volumes?.filter(vol => {
-                const access = vol.accessByPerspective?.[perspectiveKey];
-                return !vol.isFree && !access?.isAccessible;
-              }) ?? [];
-              const pricePerVolume = currentChapter.pricing?.priceProtagonistUnlock ?? 99;
+              const inaccessibleNonFreeVolumes =
+                currentChapter.volumes?.filter((vol) => {
+                  const access = vol.accessByPerspective?.[perspectiveKey];
+                  return !vol.isFree && !access?.isAccessible;
+                }) ?? [];
+              const pricePerVolume =
+                currentChapter.pricing?.priceProtagonistUnlock ?? 99;
               return inaccessibleNonFreeVolumes.length * pricePerVolume;
             } else {
               // NARRATOR: Use bundle discounted price (remaining volumes to purchase)
