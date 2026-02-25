@@ -1,7 +1,6 @@
 import ChapterCover from "./common/ChapterCover";
 import BookStore from "./common/BookStore";
-
-
+import { Chapter } from "../stores/catalogStore";
 
 interface ChapterHeaderProps {
   currentChapter: Chapter;
@@ -103,7 +102,7 @@ export default function ChapterHeader({
                 </span>
                 <span className="text-2xl font-display font-bold">
                   {(currentChapter.pricing.bundleDiscountedPrice / 100).toFixed(
-                    2
+                    2,
                   )}{" "}
                   €
                 </span>
