@@ -11,6 +11,11 @@ const controller = new PromotionsController();
  */
 
 /**
+ * GET /promotions/applied
+ * Fetch promotions already applied by the current user
+ */
+
+/**
  * POST /promotions/use/:promotionId
  * Apply a promotion to the user's account
  */
@@ -18,6 +23,11 @@ export async function promotionsRoutes(app: FastifyInstance) {
   app.get('/promotions/applicable', {
     preHandler: requireAuth,
     handler: controller.getApplicablePromotions.bind(controller),
+  });
+
+  app.get('/promotions/applied', {
+    preHandler: requireAuth,
+    handler: controller.getAppliedPromotions.bind(controller),
   });
 
   app.post('/promotions/use/:promotionId', {

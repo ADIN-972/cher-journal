@@ -20,6 +20,10 @@ export default function PromotionModal({
   const [selectedRefId, setSelectedRefId] = useState<string | null>(null);
   const [availableContent, setAvailableContent] = useState<any[]>([]);
   const [loadingContent, setLoadingContent] = useState(false);
+  const [userEntitlements, setUserEntitlements] = useState<string[]>([]);
+  const [appliedPromotionRefIds, setAppliedPromotionRefIds] = useState<Set<string>>(
+    new Set()
+  );
 
   useEffect(() => {
     if (isOpen && promotion && !promotion.content) {
@@ -37,8 +41,38 @@ export default function PromotionModal({
   const loadAvailableContent = async () => {
     try {
       setLoadingContent(true);
-      const chapters = await api.getChapters();
-      setAvailableContent(chapters);
+
+      // Load chapters, library, and applied promotions in parallel
+      const [chapters, library, appliedPromotions] = await Promise.all([
+        api.getChapters(),
+        api.getLibrary(),
+        api.getAppliedPromotions(),
+      ]);
+
+      // Get list of chapter IDs the user already has entitlements for
+      const entitledChapterIds = new Set(library.map((ent: any) => ent.chapterId));
+      setUserEntitlements(library.map((ent: any) => ent.chapterId));
+
+      // Get list of chapter IDs where this promotion has already been applied
+      const appliedRefIdSet = new Set<string>();
+      if (promotion) {
+        appliedPromotions.forEach((ap: any) => {
+          if (ap.promotionId === promotion.id && ap.appliedRefId) {
+            appliedRefIdSet.add(ap.appliedRefId);
+          }
+        });
+      }
+      setAppliedPromotionRefIds(appliedRefIdSet);
+
+      // Filter out chapters:
+      // 1. The user already has access to
+      // 2. This promotion has already been applied to
+      const filterableChapters = chapters.filter(
+        (chapter: any) =>
+          !entitledChapterIds.has(chapter.id) && !appliedRefIdSet.has(chapter.id)
+      );
+
+      setAvailableContent(filterableChapters);
     } catch (error) {
       console.error('Failed to load chapters:', error);
     } finally {

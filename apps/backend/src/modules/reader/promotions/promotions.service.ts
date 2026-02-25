@@ -250,6 +250,26 @@ export class PromotionsService {
     return applicablePromotions;
   }
 
+  async getUserAppliedPromotions(userId: string): Promise<any[]> {
+    const appliedPromotions = await prisma.appliedPromotion.findMany({
+      where: { userId },
+      include: {
+        promotion: true,
+      },
+    });
+
+    return appliedPromotions.map((ap) => ({
+      promotionId: ap.promotionId,
+      appliedRefId: ap.appliedRefId,
+      appliedAt: ap.appliedAt,
+      promotion: {
+        id: ap.promotion.id,
+        name: ap.promotion.name,
+        refId: ap.promotion.refId,
+      },
+    }));
+  }
+
   private isUserEligibleForTargeting(
     promo: any,
     userId: string,

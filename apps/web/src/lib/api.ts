@@ -374,6 +374,11 @@ class ApiClient {
     return response.data.promotions;
   }
 
+  async getAppliedPromotions(): Promise<any[]> {
+    const response = await this.get<{ success: boolean; data: { appliedPromotions: any[] } }>('/promotions/applied');
+    return response.data.appliedPromotions;
+  }
+
   async usePromotion(promotionId: string, selectedRefId?: string): Promise<{
     success: boolean;
     promotion: { id: string; name: string; type: string; value: number | null };
