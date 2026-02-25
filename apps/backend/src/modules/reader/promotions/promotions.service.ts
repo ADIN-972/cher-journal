@@ -127,11 +127,8 @@ export class PromotionsService {
         }
       }
 
-      // Enrich with content details
+      // Enrich with content details (may be null for general promotions)
       const enrichedPromo = await this.enrichPromotionContent(promo, userEntitlements);
-      if (!enrichedPromo) {
-        continue;
-      }
 
       // Calculate remaining uses
       const remainingUses = promo.maxUses === null || promo.maxUses === 0 ? null : promo.maxUses - promo.applied.length;
@@ -242,6 +239,7 @@ export class PromotionsService {
     volumeNumber?: number;
     volumeTitle?: string;
   } | null> {
+    // Return null for general promotions without specific content
     if (!promo.refId) {
       return null;
     }
