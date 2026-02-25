@@ -123,6 +123,11 @@ export class PromotionsService {
       },
     });
 
+    console.log(`[PROMO DEBUG] Found ${activePromotions.length} active promotions within date range`);
+    activePromotions.forEach(p => {
+      console.log(`[PROMO DEBUG] Active promo: ${p.name} (isActive=${p.isActive}, targetType=${p.targetType}, maxUses=${p.maxUses}, perUserLimit=${p.perUserLimit})`);
+    });
+
     if (activePromotions.length === 0) {
       return [];
     }
@@ -178,14 +183,18 @@ export class PromotionsService {
     const applicablePromotions: ApplicablePromotion[] = [];
 
     for (const promo of activePromotions) {
+      console.log(`[PROMO DEBUG] Checking promo: ${promo.name} (${promo.id})`);
+
       // Check targeting eligibility
       if (!this.isUserEligibleForTargeting(promo, userId, userOrders, user)) {
+        console.log(`[PROMO DEBUG] ${promo.name} - FILTERED: targeting eligibility`);
         continue;
       }
 
       // Check global usage limit (maxUses)
       if (promo.maxUses !== null && promo.maxUses > 0) {
         if (promo.applied.length >= promo.maxUses) {
+          console.log(`[PROMO DEBUG] ${promo.name} - FILTERED: global limit (${promo.applied.length}/${promo.maxUses})`);
           continue;
         }
       }
@@ -194,6 +203,7 @@ export class PromotionsService {
       if (promo.perUserLimit !== null && promo.perUserLimit > 0) {
         const userUsageCount = promo.applied.filter((ap: any) => ap.userId === userId).length;
         if (userUsageCount >= promo.perUserLimit) {
+          console.log(`[PROMO DEBUG] ${promo.name} - FILTERED: per-user limit (${userUsageCount}/${promo.perUserLimit})`);
           continue;
         }
       }
@@ -206,6 +216,7 @@ export class PromotionsService {
           promo.refId
         );
         if (owns) {
+          console.log(`[PROMO DEBUG] ${promo.name} - FILTERED: user already owns content`);
           continue;
         }
       }
@@ -220,6 +231,8 @@ export class PromotionsService {
         promo.perUserLimit === null || promo.perUserLimit === 0
           ? null
           : promo.perUserLimit - promo.applied.filter((ap: any) => ap.userId === userId).length;
+
+      console.log(`[PROMO DEBUG] ${promo.name} - INCLUDED (remainingUses=${remainingUses}, userRemainingUses=${userRemainingUses})`);
 
       applicablePromotions.push({
         id: promo.id,
@@ -237,6 +250,7 @@ export class PromotionsService {
       });
     }
 
+    console.log(`[PROMO DEBUG] Returning ${applicablePromotions.length} applicable promotions for user ${userId}`);
     return applicablePromotions;
   }
 
