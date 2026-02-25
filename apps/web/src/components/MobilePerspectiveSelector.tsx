@@ -22,11 +22,11 @@ export default function MobilePerspectiveSelector({
           onClick={() => onSelectPerspective("narrateur")}
           className={`p-2 rounded-md transition-all ${
             selectedPerspective === "narrateur"
-              ? "bg-white text-rose-600 shadow-sm"
+              ? "bg-blue-100 text-blue-700 shadow-sm"
               : "text-gray-600 hover:text-gray-900"
           }`}
           title="Version Narrateur">
-          Version Narrateur
+          Narrateur
         </button>
 
         {/* Protagonist Button */}
@@ -35,11 +35,11 @@ export default function MobilePerspectiveSelector({
           onClick={() => onSelectPerspective("protagonist")}
           className={`p-2 rounded-md transition-all ${
             selectedPerspective === "protagonist"
-              ? "bg-white text-rose-600 shadow-sm"
+              ? "bg-purple-100 text-purple-700 shadow-sm"
               : "text-gray-600 hover:text-gray-900"
           }`}
           title="Version Protagoniste">
-          Version {protagonistName || "Protagoniste"}
+          {protagonistName || "Protagoniste"}
         </button>
 
         {/* Coloring Button */}
@@ -48,7 +48,7 @@ export default function MobilePerspectiveSelector({
           onClick={() => onSelectPerspective("coloriage")}
           className={`p-2 rounded-md transition-all ${
             selectedPerspective === "coloriage"
-              ? "bg-white text-rose-600 shadow-sm"
+              ? "bg-green-100 text-green-700 shadow-sm"
               : "text-gray-600 hover:text-gray-900"
           }`}
           title="Livre de coloriage">
