@@ -132,38 +132,38 @@ export default forwardRef<HTMLElement, ChapterTableOfContentsV3Props>(
                   <div className="book-spine-3d">
                     <div className="spine-texture-3d"></div>
                     <div className="grid grid-cols-12 w-full items-center z-10">
-                      <div className="col-span-1 text-boudoir-gold/60 font-serif italic text-xl">
-                        I
+                      <div className="flex items-center justify-center col-span-1 text-boudoir-gold/60 font-serif italic text-xl">
+                        {String(volume.volumeNumber).padStart(2, "0")}
                       </div>
-                      <div className="col-span-4 text-boudoir-silk font-serif text-lg tracking-wide">
-                        The Midnight Appointment
+                      <div className="col-span-4 text-boudoir-silk font-serif text-lg tracking-wide line-clamp-2">
+                        {volume.title}
                       </div>
                       <div className="col-span-3 flex items-center space-x-3">
                         <span className="text-[10px] uppercase tracking-widest opacity-60 font-bold">
-                          Progress
+                          {progression >= 100 ? "Terminé" : progression > 0 ? `${progression}%` : "Nouveau"}
                         </span>
-                        <div className="progress-bar-container">
-                          <div className="progress-bar-fill w-[65%]"></div>
-                        </div>
+                        {isUnlocked && progression > 0 && (
+                          <div className="flex-1 h-1.5 bg-white/20 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-eros-gold to-yellow-300 rounded-full transition-all duration-500"
+                              style={{ width: `${Math.min(progression, 100)}%` } as React.CSSProperties}
+                            />
+                          </div>
+                        )}
                       </div>
                       <div className="col-span-1 text-center">
-                        <svg
-                          className="h-5 w-5 text-boudoir-gold mx-auto"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg">
-                          <path
-                            d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"></path>
-                        </svg>
+                        <span className="material-symbols-outlined text-xl text-boudoir-gold">
+                          {isUnlocked ? "auto_stories" : "lock"}
+                        </span>
                       </div>
-                      <div className="col-span-3 flex justify-end">
-                        <button className="text-[11px] px-5 py-2 bg-boudoir-silk text-boudoir-plum font-bold uppercase tracking-wider rounded shadow-md hover:brightness-110 active:scale-95 transition">
-                          Continue
-                        </button>
+                      <div className="col-span-3 flex justify-end items-center pr-2">
+                        <span className="text-[10px] uppercase tracking-widest opacity-70 font-bold">
+                          {isUnlocked
+                            ? "Accessible"
+                            : needsUpgrade
+                              ? "Premium"
+                              : "Verrouillé"}
+                        </span>
                       </div>
                     </div>
                   </div>
