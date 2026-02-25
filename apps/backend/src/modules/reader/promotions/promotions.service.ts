@@ -26,7 +26,11 @@ export interface ApplicablePromotion {
 export class PromotionsService {
   private accessControl = new AccessControlService();
 
-  async usePromotion(userId: string, promotionId: string): Promise<{
+  async usePromotion(
+    userId: string,
+    promotionId: string,
+    selectedRefId?: string
+  ): Promise<{
     success: boolean;
     promotion: { id: string; name: string; type: PromotionType; value: number | null };
     message: string;
@@ -76,11 +80,20 @@ export class PromotionsService {
       }
     }
 
-    // 5. Record the applied promotion
+    // 5. For general promotions, verify user selected a refId
+    if (!promotion.refId && !selectedRefId) {
+      const error = new Error('Please select which content to apply this promotion to');
+      (error as any).statusCode = 400;
+      (error as any).code = 'SELECTION_REQUIRED';
+      throw error;
+    }
+
+    // 6. Record the applied promotion
     const appliedPromotion = await prisma.appliedPromotion.create({
       data: {
         promotionId,
         userId,
+        appliedRefId: selectedRefId || promotion.refId,
       },
     });
 

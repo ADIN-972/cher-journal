@@ -374,7 +374,7 @@ class ApiClient {
     return response.data.promotions;
   }
 
-  async usePromotion(promotionId: string): Promise<{
+  async usePromotion(promotionId: string, selectedRefId?: string): Promise<{
     success: boolean;
     promotion: { id: string; name: string; type: string; value: number | null };
     message: string;
@@ -382,7 +382,7 @@ class ApiClient {
     const response = await this.post<{
       success: boolean;
       data: { success: boolean; promotion: any; message: string };
-    }>(`/promotions/use/${promotionId}`, {});
+    }>(`/promotions/use/${promotionId}`, { selectedRefId });
     return response.data;
   }
 

@@ -42,6 +42,7 @@ export class PromotionsController {
     try {
       const userId = request.user?.id;
       const { promotionId } = request.params as { promotionId: string };
+      const { selectedRefId } = request.body as { selectedRefId?: string };
 
       if (!userId) {
         return reply.status(401).send({
@@ -53,7 +54,7 @@ export class PromotionsController {
         });
       }
 
-      const result = await promotionsService.usePromotion(userId, promotionId);
+      const result = await promotionsService.usePromotion(userId, promotionId, selectedRefId);
 
       return reply.send({
         success: true,
