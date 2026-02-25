@@ -21,6 +21,34 @@ const getStableMargin = (volumeId: string): number => {
   return Math.floor(randomValue * 31) - 10; // -10 à 20px
 };
 
+// Convertit un nombre en chiffres romains
+const toRomanNumeral = (num: number): string => {
+  const romanNumerals: [number, string][] = [
+    [1000, "M"],
+    [900, "CM"],
+    [500, "D"],
+    [400, "CD"],
+    [100, "C"],
+    [90, "XC"],
+    [50, "L"],
+    [40, "XL"],
+    [10, "X"],
+    [9, "IX"],
+    [5, "V"],
+    [4, "IV"],
+    [1, "I"],
+  ];
+
+  let result = "";
+  for (const [value, numeral] of romanNumerals) {
+    while (num >= value) {
+      result += numeral;
+      num -= value;
+    }
+  }
+  return result;
+};
+
 interface ChapterTableOfContentsV3Props {
   chapter: Chapter;
   selectedPerspective: "narrateur" | "protagonist" | "coloriage" | null;
@@ -133,7 +161,7 @@ export default forwardRef<HTMLElement, ChapterTableOfContentsV3Props>(
                     <div className="spine-texture-3d"></div>
                     <div className="grid grid-cols-12 w-full items-center z-10">
                       <div className="flex items-center justify-center col-span-1 text-boudoir-gold/60 font-serif italic text-xl">
-                        {String(volume.volumeNumber).padStart(2, "0")}
+                        {toRomanNumeral(volume.volumeNumber)}
                       </div>
                       <div className="col-span-4 text-boudoir-silk font-serif text-lg tracking-wide line-clamp-2">
                         {volume.title}
