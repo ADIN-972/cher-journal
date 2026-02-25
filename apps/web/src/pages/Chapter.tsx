@@ -366,6 +366,9 @@ export default function Chapter() {
   const handleSelectPerspective = (
     perspective: "narrateur" | "protagonist" | "coloriage",
   ) => {
+    // Preserve scroll position during perspective switch
+    const scrollPosition = window.scrollY;
+
     // Update state
     setSelectedPerspective(perspective);
 
@@ -378,6 +381,10 @@ export default function Chapter() {
     // Update URL to persist perspective
     if (id) {
       navigate(`/chapters/${id}/${perspective}`, { replace: true });
+      // Restore scroll position after navigation
+      window.requestAnimationFrame(() => {
+        window.scrollTo(0, scrollPosition);
+      });
     }
   };
 
