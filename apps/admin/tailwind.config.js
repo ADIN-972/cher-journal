@@ -18,6 +18,13 @@ export default {
         'hover:bg-gold/10',
         'hover:bg-gold/20',
         'hover:border-gold/50',
+        // Boudoir color scale
+        'bg-boudoir-50', 'bg-boudoir-100', 'bg-boudoir-200', 'bg-boudoir-300', 'bg-boudoir-400', 'bg-boudoir-500',
+        'bg-boudoir-600', 'bg-boudoir-700', 'bg-boudoir-800', 'bg-boudoir-900', 'bg-boudoir-950',
+        'dark:bg-boudoir-800', 'dark:bg-boudoir-900',
+        'border-boudoir-200', 'border-boudoir-300', 'border-boudoir-800',
+        'text-boudoir-600', 'text-boudoir-700', 'text-boudoir-900',
+        'hover:bg-boudoir-300', 'hover:bg-boudoir-700',
         'dark:bg-card-dark',
         'dark:border-[#4d252f]'
     ],
@@ -53,7 +60,6 @@ export default {
                 'background-dark': 'rgb(26 13 16 / <alpha-value>)',
                 'parchment': 'rgb(253 250 241 / <alpha-value>)',
                 'charcoal': 'rgb(51 51 51 / <alpha-value>)',
-                'boudoir': 'rgb(139 94 60 / <alpha-value>)',
                 'gold': 'rgb(197 160 89 / <alpha-value>)',
                 'velvet-brown': 'rgb(45 27 20 / <alpha-value>)',
                 'background-light': 'rgb(253 250 241 / <alpha-value>)',
