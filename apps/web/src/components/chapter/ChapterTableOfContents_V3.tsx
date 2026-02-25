@@ -4,6 +4,23 @@ import VolumeActionButtons from "../VolumeActionButtons";
 
 type Volume = NonNullable<Chapter["volumes"]>[number];
 
+// Génère un nombre "aléatoire" stable basé sur une chaîne (hash simple)
+const getSeededRandom = (seed: string): number => {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    const char = seed.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return (Math.abs(hash) % 1000) / 1000;
+};
+
+// Calcule le margin aléatoire stable pour un volume
+const getStableMargin = (volumeId: string): number => {
+  const randomValue = getSeededRandom(volumeId);
+  return Math.floor(randomValue * 31) - 10; // -10 à 20px
+};
+
 interface ChapterTableOfContentsV3Props {
   chapter: Chapter;
   selectedPerspective: "narrateur" | "protagonist" | "coloriage" | null;
@@ -109,7 +126,7 @@ export default forwardRef<HTMLElement, ChapterTableOfContentsV3Props>(
                   style={
                     {
                       "--z-index": 10,
-                      marginLeft: `${Math.floor(Math.random() * 31) - 10}px`,
+                      marginLeft: `${getStableMargin(volume.id)}px`,
                     } as React.CSSProperties
                   }>
                   <div className="book-spine-3d">
