@@ -9,9 +9,19 @@ const controller = new PromotionsController();
  * Fetch promotions applicable to the current user
  * Filters by: date validity, targeting, usage limits, and ownership
  */
+
+/**
+ * POST /promotions/use/:promotionId
+ * Apply a promotion to the user's account
+ */
 export async function promotionsRoutes(app: FastifyInstance) {
   app.get('/promotions/applicable', {
     preHandler: requireAuth,
     handler: controller.getApplicablePromotions.bind(controller),
+  });
+
+  app.post('/promotions/use/:promotionId', {
+    preHandler: requireAuth,
+    handler: controller.usePromotion.bind(controller),
   });
 }

@@ -54,7 +54,9 @@ export default function SupportClaims() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Contact Form */}
         <div className="md:col-span-2">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6">
             {/* Category Selection */}
             <div>
               <label className="block text-sm font-medium text-charcoal dark:text-white mb-3">
@@ -68,10 +70,9 @@ export default function SupportClaims() {
                     onClick={() => setCategory(cat.id)}
                     className={`flex items-center gap-2 p-4 rounded-xl border-2 transition-all ${
                       category === cat.id
-                        ? 'border-[#c5a059] bg-[#c5a059]/10'
-                        : 'border-boudoir-300 dark:border-boudoir-800 hover:border-[#c5a059]/50'
-                    }`}
-                  >
+                        ? "border-[#c5a059] bg-[#c5a059]/10"
+                        : "border-boudoir-300 dark:border-boudoir-800 hover:border-[#c5a059]/50"
+                    }`}>
                     <span className="material-symbols-outlined text-[#c5a059]">
                       {cat.icon}
                     </span>
@@ -93,7 +94,7 @@ export default function SupportClaims() {
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 required
-                className="w-full px-4 py-3 rounded-xl border border-boudoir-300 dark:border-boudoir-800 bg-white dark:bg-boudoir-900/30 text-charcoal  focus:outline-none focus:ring-2 focus:ring-[#c5a059] transition-all"
+                className="w-full px-4 py-3 rounded-xl border border-boudoir-300 dark:border-boudoir-800 bg-white dark:bg-boudoir-900/30 text-charcoal dark:text-white/70 focus:outline-none focus:ring-2 focus:ring-[#c5a059] transition-all"
                 placeholder="Décrivez brièvement votre problème..."
               />
             </div>
@@ -108,7 +109,7 @@ export default function SupportClaims() {
                 onChange={(e) => setMessage(e.target.value)}
                 required
                 rows={6}
-                className="w-full px-4 py-3 rounded-xl border border-boudoir-300 dark:border-boudoir-800 bg-white dark:bg-boudoir-900/30 text-charcoal  focus:outline-none focus:ring-2 focus:ring-[#c5a059] transition-all resize-none"
+                className="w-full px-4 py-3 rounded-xl border border-boudoir-300 dark:border-boudoir-800 bg-white dark:bg-boudoir-900/30 text-charcoal dark:text-white/70 focus:outline-none focus:ring-2 focus:ring-[#c5a059] transition-all resize-none"
                 placeholder="Décrivez votre problème en détail..."
               />
             </div>
@@ -117,9 +118,8 @@ export default function SupportClaims() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#c5a059] hover:bg-[#b8935a] disabled:bg-boudoir-500 text-white py-3 rounded-xl font-bold uppercase text-sm tracking-wider transition-all disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? 'Envoi en cours...' : 'Envoyer'}
+              className="w-full bg-[#c5a059] hover:bg-[#b8935a] disabled:bg-boudoir-500 text-white py-3 rounded-xl font-bold uppercase text-sm tracking-wider transition-all disabled:cursor-not-allowed">
+              {isSubmitting ? "Envoi en cours..." : "Envoyer"}
             </button>
           </form>
         </div>
@@ -133,8 +133,7 @@ export default function SupportClaims() {
             <div className="space-y-3">
               <a
                 href="#"
-                className="flex items-center gap-2 text-sm text-charcoal dark:text-white/70 hover:text-[#c5a059] transition-colors"
-              >
+                className="flex items-center gap-2 text-sm text-charcoal dark:text-white/70 hover:text-[#c5a059] transition-colors">
                 <span className="material-symbols-outlined text-base">
                   help
                 </span>
@@ -142,8 +141,7 @@ export default function SupportClaims() {
               </a>
               <a
                 href="#"
-                className="flex items-center gap-2 text-sm text-charcoal dark:text-white/70 hover:text-[#c5a059] transition-colors"
-              >
+                className="flex items-center gap-2 text-sm text-charcoal dark:text-white/70 hover:text-[#c5a059] transition-colors">
                 <span className="material-symbols-outlined text-base">
                   mail
                 </span>
@@ -151,8 +149,7 @@ export default function SupportClaims() {
               </a>
               <a
                 href="#"
-                className="flex items-center gap-2 text-sm text-charcoal dark:text-white/70 hover:text-[#c5a059] transition-colors"
-              >
+                className="flex items-center gap-2 text-sm text-charcoal dark:text-white/70 hover:text-[#c5a059] transition-colors">
                 <span className="material-symbols-outlined text-base">
                   schedule
                 </span>

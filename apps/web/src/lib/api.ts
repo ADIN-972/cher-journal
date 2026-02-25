@@ -374,6 +374,18 @@ class ApiClient {
     return response.data.promotions;
   }
 
+  async usePromotion(promotionId: string): Promise<{
+    success: boolean;
+    promotion: { id: string; name: string; type: string; value: number | null };
+    message: string;
+  }> {
+    const response = await this.post<{
+      success: boolean;
+      data: { success: boolean; promotion: any; message: string };
+    }>(`/promotions/use/${promotionId}`, {});
+    return response.data;
+  }
+
   /**
    * Update reading progress for a volume
    */

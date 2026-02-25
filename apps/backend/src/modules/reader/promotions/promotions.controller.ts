@@ -37,4 +37,38 @@ export class PromotionsController {
       });
     }
   }
+
+  async usePromotion(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const userId = request.user?.id;
+      const { promotionId } = request.params as { promotionId: string };
+
+      if (!userId) {
+        return reply.status(401).send({
+          success: false,
+          error: {
+            code: 'UNAUTHORIZED',
+            message: 'User not authenticated',
+          },
+        });
+      }
+
+      const result = await promotionsService.usePromotion(userId, promotionId);
+
+      return reply.send({
+        success: true,
+        data: result,
+      });
+    } catch (error: any) {
+      console.error('Error applying promotion:', error);
+      const statusCode = error.statusCode || 400;
+      return reply.status(statusCode).send({
+        success: false,
+        error: {
+          code: error.code || 'PROMOTION_ERROR',
+          message: error.message || 'Failed to apply promotion',
+        },
+      });
+    }
+  }
 }

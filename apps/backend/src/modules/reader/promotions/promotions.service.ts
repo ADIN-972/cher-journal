@@ -26,6 +26,76 @@ export interface ApplicablePromotion {
 export class PromotionsService {
   private accessControl = new AccessControlService();
 
+  async usePromotion(userId: string, promotionId: string): Promise<{
+    success: boolean;
+    promotion: { id: string; name: string; type: PromotionType; value: number | null };
+    message: string;
+  }> {
+    // 1. Fetch the promotion
+    const promotion = await prisma.promotion.findUnique({
+      where: { id: promotionId },
+      include: {
+        applied: true,
+      },
+    });
+
+    if (!promotion) {
+      const error = new Error('Promotion not found');
+      (error as any).statusCode = 404;
+      (error as any).code = 'PROMOTION_NOT_FOUND';
+      throw error;
+    }
+
+    // 2. Check if promotion is active and within date range
+    const now = new Date();
+    if (!promotion.isActive || promotion.startsAt > now || promotion.endsAt < now) {
+      const error = new Error('This promotion is no longer available');
+      (error as any).statusCode = 400;
+      (error as any).code = 'PROMOTION_EXPIRED';
+      throw error;
+    }
+
+    // 3. Check global usage limit
+    if (promotion.maxUses !== null && promotion.maxUses > 0) {
+      if (promotion.applied.length >= promotion.maxUses) {
+        const error = new Error('This promotion has reached its usage limit');
+        (error as any).statusCode = 400;
+        (error as any).code = 'PROMOTION_LIMIT_EXCEEDED';
+        throw error;
+      }
+    }
+
+    // 4. Check per-user limit
+    if (promotion.perUserLimit !== null && promotion.perUserLimit > 0) {
+      const userUsageCount = promotion.applied.filter((ap: any) => ap.userId === userId).length;
+      if (userUsageCount >= promotion.perUserLimit) {
+        const error = new Error('You have already used this promotion the maximum number of times');
+        (error as any).statusCode = 400;
+        (error as any).code = 'USER_LIMIT_EXCEEDED';
+        throw error;
+      }
+    }
+
+    // 5. Record the applied promotion
+    const appliedPromotion = await prisma.appliedPromotion.create({
+      data: {
+        promotionId,
+        userId,
+      },
+    });
+
+    return {
+      success: true,
+      promotion: {
+        id: promotion.id,
+        name: promotion.name,
+        type: promotion.type as PromotionType,
+        value: promotion.value,
+      },
+      message: `Promotion "${promotion.name}" applied successfully!`,
+    };
+  }
+
   async getUserApplicablePromotions(userId: string): Promise<ApplicablePromotion[]> {
     // 1. Query active promotions within validity date
     const now = new Date();

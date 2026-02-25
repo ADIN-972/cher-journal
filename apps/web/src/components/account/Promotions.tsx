@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from '../../lib/i18n';
-import { useNavigate } from 'react-router-dom';
 import { api } from '../../lib/api';
 import { ApplicablePromotion } from '@cher-journal/types';
+import PromotionModal from '../PromotionModal';
 
 export default function Promotions() {
   const [promotions, setPromotions] = useState<ApplicablePromotion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedPromotion, setSelectedPromotion] = useState<ApplicablePromotion | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchPromotions();
@@ -51,8 +52,8 @@ export default function Promotions() {
   };
 
   const handleTakeAdvantage = (promotion: ApplicablePromotion) => {
-    if (!promotion.content?.chapterId) return;
-    navigate(`/chapter/${promotion.content.chapterId}?promotion=${promotion.id}`);
+    setSelectedPromotion(promotion);
+    setIsModalOpen(true);
   };
 
   // Loading state
@@ -244,8 +245,7 @@ export default function Promotions() {
             <div className="p-4 border-t border-[#c5a059]/20">
               <button
                 onClick={() => handleTakeAdvantage(promotion)}
-                disabled={!promotion.content?.chapterId}
-                className="w-full px-4 py-2 bg-gradient-to-r from-[#c5a059] to-[#a0815f] hover:from-[#d4b370] hover:to-[#b09070] text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2 bg-gradient-to-r from-[#c5a059] to-[#a0815f] hover:from-[#d4b370] hover:to-[#b09070] text-white font-medium rounded-lg transition-all"
               >
                 {t('account.promotions.take_advantage')}
               </button>
@@ -253,6 +253,14 @@ export default function Promotions() {
           </div>
         ))}
       </div>
+
+      {/* Promotion Modal */}
+      <PromotionModal
+        promotion={selectedPromotion}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={fetchPromotions}
+      />
     </div>
   );
 }
