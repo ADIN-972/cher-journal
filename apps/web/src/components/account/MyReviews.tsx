@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
+import { api } from '../../lib/api';
 
 interface Review {
   id: string;
-  chapterTitle: string;
+  chapterTitle?: string;
+  chapter?: {
+    id: string;
+    title: string;
+  };
   rating: number;
   reviewText: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
@@ -14,29 +19,20 @@ export default function MyReviews() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Fetch user reviews from API
-    setTimeout(() => {
-      setReviews([
-        {
-          id: '1',
-          chapterTitle: 'Nuit de Soie',
-          rating: 5,
-          reviewText: 'Une histoire captivante et sensuelle. J\'ai adoré chaque instant.',
-          status: 'APPROVED',
-          createdAt: '2024-01-15T10:00:00Z',
-        },
-        {
-          id: '2',
-          chapterTitle: 'Le Secret du Boudoir',
-          rating: 4,
-          reviewText: 'Très belle écriture, quelques longueurs par moments.',
-          status: 'PENDING',
-          createdAt: '2024-01-10T14:30:00Z',
-        },
-      ]);
-      setIsLoading(false);
-    }, 500);
+    loadReviews();
   }, []);
+
+  const loadReviews = async () => {
+    try {
+      setIsLoading(true);
+      const data = await api.getUserReviews();
+      setReviews(data);
+    } catch (error) {
+      console.error('Failed to load reviews:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getStatusBadge = (status: Review['status']) => {
     const config = {
@@ -103,7 +99,7 @@ export default function MyReviews() {
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h3 className="text-lg font-display italic text-charcoal dark:text-white mb-2">
-                    {review.chapterTitle}
+                    {review.chapter?.title || review.chapterTitle}
                   </h3>
                   <div className="flex items-center gap-2 mb-2">
                     {/* Stars */}

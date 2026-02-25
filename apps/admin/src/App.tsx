@@ -27,6 +27,8 @@ import Bundles from "./pages/Bundles";
 import BundleForm from "./pages/BundleForm";
 import SystemConfig from "./pages/SystemConfig";
 import Reviews from "./pages/Reviews";
+import SupportClaims from "./pages/SupportClaims";
+import SupportClaimDetail from "./pages/SupportClaimDetail";
 import PricingLayout from "./components/PricingLayout";
 import Layout from "./components/Layout";
 
@@ -216,6 +218,14 @@ function App() {
           <Route
             path="/reviews"
             element={<Reviews />}
+          />
+          <Route
+            path="/support-claims"
+            element={<SupportClaims />}
+          />
+          <Route
+            path="/support-claims/:id"
+            element={<SupportClaimDetail />}
           />
           <Route
             path="/bundles"

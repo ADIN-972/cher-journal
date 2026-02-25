@@ -385,6 +385,50 @@ class ApiClient {
   }): Promise<{ success: boolean; progress: number }> {
     return this.post('/reader/update-progress', data);
   }
+
+  /**
+   * Get user's purchase history
+   */
+  async getUserOrders(): Promise<any[]> {
+    const response = await this.get<{ success: boolean; data: any[] }>('/orders');
+    return response.data;
+  }
+
+  /**
+   * Submit a support claim
+   */
+  async submitSupportClaim(data: {
+    category: 'technical' | 'billing' | 'content' | 'other';
+    subject: string;
+    message: string;
+  }): Promise<any> {
+    const mappedCategory = data.category.toUpperCase() as 'TECHNICAL' | 'BILLING' | 'CONTENT' | 'OTHER';
+    const response = await this.post<{ success: boolean; data: any }>(
+      '/support/claim',
+      {
+        category: mappedCategory,
+        subject: data.subject,
+        message: data.message,
+      }
+    );
+    return response.data;
+  }
+
+  /**
+   * Get user's support claims
+   */
+  async getUserSupportClaims(): Promise<any[]> {
+    const response = await this.get<{ success: boolean; data: any[] }>('/support/my-claims');
+    return response.data;
+  }
+
+  /**
+   * Get user's reviews
+   */
+  async getUserReviews(): Promise<any[]> {
+    const response = await this.get<{ success: boolean; data: any[] }>('/reviews/my-reviews');
+    return response.data;
+  }
 }
 
 // Export singleton instance

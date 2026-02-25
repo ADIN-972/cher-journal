@@ -11,6 +11,12 @@ export async function reviewsRoutes(app: FastifyInstance) {
     handler: controller.createOrUpdateReview.bind(controller),
   });
 
+  // Get all user's reviews
+  app.get('/reviews/my-reviews', {
+    preHandler: requireAuth,
+    handler: controller.getUserReviews.bind(controller),
+  });
+
   // Get user's review for a chapter
   app.get('/reviews/my-review/:chapterId', {
     preHandler: requireAuth,

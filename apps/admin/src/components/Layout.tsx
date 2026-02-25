@@ -23,6 +23,7 @@ import {
   MdCalendarToday,
   MdCardGiftcard,
   MdRateReview,
+  MdContactSupport,
 } from "react-icons/md";
 import { ImAddressBook } from "react-icons/im";
 
@@ -51,6 +52,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     if (location.pathname === "/orders") return t("navigation.orders");
     if (location.pathname === "/reviews") return t("navigation.reviews");
     if (location.pathname === "/promotions") return t("navigation.promotions");
+    if (location.pathname === "/support-claims") return "Support Claims";
     if (location.pathname.startsWith("/bundles")) return t("navigation.bundles");
     if (location.pathname === "/prices") return t("navigation.pricing");
     if (location.pathname.startsWith("/pricing")) return t("navigation.pricing_v2");
@@ -223,6 +225,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             />
             {sidebarOpen && <span className="font-medium">{t("navigation.promotions")}</span>}
             {isActive("/promotions") && sidebarOpen && (
+              <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>
+            )}
+          </Link>
+
+          {/* Support Claims */}
+          <Link
+            to="/support-claims"
+            className={`group flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 ${
+              isActive("/support-claims")
+                ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/50"
+                : "text-gray-300 hover:bg-white/5 hover:text-white"
+            }`}>
+            <MdContactSupport
+              className={`w-5 h-5 ${!isActive("/support-claims") && "group-hover:scale-110 transition-transform"}`}
+            />
+            {sidebarOpen && <span className="font-medium">Support Claims</span>}
+            {isActive("/support-claims") && sidebarOpen && (
               <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>
             )}
           </Link>

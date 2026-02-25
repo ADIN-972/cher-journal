@@ -107,6 +107,28 @@ export class ReviewsService {
   }
 
   /**
+   * Get all reviews by a user
+   */
+  async getUserReviews(userId: string) {
+    const reviews = await prisma.chapterReview.findMany({
+      where: { userId },
+      include: {
+        chapter: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return reviews;
+  }
+
+  /**
    * Get user's review for a specific chapter
    */
   async getUserReview(userId: string, chapterId: string) {

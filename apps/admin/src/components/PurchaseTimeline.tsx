@@ -181,98 +181,130 @@ export default function PurchaseTimeline({ orders, entitlements, locale = 'fr' }
     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
+  // Group orders by month
+  const groupedByMonth = sortedOrders.reduce((acc, order) => {
+    const date = new Date(order.createdAt);
+    const monthKey = date.toLocaleDateString(locale, { year: 'numeric', month: 'long' });
+    if (!acc[monthKey]) {
+      acc[monthKey] = [];
+    }
+    acc[monthKey].push(order);
+    return acc;
+  }, {} as Record<string, Order[]>);
+
+  // Get sorted month keys (most recent first)
+  const sortedMonths = Object.keys(groupedByMonth).sort((a, b) => {
+    const dateA = new Date(groupedByMonth[a][0].createdAt);
+    const dateB = new Date(groupedByMonth[b][0].createdAt);
+    return dateB.getTime() - dateA.getTime();
+  });
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-8">
       {sortedOrders.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <MdShoppingCart size={48} className="mx-auto mb-2 opacity-50" />
           <p>Aucun achat effectué</p>
         </div>
       ) : (
-        sortedOrders.map((order) => {
-          const entitlementInfo = getEntitlementInfo(order);
-
-          return (
-            <div
-              key={order.id}
-              className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
-            >
-              {/* Header */}
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-start gap-3 flex-1">
-                  <div className="mt-1">{getTypeIcon(order.type)}</div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-gray-900">
-                        {getTypeLabel(order.type)}
-                      </span>
-                      {getStatusBadge(order.status)}
-                      {order.appliedPromotionId && (
-                        <span className="flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded-full">
-                          <MdLocalOffer size={12} />
-                          Promo
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      {getOrderDescription(order)}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      {formatDate(order.createdAt)}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Amount */}
-                <div className="text-right ml-4">
-                  <div className="text-lg font-bold text-gray-900">
-                    {formatAmount(order.amountTotal, order.currency || 'EUR')}
-                  </div>
-                  {order.provider && (
-                    <div className="text-xs text-gray-400 mt-1">
-                      via {order.provider}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Entitlement Details */}
-              {entitlementInfo && (
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <span className="text-gray-500">Chapitre:</span>
-                      <span className="ml-2 font-medium text-gray-900">
-                        {entitlementInfo.chapter}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Volumes:</span>
-                      <span className="ml-2 font-medium text-gray-900">
-                        {entitlementInfo.volumes}
-                      </span>
-                    </div>
-                    <div className="col-span-2">
-                      <span className="text-gray-500">Perspectives:</span>
-                      <span className="ml-2 font-medium text-gray-900">
-                        {entitlementInfo.perspective === 'ALL'
-                          ? '👁️ Narrateur + Protagoniste'
-                          : '👁️ Narrateur uniquement'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Order ID for debugging */}
-              <div className="mt-2 pt-2 border-t border-gray-100">
-                <span className="text-xs text-gray-400 font-mono">
-                  ID: {order.id.slice(0, 8)}...
-                </span>
-              </div>
+        sortedMonths.map((monthKey) => (
+          <div key={monthKey}>
+            {/* Month Header */}
+            <div className="mb-4 pb-3 border-b-2 border-gray-300">
+              <h3 className="text-lg font-bold text-gray-900 capitalize">
+                {monthKey}
+              </h3>
             </div>
-          );
-        })
+
+            {/* Orders for this month */}
+            <div className="space-y-4">
+              {groupedByMonth[monthKey].map((order) => {
+                const entitlementInfo = getEntitlementInfo(order);
+
+                return (
+                  <div
+                    key={order.id}
+                    className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+                  >
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-start gap-3 flex-1">
+                        <div className="mt-1">{getTypeIcon(order.type)}</div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-semibold text-gray-900">
+                              {getTypeLabel(order.type)}
+                            </span>
+                            {getStatusBadge(order.status)}
+                            {order.appliedPromotionId && (
+                              <span className="flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded-full">
+                                <MdLocalOffer size={12} />
+                                Promo
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            {getOrderDescription(order)}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {formatDate(order.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Amount */}
+                      <div className="text-right ml-4">
+                        <div className="text-lg font-bold text-gray-900">
+                          {formatAmount(order.amountTotal, order.currency || 'EUR')}
+                        </div>
+                        {order.provider && (
+                          <div className="text-xs text-gray-400 mt-1">
+                            via {order.provider}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Entitlement Details */}
+                    {entitlementInfo && (
+                      <div className="mt-3 pt-3 border-t border-gray-100">
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <span className="text-gray-500">Chapitre:</span>
+                            <span className="ml-2 font-medium text-gray-900">
+                              {entitlementInfo.chapter}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Volumes:</span>
+                            <span className="ml-2 font-medium text-gray-900">
+                              {entitlementInfo.volumes}
+                            </span>
+                          </div>
+                          <div className="col-span-2">
+                            <span className="text-gray-500">Perspectives:</span>
+                            <span className="ml-2 font-medium text-gray-900">
+                              {entitlementInfo.perspective === 'ALL'
+                                ? '👁️ Narrateur + Protagoniste'
+                                : '👁️ Narrateur uniquement'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Order ID for debugging */}
+                    <div className="mt-2 pt-2 border-t border-gray-100">
+                      <span className="text-xs text-gray-400 font-mono">
+                        ID: {order.id.slice(0, 8)}...
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))
       )}
     </div>
   );

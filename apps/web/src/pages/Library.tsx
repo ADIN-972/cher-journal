@@ -40,6 +40,7 @@ export default function Library() {
           totalVolumes: vol.totalVolumes || 0,
           currentVolume: vol.currentVolume || 1,
           coverAsset: vol.coverAsset,
+          protagonistName: vol.chapterProtaganistName,
         };
       }
       acc[vol.chapterId].volumes.push(vol);
@@ -163,7 +164,7 @@ export default function Library() {
           </div>
         ) : (
           <div className="relative pt-6 pb-12">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16 p-2">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16 p-2">
               {chapters.map((chapter) => {
                 // Calculate progress based on current volume
                 const currentVol = chapter.currentVolume || 1;
@@ -185,17 +186,18 @@ export default function Library() {
                     key={chapter.chapterId}
                     onClick={() => handleChapterClick(chapter.chapterId)}
                     className={`flex flex-col gap-4 group cursor-pointer ring-1 ring-[#c5a059]/40 p-2 rounded-xl bg-[#c5a059]/5  ring-2 ring-[#c5a059]`}>
-                    <div className="relative aspect-[1/1] rounded-lg shadow-2xl overflow-hidden border border-[#c5a059]/10 transition-transform duration-500 group-hover:scale-105">
+                    <div className="relative aspect-[3/4] rounded-lg shadow-2xl overflow-hidden border border-[#c5a059]/10 transition-transform duration-500 group-hover:scale-105">
                       {/* Gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10"></div>
+                      {/* <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10"></div> */}
 
                       {/* Cover Image */}
                       {chapter.coverAsset?.objectKey ? (
                         <ChapterCover
                           imageUrl={`${import.meta.env.VITE_API_URL ?? ""}/uploads/${chapter.coverAsset.objectKey}`}
-                          title={chapter.chapterTitle}
+                          title={chapter.protagonistName}
                           showPremiumBadge={false}
                           showLimitedEditionBadge={false}
+                          //textSize="md"
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-purple-900 to-rose-900 flex items-center justify-center">

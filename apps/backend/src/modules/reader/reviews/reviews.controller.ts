@@ -49,6 +49,31 @@ export class ReviewsController {
   }
 
   /**
+   * Get all reviews by the authenticated user
+   */
+  async getUserReviews(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const userId = request.user!.id;
+
+      const reviews = await service.getUserReviews(userId);
+
+      return reply.send({
+        success: true,
+        data: reviews,
+      });
+    } catch (err: any) {
+      console.error('[ReviewsController] Error fetching user reviews:', err);
+      return reply.code(500).send({
+        success: false,
+        error: {
+          code: 'FETCH_ERROR',
+          message: err.message || 'Failed to fetch reviews',
+        },
+      });
+    }
+  }
+
+  /**
    * Get user's review for a chapter
    */
   async getUserReview(request: FastifyRequest, reply: FastifyReply) {

@@ -129,6 +129,20 @@ enum RewardUnlockType {
   AUTHOR_NOTE
 }
 
+enum SupportClaimCategory {
+  TECHNICAL
+  BILLING
+  CONTENT
+  OTHER
+}
+
+enum SupportClaimStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
 enum ChapterGenre {
   PASSIONS_CHARNELLES           // Erotic/Sensual - Explicit sexual content and raw desire
   ROMANCES_TENDRES              // Sweet Romance - Emotional, tender love stories
@@ -172,6 +186,9 @@ model User {
   constellationProgress UserConstellationProgress[]
   badges              UserBadge[]
   rewardUnlocks        UserRewardUnlock[]
+
+  // ===== Support =====
+  supportClaims       SupportClaim[]
 
   @@map("users")
 }
@@ -938,4 +955,32 @@ model UserRewardUnlock {
   @@id([userId, rewardUnlockId])
   @@index([rewardUnlockId])
   @@map("user_reward_unlocks")
+}
+
+// ============= SUPPORT SYSTEM =============
+
+model SupportClaim {
+  id        String   @id @default(uuid())
+  userId    String
+  category  SupportClaimCategory
+  subject   String
+  message   String
+  status    SupportClaimStatus @default(OPEN)
+
+  // Admin response
+  adminNote String?
+  respondedBy String?
+  respondedAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
+  @@map("support_claims")
 }
