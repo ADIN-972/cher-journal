@@ -18,13 +18,12 @@ import ReaderDrawer from "../components/ReaderDrawer";
 import PurchaseDrawer from "../components/PurchaseDrawer";
 import ProtagonistPurchaseDrawer from "../components/ProtagonistPurchaseDrawer";
 import ErrorMessage from "../components/common/ErrorMessage";
-import ChapterCover from "../components/common/ChapterCover";
 import PricingSection from "../components/PricingSection";
 import ReviewsSection from "../components/ReviewsSection";
 import ChapterTableOfContents from "../components/chapter/ChapterTableOfContents";
 import PerspectiveSelector from "../components/PerspectiveSelector";
+import ChapterHeader from "../components/ChapterHeader";
 import { NotificationService } from "../lib/notifications";
-import BookStore from "../components/common/BookStore";
 
 export default function Chapter() {
   const { id, perspective: urlPerspective } = useParams<{
@@ -549,92 +548,19 @@ export default function Chapter() {
         </span>
       </div>
 
-      {/* Product Header Section */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
-        {/* Cover Image */}
-        <div className="relative md:col-span-4 lg:w-[300px]  xl:w-[400px] aspect-[3/4]">
-          <ChapterCover
-            imageUrl={coverImageUrl}
-            title={currentChapter.title}
-            // showPremiumBadge={true}
-            // showLimitedEditionBadge={true}
-          />
-          <div className="absolute top-[5%] -left-[10%] w-[130%] h-auto z-0">
-            <BookStore />
-          </div>
-        </div>
-        {/* Details Section */}
-        <div className="md:col-span-8 flex flex-col justify-center ">
-          <div className="flex gap-4 mb-4">
-            <span className="flex items-center gap-1 text-accent-gold text-sm font-semibold italic">
-              <span className="material-symbols-outlined text-sm gold-fill">
-                star
-              </span>
-              {rating} ({reviewCount} avis)
-            </span>
-            <span className="text-gray-400">|</span>
-            <span className="text-sm text-gray-400">
-              Temps de lecture :{" "}
-              {getReadingTime(currentChapter.totalCharacterCount || 0)} min
-            </span>
-          </div>
+      {/* Chapter Header */}
+      <ChapterHeader
+        currentChapter={currentChapter}
+        imageUrl={coverImageUrl ?? undefined}
+        rating={rating}
+        reviewCount={reviewCount}
+        isPurchasing={isPurchasing}
+        readButtonText={readButtonText}
+        onUnlock={handleUnlock}
+        getReadingTime={getReadingTime}
+      />
 
-          <h1
-            className="text-umber dark:text-white text-5xl lg:text-7xl font-medium mb-6 leading-tight italic"
-            style={{ fontFamily: "newsreader, serif" }}>
-            {currentChapter.title}
-          </h1>
-
-          <div className="space-y-6 max-w-2xl">
-            <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed italic newsreader">
-              {/* Plongez dans un récit où la passion rencontre le mystère. Dans le
-              silence feutré d'un manoir oublié, deux âmes s'apprivoisent entre
-              secrets interdits et caresses volées. */}
-              {currentChapter.accroche_classic}
-            </p>
-            <p className="text-base text-gray-500 dark:text-gray-400  newsreader">
-              {/* Ce conte vous transporte à travers des paysages oniriques et des
-              rencontres d'une intensité rare, écrit avec une plume délicate et
-              envoûtante par {currentChapter.protagonistName || "l'auteur"}. */}
-              {currentChapter.accroche_love}
-            </p>
-          </div>
-
-          <div className="mt-10 flex flex-wrap gap-4 items-center">
-            <button
-              onClick={handleUnlock}
-              disabled={isPurchasing}
-              className="bg-primary hover:bg-primary/90 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-10 py-4 rounded-full font-bold text-lg flex items-center gap-3 transition-transform active:scale-95 shadow-lg shadow-primary/20">
-              <span className="material-symbols-outlined">
-                {isPurchasing
-                  ? "hourglass_empty"
-                  : currentChapter.hasAccess
-                    ? "auto_stories"
-                    : "shopping_cart"}
-              </span>
-              {isPurchasing
-                ? "Chargement..."
-                : currentChapter.hasAccess
-                  ? readButtonText
-                  : "Débloquer l'aventure"}
-            </button>
-            {!currentChapter.hasAccess &&
-              currentChapter.pricing?.bundleDiscountedPrice && (
-                <div className="flex flex-col">
-                  <span className="text-xs text-gray-500 uppercase tracking-widest font-bold">
-                    Prix de l'œuvre
-                  </span>
-                  <span className="text-2xl font-display font-bold">
-                    {(
-                      currentChapter.pricing.bundleDiscountedPrice / 100
-                    ).toFixed(2)}{" "}
-                    €
-                  </span>
-                </div>
-              )}
-          </div>
-        </div>
-      </div>
+      {/* Perspective Selector */}
       <PerspectiveSelector
         selectedPerspective={selectedPerspective}
         onSelectPerspective={handleSelectPerspective}

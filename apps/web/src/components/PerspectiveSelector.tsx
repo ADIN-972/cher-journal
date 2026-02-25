@@ -3,7 +3,7 @@ import BookClosed from "./common/BookClosed";
 interface PerspectiveSelectorProps {
   selectedPerspective: string;
   onSelectPerspective: (perspective: string) => void;
-  protagonistName?: string;
+  protagonistName?: string | null;
 }
 
 const perspectives = [
