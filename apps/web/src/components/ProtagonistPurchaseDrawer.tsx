@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
+import PromotionBadge from "./PromotionBadge";
 import { Chapter } from "../stores/catalogStore";
+
+interface PromotionInfo {
+  type: 'PERCENT' | 'FIXED' | 'FREE';
+  value?: number;
+  discountAmount?: number; // in cents (for display purposes)
+}
 
 interface ProtagonistPurchaseDrawerProps {
   isOpen: boolean;
@@ -11,6 +18,8 @@ interface ProtagonistPurchaseDrawerProps {
   };
   chapter: Chapter;
   chapterTitle: string;
+  volumePromotion?: PromotionInfo;
+  bundlePromotion?: PromotionInfo;
   onPurchaseVolume: () => void;
   onPurchaseChapter: () => void;
 }
@@ -21,6 +30,8 @@ export default function ProtagonistPurchaseDrawer({
   volume,
   chapter,
   chapterTitle,
+  volumePromotion,
+  bundlePromotion,
   onPurchaseVolume,
   onPurchaseChapter,
 }: ProtagonistPurchaseDrawerProps) {
@@ -138,9 +149,19 @@ export default function ProtagonistPurchaseDrawer({
                       Protagoniste
                     </p>
                   </div>
-                  <div className="text-3xl font-display font-bold text-rose-600 dark:text-rose-400">
-                    {(getProtagonistVolumePrice() / 100).toFixed(2)}
-                    <span className="text-lg">€</span>
+                  <div className="relative">
+                    {volumePromotion && (
+                      <PromotionBadge
+                        type={volumePromotion.type}
+                        discountPercentage={volumePromotion.type === 'PERCENT' ? volumePromotion.value : undefined}
+                        discountAmount={volumePromotion.type === 'FIXED' ? volumePromotion.discountAmount : undefined}
+                        size="medium"
+                      />
+                    )}
+                    <div className="text-3xl font-display font-bold text-rose-600 dark:text-rose-400">
+                      {(getProtagonistVolumePrice() / 100).toFixed(2)}
+                      <span className="text-lg">€</span>
+                    </div>
                   </div>
                 </div>
 
@@ -179,9 +200,19 @@ export default function ProtagonistPurchaseDrawer({
                       </p>
                     </div>
                     <div className="text-right">
-                      <div className="text-3xl font-display font-bold text-rose-600 dark:text-rose-400">
-                        {(calculateProtagenistBundlePrice() / 100).toFixed(2)}
-                        <span className="text-lg">€</span>
+                      <div className="relative inline-block">
+                        {bundlePromotion && (
+                          <PromotionBadge
+                            type={bundlePromotion.type}
+                            discountPercentage={bundlePromotion.type === 'PERCENT' ? bundlePromotion.value : undefined}
+                            discountAmount={bundlePromotion.type === 'FIXED' ? bundlePromotion.discountAmount : undefined}
+                            size="medium"
+                          />
+                        )}
+                        <div className="text-3xl font-display font-bold text-rose-600 dark:text-rose-400">
+                          {(calculateProtagenistBundlePrice() / 100).toFixed(2)}
+                          <span className="text-lg">€</span>
+                        </div>
                       </div>
                       <p className="text-xs text-charcoal/50 dark:text-gray-500 mt-1 line-through">
                         {(

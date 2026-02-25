@@ -45,7 +45,8 @@ export default function SalesDistributionChart({
   const typeMapping: Record<string, string> = {
     VOLUME: "Volumes",
     CHAPTER: "Chapitres",
-    POV: "Points de vue",
+    POV_CHAPTER: "POV Chapitre",
+    POV_VOLUME: "POV Volume",
     EPILOGUE: "Épilogue",
     COLORING: "Coloriage",
     BUNDLE: "Bundles",

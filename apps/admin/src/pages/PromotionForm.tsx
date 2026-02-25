@@ -233,7 +233,8 @@ export function PromotionForm() {
       VOLUME: t("promotions.scopes.VOLUME"),
       CHAPTER: t("promotions.scopes.CHAPTER"),
       EPILOGUE: t("promotions.scopes.EPILOGUE"),
-      POV: t("promotions.scopes.POV"),
+      POV_CHAPTER: t("promotions.scopes.POV_CHAPTER"),
+      POV_VOLUME: t("promotions.scopes.POV_VOLUME"),
       COLORING: t("promotions.scopes.COLORING"),
       BUNDLE: t("promotions.scopes.BUNDLE"),
       SUBSCRIPTION: t("promotions.scopes.SUBSCRIPTION"),
@@ -254,7 +255,8 @@ export function PromotionForm() {
     { value: "VOLUME", label: t("promotions.scopes.VOLUME") },
     { value: "CHAPTER", label: t("promotions.scopes.CHAPTER") },
     { value: "EPILOGUE", label: t("promotions.scopes.EPILOGUE") },
-    { value: "POV", label: t("promotions.scopes.POV") },
+    { value: "POV_CHAPTER", label: t("promotions.scopes.POV_CHAPTER") },
+    { value: "POV_VOLUME", label: t("promotions.scopes.POV_VOLUME") },
     { value: "COLORING", label: t("promotions.scopes.COLORING") },
     { value: "BUNDLE", label: t("promotions.scopes.BUNDLE") },
     { value: "SUBSCRIPTION", label: t("promotions.scopes.SUBSCRIPTION") },
@@ -719,7 +721,7 @@ export function PromotionForm() {
                       ? t("promotions.form.explanation_scope_chapter")
                       : formData.scope === "EPILOGUE"
                         ? t("promotions.form.explanation_scope_epilogue")
-                        : formData.scope === "POV"
+                        : formData.scope === "POV_CHAPTER" || formData.scope === "POV_VOLUME"
                           ? t("promotions.form.explanation_scope_pov")
                           : formData.scope === "COLORING"
                             ? t("promotions.form.explanation_scope_coloring")

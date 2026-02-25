@@ -1,3 +1,11 @@
+import PromotionBadge from "../PromotionBadge";
+
+interface PromotionInfo {
+  type: 'PERCENT' | 'FIXED' | 'FREE';
+  value?: number;
+  discountAmount?: number;
+}
+
 interface PlanCardProps {
   badge?: {
     text: string;
@@ -13,6 +21,7 @@ interface PlanCardProps {
   onPurchase: () => void;
   isLoading?: boolean;
   isDisabled?: boolean;
+  promotion?: PromotionInfo;
 }
 
 export default function PlanCard({
@@ -27,6 +36,7 @@ export default function PlanCard({
   onPurchase,
   isLoading = false,
   isDisabled = false,
+  promotion,
 }: PlanCardProps) {
   const formatPrice = (cents: number) => `${(cents / 100).toFixed(2)} €`;
 
@@ -52,14 +62,26 @@ export default function PlanCard({
       </p>
       <div className="mt-auto">
         <div className="mb-4">
-          {originalPrice && (
-            <span className="text-gold/40 line-through text-sm mr-2">
-              {formatPrice(originalPrice)}
-            </span>
-          )}
-          <span className="text-3xl font-display font-bold text-umber dark:text-gold">
-            {formatPrice(price)}
-          </span>
+          <div className="relative inline-block">
+            {promotion && (
+              <PromotionBadge
+                type={promotion.type}
+                discountPercentage={promotion.type === 'PERCENT' ? promotion.value : undefined}
+                discountAmount={promotion.type === 'FIXED' ? promotion.discountAmount : undefined}
+                size="medium"
+              />
+            )}
+            <div>
+              {originalPrice && (
+                <span className="text-gold/40 line-through text-sm mr-2">
+                  {formatPrice(originalPrice)}
+                </span>
+              )}
+              <span className="text-3xl font-display font-bold text-umber dark:text-gold">
+                {formatPrice(price)}
+              </span>
+            </div>
+          </div>
         </div>
         {savingsText && (
           <p className="text-[10px] text-terracotta font-bold uppercase tracking-widest mb-6 italic">

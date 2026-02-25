@@ -2,6 +2,13 @@ import { useEffect, useState } from 'react';
 import { useToast } from '../hooks/useToast';
 import { showErrorToast } from '../lib/toastHelper';
 import api from '../lib/api';
+import PromotionBadge from './PromotionBadge';
+
+interface PromotionInfo {
+  type: 'PERCENT' | 'FIXED' | 'FREE';
+  value?: number;
+  discountAmount?: number;
+}
 
 interface PerspectiveUnlockProps {
   chapterId: string;
@@ -10,6 +17,7 @@ interface PerspectiveUnlockProps {
   onPurchase?: (volumeNumber: number) => void;
   isPurchasing?: boolean;
   perspectivePrice?: number;
+  promotion?: PromotionInfo;
 }
 
 export default function PerspectiveUnlock({
@@ -19,6 +27,7 @@ export default function PerspectiveUnlock({
   onPurchase,
   isPurchasing = false,
   perspectivePrice: initialPrice,
+  promotion,
 }: PerspectiveUnlockProps) {
   const toast = useToast();
   const [perspectivePrice, setPerspectivePrice] = useState<number | null>(initialPrice || null);
@@ -64,7 +73,17 @@ export default function PerspectiveUnlock({
           </p>
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-600">Prix :</span>
-            <span className="text-sm font-bold text-purple-700">{priceInEuros}€</span>
+            <div className="relative inline-block">
+              {promotion && (
+                <PromotionBadge
+                  type={promotion.type}
+                  discountPercentage={promotion.type === 'PERCENT' ? promotion.value : undefined}
+                  discountAmount={promotion.type === 'FIXED' ? promotion.discountAmount : undefined}
+                  size="small"
+                />
+              )}
+              <span className="text-sm font-bold text-purple-700">{priceInEuros}€</span>
+            </div>
           </div>
         </div>
 

@@ -26,6 +26,12 @@ interface Pricing {
   priceColoring?: number; // Price for all coloring pages in chapter
 }
 
+interface PromotionInfo {
+  type: 'PERCENT' | 'FIXED' | 'FREE';
+  value?: number;
+  discountAmount?: number;
+}
+
 interface PricingSectionProps {
   chapterTitle: string;
   pricing: Pricing;
@@ -36,6 +42,11 @@ interface PricingSectionProps {
   onPurchaseCompleteExperience?: () => void;
   onPurchaseColoring?: () => void;
   isPurchasing: boolean;
+  completeExperiencePromotion?: PromotionInfo;
+  narratorBundlePromotion?: PromotionInfo;
+  volumePromotion?: PromotionInfo;
+  protagonistBundlePromotion?: PromotionInfo;
+  coloringPromotion?: PromotionInfo;
 }
 
 export default function PricingSection({
@@ -48,6 +59,11 @@ export default function PricingSection({
   onPurchaseCompleteExperience,
   onPurchaseColoring,
   isPurchasing,
+  completeExperiencePromotion,
+  narratorBundlePromotion,
+  volumePromotion,
+  protagonistBundlePromotion,
+  coloringPromotion,
 }: PricingSectionProps) {
   // Only show if user hasn't purchased everything
   if (pricing.bundleDiscountedPrice <= 0) {
@@ -100,6 +116,7 @@ export default function PricingSection({
             buttonText="L'Expérience Ultime"
             onPurchase={onPurchaseCompleteExperience}
             isLoading={isPurchasing}
+            promotion={completeExperiencePromotion}
           />
         )}
 
@@ -114,6 +131,7 @@ export default function PricingSection({
           buttonText="Acheter l'Intégrale"
           onPurchase={onPurchase}
           isLoading={isPurchasing}
+          promotion={narratorBundlePromotion}
         />
 
         {/* Next Locked Volume */}
@@ -131,6 +149,7 @@ export default function PricingSection({
               }
             }}
             isLoading={isPurchasing}
+            promotion={volumePromotion}
           />
         )}
 
@@ -146,6 +165,7 @@ export default function PricingSection({
             buttonText="Débloquer le Protagoniste"
             onPurchase={onPurchaseProtagonistBundle}
             isLoading={isPurchasing}
+            promotion={protagonistBundlePromotion}
           />
         )}
 
@@ -161,6 +181,7 @@ export default function PricingSection({
             onPurchase={onPurchaseColoring}
             isLoading={isPurchasing}
             isDisabled={true}
+            promotion={coloringPromotion}
           />
         )}
       </div>

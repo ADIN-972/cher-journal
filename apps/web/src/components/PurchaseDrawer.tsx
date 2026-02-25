@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import WaitTimer from "./WaitTimer";
+import PromotionBadge from "./PromotionBadge";
 import { Chapter } from "../stores/catalogStore";
+
+interface PromotionInfo {
+  type: 'PERCENT' | 'FIXED' | 'FREE';
+  value?: number;
+  discountAmount?: number; // in cents (for display purposes)
+}
 
 interface PurchaseDrawerProps {
   isOpen: boolean;
@@ -21,6 +28,8 @@ interface PurchaseDrawerProps {
   chapter: Chapter;
   chapterTitle: string;
   bundlePrice?: number;
+  volumePromotion?: PromotionInfo;
+  bundlePromotion?: PromotionInfo;
   onPurchaseVolume: () => void;
   onPurchaseChapter: () => void;
   onStartWaitTimer?: (volumeNumber: number) => Promise<void>;
@@ -36,6 +45,8 @@ export default function PurchaseDrawer({
   chapterTitle,
   chapter,
   bundlePrice,
+  volumePromotion,
+  bundlePromotion,
   onPurchaseVolume,
   onPurchaseChapter,
   onStartWaitTimer,
@@ -283,9 +294,19 @@ export default function PurchaseDrawer({
                   Déblocage immédiat du récit
                 </p>
               </div>
-              <div className="text-2xl font-display font-bold text-accent-gold dark:text-gold">
-                {(getVolumePriceByNumber(volume.volumeNumber) / 100).toFixed(2)}
-                €
+              <div className="relative">
+                {volumePromotion && (
+                  <PromotionBadge
+                    type={volumePromotion.type}
+                    discountPercentage={volumePromotion.type === 'PERCENT' ? volumePromotion.value : undefined}
+                    discountAmount={volumePromotion.type === 'FIXED' ? volumePromotion.discountAmount : undefined}
+                    size="medium"
+                  />
+                )}
+                <div className="text-2xl font-display font-bold text-accent-gold dark:text-gold">
+                  {(getVolumePriceByNumber(volume.volumeNumber) / 100).toFixed(2)}
+                  €
+                </div>
               </div>
             </div>
             <button
@@ -315,11 +336,21 @@ export default function PurchaseDrawer({
                   Tous les volumes accessibles  {/*  + Économisez 25% */}
                   </p>
                 </div>
-                <div className="text-3xl font-display font-bold text-charcoal dark:text-white">
-                  {chapter.pricing.bundleDiscountedPrice
-                    ? (chapter.pricing.bundleDiscountedPrice / 100).toFixed(2)
-                    : "0.00"}
-                  €
+                <div className="relative">
+                  {bundlePromotion && (
+                    <PromotionBadge
+                      type={bundlePromotion.type}
+                      discountPercentage={bundlePromotion.type === 'PERCENT' ? bundlePromotion.value : undefined}
+                      discountAmount={bundlePromotion.type === 'FIXED' ? bundlePromotion.discountAmount : undefined}
+                      size="medium"
+                    />
+                  )}
+                  <div className="text-3xl font-display font-bold text-charcoal dark:text-white">
+                    {chapter.pricing.bundleDiscountedPrice
+                      ? (chapter.pricing.bundleDiscountedPrice / 100).toFixed(2)
+                      : "0.00"}
+                    €
+                  </div>
                 </div>
               </div>
               <button

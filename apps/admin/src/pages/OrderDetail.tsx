@@ -129,7 +129,8 @@ export default function OrderDetail() {
     const typeLabels: Record<string, string> = {
       VOLUME: "Volume",
       CHAPTER: "Chapitre",
-      POV: "Point de vue",
+      POV_CHAPTER: "POV Chapitre",
+      POV_VOLUME: "POV Volume",
       EPILOGUE: "Épilogue",
       COLORING: "Coloriage",
       BUNDLE: "Bundle",

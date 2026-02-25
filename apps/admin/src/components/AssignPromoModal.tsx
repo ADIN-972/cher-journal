@@ -20,7 +20,7 @@ export default function AssignPromoModal({
   const userName = userEmail.split("@")[0];
   const [formData, setFormData] = useState({
     name: `Promotion attribuée à ${userName}`,
-    scope: "VOLUME" as "VOLUME" | "CHAPTER" | "POV" | "EPILOGUE" | "COLORING" | "BUNDLE" | "SUBSCRIPTION",
+    scope: "VOLUME" as "VOLUME" | "CHAPTER" | "POV_CHAPTER" | "POV_VOLUME" | "EPILOGUE" | "COLORING" | "BUNDLE" | "SUBSCRIPTION",
     type: "PERCENT" as "PERCENT" | "FIXED" | "FREE",
     value: 0,
     startsAt: new Date().toISOString().split("T")[0],
@@ -82,7 +82,8 @@ export default function AssignPromoModal({
   const scopeOptions = [
     { value: "VOLUME", label: "Volume" },
     { value: "CHAPTER", label: "Chapitre" },
-    { value: "POV", label: "Perspective" },
+    { value: "POV_CHAPTER", label: "POV Chapitre" },
+    { value: "POV_VOLUME", label: "POV Volume" },
     { value: "EPILOGUE", label: "Épilogue" },
     { value: "COLORING", label: "Coloriage" },
     { value: "BUNDLE", label: "Bundle" },

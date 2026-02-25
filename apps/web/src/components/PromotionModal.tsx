@@ -111,18 +111,13 @@ export default function PromotionModal({
     return '';
   };
 
-  const getScopeDescription = (scope: string, hasVolumeNumber?: boolean): string => {
-    // Handle POV with both chapter and volume variants
-    if (scope === 'POV') {
-      return hasVolumeNumber
-        ? 'Débloquer le point de vue Protagoniste (prochain volume)'
-        : 'Débloquer le point de vue Protagoniste (chapitre complet)';
-    }
-
+  const getScopeDescription = (scope: string): string => {
     const scopeMap: Record<string, string> = {
       CHAPTER: 'Débloquer le chapitre complet',
       VOLUME: 'Débloquer le prochain volume bloqué ou en décompte',
       EPILOGUE: 'Débloquer l\'épilogue',
+      POV_CHAPTER: 'Débloquer le point de vue Protagoniste (chapitre complet)',
+      POV_VOLUME: 'Débloquer le point de vue Protagoniste (prochain volume)',
       COLORING: 'Débloquer les pages de coloriage',
       BUNDLE: 'Débloquer un bundle',
       SUBSCRIPTION: 'Débloquer un abonnement',
@@ -163,7 +158,7 @@ export default function PromotionModal({
               Type de déblocage
             </p>
             <p className="text-sm text-purple-900 dark:text-purple-200">
-              {getScopeDescription(promotion.scope, promotion.content?.volumeNumber !== undefined)}
+              {getScopeDescription(promotion.scope)}
             </p>
           </div>
 

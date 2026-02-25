@@ -1,4 +1,20 @@
-export default function Subscription() {
+import PromotionBadge from '../PromotionBadge';
+
+interface PromotionInfo {
+  type: 'PERCENT' | 'FIXED' | 'FREE';
+  value?: number;
+  discountAmount?: number;
+}
+
+interface SubscriptionProps {
+  basicPromotion?: PromotionInfo;
+  premiumPromotion?: PromotionInfo;
+}
+
+export default function Subscription({
+  basicPromotion,
+  premiumPromotion,
+}: SubscriptionProps) {
   const subscriptionPlan = {
     name: 'Premium',
     price: 999,
@@ -136,7 +152,17 @@ export default function Subscription() {
                 <h4 className="font-bold text-charcoal dark:text-white mb-1">
                   Basique
                 </h4>
-                <p className="text-2xl font-bold text-[#c5a059] mb-2">4,99 €</p>
+                <div className="relative inline-block mb-2">
+                  {basicPromotion && (
+                    <PromotionBadge
+                      type={basicPromotion.type}
+                      discountPercentage={basicPromotion.type === 'PERCENT' ? basicPromotion.value : undefined}
+                      discountAmount={basicPromotion.type === 'FIXED' ? basicPromotion.discountAmount : undefined}
+                      size="small"
+                    />
+                  )}
+                  <p className="text-2xl font-bold text-[#c5a059]">4,99 €</p>
+                </div>
                 <p className="text-xs text-charcoal dark:text-white/70">
                   Accès limité au catalogue
                 </p>
@@ -150,7 +176,17 @@ export default function Subscription() {
                     Nouveau
                   </span>
                 </div>
-                <p className="text-2xl font-bold text-[#c5a059] mb-2">19,99 €</p>
+                <div className="relative inline-block mb-2">
+                  {premiumPromotion && (
+                    <PromotionBadge
+                      type={premiumPromotion.type}
+                      discountPercentage={premiumPromotion.type === 'PERCENT' ? premiumPromotion.value : undefined}
+                      discountAmount={premiumPromotion.type === 'FIXED' ? premiumPromotion.discountAmount : undefined}
+                      size="small"
+                    />
+                  )}
+                  <p className="text-2xl font-bold text-[#c5a059]">19,99 €</p>
+                </div>
                 <p className="text-xs text-charcoal dark:text-white/70">
                   Tous les avantages + contenu exclusif
                 </p>
