@@ -73,7 +73,7 @@ export default function MobilePerspectiveSelector({
                   )
                 }
                 title={`Version ${label}`}
-                className={`relative px-4 py-3 rounded-xl font-serif font-medium text-sm transition-all duration-300 ease-out flex items-center justify-center gap-2 ${
+                className={`relative px-3 py-2 sm:px-4 sm:py-3 rounded-xl font-serif font-medium text-xs sm:text-sm transition-all duration-300 ease-out flex items-center justify-center gap-1.5 sm:gap-2 ${
                   isSelected
                     ? `${perspective.lightBg} ${perspective.darkBg} ${perspective.lightText} ${perspective.darkText} shadow-md ring-1 ${perspective.ringColor}`
                     : `text-boudoir-600 dark:text-boudoir-300 hover:text-boudoir-700 dark:hover:text-boudoir-200 hover:${perspective.lightBg} dark:hover:bg-boudoir-900/20`
@@ -87,7 +87,7 @@ export default function MobilePerspectiveSelector({
                 <span className="material-symbols-outlined text-lg transition-transform duration-300">
                   {perspective.icon}
                 </span>
-                <span className="relative hidden sm:inline">{label}</span>
+                <span className="relative">{label}</span>
               </button>
             );
           })}
