@@ -96,11 +96,11 @@ export default function PromotionModal({
               {getPromotionValue(promotion.type, promotion.value)}
             </div>
             <div className="text-sm text-charcoal/70 dark:text-white/70">
-              {promotion.type === 'PERCENT'
+              {promotion.type === "PERCENT"
                 ? `${promotion.value}% discount`
-                : promotion.type === 'FIXED'
+                : promotion.type === "FIXED"
                   ? `${((promotion.value || 0) / 100).toFixed(2)}€ discount`
-                  : 'Free access'}
+                  : "Free access"}
             </div>
           </div>
 
@@ -112,7 +112,7 @@ export default function PromotionModal({
                 <span>
                   {promotion.remainingUses > 0
                     ? `${promotion.remainingUses} uses remaining`
-                    : 'Unlimited uses'}
+                    : "Unlimited uses"}
                 </span>
               </div>
             )}
@@ -122,7 +122,7 @@ export default function PromotionModal({
                 <span>
                   {promotion.userRemainingUses > 0
                     ? `${promotion.userRemainingUses}x available for you`
-                    : 'Limit reached'}
+                    : "Limit reached"}
                 </span>
               </div>
             )}
@@ -131,7 +131,9 @@ export default function PromotionModal({
           {/* Content details or selection */}
           {promotion.content ? (
             <div className="border-t border-boudoir-300 dark:border-[#c5a059]/30 pt-4">
-              <p className="text-xs text-[#c5a059] font-semibold uppercase mb-2">Unlocks</p>
+              <p className="text-xs text-[#c5a059] font-semibold uppercase mb-2">
+                Unlocks
+              </p>
               <p className="font-medium text-charcoal dark:text-white">
                 {promotion.content.chapterTitle}
               </p>
@@ -143,7 +145,9 @@ export default function PromotionModal({
             </div>
           ) : (
             <div className="border-t border-boudoir-300 dark:border-[#c5a059]/30 pt-4">
-              <p className="text-xs text-[#c5a059] font-semibold uppercase mb-3">Select what to unlock</p>
+              <p className="text-xs text-[#c5a059] font-semibold uppercase mb-3">
+                Select what to unlock
+              </p>
               {loadingContent ? (
                 <div className="flex items-center justify-center py-4">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#c5a059]"></div>
@@ -157,16 +161,16 @@ export default function PromotionModal({
                       onClick={() => setSelectedRefId(chapter.id)}
                       className={`w-full text-left p-3 rounded-lg border transition-colors ${
                         selectedRefId === chapter.id
-                          ? 'border-[#c5a059] bg-[#c5a059]/10 dark:bg-[#c5a059]/20'
-                          : 'border-boudoir-300 dark:border-[#c5a059]/20 hover:border-[#c5a059]/50 dark:hover:border-[#c5a059]/40'
-                      }`}
-                    >
+                          ? "border-[#c5a059] bg-[#c5a059]/10 dark:bg-[#c5a059]/20"
+                          : "border-boudoir-300 dark:border-[#c5a059]/20 hover:border-[#c5a059]/50 dark:hover:border-[#c5a059]/40"
+                      }`}>
                       <p className="font-medium text-charcoal dark:text-white text-sm">
-                        {chapter.title}
+                        {chapter.protagonistName} : {chapter.title}
                       </p>
                       {chapter.volumes && chapter.volumes.length > 0 && (
                         <p className="text-xs text-charcoal/60 dark:text-white/50 mt-1">
-                          {chapter.volumes.length} volume{chapter.volumes.length !== 1 ? 's' : ''}
+                          {chapter.volumes.length} volume
+                          {chapter.volumes.length !== 1 ? "s" : ""}
                         </p>
                       )}
                     </button>
@@ -181,11 +185,11 @@ export default function PromotionModal({
             <p className="flex items-center gap-2">
               <span>⏰</span>
               <span>
-                Valid until{' '}
-                {new Date(promotion.endsAt).toLocaleDateString('fr-FR', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
+                Valid until{" "}
+                {new Date(promotion.endsAt).toLocaleDateString("fr-FR", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
                 })}
               </span>
             </p>
@@ -198,17 +202,15 @@ export default function PromotionModal({
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="flex-1 px-4 py-2 border border-boudoir-300 dark:border-[#c5a059]/30 text-charcoal dark:text-white rounded-lg font-medium hover:bg-boudoir-50 dark:hover:bg-[#2d1620]/80 transition-colors disabled:opacity-50"
-          >
+            className="flex-1 px-4 py-2 border border-boudoir-300 dark:border-[#c5a059]/30 text-charcoal dark:text-white rounded-lg font-medium hover:bg-boudoir-50 dark:hover:bg-[#2d1620]/80 transition-colors disabled:opacity-50">
             Cancel
           </button>
           <button
             type="button"
             onClick={handleApply}
             disabled={isLoading || (!promotion.content && !selectedRefId)}
-            className="flex-1 px-4 py-2 bg-gradient-to-r from-[#c5a059] to-[#a0815f] hover:from-[#d4b370] hover:to-[#b09070] text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? 'Applying...' : 'Apply Promotion'}
+            className="flex-1 px-4 py-2 bg-gradient-to-r from-[#c5a059] to-[#a0815f] hover:from-[#d4b370] hover:to-[#b09070] text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+            {isLoading ? "Applying..." : "Apply Promotion"}
           </button>
         </div>
       </div>

@@ -588,6 +588,7 @@ model AppliedPromotion {
   id          String     @id @default(uuid())
   promotionId String
   userId      String
+  appliedRefId String?    // Chapter or Volume ID the promotion was applied to (for general promotions)
   appliedAt   DateTime   @default(now())
 
   promotion   Promotion  @relation(fields: [promotionId], references: [id], onDelete: Cascade)
