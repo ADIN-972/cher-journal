@@ -1,4 +1,4 @@
-import BookClosed from "./BookClosed";
+import BookClosed from "./common/BookClosed";
 
 interface PerspectiveSelectorProps {
   selectedPerspective: string;
