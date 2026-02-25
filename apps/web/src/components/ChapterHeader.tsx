@@ -29,7 +29,7 @@ export default function ChapterHeader({
       <div className="relative md:col-span-4 lg:w-[300px] xl:w-[400px] aspect-[3/4]">
         <ChapterCover
           imageUrl={imageUrl}
-          title={currentChapter.title}
+          title={currentChapter.protagonistName}
         />
         <div className="absolute top-[5%] -left-[10%] w-[130%] h-auto z-0">
           <BookStore />
