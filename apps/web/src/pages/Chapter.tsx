@@ -22,10 +22,9 @@ import ChapterCover from "../components/common/ChapterCover";
 import PricingSection from "../components/PricingSection";
 import ReviewsSection from "../components/ReviewsSection";
 import ChapterTableOfContents from "../components/chapter/ChapterTableOfContents";
+import PerspectiveSelector from "../components/PerspectiveSelector";
 import { NotificationService } from "../lib/notifications";
 import BookStore from "../components/common/BookStore";
-import BookShadow from "../components/common/BookShadow";
-import BookClosed from "../components/common/BookClosed";
 
 export default function Chapter() {
   const { id, perspective: urlPerspective } = useParams<{
@@ -636,74 +635,11 @@ export default function Chapter() {
           </div>
         </div>
       </div>
-      <section className="flex flex-row gap-2 mb-20 text-center h-[250px]">
-        {/* Narrateur */}
-        <div
-          onClick={() => handleSelectPerspective("narrateur")}
-          className={`relative cursor-pointer transition-all  ${selectedPerspective === "narrateur" ? "w-[200px] h-[300px]" : "w-[195px] h-[250px]"}`}>
-          <BookClosed
-            className=""
-            color={"#3e5977"}
-            selected={selectedPerspective === "narrateur"}
-          />
-          <div
-            className={`absolute grid grid-rows-[1fr_auto] top-0  ${selectedPerspective === "narrateur" ? "w-[185px] text-2xl leading-6" : "w-[150px] text-md"} pl-8 pr-2 aspect-[3/4] items-center justify-center newsreader font-bold leading-4 mr-8 cursor-pointer rounded-lg transition-all text-white`}
-            onClick={() => handleSelectPerspective("narrateur")}>
-            <div className="">Version Narrateur</div>
-
-            {/* <button className="border border-gold bg-gold/10 text-gold px-2 py-2 rounded-full font-normal ">
-              Voir la version
-            </button> */}
-          </div>
-        </div>
-
-        {/* Protagonist */}
-        <div
-          onClick={() => handleSelectPerspective("protagonist")}
-          className={`relative cursor-pointer transition-all  ${selectedPerspective === "protagonist" ? "w-[200px] h-[300px]" : "w-[195px] h-[250px]"}`}>
-          <BookClosed
-            className=""
-            color={"#6e3e77"}
-            selected={selectedPerspective === "protagonist"}
-          />
-          <div
-            className={`absolute grid grid-rows-[1fr_auto] top-0  ${selectedPerspective === "protagonist" ? "w-[185px] text-2xl leading-6" : "w-[150px] text-md"} pl-8 pr-2 aspect-[3/4] items-center justify-center newsreader font-bold leading-4 mr-8 cursor-pointer rounded-lg transition-all text-white`}
-            onClick={() => handleSelectPerspective("protagonist")}>
-            <div className="">Version {currentChapter.protagonistName}</div>
-
-            {/* <button className="border border-gold bg-gold/10 text-gold px-2 py-2 rounded-full font-normal ">
-              Voir la version
-            </button> */}
-          </div>
-        </div>
-
-        {/* Coloriage */}
-        <div
-          onClick={() => handleSelectPerspective("coloriage")}
-          className={`relative cursor-pointer transition-all  ${selectedPerspective === "coloriage" ? "w-[200px] h-[300px]" : "w-[195px] h-[250px]"}`}>
-          <BookClosed
-            className={` `}
-            color={"#3e774f"}
-            selected={selectedPerspective === "coloriage"}
-          />
-          <div
-            className={`absolute grid grid-rows-[1fr_auto] top-0  ${selectedPerspective === "coloriage" ? "w-[185px] text-2xl leading-6" : "w-[150px] text-md"} pl-8 pr-2 aspect-[3/4] items-center justify-center newsreader font-bold leading-4 mr-8 cursor-pointer rounded-lg transition-all text-white`}
-            onClick={() => handleSelectPerspective("coloriage")}>
-            <div className="">Livre de coloriage</div>
-
-            {/* <button className="border border-gold bg-gold/10 text-gold px-2 py-2 rounded-full font-normal ">
-              Voir la version
-            </button> */}
-          </div>
-        </div>
-
-        <div className="grid aspect-[3/4] p-2 bg-gold/50 border-gold border rounded-md shadow-md items-center justify-center h-[150px]">
-          Courriers
-        </div>
-        {/* <div className="grid aspect-[3/4] bg-blue-400 border-blue-600 border rounded-md shadow-md items-center justify-center h-[150px]">
-          Audio books
-        </div> */}
-      </section>
+      <PerspectiveSelector
+        selectedPerspective={selectedPerspective}
+        onSelectPerspective={handleSelectPerspective}
+        protagonistName={currentChapter.protagonistName}
+      />
 
       {/* Chapters List */}
       <ChapterTableOfContents
