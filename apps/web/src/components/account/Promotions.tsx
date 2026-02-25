@@ -43,12 +43,18 @@ export default function Promotions() {
     return 'attach_money';
   };
 
-  const getScopeDescription = (scope: string): string => {
+  const getScopeDescription = (scope: string, hasVolumeNumber?: boolean): string => {
+    // Handle POV with both chapter and volume variants
+    if (scope === 'POV') {
+      return hasVolumeNumber
+        ? 'POV Protagoniste (volume)'
+        : 'POV Protagoniste (chapitre)';
+    }
+
     const scopeMap: Record<string, string> = {
       CHAPTER: 'Chapitre complet',
       VOLUME: 'Prochain volume bloqué/en décompte',
       EPILOGUE: 'Épilogue',
-      POV: 'Point de vue Protagoniste',
       COLORING: 'Pages de coloriage',
       BUNDLE: 'Bundle',
       SUBSCRIPTION: 'Abonnement',
@@ -180,7 +186,7 @@ export default function Promotions() {
             {/* Scope badge - what this promotion unlocks */}
             <div className="px-4 pt-4 pb-2">
               <span className="inline-block bg-purple-500/20 border border-purple-400/50 text-purple-200 text-xs font-semibold px-2 py-1 rounded-full">
-                {getScopeDescription(promotion.scope)}
+                {getScopeDescription(promotion.scope, promotion.content?.volumeNumber !== undefined)}
               </span>
             </div>
 
@@ -224,7 +230,7 @@ export default function Promotions() {
             {!promotion.content && (
               <div className="p-4 bg-black/40 pt-2">
                 <p className="text-xs text-white/60">
-                  💡 Vous pouvez appliquer cette promotion à n\'importe quel {getScopeDescription(promotion.scope).toLowerCase()}
+                  💡 Vous pouvez appliquer cette promotion à n\'importe {promotion.scope === 'POV' ? 'quel chapitre ou volume' : 'quel ' + getScopeDescription(promotion.scope).toLowerCase()}
                 </p>
               </div>
             )}
