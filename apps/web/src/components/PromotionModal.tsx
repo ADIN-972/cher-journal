@@ -114,7 +114,7 @@ export default function PromotionModal({
   const getScopeDescription = (scope: string): string => {
     const scopeMap: Record<string, string> = {
       CHAPTER: 'Débloquer le chapitre complet',
-      VOLUME: 'Débloquer un volume',
+      VOLUME: 'Débloquer le prochain volume bloqué ou en décompte',
       EPILOGUE: 'Débloquer l\'épilogue',
       POV: 'Débloquer le point de vue Protagoniste',
       COLORING: 'Débloquer les pages de coloriage',

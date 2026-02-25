@@ -46,7 +46,7 @@ export default function Promotions() {
   const getScopeDescription = (scope: string): string => {
     const scopeMap: Record<string, string> = {
       CHAPTER: 'Chapitre complet',
-      VOLUME: 'Volume',
+      VOLUME: 'Prochain volume bloqué/en décompte',
       EPILOGUE: 'Épilogue',
       POV: 'Point de vue Protagoniste',
       COLORING: 'Pages de coloriage',
