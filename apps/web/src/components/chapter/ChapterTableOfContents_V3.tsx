@@ -86,7 +86,7 @@ export default forwardRef<HTMLElement, ChapterTableOfContentsV3Props>(
         {/* Stacked Books Container */}
         <div className="max-w-4xl mx-auto">
           {/* Books Stack */}
-          <div className="relative perspective min-h-96 sm:min-h-[500px]">
+          <div className="flex flex-col relative  gap-4">
             {displayedVolumes.map((volume, index) => {
               const perspectiveAccess = volume.accessByPerspective?.[perspectiveKey];
               const isUnlocked = perspectiveAccess?.isAccessible || false;
@@ -105,101 +105,52 @@ export default forwardRef<HTMLElement, ChapterTableOfContentsV3Props>(
 
               return (
                 <div
-                  key={volume.id}
-                  className="absolute w-full transition-all duration-300 ease-out"
-                  style={{
-                    transform: isHovered
-                      ? `translateY(-${(displayedVolumes.length - index - 1) * 8}px) scale(1.02)`
-                      : `translateY(${index * 12}px) scale(1)`,
-                    zIndex: isHovered ? 50 : displayedVolumes.length - index,
-                  }}>
-                  <div
-                    onMouseEnter={() => setHoveredVolumeId(volume.id)}
-                    onMouseLeave={() => setHoveredVolumeId(null)}
-                    onClick={() => onOpenVolume(volume)}
-                    className={`relative group cursor-pointer rounded-lg overflow-hidden transition-all duration-300 ${
-                      isHovered ? "shadow-2xl" : "shadow-lg"
-                    }`}>
-                    {/* Book Spine (horizontal book lying down) */}
-                    <div
-                      className={`bg-gradient-to-b ${colorScheme.bg} px-6 sm:px-8 py-8 sm:py-10 border-4 border-boudoir-900/20 dark:border-white/10 ${
-                        !isUnlocked && "opacity-60"
-                      }`}>
-                      {/* Top edge effect (showing pages) */}
-                      <div
-                        className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                        aria-hidden="true"
-                      />
-
-                      {/* Spine Content - Vertical Layout */}
-                      <div className="flex items-center justify-between gap-6 sm:gap-8 h-full">
-                        {/* Left: Volume Number */}
-                        <div className="flex-shrink-0 text-center">
-                          <p className="text-white/50 text-xs tracking-widest uppercase font-bold mb-1">
-                            Vol.
-                          </p>
-                          <p className="text-white font-serif text-3xl sm:text-4xl font-bold">
-                            {String(volume.volumeNumber).padStart(2, "0")}
-                          </p>
-                        </div>
-
-                        {/* Middle: Title & Info */}
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-white font-serif font-bold text-lg sm:text-2xl leading-tight truncate">
-                            {volume.title}
-                          </h3>
-                          <div className="flex items-center gap-2 mt-2">
-                            {/* Status indicator */}
-                            <span className="material-symbols-outlined text-sm text-white/70">
-                              {progression >= 100
-                                ? "check_circle"
-                                : progression > 0
-                                  ? "bookmark"
-                                  : "lock"}
-                            </span>
-                            <p className="text-xs text-white/70 font-serif italic">
-                              {progression >= 100
-                                ? "Terminé"
-                                : progression > 0
-                                  ? `${progression}% lu`
-                                  : needsUpgrade
-                                    ? "Premium"
-                                    : "Verrouillé"}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Right: Progress/Lock Icon */}
-                        <div className="flex-shrink-0">
-                          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20 group-hover:bg-white/25 transition-colors">
-                            <span className="material-symbols-outlined text-xl sm:text-2xl text-white">
-                              {progression >= 100
-                                ? "check"
-                                : progression > 0
-                                  ? "auto_stories"
-                                  : "lock"}
-                            </span>
-                          </div>
+                  className="book-3d bg-deep-burgundy"
+                  style={
+                    {
+                      "--z-index": 10,
+                      marginLeft: `${Math.floor(Math.random() * 31) - 10}px`,
+                    } as React.CSSProperties
+                  }>
+                  <div className="book-spine-3d">
+                    <div className="spine-texture-3d"></div>
+                    <div className="grid grid-cols-12 w-full items-center z-10">
+                      <div className="col-span-1 text-boudoir-gold/60 font-serif italic text-xl">
+                        I
+                      </div>
+                      <div className="col-span-4 text-boudoir-silk font-serif text-lg tracking-wide">
+                        The Midnight Appointment
+                      </div>
+                      <div className="col-span-3 flex items-center space-x-3">
+                        <span className="text-[10px] uppercase tracking-widest opacity-60 font-bold">
+                          Progress
+                        </span>
+                        <div className="progress-bar-container">
+                          <div className="progress-bar-fill w-[65%]"></div>
                         </div>
                       </div>
-
-                      {/* Progress bar (if unlocked and has progress) */}
-                      {isUnlocked && (
-                        <div className="absolute bottom-2 sm:bottom-3 left-6 sm:left-8 right-6 sm:right-8 h-1 bg-white/20 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-eros-gold to-yellow-300 rounded-full transition-all duration-500"
-                            style={{ width: `${progression}%` }}
-                          />
-                        </div>
-                      )}
-
-                      {/* Shine effect on hover */}
-                      <div
-                        className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                        aria-hidden="true"
-                      />
+                      <div className="col-span-1 text-center">
+                        <svg
+                          className="h-5 w-5 text-boudoir-gold mx-auto"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"></path>
+                        </svg>
+                      </div>
+                      <div className="col-span-3 flex justify-end">
+                        <button className="text-[11px] px-5 py-2 bg-boudoir-silk text-boudoir-plum font-bold uppercase tracking-wider rounded shadow-md hover:brightness-110 active:scale-95 transition">
+                          Continue
+                        </button>
+                      </div>
                     </div>
                   </div>
+                  <div className="book-pages-3d"></div>
                 </div>
               );
             })}
