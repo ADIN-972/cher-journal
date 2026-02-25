@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useToast } from '../../hooks/useToast';
 import { showSuccessToast } from '../../lib/toastHelper';
+import { api } from '../../lib/api';
+import MySupportClaims from './MySupportClaims';
 
 type ClaimCategory = 'technical' | 'billing' | 'content' | 'other';
 
@@ -22,13 +24,22 @@ export default function SupportClaims() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // TODO: Submit to API
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await api.submitSupportClaim({
+        category,
+        subject,
+        message,
+      });
       setSubject('');
       setMessage('');
+      setCategory('technical');
       showSuccessToast(toast, 'SUPPORT_CLAIM_SENT');
-    }, 1000);
+    } catch (error) {
+      console.error('Failed to submit support claim:', error);
+      toast.error('Erreur lors de l\'envoi de votre réclamation');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -82,14 +93,14 @@ export default function SupportClaims() {
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 required
-                className="w-full px-4 py-3 rounded-xl border border-boudoir-300 dark:border-boudoir-800 bg-white dark:bg-boudoir-900/30 text-charcoal dark:text-white focus:outline-none focus:ring-2 focus:ring-[#c5a059] transition-all"
+                className="w-full px-4 py-3 rounded-xl border border-boudoir-300 dark:border-boudoir-800 bg-white dark:bg-boudoir-900/30 text-charcoal  focus:outline-none focus:ring-2 focus:ring-[#c5a059] transition-all"
                 placeholder="Décrivez brièvement votre problème..."
               />
             </div>
 
             {/* Message */}
             <div>
-              <label className="block text-sm font-medium text-charcoal dark:text-white mb-2">
+              <label className="block text-sm font-medium text-charcoal  mb-2">
                 Message
               </label>
               <textarea
@@ -97,7 +108,7 @@ export default function SupportClaims() {
                 onChange={(e) => setMessage(e.target.value)}
                 required
                 rows={6}
-                className="w-full px-4 py-3 rounded-xl border border-boudoir-300 dark:border-boudoir-800 bg-white dark:bg-boudoir-900/30 text-charcoal dark:text-white focus:outline-none focus:ring-2 focus:ring-[#c5a059] transition-all resize-none"
+                className="w-full px-4 py-3 rounded-xl border border-boudoir-300 dark:border-boudoir-800 bg-white dark:bg-boudoir-900/30 text-charcoal  focus:outline-none focus:ring-2 focus:ring-[#c5a059] transition-all resize-none"
                 placeholder="Décrivez votre problème en détail..."
               />
             </div>
@@ -150,6 +161,11 @@ export default function SupportClaims() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* My Support Claims Section */}
+      <div className="mt-12 pt-12 border-t border-boudoir-300 dark:border-[#c5a059]/30">
+        <MySupportClaims />
       </div>
     </div>
   );
