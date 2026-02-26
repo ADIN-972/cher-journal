@@ -12,6 +12,14 @@ interface ColoringGalleryProps {
   chapterId: string;
 }
 
+// Ensure Material Symbols are loaded
+if (typeof document !== 'undefined' && !document.querySelector('link[href*="material-symbols"]')) {
+  const link = document.createElement('link');
+  link.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-200..200';
+  link.rel = 'stylesheet';
+  document.head.appendChild(link);
+}
+
 export default function ColoringGallery({ chapterId }: ColoringGalleryProps) {
   const [coloringPages, setColoringPages] = useState<ColoringPage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -48,13 +56,9 @@ export default function ColoringGallery({ chapterId }: ColoringGalleryProps) {
             <div className="p-12 sm:p-20 text-center">
               {/* Decorative Symbol */}
               <div className="mb-8 flex justify-center">
-                <svg
-                  className="w-16 h-16 text-red-400 dark:text-red-500 opacity-70"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 2L15.09 8.26H21.77L16.84 12.74L18.93 19.74L12 15.26L5.07 19.74L7.16 12.74L2.23 8.26H8.91L12 2Z" />
-                </svg>
+                <span className="material-symbols-outlined text-6xl text-red-400 dark:text-red-500 opacity-70">
+                  palette
+                </span>
               </div>
 
               {/* Title */}
@@ -95,7 +99,9 @@ export default function ColoringGallery({ chapterId }: ColoringGalleryProps) {
 
             <div className="relative bg-white dark:bg-slate-800 rounded-2xl p-8 border border-gray-200/50 dark:border-gray-700/50 hover:border-red-200/50 dark:hover:border-red-800/50 transition-all duration-300 shadow-lg hover:shadow-xl">
               {/* Icon */}
-              <div className="text-5xl mb-5 text-red-400 dark:text-red-500">🎨</div>
+              <span className="material-symbols-outlined text-5xl mb-5 text-red-400 dark:text-red-500">
+                palette
+              </span>
 
               {/* Title */}
               <h3 className="font-semibold text-xl text-gray-900 dark:text-white mb-3 tracking-wide">
@@ -115,7 +121,9 @@ export default function ColoringGallery({ chapterId }: ColoringGalleryProps) {
 
             <div className="relative bg-white dark:bg-slate-800 rounded-2xl p-8 border border-gray-200/50 dark:border-gray-700/50 hover:border-red-200/50 dark:hover:border-red-800/50 transition-all duration-300 shadow-lg hover:shadow-xl">
               {/* Icon */}
-              <div className="text-5xl mb-5 text-red-400 dark:text-red-500">💎</div>
+              <span className="material-symbols-outlined text-5xl mb-5 text-red-400 dark:text-red-500">
+                cloud_download
+              </span>
 
               {/* Title */}
               <h3 className="font-semibold text-xl text-gray-900 dark:text-white mb-3 tracking-wide">
@@ -135,7 +143,9 @@ export default function ColoringGallery({ chapterId }: ColoringGalleryProps) {
 
             <div className="relative bg-white dark:bg-slate-800 rounded-2xl p-8 border border-gray-200/50 dark:border-gray-700/50 hover:border-red-200/50 dark:hover:border-red-800/50 transition-all duration-300 shadow-lg hover:shadow-xl">
               {/* Icon */}
-              <div className="text-5xl mb-5 text-red-400 dark:text-red-500">✨</div>
+              <span className="material-symbols-outlined text-5xl mb-5 text-red-400 dark:text-red-500">
+                collections
+              </span>
 
               {/* Title */}
               <h3 className="font-semibold text-xl text-gray-900 dark:text-white mb-3 tracking-wide">
