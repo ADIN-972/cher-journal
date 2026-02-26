@@ -312,4 +312,30 @@ export class ReaderController {
       throw error;
     }
   }
+
+  /**
+   * Get coloring assets for a chapter
+   */
+  async getChapterColoringAssets(
+    request: FastifyRequest<{
+      Params: { chapterId: string };
+      Querystring: { tag?: string };
+    }>,
+    reply: FastifyReply
+  ) {
+    try {
+      const assets = await service.getChapterColoringAssets(
+        request.params.chapterId,
+        request.query.tag
+      );
+
+      return reply.send({ success: true, data: assets });
+    } catch (error: any) {
+      console.error('Failed to fetch coloring assets:', error);
+      return reply.status(500).send({
+        success: false,
+        error: { code: 'FETCH_FAILED', message: 'Failed to fetch coloring assets' }
+      });
+    }
+  }
 }

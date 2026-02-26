@@ -37,4 +37,10 @@ export async function readerRoutes(app: FastifyInstance) {
     preHandler: requireAuth,
     handler: controller.updateProgress.bind(controller),
   });
+
+  // Get coloring assets for a chapter (with optional tag filter)
+  app.get('/chapters/:chapterId/assets', {
+    preHandler: requireAuth,
+    handler: controller.getChapterColoringAssets.bind(controller),
+  });
 }

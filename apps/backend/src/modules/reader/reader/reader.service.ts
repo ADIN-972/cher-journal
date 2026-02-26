@@ -505,4 +505,49 @@ export class ReaderService {
     // Return current progress if new progress is not higher
     return { success: true, progress: volumeRead.progress };
   }
+
+  /**
+   * Get coloring assets for a chapter with optional tag filter
+   */
+  async getChapterColoringAssets(chapterId: string, tag?: string) {
+    const assets = await prisma.chapterAsset.findMany({
+      where: {
+        chapterId,
+        // Filter by tag if provided
+        ...(tag && {
+          tags: {
+            some: {
+              tag: {
+                name: {
+                  equals: tag,
+                  mode: 'insensitive'
+                }
+              }
+            }
+          }
+        })
+      },
+      include: {
+        tags: {
+          include: {
+            tag: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'asc'
+      }
+    });
+
+    return assets.map((asset, index) => ({
+      id: asset.id,
+      label: asset.label || `Illustration ${index + 1}`,
+      url: `/assets/${asset.objectKey}`, // Adjust based on your asset serving path
+      thumbnailUrl: asset.thumbnailObjectKey ? `/assets/${asset.thumbnailObjectKey}` : null,
+      tags: asset.tags.map(t => t.tag.name),
+      mimeType: asset.mimeType,
+      width: asset.width,
+      height: asset.height
+    }));
+  }
 }
