@@ -1,171 +1,312 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
+import api from "../../lib/api";
+import { Chapter } from "../../stores/catalogStore";
 
 interface ColoringPage {
   id: string;
   title: string;
   pageNumber: number;
+  imageUrl: string;
   thumbnailUrl?: string;
   isAvailable: boolean;
+  tags: string[];
 }
 
 interface ColoringGalleryProps {
-  chapterId: string;
+  chapter: Chapter;
 }
 
 // Ensure Material Symbols are loaded
-if (typeof document !== 'undefined' && !document.querySelector('link[href*="material-symbols"]')) {
-  const link = document.createElement('link');
-  link.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-200..200';
-  link.rel = 'stylesheet';
+if (
+  typeof document !== "undefined" &&
+  !document.querySelector('link[href*="material-symbols"]')
+) {
+  const link = document.createElement("link");
+  link.href =
+    "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-200..200";
+  link.rel = "stylesheet";
   document.head.appendChild(link);
 }
 
-export default function ColoringGallery({ chapterId }: ColoringGalleryProps) {
+export default function ColoringGallery({ chapter }: ColoringGalleryProps) {
   const [coloringPages, setColoringPages] = useState<ColoringPage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // TODO: Fetch coloring pages from API once implemented
-    // For now, we'll show a coming soon message
-    setIsLoading(false);
-  }, [chapterId]);
+    const fetchColoringPages = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Récupérer les assets du chapitre avec filtre pour 'coloring' tag
+        const response = await api.get(`/chapters/${chapter.id}/assets?tag=coloring`);
+
+        if (response.success && response.data) {
+          const pages: ColoringPage[] = response.data.map((asset: any, index: number) => ({
+            id: asset.id,
+            title: asset.label || `Illustration ${index + 1}`,
+            pageNumber: index + 1,
+            imageUrl: asset.url,
+            thumbnailUrl: asset.thumbnailUrl || asset.url,
+            isAvailable: true,
+            tags: asset.tags || [],
+          }));
+          setColoringPages(pages);
+        }
+      } catch (err) {
+        console.error("Failed to fetch coloring pages:", err);
+        setError("Impossible de charger les pages de coloriage");
+        // Garder les pages vides pour afficher le placeholder
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (chapter?.id) {
+      fetchColoringPages();
+    }
+  }, [chapter?.id]);
 
   return (
-    <div className="w-full py-24 px-4 sm:px-6 lg:px-8">
-      {/* Coming Soon Section - Boudoir Style */}
-      <div className="max-w-5xl mx-auto">
-        {/* Background Decorative Elements */}
-        <div className="relative">
-          {/* Light Mode Gradient */}
-          <div className="hidden dark:hidden absolute inset-0 opacity-30">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-red-200 rounded-full mix-blend-multiply filter blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-200 rounded-full mix-blend-multiply filter blur-3xl"></div>
+    <div className="relative z-10 w-full max-w-7xl px-6 py-12 flex flex-col gap-12">
+      {/* <!-- Hero Section --> */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div className="max-w-2xl newsreader">
+          <h1 className="font-display font-light text-6xl md:text-8xl  text-slate-900 dark:text-slate-100 leading-tight mb-6">
+            Livre de <span className="text-primary italic">Coloriage</span>
+          </h1>
+          <p className="text-lg md:text-xl text-slate-700 dark:text-slate-400 font-display leading-relaxed">
+            Plongez dans l'intimité de nos créations. Des designs exclusifs
+            façonnés avec soin pour sublimer chaque chapitre de votre expérience
+            Boudoir Moderne.
+          </p>
+        </div>
+        <div className="flex flex-col gap-4">
+          <button className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-lg font-bold tracking-wider uppercase text-sm shadow-xl shadow-primary/20 transition-all flex items-center gap-2">
+            <span className="material-symbols-outlined">auto_awesome</span>
+            Débloquer l'accès complet
+          </button>
+        </div>
+      </div>
+      {/* <!-- Features Highlights --> */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md flex items-center gap-4">
+          <div className="size-12 rounded-lg bg-primary/5 dark:bg-primary/20 flex items-center justify-center text-red-600 dark:text-primary">
+            <span className="material-symbols-outlined text-2xl">palette</span>
           </div>
-
-          {/* Dark Mode Gradient */}
-          <div className="hidden dark:block absolute inset-0 opacity-20">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-red-900 rounded-full mix-blend-multiply filter blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-900 rounded-full mix-blend-multiply filter blur-3xl"></div>
+          <div>
+            <h4 className="font-bold text-slate-900 dark:text-slate-100 uppercase text-xs tracking-widest">
+              Designs Exclusifs
+            </h4>
+            <p className="text-sm text-slate-700 dark:text-slate-400">
+              Illustrations haute couture
+            </p>
           </div>
+        </div>
+        <div className="p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md flex items-center gap-4">
+          <div className="size-12 rounded-lg bg-amber-900/5 dark:bg-amber-900/40 flex items-center justify-center text-amber-500 dark:text-amber-500">
+            <span className="material-symbols-outlined text-2xl">
+              cloud_download
+            </span>
+          </div>
+          <div>
+            <h4 className="font-bold text-slate-900 dark:text-slate-100 uppercase text-xs tracking-widest">
+              Téléchargement Premium
+            </h4>
+            <p className="text-sm text-slate-700 dark:text-slate-400">
+              Qualité 4K prête à imprimer
+            </p>
+          </div>
+        </div>
+        <div className="p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md flex items-center gap-4">
+          <div className="size-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-800 dark:text-slate-400">
+            <span className="material-symbols-outlined text-2xl">
+              collections
+            </span>
+          </div>
+          <div>
+            <h4 className="font-bold text-slate-900 dark:text-slate-100 uppercase text-xs tracking-widest">
+              Galerie Personnelle
+            </h4>
+            <p className="text-sm text-slate-700 dark:text-slate-400">
+              Sauvegardez vos chefs-d'œuvre
+            </p>
+          </div>
+        </div>
+      </div>
+      {/* <!-- Main Gallery Card --> */}
+      <GalleryCard chapter={chapter} pages={coloringPages} isLoading={isLoading} error={error} />
+    </div>
+  );
+}
 
-          {/* Main Card */}
-          <div className="relative backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 rounded-3xl border border-red-200/40 dark:border-red-900/40 overflow-hidden shadow-2xl">
-            {/* Decorative Top Border */}
-            <div className="h-1 bg-gradient-to-r from-red-500 via-red-400 to-amber-400 dark:from-red-600 dark:via-red-500 dark:to-amber-600"></div>
+export function ColoringPageCard({ page }: { page: ColoringPage }) {
+  const [isHovered, setIsHovered] = useState(false);
 
-            <div className="p-12 sm:p-20 text-center">
-              {/* Decorative Symbol */}
-              <div className="mb-8 flex justify-center">
-                <span className="material-symbols-outlined text-6xl text-red-400 dark:text-red-500 opacity-70">
+  return (
+    <div
+      className="group relative aspect-[3/4] rounded-lg overflow-hidden border border-primary/20 hover:border-primary/60 bg-slate-100 dark:bg-slate-900 transition-all cursor-pointer"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Image */}
+      <img
+        src={page.thumbnailUrl || page.imageUrl}
+        alt={page.title}
+        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+        loading="lazy"
+      />
+
+      {/* Overlay with info */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
+        <p className="text-xs uppercase tracking-tighter text-slate-300 mb-1">
+          Page {page.pageNumber}
+        </p>
+        <p className="text-sm font-display italic text-white">{page.title}</p>
+      </div>
+
+      {/* Download button on hover */}
+      {isHovered && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <button
+            type="button"
+            className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg transition-all"
+          >
+            <span className="material-symbols-outlined text-lg">cloud_download</span>
+            Télécharger
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function LockedCard({
+  title,
+  description,
+}: {
+  title?: string;
+  description?: string;
+}) {
+  return (
+    <div className="group relative aspect-[3/4] rounded-lg overflow-hidden border border-white/10 bg-slate-100/50 dark:bg-slate-900/50 hover:border-primary/40 transition-all">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
+        <p className="text-xs uppercase tracking-tighter text-slate-400">
+          {title}
+        </p>
+        <p className="text-sm font-display italic text-white">{description}</p>
+      </div>
+      <div className="w-full h-full flex items-center justify-center opacity-20 grayscale group-hover:grayscale-0 group-hover:opacity-40 transition-all">
+        <span className="material-symbols-outlined text-6xl">lock</span>
+      </div>
+    </div>
+  );
+}
+
+export function GalleryCard({
+  chapter,
+  pages,
+  isLoading,
+  error,
+}: {
+  chapter: Chapter;
+  pages: ColoringPage[];
+  isLoading: boolean;
+  error: string | null;
+}) {
+  const hasPages = pages && pages.length > 0;
+
+  return (
+    <section className="relative rounded-xl overflow-hidden border border-primary/20 dark:bg-background-dark/40 backdrop-blur-xl shadow-2xl">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-amber-900/5 pointer-events-none"></div>
+      <div className="px-8 py-10 flex flex-col gap-10">
+        <div className="flex items-center justify-between border-b border-black/35 dark:border-white/5 pb-6">
+          <h3 className="text-2xl font-display italic text-slate-900 dark:text-slate-200 newsreader">
+            Collection : {chapter.protagonistName}
+          </h3>
+          {!hasPages && (
+            <div className="flex items-center gap-2 text-primary/80">
+              <span className="text-xs font-bold uppercase tracking-widest">
+                Bientôt disponible
+              </span>
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Affichage conditionnel */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="animate-spin mb-4">
+                <span className="material-symbols-outlined text-5xl text-primary">
                   palette
                 </span>
               </div>
-
-              {/* Title */}
-              <h2 className="text-4xl sm:text-5xl font-light tracking-wide text-gray-900 dark:text-white mb-4">
-                Livre de Coloriage
-              </h2>
-
-              {/* Subtitle */}
-              <div className="w-16 h-1 bg-gradient-to-r from-red-400 to-amber-400 dark:from-red-600 dark:to-amber-600 mx-auto mb-8"></div>
-
-              {/* Description */}
-              <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed font-light">
-                Une expérience artistique et sensuelle vous attend. Des compositions délicates inspirées par l'intimité de ce chapitre, conçues pour vous offrir un moment de détente créatif et personnel.
+              <p className="text-slate-600 dark:text-slate-400">
+                Chargement des créations...
               </p>
-
-              {/* Secondary Text */}
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-10 italic">
-                Collection exclusive – Bientôt disponible
-              </p>
-
-              {/* CTA Badge */}
-              <div className="inline-block">
-                <div className="px-8 py-3 bg-gradient-to-r from-red-500/20 to-amber-500/20 dark:from-red-600/30 dark:to-amber-600/30 border border-red-300/50 dark:border-red-700/50 rounded-full backdrop-blur-sm hover:from-red-500/30 hover:to-amber-500/30 dark:hover:from-red-600/40 dark:hover:to-amber-600/40 transition-all duration-300">
-                  <span className="text-red-700 dark:text-red-300 font-semibold text-sm tracking-wide">
-                    À venir
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
-        </div>
-
-        {/* Features Preview Grid */}
-        <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Feature 1 */}
-          <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 to-amber-500/0 group-hover:from-red-500/10 group-hover:to-amber-500/10 dark:group-hover:from-red-600/10 dark:group-hover:to-amber-600/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
-
-            <div className="relative bg-white dark:bg-slate-800 rounded-2xl p-8 border border-gray-200/50 dark:border-gray-700/50 hover:border-red-200/50 dark:hover:border-red-800/50 transition-all duration-300 shadow-lg hover:shadow-xl">
-              {/* Icon */}
-              <span className="material-symbols-outlined text-5xl mb-5 text-red-400 dark:text-red-500">
-                palette
+        ) : error ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <span className="material-symbols-outlined text-5xl text-red-500 mb-4 block">
+                error
               </span>
-
-              {/* Title */}
-              <h3 className="font-semibold text-xl text-gray-900 dark:text-white mb-3 tracking-wide">
-                Designs Exclusifs
-              </h3>
-
-              {/* Description */}
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-light">
-                Compositions délicates et refinées, spécialement créées pour ce chapitre
-              </p>
+              <p className="text-red-600 dark:text-red-400">{error}</p>
             </div>
           </div>
-
-          {/* Feature 2 */}
-          <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 to-amber-500/0 group-hover:from-red-500/10 group-hover:to-amber-500/10 dark:group-hover:from-red-600/10 dark:group-hover:to-amber-600/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
-
-            <div className="relative bg-white dark:bg-slate-800 rounded-2xl p-8 border border-gray-200/50 dark:border-gray-700/50 hover:border-red-200/50 dark:hover:border-red-800/50 transition-all duration-300 shadow-lg hover:shadow-xl">
-              {/* Icon */}
-              <span className="material-symbols-outlined text-5xl mb-5 text-red-400 dark:text-red-500">
-                cloud_download
-              </span>
-
-              {/* Title */}
-              <h3 className="font-semibold text-xl text-gray-900 dark:text-white mb-3 tracking-wide">
-                Téléchargement Premium
-              </h3>
-
-              {/* Description */}
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-light">
-                Haute résolution pour impression et archivage de vos créations
-              </p>
-            </div>
+        ) : hasPages ? (
+          // Afficher les images de coloriage réelles
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {pages.map((page) => (
+              <ColoringPageCard key={page.id} page={page} />
+            ))}
+            {/* Ajouter une carte "en cours" si moins de 4 pages */}
+            {pages.length < 4 && <InProgressCard />}
           </div>
-
-          {/* Feature 3 */}
-          <div className="group relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 to-amber-500/0 group-hover:from-red-500/10 group-hover:to-amber-500/10 dark:group-hover:from-red-600/10 dark:group-hover:to-amber-600/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
-
-            <div className="relative bg-white dark:bg-slate-800 rounded-2xl p-8 border border-gray-200/50 dark:border-gray-700/50 hover:border-red-200/50 dark:hover:border-red-800/50 transition-all duration-300 shadow-lg hover:shadow-xl">
-              {/* Icon */}
-              <span className="material-symbols-outlined text-5xl mb-5 text-red-400 dark:text-red-500">
-                collections
-              </span>
-
-              {/* Title */}
-              <h3 className="font-semibold text-xl text-gray-900 dark:text-white mb-3 tracking-wide">
-                Galerie Personnelle
-              </h3>
-
-              {/* Description */}
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-light">
-                Conservez et organisez votre collection d'œuvres coloriées
-              </p>
-            </div>
+        ) : (
+          // Afficher le placeholder si aucune image
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <LockedCard
+              title="Illustrations No. 01"
+              description="Éveil des Sens"
+            />
+            <LockedCard
+              title="Illustrations No. 02"
+              description="Ombre et Lumière"
+            />
+            <LockedCard
+              title="Illustrations No. 03"
+              description="Détails de Soie"
+            />
+            <InProgressCard />
           </div>
-        </div>
+        )}
+      </div>
+    </section>
+  );
+}
 
-        {/* Bottom Decorative Text */}
-        <div className="mt-16 text-center">
-          <p className="text-xs tracking-widest text-gray-500 dark:text-gray-500 uppercase font-light">
-            ✦ Une Expérience Sensorielle et Créative ✦
-          </p>
-        </div>
+export function InProgressCard() {
+  return (
+    <div className="group relative aspect-[3/4] rounded-lg overflow-hidden border border-primary/30 bg-primary/5 flex items-center justify-center overflow-hidden">
+      <div className="absolute inset-0 bg-mesh opacity-30 animate-pulse"></div>
+      <div className="relative z-10 flex flex-col items-center gap-2 p-6 text-center">
+        <span className="material-symbols-outlined text-4xl text-primary/60">
+          hourglass_empty
+        </span>
+        <h5 className="text-sm font-bold uppercase tracking-widest text-primary">
+          Nouveau Design
+        </h5>
+        <p className="text-[10px] text-slate-400 italic">
+          En cours de création par nos artistes
+        </p>
       </div>
     </div>
   );
