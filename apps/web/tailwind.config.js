@@ -106,7 +106,9 @@ export default {
                 'boudoir-gold': '#D4AF37',
                 'boudoir-silk': '#F3E5F5',
                 'deep-burgundy': '#4A0E0E',
+                'deep-rose': '#920a4a',
                 'deep-green': '#0E2F21',
+                'deep-blue': '#0B162C',
                 'midnight-blue': '#0B162C',
             },
             fontFamily: {

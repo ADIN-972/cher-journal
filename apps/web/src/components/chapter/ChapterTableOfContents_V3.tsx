@@ -85,7 +85,9 @@ export default forwardRef<HTMLElement, ChapterTableOfContentsV3Props>(
     ref: ForwardedRef<HTMLElement>,
   ) {
     const [hoveredVolumeId, setHoveredVolumeId] = useState<string | null>(null);
-    const [selectedVolumeId, setSelectedVolumeId] = useState<string | null>(null);
+    const [selectedVolumeId, setSelectedVolumeId] = useState<string | null>(
+      null,
+    );
 
     const perspectiveKey =
       selectedPerspective === "protagonist" ? "PROTAGONIST" : "NARRATOR";
@@ -181,7 +183,7 @@ export default forwardRef<HTMLElement, ChapterTableOfContentsV3Props>(
                   }}
                   onMouseEnter={() => setHoveredVolumeId(volume.id)}
                   onMouseLeave={() => setHoveredVolumeId(null)}
-                  className={`relative w-full book-3d ${isUnlocked ? "bg-deep-burgundy" : "bg-gray-800"} text-left`}
+                  className={`relative w-full book-3d ${isUnlocked ? (perspectiveKey === "NARRATOR" ? "bg-deep-burgundy" : "bg-deep-rose") : "bg-gray-800"} text-left`}
                   style={
                     {
                       "--z-index": displayedVolumes.length - index,
@@ -214,7 +216,7 @@ export default forwardRef<HTMLElement, ChapterTableOfContentsV3Props>(
                         {volume.title}
                       </div>
                       <div
-                        className={`${isUnlocked ? "col-span-6" : "col-span-5" } flex flex-col items-center space-x-3 text-white justify-center  h-full  items-center px-3 mr-1 border-l-2 border-gold/50`}>
+                        className={`${isUnlocked ? "col-span-6" : "col-span-5"} flex flex-col items-center space-x-3 text-white justify-center  h-full  items-center px-3 mr-1 border-l-2 border-gold/50`}>
                         <div className="grid w-full text-[10px] text-center md:text-xs text-gray-400 italic">
                           {isUnlocked
                             ? "Une histoire captivante..."

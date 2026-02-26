@@ -25,6 +25,7 @@ import ChapterHeader from "../components/ChapterHeader";
 import { NotificationService } from "../lib/notifications";
 import MobilePerspectiveSelectorV2 from "../components/MobilePerspectiveSelector_V2";
 import ChapterTableOfContents_V3 from "../components/chapter/ChapterTableOfContents_V3";
+import ColoringGallery from "../components/chapter/ColoringGallery";
 
 export default function Chapter() {
   const { id, perspective: urlPerspective } = useParams<{
@@ -580,21 +581,27 @@ export default function Chapter() {
         protagonistName={currentChapter.protagonistName}
       />
 
-      {/* Chapters List */}
-      <ChapterTableOfContents_V3
-        ref={chaptersListRef}
-        chapter={currentChapter}
-        selectedPerspective={selectedPerspective ?? "narrateur"}
-        isPurchasing={isPurchasing}
-        isStartingWait={isStartingWait}
-        onOpenVolume={handleOpenVolume}
-        onStartWait={handleStartWait}
-        onUnlock={handleUnlock}
-        onFetchChapter={() => {
-          if (id) fetchChapter(id);
-        }}
-        chapterId={id!}
-      />
+      {/* Chapters List or Coloring Gallery */}
+      {selectedPerspective === "coloriage" ? (
+        <ColoringGallery chapterId={id!} />
+      ) : (
+        <ChapterTableOfContents_V3
+          ref={chaptersListRef}
+          chapter={currentChapter}
+          selectedPerspective={selectedPerspective ?? "narrateur"}
+          isPurchasing={isPurchasing}
+          isStartingWait={isStartingWait}
+          onOpenVolume={handleOpenVolume}
+          onStartWait={handleStartWait}
+          onUnlock={handleUnlock}
+          onFetchChapter={() => {
+            if (id) fetchChapter(id);
+          }}
+          chapterId={id!}
+        />
+      )}
+
+      
 
       {/* Pricing Section - Only show if user hasn't purchased everything */}
       {currentChapter.pricing && (
@@ -618,8 +625,8 @@ export default function Chapter() {
         }
       />
 
-      {/* Reader Drawer */}
-      {selectedVolume && currentChapter && (
+      {/* Reader Drawer - Only show for narrator/protagonist perspectives */}
+      {selectedVolume && currentChapter && selectedPerspective !== "coloriage" && (
         <ReaderDrawer
           isOpen={readerOpen}
           onClose={() => {
