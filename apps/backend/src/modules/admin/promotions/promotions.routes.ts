@@ -20,6 +20,9 @@ export async function promotionsRoutes(app: FastifyInstance) {
   app.get("/admin/promotions/validate-code/:code", promotionsController.validateCode);
   app.get("/admin/promotions/check-code", promotionsController.checkCodeUniqueness);
 
+  // Maintenance
+  app.post("/admin/promotions/maintenance/fix-missing-entitlements", promotionsController.fixMissingFreePromotionEntitlements);
+
   // Prices
   app.post("/admin/prices", promotionsController.createPrice);
   app.get("/admin/prices", promotionsController.listPrices);

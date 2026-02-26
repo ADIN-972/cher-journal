@@ -59,6 +59,7 @@ export default function NouveautésSection({
                   showLimitedEditionBadge={false}
                   showBookmarkIcon={item.hasStartedReading}
                   hasGrayscaleEffect={true}
+                  textSize="auto"
                 />
               ) : (
                 <div

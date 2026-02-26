@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../../stores/authStore";
 import { useThemeStore, initializeTheme } from "../../stores/themeStore";
@@ -10,6 +10,7 @@ interface LayoutNewProps {
 export default function LayoutNew({ children }: LayoutNewProps) {
   const { user } = useAuthStore();
   const { isDark, toggleTheme } = useThemeStore();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     initializeTheme();
@@ -22,6 +23,17 @@ export default function LayoutNew({ children }: LayoutNewProps) {
         <div className="max-w-[1280px] mx-auto px-6 h-16 flex items-center justify-between">
           {/* Left Section - Logo & Navigation */}
           <div className="flex items-center gap-10 text-white">
+            {/* Mobile Hamburger Button (visible only on mobile/tablet) */}
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden p-2 hover:bg-boudoir-900/50 rounded-full transition-colors text-charcoal dark:text-white/70 hover:text-gold"
+              aria-label="Menu de navigation"
+              aria-expanded={isMobileMenuOpen ? "true" : "false"}>
+              <span className="material-symbols-outlined text-xl">
+                {isMobileMenuOpen ? "close" : "menu"}
+              </span>
+            </button>
             {/* Logo */}
             <Link
               to="/"
@@ -32,8 +44,8 @@ export default function LayoutNew({ children }: LayoutNewProps) {
               </h1>
             </Link>
 
-            {/* Center Navigation */}
-            <nav className="flex items-center  gap-2   text-soft-gold">
+            {/* Desktop Center Navigation (hidden on mobile/tablet) */}
+            <nav className="hidden lg:flex items-center gap-2 text-soft-gold">
               <Link
                 to="/"
                 className="p-2 hover:bg-boudoir-900/50 rounded-full transition-colors text-charcoal dark:text-white/70 hover:text-gold"
@@ -57,6 +69,7 @@ export default function LayoutNew({ children }: LayoutNewProps) {
                 <span className="material-symbols-outlined text-xl">info</span>
               </Link>
             </nav>
+
           </div>
 
           {/* Right Section - Search & User Actions */}
@@ -87,14 +100,14 @@ export default function LayoutNew({ children }: LayoutNewProps) {
                   {isDark ? "light_mode" : "dark_mode"}
                 </span>
               </button>
-              {/* <Link
+              <Link
                 to="/library"
                 className="p-2 hover:bg-boudoir-900/50 rounded-full transition-colors text-charcoal dark:text-white/70 hover:text-gold"
                 title="Ma bibliothèque">
                 <span className="material-symbols-outlined text-xl">
                   bookmark
                 </span>
-              </Link> */}
+              </Link>
               <Link
                 to="/timers"
                 className="p-2 hover:bg-boudoir-900/50 rounded-full transition-colors text-charcoal dark:text-white/70 hover:text-gold"
@@ -115,6 +128,94 @@ export default function LayoutNew({ children }: LayoutNewProps) {
           </div>
         </div>
       </header>
+
+      {/* Mobile Navigation Drawer */}
+      {isMobileMenuOpen && (
+        <>
+          {/* Overlay Backdrop */}
+          <div
+            className="fixed inset-0 top-16 bg-black/50 z-40 lg:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+
+          {/* Drawer Menu */}
+          <nav className="fixed top-16 left-0 right-0 bg-boudoir-950 dark:bg-boudoir-950 border-b border-boudoir-800 z-40 lg:hidden max-h-[calc(100vh-64px)] overflow-y-auto">
+            <div className="px-4 py-4 space-y-1">
+              {/* Nouveautés */}
+              <Link
+                to="/"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-4 px-4 py-3 rounded-lg text-white hover:bg-boudoir-900/50 transition-colors">
+                <span className="material-symbols-outlined text-xl text-gold">new_releases</span>
+                <span className="font-serif text-base">Nouveautés</span>
+              </Link>
+
+              {/* Collections */}
+              <Link
+                to="/catalogue"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-4 px-4 py-3 rounded-lg text-white hover:bg-boudoir-900/50 transition-colors">
+                <span className="material-symbols-outlined text-xl text-gold">auto_stories</span>
+                <span className="font-serif text-base">Collections</span>
+              </Link>
+
+              {/* Library (restored) */}
+              <Link
+                to="/library"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-4 px-4 py-3 rounded-lg text-white hover:bg-boudoir-900/50 transition-colors">
+                <span className="material-symbols-outlined text-xl text-gold">bookmark</span>
+                <span className="font-serif text-base">Ma Bibliothèque</span>
+              </Link>
+
+              {/* Mes Timers Actifs */}
+              <Link
+                to="/timers"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-4 px-4 py-3 rounded-lg text-white hover:bg-boudoir-900/50 transition-colors">
+                <span className="material-symbols-outlined text-xl text-gold">schedule</span>
+                <span className="font-serif text-base">Mes Timers Actifs</span>
+              </Link>
+
+              {/* À Propos / Profile */}
+              <Link
+                to="/profile"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-4 px-4 py-3 rounded-lg text-white hover:bg-boudoir-900/50 transition-colors">
+                <span className="material-symbols-outlined text-xl text-gold">info</span>
+                <span className="font-serif text-base">À Propos</span>
+              </Link>
+
+              {/* Account / Mon Compte */}
+              <Link
+                to="/account"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-4 px-4 py-3 rounded-lg text-white hover:bg-boudoir-900/50 transition-colors">
+                <span className="material-symbols-outlined text-xl text-gold">person</span>
+                <span className="font-serif text-base">Mon Compte</span>
+              </Link>
+
+              {/* Divider */}
+              <div className="my-3 border-t border-boudoir-800" />
+
+              {/* Theme Toggle */}
+              <button
+                type="button"
+                onClick={() => {
+                  toggleTheme();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-4 px-4 py-3 rounded-lg text-white hover:bg-boudoir-900/50 transition-colors">
+                <span className="material-symbols-outlined text-xl text-gold">
+                  {isDark ? "light_mode" : "dark_mode"}
+                </span>
+                <span className="font-serif text-base">{isDark ? "Mode Clair" : "Mode Sombre"}</span>
+              </button>
+            </div>
+          </nav>
+        </>
+      )}
 
       {/* Main Content */}
       <main className="pt-16 flex-1 text-white">{children}</main>

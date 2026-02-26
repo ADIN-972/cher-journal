@@ -7,6 +7,766 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id                    String                      @id @default(uuid())
+  publicId              String                      @unique @default(uuid())
+  email                 String                      @unique
+  passwordHash          String
+  status                UserStatus                  @default(ACTIVE)
+  role                  UserRole                    @default(USER)
+  createdAt             DateTime                    @default(now())
+  firstName             String
+  lastName              String
+  username              String?                     @unique
+  appliedPromotions     AppliedPromotion[]
+  auditLogs             AuditLog[]
+  chapterReviews        ChapterReview[]
+  entitlements          Entitlement[]
+  orders                Order[]
+  sessions              Session[]
+  subscription          Subscription?
+  supportClaims         SupportClaim[]
+  unlocks               Unlock[]
+  badges                UserBadge[]
+  constellationProgress UserConstellationProgress[]
+  progress              UserProgress?
+  rewardUnlocks         UserRewardUnlock[]
+  reads                 VolumeRead[]
+
+  @@map("users")
+}
+
+model Session {
+  id            String   @id @default(uuid())
+  userId        String
+  sessionToken  String   @unique
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime
+  ipHash        String?
+  userAgentHash String?
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model Chapter {
+  id                       String                 @id @default(uuid())
+  title                    String
+  protagonistName          String
+  status                   ChapterStatus          @default(DRAFT)
+  coverAssetId             String?
+  createdAt                DateTime               @default(now())
+  publishedAt              DateTime?
+  isArchived               Boolean                @default(false)
+  scheduledFor             DateTime?
+  description              String?
+  accroche_classic         String?
+  accroche_dark            String?
+  accroche_dark_collection String?
+  accroche_love            String?
+  accroche_marketing       String?
+  niveau_danger            Int?                   @default(3)
+  niveau_douceur           Int?                   @default(3)
+  niveau_intensite         Int?                   @default(3)
+  niveau_transformation    Int?                   @default(3)
+  bundleItems              BundleItem[]
+  assets                   ChapterAsset[]
+  constellations           ChapterConstellation[]
+  genres                   ChapterGenreTag[]
+  priceOverride            ChapterPriceOverride?
+  reviews                  ChapterReview[]
+  coverAsset               ChapterAsset?          @relation("ChapterCover", fields: [coverAssetId], references: [id])
+  entitlements             Entitlement[]
+  rewards                  RewardUnlock[]
+  unlocks                  Unlock[]
+  reads                    VolumeRead[]
+  volumes                  Volume[]
+
+  @@index([scheduledFor])
+  @@map("chapters")
+}
+
+model Volume {
+  id                  String                @id @default(uuid())
+  chapterId           String
+  volumeNumber        Int
+  title               String
+  isFinalPaywall      Boolean               @default(false)
+  illustrationAssetId String?
+  createdAt           DateTime              @default(now())
+  waitDuration        BigInt                @default(0)
+  publishedAt         DateTime?
+  isFree              Boolean               @default(false)
+  scheduledFor        DateTime?
+  status              VolumeStatus          @default(DRAFT)
+  charme              Int                   @default(0)
+  danger              Int                   @default(0)
+  douceur             Int                   @default(0)
+  intensite           Int                   @default(0)
+  isDarkCollection    Boolean               @default(false)
+  mystere             Int                   @default(0)
+  transformation      Int                   @default(0)
+  xpAmeBase           Int                   @default(0)
+  xpFeuBase           Int                   @default(0)
+  xpOmbreBase         Int                   @default(0)
+  rewards             RewardUnlock[]
+  constellations      VolumeConstellation[]
+  versions            VolumeVersion[]
+  chapter             Chapter               @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  illustrationAsset   ChapterAsset?         @relation("VolumeIllustration", fields: [illustrationAssetId], references: [id])
+
+  @@unique([chapterId, volumeNumber])
+  @@index([chapterId])
+  @@index([scheduledFor])
+  @@map("volumes")
+}
+
+model VolumeVersion {
+  id                  String         @id @default(uuid())
+  volumeId            String
+  perspective         Perspective
+  illustrationAssetId String?
+  createdAt           DateTime       @default(now())
+  text                String?
+  textBlobId          String?
+  isAutoText          Boolean        @default(true)
+  characterCount      Int            @default(0)
+  assets              VersionAsset[]
+  illustrationAsset   ChapterAsset?  @relation("VersionIllustration", fields: [illustrationAssetId], references: [id])
+  textBlob            EncryptedBlob? @relation("VersionText", fields: [textBlobId], references: [id])
+  volume              Volume         @relation(fields: [volumeId], references: [id], onDelete: Cascade)
+
+  @@unique([volumeId, perspective])
+  @@index([volumeId])
+  @@map("volume_versions")
+}
+
+model VersionAsset {
+  id              String        @id @default(uuid())
+  volumeVersionId String
+  assetOrder      Int
+  chapterAssetId  String
+  createdAt       DateTime      @default(now())
+  chapterAsset    ChapterAsset  @relation(fields: [chapterAssetId], references: [id])
+  volumeVersion   VolumeVersion @relation(fields: [volumeVersionId], references: [id], onDelete: Cascade)
+
+  @@unique([volumeVersionId, assetOrder])
+  @@index([volumeVersionId])
+  @@index([chapterAssetId])
+  @@map("version_assets")
+}
+
+model ChapterAsset {
+  id                     String          @id @default(uuid())
+  chapterId              String
+  kind                   AssetKind       @default(IMAGE)
+  label                  String?
+  objectKey              String
+  mimeType               String
+  sizeBytes              Int
+  width                  Int?
+  height                 Int?
+  sha256                 String?
+  createdAt              DateTime        @default(now())
+  thumbnailObjectKey     String?
+  originalAssetId        String?
+  updatedAt              DateTime        @default(now()) @updatedAt
+  version                Int             @default(1)
+  tags                   AssetTagging[]
+  chapter                Chapter         @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  originalAsset          ChapterAsset?   @relation("AssetVersions", fields: [originalAssetId], references: [id])
+  versions               ChapterAsset[]  @relation("AssetVersions")
+  coverFor               Chapter[]       @relation("ChapterCover")
+  versionAssets          VersionAsset[]
+  versionIllustrationFor VolumeVersion[] @relation("VersionIllustration")
+  illustrationFor        Volume[]        @relation("VolumeIllustration")
+
+  @@index([chapterId])
+  @@index([sha256])
+  @@index([originalAssetId])
+  @@map("chapter_assets")
+}
+
+model Order {
+  id                      String      @id @default(uuid())
+  userId                  String
+  type                    OrderType
+  status                  OrderStatus @default(PENDING)
+  provider                String?
+  providerSessionId       String?
+  providerPaymentIntentId String?
+  currency                String?
+  amountTotal             Int?
+  createdAt               DateTime    @default(now())
+  appliedPriceEpilogue    Int?
+  appliedPriceFreeToRead  Int?
+  appliedPricePaywall     Int?
+  appliedPriceSchemaId    String?
+  appliedPromotionId      String?
+  refId                   String?
+  volumeNumber            Int?
+  appliedPromotion        Promotion?  @relation(fields: [appliedPromotionId], references: [id])
+  user                    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refunds                 Refund[]
+
+  @@index([userId])
+  @@index([refId])
+  @@index([type, refId])
+  @@map("orders")
+}
+
+model Refund {
+  id                 String       @id @default(uuid())
+  orderId            String
+  amountRefunded     Int
+  currency           String       @default("eur")
+  type               RefundType
+  status             RefundStatus @default(PENDING)
+  reason             String?
+  notes              String?
+  providerRefundId   String?
+  revokeEntitlements Boolean      @default(true)
+  refundedBy         String?
+  refundedAt         DateTime     @default(now())
+  processedAt        DateTime?
+  failureReason      String?
+  order              Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([status])
+  @@map("refunds")
+}
+
+model Entitlement {
+  id           String                  @id @default(uuid())
+  userId       String
+  chapterId    String
+  volumeFrom   Int
+  volumeTo     Int
+  versionScope EntitlementVersionScope @default(BASE)
+  source       EntitlementSource
+  grantedAt    DateTime                @default(now())
+  chapter      Chapter                 @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  user         User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, chapterId])
+  @@map("entitlements")
+}
+
+model Unlock {
+  id           String            @id @default(uuid())
+  userId       String
+  chapterId    String
+  volumeNumber Int
+  unlocksAt    DateTime
+  triggeredBy  UnlockTriggeredBy
+  chapter      Chapter           @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chapterId, volumeNumber])
+  @@index([userId, chapterId])
+  @@map("unlocks")
+}
+
+model VolumeRead {
+  id               String      @id @default(uuid())
+  userId           String
+  chapterId        String
+  volumeNumber     Int
+  firstOpenedAt    DateTime    @default(now())
+  completedAt      DateTime?
+  canStartWaitFrom DateTime?
+  progress         Int         @default(0)
+  perspective      Perspective @default(NARRATOR)
+  chapter          Chapter     @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chapterId, volumeNumber, perspective])
+  @@index([userId, chapterId])
+  @@map("volume_reads")
+}
+
+model ChapterReview {
+  id         String       @id @default(uuid())
+  userId     String
+  chapterId  String
+  rating     Int
+  reviewText String
+  status     ReviewStatus @default(PENDING)
+  reviewedBy String?
+  reviewedAt DateTime?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  chapter    Chapter      @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chapterId])
+  @@index([userId])
+  @@index([chapterId])
+  @@index([status])
+  @@map("chapter_reviews")
+}
+
+model EncryptedBlob {
+  id           String          @id @default(uuid())
+  ownerId      String
+  purpose      String
+  cipherText   Bytes
+  iv           Bytes
+  tag          Bytes
+  wrappedDek   Bytes
+  alg          String
+  version      Int
+  createdAt    DateTime        @default(now())
+  versionTexts VolumeVersion[] @relation("VersionText")
+
+  @@index([ownerId, purpose])
+  @@map("encrypted_blobs")
+}
+
+model WebhookEvent {
+  id         String   @id @default(uuid())
+  provider   String
+  eventId    String   @unique
+  type       String
+  receivedAt DateTime @default(now())
+
+  @@map("webhook_events")
+}
+
+model Subscription {
+  id                   String             @id @default(uuid())
+  userId               String             @unique
+  stripeSubscriptionId String?            @unique
+  stripeCustomerId     String?
+  status               SubscriptionStatus
+  planName             String
+  priceAmountCents     Int
+  currency             String             @default("EUR")
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean            @default(false)
+  cancelledAt          DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([stripeSubscriptionId])
+  @@index([status])
+  @@map("subscriptions")
+}
+
+model Setting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
+
+model Price {
+  id          String         @id @default(uuid())
+  scope       PriceScope
+  refId       String?
+  amountCents Int
+  currency    String         @default("EUR")
+  createdAt   DateTime       @default(now())
+  history     PriceHistory[]
+  promotions  Promotion[]
+
+  @@index([scope, refId])
+  @@map("prices")
+}
+
+model PriceHistory {
+  id             String   @id @default(uuid())
+  priceId        String
+  oldAmountCents Int
+  newAmountCents Int
+  currency       String   @default("EUR")
+  changedAt      DateTime @default(now())
+  changedBy      String?
+  reason         String?
+  price          Price    @relation(fields: [priceId], references: [id], onDelete: Cascade)
+
+  @@index([priceId, changedAt])
+  @@index([changedAt])
+  @@map("price_history")
+}
+
+model Promotion {
+  id             String              @id @default(uuid())
+  scope          PriceScope
+  refId          String?
+  type           PromotionType
+  value          Int?
+  startsAt       DateTime
+  endsAt         DateTime
+  maxUses        Int?
+  perUserLimit   Int?
+  isActive       Boolean             @default(true)
+  priceId        String?
+  createdAt      DateTime            @default(now())
+  createdBy      String?
+  description    String?
+  name           String              @default("Promotion")
+  targetCriteria Json?
+  targetType     PromotionTargetType @default(ALL_USERS)
+  targetUserIds  String[]            @default([])
+  updatedAt      DateTime            @default(now()) @updatedAt
+  code           String?             @unique
+  applied        AppliedPromotion[]
+  orders         Order[]
+  price          Price?              @relation(fields: [priceId], references: [id])
+
+  @@index([scope, refId])
+  @@index([priceId])
+  @@index([targetType])
+  @@index([isActive, startsAt, endsAt])
+  @@index([code])
+  @@map("promotions")
+}
+
+model AppliedPromotion {
+  id           String    @id @default(uuid())
+  promotionId  String
+  userId       String
+  appliedAt    DateTime  @default(now())
+  appliedRefId String?
+  promotion    Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([promotionId])
+  @@map("applied_promotions")
+}
+
+model PriceSchema {
+  id                     String                 @id @default(uuid())
+  name                   String
+  description            String?
+  priceFreeToRead        Int                    @default(199)
+  pricePaywall           Int                    @default(299)
+  priceEpilogue          Int                    @default(399)
+  isActive               Boolean                @default(true)
+  appliedFrom            DateTime               @default(now())
+  appliedTo              DateTime?
+  createdAt              DateTime               @default(now())
+  createdBy              String
+  priceProtagonistUnlock Int                    @default(99)
+  chapterOverrides       ChapterPriceOverride[]
+
+  @@index([isActive])
+  @@index([appliedFrom])
+  @@map("price_schemas")
+}
+
+model ChapterPriceOverride {
+  id                     String      @id @default(uuid())
+  chapterId              String      @unique
+  schemaId               String
+  priceFreeToRead        Int?
+  pricePaywall           Int?
+  priceEpilogue          Int?
+  reason                 String?
+  isActive               Boolean     @default(true)
+  appliedFrom            DateTime    @default(now())
+  appliedTo              DateTime?
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+  priceProtagonistUnlock Int?
+  chapter                Chapter     @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  schema                 PriceSchema @relation(fields: [schemaId], references: [id])
+
+  @@index([schemaId])
+  @@index([isActive])
+  @@map("chapter_price_overrides")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String
+  action     String
+  resource   String
+  resourceId String?
+  metadata   Json?
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model SystemConfig {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String?
+  category    String
+  type        String
+  description String?
+  isEncrypted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?
+
+  @@index([category])
+  @@map("system_configs")
+}
+
+model AssetTag {
+  id          String         @id @default(uuid())
+  name        String         @unique
+  description String?
+  color       String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  assets      AssetTagging[]
+
+  @@map("asset_tags")
+}
+
+model AssetTagging {
+  id        String       @id @default(uuid())
+  assetId   String
+  tagId     String
+  createdAt DateTime     @default(now())
+  asset     ChapterAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  tag       AssetTag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([assetId, tagId])
+  @@index([assetId])
+  @@index([tagId])
+  @@map("asset_tagging")
+}
+
+model ChapterGenreTag {
+  id        String       @id @default(uuid())
+  chapterId String
+  genre     ChapterGenre
+  createdAt DateTime     @default(now())
+  chapter   Chapter      @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([chapterId, genre])
+  @@index([chapterId])
+  @@index([genre])
+  @@map("chapter_genre_tags")
+}
+
+model Bundle {
+  id                  String       @id @default(uuid())
+  name                String
+  description         String?
+  slug                String       @unique
+  amountCents         Int
+  originalAmountCents Int
+  currency            String       @default("EUR")
+  isActive            Boolean      @default(true)
+  displayOrder        Int?
+  imageUrl            String?
+  validFrom           DateTime?
+  validUntil          DateTime?
+  maxPurchases        Int?
+  purchaseCount       Int          @default(0)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  createdBy           String?
+  items               BundleItem[]
+
+  @@index([isActive, validFrom, validUntil])
+  @@index([slug])
+  @@map("bundles")
+}
+
+model BundleItem {
+  id           String   @id @default(uuid())
+  bundleId     String
+  type         String
+  chapterId    String?
+  volumeFrom   Int?
+  volumeTo     Int?
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  bundle       Bundle   @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  chapter      Chapter? @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@index([bundleId])
+  @@index([chapterId])
+  @@map("bundle_items")
+}
+
+model Constellation {
+  id           String                      @id @default(uuid())
+  slug         String                      @unique
+  name         String
+  description  String?
+  iconKey      String?
+  colorKey     String?
+  createdAt    DateTime                    @default(now())
+  badges       Badge[]
+  chapterTags  ChapterConstellation[]
+  rewards      RewardUnlock[]
+  userProgress UserConstellationProgress[]
+  volumeTags   VolumeConstellation[]
+
+  @@map("constellations")
+}
+
+model ChapterConstellation {
+  id              String        @id @default(uuid())
+  chapterId       String
+  constellationId String
+  weight          Int           @default(100)
+  chapter         Chapter       @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  constellation   Constellation @relation(fields: [constellationId], references: [id], onDelete: Cascade)
+
+  @@unique([chapterId, constellationId])
+  @@index([chapterId])
+  @@index([constellationId])
+  @@map("chapter_constellations")
+}
+
+model VolumeConstellation {
+  id              String        @id @default(uuid())
+  volumeId        String
+  constellationId String
+  weight          Int           @default(100)
+  constellation   Constellation @relation(fields: [constellationId], references: [id], onDelete: Cascade)
+  volume          Volume        @relation(fields: [volumeId], references: [id], onDelete: Cascade)
+
+  @@unique([volumeId, constellationId])
+  @@index([volumeId])
+  @@index([constellationId])
+  @@map("volume_constellations")
+}
+
+model UserProgress {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  level     Int      @default(1)
+  xpFeu     Int      @default(0)
+  xpAme     Int      @default(0)
+  xpOmbre   Int      @default(0)
+  feuPct    Int      @default(0)
+  amePct    Int      @default(0)
+  ombrePct  Int      @default(0)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_progress")
+}
+
+model UserConstellationProgress {
+  id              String        @id @default(uuid())
+  userId          String
+  constellationId String
+  percent         Int           @default(0)
+  reached25       Boolean       @default(false)
+  reached50       Boolean       @default(false)
+  reached75       Boolean       @default(false)
+  reached100      Boolean       @default(false)
+  updatedAt       DateTime      @updatedAt
+  createdAt       DateTime      @default(now())
+  constellation   Constellation @relation(fields: [constellationId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, constellationId])
+  @@index([constellationId])
+  @@map("user_constellation_progress")
+}
+
+model Badge {
+  id              String         @id @default(uuid())
+  type            BadgeType
+  code            String         @unique
+  name            String
+  description     String?
+  iconKey         String?
+  constellationId String?
+  minLevel        Int?
+  thresholdPct    Int?
+  createdAt       DateTime       @default(now())
+  constellation   Constellation? @relation(fields: [constellationId], references: [id])
+  users           UserBadge[]
+
+  @@map("badges")
+}
+
+model UserBadge {
+  userId    String
+  badgeId   String
+  awardedAt DateTime @default(now())
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, badgeId])
+  @@index([badgeId])
+  @@map("user_badges")
+}
+
+model RewardUnlock {
+  id              String             @id @default(uuid())
+  type            RewardUnlockType
+  code            String             @unique
+  title           String
+  teaser          String?
+  payload         Json?
+  chapterId       String?
+  volumeId        String?
+  constellationId String?
+  createdAt       DateTime           @default(now())
+  chapter         Chapter?           @relation(fields: [chapterId], references: [id])
+  constellation   Constellation?     @relation(fields: [constellationId], references: [id])
+  volume          Volume?            @relation(fields: [volumeId], references: [id])
+  users           UserRewardUnlock[]
+
+  @@index([chapterId])
+  @@index([volumeId])
+  @@index([constellationId])
+  @@map("reward_unlocks")
+}
+
+model UserRewardUnlock {
+  userId         String
+  rewardUnlockId String
+  unlockedAt     DateTime     @default(now())
+  reward         RewardUnlock @relation(fields: [rewardUnlockId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, rewardUnlockId])
+  @@index([rewardUnlockId])
+  @@map("user_reward_unlocks")
+}
+
+model SupportClaim {
+  id          String               @id @default(uuid())
+  userId      String
+  category    SupportClaimCategory
+  subject     String
+  message     String
+  status      SupportClaimStatus   @default(OPEN)
+  adminNote   String?
+  respondedBy String?
+  respondedAt DateTime?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([userId])
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
+  @@map("support_claims")
+}
+
 enum UserStatus {
   ACTIVE
   SUSPENDED
@@ -51,6 +811,14 @@ enum OrderStatus {
   PENDING
 }
 
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  TRIALING
+  INCOMPLETE
+}
+
 enum RefundStatus {
   PENDING
   COMPLETED
@@ -73,6 +841,7 @@ enum EntitlementSource {
   PREORDER
   PACK
   SUBSCRIPTION
+  PROMOTION
 }
 
 enum UnlockTriggeredBy {
@@ -80,16 +849,16 @@ enum UnlockTriggeredBy {
   PURCHASE
 }
 
-// Pricing scopes covering per-volume, per-chapter, add-ons, bundles, and subscriptions
 enum PriceScope {
   VOLUME
   CHAPTER
   EPILOGUE
-  POV_CHAPTER
-  POV_VOLUME
+  POV
   COLORING
   BUNDLE
   SUBSCRIPTION
+  POV_CHAPTER
+  POV_VOLUME
 }
 
 enum PromotionType {
@@ -145,844 +914,19 @@ enum SupportClaimStatus {
 }
 
 enum ChapterGenre {
-  PASSIONS_CHARNELLES           // Erotic/Sensual - Explicit sexual content and raw desire
-  ROMANCES_TENDRES              // Sweet Romance - Emotional, tender love stories
-  MYSTERIES_SENSUELS            // Sensual Mystery - Intrigue with sensual undertones
-  INTERDITS                     // Forbidden - Taboo relationships and transgressive themes
-  CONQUETES                     // Seduction/Conquest - Games of seduction and power dynamics
-  REVES_SECRETS                 // Secret Dreams - Fantasy and escapism
-  PASSION_BRUTALE               // Raw Passion - Intense and unfiltered desire
-  AMOUR_COMPLIQUE               // Complicated Love - Complex emotional entanglements
-  DESIR_NOCTURNE                // Nocturnal Desire - Night-themed erotic scenarios
-  LIBERATION                    // Liberation - Themes of sexual freedom and self-discovery
-  DECOUVERTE_DE_SOI             //  "Découverte de soi",
-  INTIMITE_PSYCHOLOGIQUE        //  "Intimité Psychologique",
-  EVEIL_DU_DESIR                //  "Éveil du Désir",
-  RELATIONS_TRANSFORMATRICES    //  "Relations Transformatrices",
-  MEMOIRE_DU_CORPS              //  "Mémoire du Corps"
-}
-
-model User {
-  id                  String      @id @default(uuid())
-  publicId            String      @unique @default(uuid())
-  email               String      @unique
-  passwordHash        String
-  firstName           String
-  lastName            String
-  username            String?     @unique
-  status              UserStatus  @default(ACTIVE)
-  role                UserRole    @default(USER)
-  createdAt           DateTime    @default(now())
-  sessions            Session[]
-  orders              Order[]
-  entitlements        Entitlement[]
-  unlocks             Unlock[]
-  reads               VolumeRead[]
-  appliedPromotions   AppliedPromotion[]
-  auditLogs           AuditLog[]
-  chapterReviews      ChapterReview[]
-
-  // ===== Cher Journal: progression + badges + rewards =====
-  progress            UserProgress?
-  constellationProgress UserConstellationProgress[]
-  badges              UserBadge[]
-  rewardUnlocks        UserRewardUnlock[]
-
-  // ===== Support =====
-  supportClaims       SupportClaim[]
-
-  @@map("users")
-}
-
-model Session {
-  id            String   @id @default(uuid())
-  userId        String
-  sessionToken  String   @unique
-  createdAt     DateTime @default(now())
-  expiresAt     DateTime
-  ipHash        String?
-  userAgentHash String?
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("sessions")
-}
-
-model Chapter {
-  id              String         @id @default(uuid())
-  title           String
-  protagonistName String
-  description     String?        // Paragraphe de préface décrivant l'œuvre
-  status          ChapterStatus  @default(DRAFT)
-  publishedAt     DateTime?
-  scheduledFor    DateTime?      // Date de publication programmée
-  coverAssetId    String?
-  isArchived      Boolean        @default(false)
-  coverAsset      ChapterAsset?  @relation("ChapterCover", fields: [coverAssetId], references: [id])
-  createdAt       DateTime       @default(now())
-  assets          ChapterAsset[]
-  volumes         Volume[]
-  entitlements    Entitlement[]
-  unlocks         Unlock[]
-  reads           VolumeRead[]
-  priceOverride   ChapterPriceOverride?
-  bundleItems     BundleItem[]
-  genres          ChapterGenreTag[]
-  reviews         ChapterReview[]
-
-  // ===== Cher Journal: Constellations =====
-  constellations  ChapterConstellation[]
-  rewards         RewardUnlock[]
-
-  // ===== Cher Journal: Accroches & Niveaux =====
-  accroche_classic      String?
-  accroche_dark         String?
-  accroche_love         String?
-  accroche_marketing    String?
-  accroche_dark_collection String?
-
-  // Niveaux émotionnels (1-5)
-  niveau_intensite      Int? @default(3)
-  niveau_douceur        Int? @default(3)
-  niveau_danger         Int? @default(3)
-  niveau_transformation Int? @default(3)
-
-  @@index([scheduledFor])
-  @@map("chapters")
-}
-
-model Volume {
-  id                   String          @id @default(uuid())
-  chapterId            String
-  volumeNumber         Int
-  title                String
-  status               VolumeStatus    @default(DRAFT)
-  waitDuration         BigInt          @default(0)
-  isFinalPaywall       Boolean         @default(false)
-  isFree               Boolean         @default(false)
-  publishedAt          DateTime?
-  scheduledFor         DateTime?       // Date de publication programmée
-  illustrationAssetId  String?
-  illustrationAsset    ChapterAsset?   @relation("VolumeIllustration", fields: [illustrationAssetId], references: [id])
-  createdAt            DateTime        @default(now())
-  chapter              Chapter         @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  versions             VolumeVersion[]
-
-  // ===== Cher Journal: Emotional metrics (0..100) =====
-  intensite        Int @default(0)
-  douceur          Int @default(0)
-  danger           Int @default(0)
-  transformation   Int @default(0)
-  mystere          Int @default(0)
-  charme           Int @default(0)
-
-  // XP base used when the user completes a volume (snapshotting recommended in events)
-  xpFeuBase        Int @default(0)
-  xpAmeBase        Int @default(0)
-  xpOmbreBase      Int @default(0)
-
-  // Editorial switches
-  isDarkCollection Boolean @default(false)
-
-  // Relations (optional per-volume constellation tagging)
-  constellations   VolumeConstellation[]
-  rewards          RewardUnlock[]
-
-  @@unique([chapterId, volumeNumber])
-  @@index([chapterId])
-  @@index([scheduledFor])
-  @@map("volumes")
-}
-
-model VolumeVersion {
-  id                   String         @id @default(uuid())
-  volumeId             String
-  perspective          Perspective
-  textBlobId           String?
-  illustrationAssetId  String?
-  illustrationAsset    ChapterAsset?  @relation("VersionIllustration", fields: [illustrationAssetId], references: [id])
-  text                 String?
-  isAutoText           Boolean        @default(true)
-  characterCount       Int            @default(0)
-  createdAt            DateTime       @default(now())
-  volume               Volume         @relation(fields: [volumeId], references: [id], onDelete: Cascade)
-  textBlob             EncryptedBlob? @relation("VersionText", fields: [textBlobId], references: [id], onDelete: SetNull)
-  assets               VersionAsset[]
-
-  @@unique([volumeId, perspective])
-  @@index([volumeId])
-  @@map("volume_versions")
-}
-
-model VersionAsset {
-  id              String         @id @default(uuid())
-  volumeVersionId String
-  assetOrder      Int
-  chapterAssetId  String
-  createdAt       DateTime       @default(now())
-  volumeVersion   VolumeVersion  @relation(fields: [volumeVersionId], references: [id], onDelete: Cascade)
-  chapterAsset    ChapterAsset   @relation(fields: [chapterAssetId], references: [id], onDelete: Restrict)
-
-  @@unique([volumeVersionId, assetOrder])
-  @@index([volumeVersionId])
-  @@index([chapterAssetId])
-  @@map("version_assets")
-}
-
-model ChapterAsset {
-  id                  String      @id @default(uuid())
-  chapterId           String
-  kind                AssetKind   @default(IMAGE)
-  label               String?
-  objectKey           String
-  thumbnailObjectKey  String?
-  mimeType            String
-  sizeBytes           Int
-  width               Int?
-  height              Int?
-  sha256              String?
-  version             Int         @default(1)       // Version de l'asset
-  originalAssetId     String?                       // Si c'est une version, référence à l'original
-  originalAsset       ChapterAsset? @relation("AssetVersions", fields: [originalAssetId], references: [id], onDelete: SetNull)
-  versions            ChapterAsset[] @relation("AssetVersions")
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @default(now()) @updatedAt
-  chapter             Chapter     @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  coverFor            Chapter[]   @relation("ChapterCover")
-  illustrationFor     Volume[]    @relation("VolumeIllustration")
-  versionIllustrationFor VolumeVersion[] @relation("VersionIllustration")
-  versionAssets       VersionAsset[]
-  tags                AssetTagging[]
-
-  @@index([chapterId])
-  @@index([sha256])
-  @@index([originalAssetId])
-  @@map("chapter_assets")
-}
-
-model Order {
-  id                      String      @id @default(uuid())
-  userId                  String
-  type                    OrderType
-  status                  OrderStatus @default(PENDING)
-  refId                   String?     // Reference to purchased content (Chapter ID, Volume ID, or Bundle ID)
-  volumeNumber            Int?        // For VOLUME type orders: which volume number is being purchased
-  provider                String?
-  providerSessionId       String?
-  providerPaymentIntentId String?
-  currency                String?
-  amountTotal             Int?
-  appliedPriceFreeToRead  Int?        // Prix appliqué au moment de la commande
-  appliedPricePaywall     Int?
-  appliedPriceEpilogue    Int?
-  appliedPriceSchemaId    String?     // Quel schéma était actif?
-  appliedPromotionId      String?     // Quelle promo a été appliquée?
-  createdAt               DateTime    @default(now())
-  user                    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  appliedPromotion        Promotion?  @relation(fields: [appliedPromotionId], references: [id], onDelete: SetNull)
-  refunds                 Refund[]
-
-  @@index([userId])
-  @@index([refId])        // Index for analytics queries
-  @@index([type, refId])  // Composite index for filtered queries
-  @@map("orders")
-}
-
-model Refund {
-  id                    String       @id @default(uuid())
-  orderId               String
-  amountRefunded        Int          // Amount in cents
-  currency              String       @default("eur")
-  type                  RefundType
-  status                RefundStatus @default(PENDING)
-  reason                String?      // Admin reason for refund
-  notes                 String?      // Internal notes
-  providerRefundId      String?      // Stripe refund ID
-  revokeEntitlements    Boolean      @default(true) // Should we revoke access?
-  refundedBy            String?      // Admin user ID who processed refund
-  refundedAt            DateTime     @default(now())
-  processedAt           DateTime?    // When Stripe confirmed
-  failureReason         String?      // If failed, why?
-  order                 Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  @@index([orderId])
-  @@index([status])
-  @@map("refunds")
-}
-
-model Entitlement {
-  id           String                   @id @default(uuid())
-  userId       String
-  chapterId    String
-  volumeFrom   Int
-  volumeTo     Int
-  versionScope EntitlementVersionScope  @default(BASE)
-  source       EntitlementSource
-  grantedAt    DateTime                 @default(now())
-  user         User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chapter      Chapter                  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-
-  @@index([userId, chapterId])
-  @@map("entitlements")
-}
-
-model Unlock {
-  id           String            @id @default(uuid())
-  userId       String
-  chapterId    String
-  volumeNumber Int
-  unlocksAt    DateTime
-  triggeredBy  UnlockTriggeredBy
-  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chapter      Chapter           @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, chapterId, volumeNumber])
-  @@index([userId, chapterId])
-  @@map("unlocks")
-}
-
-model VolumeRead {
-  id               String       @id @default(uuid())
-  userId           String
-  chapterId        String
-  volumeNumber     Int
-  perspective      Perspective  @default(NARRATOR) // NEW: Track reading progress per perspective
-  progress         Int          @default(0) // Reading progress percentage (0-100)
-  firstOpenedAt    DateTime     @default(now())
-  completedAt      DateTime?
-  canStartWaitFrom DateTime?    // Timestamp when 65% scroll was reached (for next volume unlock)
-  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chapter          Chapter      @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, chapterId, volumeNumber, perspective])
-  @@index([userId, chapterId])
-  @@map("volume_reads")
-}
-
-model ChapterReview {
-  id          String       @id @default(uuid())
-  userId      String
-  chapterId   String
-  rating      Int          // 1-5 stars
-  reviewText  String       // User's review comment
-  status      ReviewStatus @default(PENDING)
-  reviewedBy  String?      // Admin user ID who reviewed (approved/rejected)
-  reviewedAt  DateTime?    // When it was reviewed by admin
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chapter     Chapter      @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, chapterId]) // One review per user per chapter
-  @@index([userId])
-  @@index([chapterId])
-  @@index([status])
-  @@map("chapter_reviews")
-}
-
-model EncryptedBlob {
-  id         String          @id @default(uuid())
-  ownerId    String
-  purpose    String
-  cipherText Bytes
-  iv         Bytes
-  tag        Bytes
-  wrappedDek Bytes
-  alg        String
-  version    Int
-  createdAt  DateTime @default(now())
-  versionTexts VolumeVersion[] @relation("VersionText")
-
-  @@index([ownerId, purpose])
-  @@map("encrypted_blobs")
-}
-
-model WebhookEvent {
-  id         String   @id @default(uuid())
-  provider   String
-  eventId    String   @unique
-  type       String
-  receivedAt DateTime @default(now())
-
-  @@map("webhook_events")
-}
-
-model Setting {
-  id        String   @id @default(uuid())
-  key       String   @unique
-  value     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("settings")
-}
-
-model Price {
-  id          String       @id @default(uuid())
-  scope       PriceScope
-  refId       String?      // volumeId, chapterId, bundleId, etc.
-  amountCents Int
-  currency    String       @default("EUR")
-  createdAt   DateTime     @default(now())
-
-  promotions  Promotion[]
-  history     PriceHistory[]
-
-  @@index([scope, refId])
-  @@map("prices")
-}
-
-model PriceHistory {
-  id             String    @id @default(uuid())
-  priceId        String
-  price          Price     @relation(fields: [priceId], references: [id], onDelete: Cascade)
-  oldAmountCents Int
-  newAmountCents Int
-  currency       String    @default("EUR")
-  changedAt      DateTime  @default(now())
-  changedBy      String?   // ID de l'admin qui a fait la modification
-  reason         String?   // Raison du changement (optionnel)
-
-  @@index([priceId, changedAt])
-  @@index([changedAt])
-  @@map("price_history")
-}
-
-model Promotion {
-  id           String         @id @default(uuid())
-  name         String         @default("Promotion") // Nom de la promotion
-  description  String?        // Description
-  scope        PriceScope
-  refId        String?
-  type         PromotionType
-  value        Int?           // percent or fixed cents depending on type
-  startsAt     DateTime
-  endsAt       DateTime
-  maxUses      Int?
-  perUserLimit Int?
-  isActive     Boolean        @default(true)
-  code         String?        @unique // Code promo (ex: "SUMMER2024", optionnel)
-
-  // Ciblage des utilisateurs
-  targetType   PromotionTargetType @default(ALL_USERS)
-  targetUserIds String[]       @default([]) // Liste d'IDs utilisateurs (pour SPECIFIC_USERS)
-  targetCriteria Json?         // Critères de ciblage (pour CRITERIA_BASED)
-
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @default(now()) @updatedAt
-  createdBy    String?        // ID de l'admin qui a créé la promo
-
-  priceId      String?
-  price        Price?         @relation(fields: [priceId], references: [id])
-  applied      AppliedPromotion[]
-  orders       Order[]
-
-  @@index([scope, refId])
-  @@index([priceId])
-  @@index([targetType])
-  @@index([isActive, startsAt, endsAt])
-  @@index([code])
-  @@map("promotions")
-}
-
-model AppliedPromotion {
-  id          String     @id @default(uuid())
-  promotionId String
-  userId      String
-  appliedRefId String?    // Chapter or Volume ID the promotion was applied to (for general promotions)
-  appliedAt   DateTime   @default(now())
-
-  promotion   Promotion  @relation(fields: [promotionId], references: [id], onDelete: Cascade)
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([promotionId])
-  @@map("applied_promotions")
-}
-
-// ============= PRICE SCHEMAS & OVERRIDES =============
-
-model PriceSchema {
-  id              String    @id @default(uuid())
-  name            String
-  description     String?
-  
-  // Prix par type de volume (en centimes)
-  priceFreeToRead Int       @default(199)
-  pricePaywall    Int       @default(299)
-  priceEpilogue   Int       @default(399)
-  priceProtagonistUnlock Int @default(99)  // Price to unlock protagonist perspective
-  
-  // Metadata
-  isActive        Boolean   @default(true)
-  appliedFrom     DateTime  @default(now())
-  appliedTo       DateTime?
-  createdAt       DateTime  @default(now())
-  createdBy       String    // admin user ID
-  
-  // Relations
-  chapterOverrides ChapterPriceOverride[]
-  
-  @@index([isActive])
-  @@index([appliedFrom])
-  @@map("price_schemas")
-}
-
-model ChapterPriceOverride {
-  id              String    @id @default(uuid())
-  
-  // Relation
-  chapterId       String    @unique
-  chapter         Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  
-  // Schéma de base
-  schemaId        String
-  schema          PriceSchema @relation(fields: [schemaId], references: [id])
-  
-  // Overrides (optionnels - NULL = utiliser le prix du schéma)
-  priceFreeToRead Int?
-  pricePaywall    Int?
-  priceEpilogue   Int?
-  priceProtagonistUnlock Int?
-  
-  // Raison de l'exception
-  reason          String?
-  
-  // Metadata
-  isActive        Boolean   @default(true)
-  appliedFrom     DateTime  @default(now())
-  appliedTo       DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  @@index([schemaId])
-  @@index([isActive])
-  @@map("chapter_price_overrides")
-}
-
-model AuditLog {
-  id          String   @id @default(uuid())
-  userId      String   // ID de l'admin qui a effectué l'action
-  action      String   // CREATE, UPDATE, DELETE, LOGIN, LOGOUT, etc.
-  resource    String   // User, Chapter, Order, Price, Promotion, etc.
-  resourceId  String?  // ID de la ressource concernée
-  metadata    Json?    // Détails supplémentaires (old values, new values, etc.)
-  ip          String?  // Adresse IP
-  userAgent   String?  // User agent
-  createdAt   DateTime @default(now())
-
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([action])
-  @@index([resource])
-  @@index([createdAt])
-  @@map("audit_logs")
-}
-
-// Configuration système pour paiements et autres paramètres
-model SystemConfig {
-  id          String   @id @default(uuid())
-  key         String   @unique // Ex: "stripe.publishable_key", "stripe.secret_key"
-  value       String?  // Valeur (peut être NULL pour secrets non renseignés)
-  category    String   // PAYMENT, EMAIL, GENERAL, SECURITY, etc.
-  type        String   // STRING, BOOLEAN, NUMBER, JSON, SECRET
-  description String?  // Description de la configuration
-  isEncrypted Boolean  @default(false) // Si la valeur est chiffrée
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  updatedBy   String?  // ID de l'admin qui a modifié
-
-  @@index([category])
-  @@map("system_configs")
-}
-
-// ============= ASSET MANAGEMENT SYSTEM =============
-
-model AssetTag {
-  id          String         @id @default(uuid())
-  name        String         @unique
-  description String?
-  color       String?        // Couleur hexadécimale pour l'affichage (ex: #FF5733)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  assets      AssetTagging[]
-
-  @@map("asset_tags")
-}
-
-model AssetTagging {
-  id        String       @id @default(uuid())
-  assetId   String
-  tagId     String
-  createdAt DateTime     @default(now())
-  asset     ChapterAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
-  tag       AssetTag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-  @@unique([assetId, tagId])
-  @@index([assetId])
-  @@index([tagId])
-  @@map("asset_tagging")
-}
-
-// ============= CHAPTER GENRES SYSTEM =============
-
-model ChapterGenreTag {
-  id        String        @id @default(uuid())
-  chapterId String
-  genre     ChapterGenre
-  createdAt DateTime      @default(now())
-  chapter   Chapter       @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-
-  @@unique([chapterId, genre])
-  @@index([chapterId])
-  @@index([genre])
-  @@map("chapter_genre_tags")
-}
-
-// ============= BUNDLES SYSTEM =============
-
-model Bundle {
-  id                String       @id @default(uuid())
-  name              String       // Ex: "Pack Intégral Chapitre 1"
-  description       String?      // Description marketing du bundle
-  slug              String       @unique // URL-friendly identifier
-  amountCents       Int          // Prix du bundle en centimes
-  originalAmountCents Int        // Somme des prix unitaires (pour calculer la réduction)
-  currency          String       @default("EUR")
-  isActive          Boolean      @default(true)
-  displayOrder      Int?         // Ordre d'affichage
-  imageUrl          String?      // Image promotionnelle du bundle
-  validFrom         DateTime?    // Date de début de validité
-  validUntil        DateTime?    // Date de fin de validité
-  maxPurchases      Int?         // Limite d'achats (NULL = illimité)
-  purchaseCount     Int          @default(0) // Compteur d'achats
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
-  createdBy         String?      // ID de l'admin créateur
-
-  items             BundleItem[]
-
-  @@index([isActive, validFrom, validUntil])
-  @@index([slug])
-  @@map("bundles")
-}
-
-model BundleItem {
-  id          String   @id @default(uuid())
-  bundleId    String
-  type        String   // "CHAPTER" ou "VOLUME"
-  chapterId   String?  // ID du chapitre (si type = CHAPTER ou VOLUME)
-  volumeFrom  Int?     // Numéro de volume de départ (si type = VOLUME)
-  volumeTo    Int?     // Numéro de volume de fin (si type = VOLUME, NULL = volumeFrom uniquement)
-  displayOrder Int     @default(0) // Ordre d'affichage dans le bundle
-  createdAt   DateTime @default(now())
-
-  bundle      Bundle   @relation(fields: [bundleId], references: [id], onDelete: Cascade)
-  chapter     Chapter? @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-
-  @@index([bundleId])
-  @@index([chapterId])
-  @@map("bundle_items")
-}
-
-// ============= CONSTELLATIONS SYSTEM =============
-
-model Constellation {
-  id          String   @id @default(uuid())
-  slug        String   @unique
-  name        String
-  description String?
-  iconKey     String?
-  colorKey    String?
-  createdAt   DateTime @default(now())
-
-  chapterTags ChapterConstellation[]
-  volumeTags  VolumeConstellation[]
-  badges      Badge[]
-  userProgress UserConstellationProgress[]
-  rewards     RewardUnlock[]
-
-  @@map("constellations")
-}
-
-model ChapterConstellation {
-  id              String @id @default(uuid())
-  chapterId       String
-  constellationId String
-  weight          Int    @default(100) // 0..100
-
-  chapter         Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  constellation   Constellation  @relation(fields: [constellationId], references: [id], onDelete: Cascade)
-
-  @@unique([chapterId, constellationId])
-  @@index([chapterId])
-  @@index([constellationId])
-  @@map("chapter_constellations")
-}
-
-model VolumeConstellation {
-  id              String @id @default(uuid())
-  volumeId        String
-  constellationId String
-  weight          Int    @default(100)
-
-  volume          Volume         @relation(fields: [volumeId], references: [id], onDelete: Cascade)
-  constellation   Constellation  @relation(fields: [constellationId], references: [id], onDelete: Cascade)
-
-  @@unique([volumeId, constellationId])
-  @@index([volumeId])
-  @@index([constellationId])
-  @@map("volume_constellations")
-}
-
-// ============= PROGRESSION SYSTEM =============
-
-model UserProgress {
-  id        String @id @default(uuid())
-  userId    String @unique
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  level     Int @default(1)
-
-  xpFeu     Int @default(0)
-  xpAme     Int @default(0)
-  xpOmbre   Int @default(0)
-
-  feuPct    Int @default(0) // 0..100 (cached)
-  amePct    Int @default(0)
-  ombrePct  Int @default(0)
-
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
-
-  @@map("user_progress")
-}
-
-model UserConstellationProgress {
-  id              String @id @default(uuid())
-  userId          String
-  constellationId String
-
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  constellation Constellation @relation(fields: [constellationId], references: [id], onDelete: Cascade)
-
-  percent       Int @default(0) // 0..100
-  reached25     Boolean @default(false)
-  reached50     Boolean @default(false)
-  reached75     Boolean @default(false)
-  reached100    Boolean @default(false)
-
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
-
-  @@unique([userId, constellationId])
-  @@index([constellationId])
-  @@map("user_constellation_progress")
-}
-
-// ============= BADGES SYSTEM =============
-
-model Badge {
-  id            String    @id @default(uuid())
-  type          BadgeType
-  code          String    @unique
-  name          String
-  description   String?
-  iconKey       String?
-
-  constellationId String?
-  constellation   Constellation? @relation(fields: [constellationId], references: [id], onDelete: SetNull)
-
-  minLevel      Int?
-  thresholdPct  Int? // 25/50/75/100 for constellation milestones
-
-  createdAt     DateTime @default(now())
-
-  users         UserBadge[]
-
-  @@map("badges")
-}
-
-model UserBadge {
-  userId   String
-  badgeId  String
-  awardedAt DateTime @default(now())
-
-  user   User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  badge  Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
-
-  @@id([userId, badgeId])
-  @@index([badgeId])
-  @@map("user_badges")
-}
-
-// ============= REWARDS SYSTEM =============
-
-model RewardUnlock {
-  id         String          @id @default(uuid())
-  type       RewardUnlockType
-  code       String          @unique
-  title      String
-  teaser     String?
-  payload    Json?
-
-  // Optional attachment
-  chapterId  String?
-  volumeId   String?
-  constellationId String?
-
-  chapter      Chapter?       @relation(fields: [chapterId], references: [id], onDelete: SetNull)
-  volume       Volume?        @relation(fields: [volumeId], references: [id], onDelete: SetNull)
-  constellation Constellation? @relation(fields: [constellationId], references: [id], onDelete: SetNull)
-
-  createdAt  DateTime @default(now())
-
-  users      UserRewardUnlock[]
-
-  @@index([chapterId])
-  @@index([volumeId])
-  @@index([constellationId])
-  @@map("reward_unlocks")
-}
-
-model UserRewardUnlock {
-  userId     String
-  rewardUnlockId String
-  unlockedAt DateTime @default(now())
-
-  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reward RewardUnlock @relation(fields: [rewardUnlockId], references: [id], onDelete: Cascade)
-
-  @@id([userId, rewardUnlockId])
-  @@index([rewardUnlockId])
-  @@map("user_reward_unlocks")
-}
-
-// ============= SUPPORT SYSTEM =============
-
-model SupportClaim {
-  id        String   @id @default(uuid())
-  userId    String
-  category  SupportClaimCategory
-  subject   String
-  message   String
-  status    SupportClaimStatus @default(OPEN)
-
-  // Admin response
-  adminNote String?
-  respondedBy String?
-  respondedAt DateTime?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([status])
-  @@index([category])
-  @@index([createdAt])
-  @@map("support_claims")
+  PASSIONS_CHARNELLES
+  ROMANCES_TENDRES
+  MYSTERIES_SENSUELS
+  INTERDITS
+  CONQUETES
+  REVES_SECRETS
+  PASSION_BRUTALE
+  AMOUR_COMPLIQUE
+  DESIR_NOCTURNE
+  LIBERATION
+  DECOUVERTE_DE_SOI
+  INTIMITE_PSYCHOLOGIQUE
+  EVEIL_DU_DESIR
+  RELATIONS_TRANSFORMATRICES
+  MEMOIRE_DU_CORPS
 }

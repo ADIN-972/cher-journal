@@ -26,7 +26,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-[#1a0b10cc] to-g[#1a0b10e6] flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-[#1a0b10cc] to-[#1a0b10e6] flex items-center justify-center px-4 relative overflow-hidden">
       {/* Decorative Background Elements */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-[#1a0b10e6]/10 rounded-full blur-3xl" />
       <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl" />
@@ -123,7 +123,7 @@ export default function Login() {
             {/* Footer Links */}
             <div className="mt-8 pt-8 border-t border-gray-700/50 flex flex-col items-center gap-4">
               <Link
-                to="#"
+                to="/forgot-password"
                 className="text-sm text-gray-400 hover:text-amber-600 transition-colors font-serif italic">
                 {t("auth.login.forgot_password")}
               </Link>

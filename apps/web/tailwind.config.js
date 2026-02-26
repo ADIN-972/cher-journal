@@ -102,6 +102,12 @@ export default {
                     text: '#1a0f0a',
                     border: '#e0cec7',
                 },
+                'boudoir-plum': '#2D1B2D',
+                'boudoir-gold': '#D4AF37',
+                'boudoir-silk': '#F3E5F5',
+                'deep-burgundy': '#4A0E0E',
+                'deep-green': '#0E2F21',
+                'midnight-blue': '#0B162C',
             },
             fontFamily: {
                 serif: ['Playfair Display', 'Georgia', 'serif'],

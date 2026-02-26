@@ -20,11 +20,11 @@ import ProtagonistPurchaseDrawer from "../components/ProtagonistPurchaseDrawer";
 import ErrorMessage from "../components/common/ErrorMessage";
 import PricingSection from "../components/PricingSection";
 import ReviewsSection from "../components/ReviewsSection";
-import ChapterTableOfContents from "../components/chapter/ChapterTableOfContents";
 import PerspectiveSelector from "../components/PerspectiveSelector";
-import MobilePerspectiveSelector from "../components/MobilePerspectiveSelector";
 import ChapterHeader from "../components/ChapterHeader";
 import { NotificationService } from "../lib/notifications";
+import MobilePerspectiveSelectorV2 from "../components/MobilePerspectiveSelector_V2";
+import ChapterTableOfContents_V3 from "../components/chapter/ChapterTableOfContents_V3";
 
 export default function Chapter() {
   const { id, perspective: urlPerspective } = useParams<{
@@ -536,7 +536,7 @@ export default function Chapter() {
   const reviewCount = 124;
 
   return (
-    <main className="max-w-7xl mx-auto px-6 py-10 text-charcoal dark:text-white/70 dark:text-white">
+    <main className="max-w-7xl mx-auto px-6 py-10 text-charcoal dark:text-white/70 dark:text-white overflow-hidden">
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
         <Link
@@ -569,19 +569,19 @@ export default function Chapter() {
       />
 
       {/* Perspective Selector */}
-      <PerspectiveSelector
+      {/* <PerspectiveSelector
         selectedPerspective={selectedPerspective ?? "narrateur"}
         onSelectPerspective={handleSelectPerspective}
         protagonistName={currentChapter.protagonistName}
-      />
-      <MobilePerspectiveSelector
+      /> */}
+      <MobilePerspectiveSelectorV2
         selectedPerspective={selectedPerspective}
         onSelectPerspective={handleSelectPerspective}
         protagonistName={currentChapter.protagonistName}
       />
 
       {/* Chapters List */}
-      <ChapterTableOfContents
+      <ChapterTableOfContents_V3
         ref={chaptersListRef}
         chapter={currentChapter}
         selectedPerspective={selectedPerspective ?? "narrateur"}

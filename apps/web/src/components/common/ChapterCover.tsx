@@ -4,7 +4,7 @@ interface ChapterCoverProps {
   showPremiumBadge?: boolean;
   showLimitedEditionBadge?: boolean;
   className?: string;
-  textSize?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
+  textSize?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "auto";
   showBookmarkIcon?: boolean;
   showFavoriteIcon?: boolean;
   hasGrayscaleEffect?: boolean;
@@ -30,6 +30,7 @@ export default function ChapterCover({
     xl: "xl:text-xl",
     "2xl": "xl:text-2xl",
     "3xl": "xl:text-3xl",
+    "auto": "xl:text-[calc(10%+3vw)] 4xl:text-[calc(10%+1vw)]",
   }[textSize];
   return (
     <div className={`relative group h-full ${className}`}>
@@ -67,7 +68,9 @@ export default function ChapterCover({
           />
           {showTitleOverlay && (
             <div
-              className={`absolute bottom-0 grid text-center w-full items-center handwriting leading-4 bg-[#833963]/80  text-shadow-[0_35px_35px_rgb(83_39_63_/_0.85)] text-[calc(10%+5vw)] md:text-[calc(10%+3vw)] ${textSizeClass} text-white px-2 py-[10%] transition-colors duration-300 group-hover:text-gold`}>
+              className={`absolute bottom-0 grid text-center w-full items-center handwriting leading-4 bg-[#833963]/80  text-shadow-[0_35px_35px_rgb(83_39_63_/_0.85)] ${
+             "text-[calc(10%+5vw)]"// " md:text-[calc(10%+3vw)]"
+              } ${textSizeClass} text-white px-2 py-[10%] transition-colors duration-300 group-hover:text-gold`}>
               {title}
             </div>
           )}

@@ -457,7 +457,7 @@ Après chaque vérification, produire un rapport avec :
 
 ---
 
-**Version :** 1.0  
-**Dernière mise à jour :** 12 janvier 2026  
-**Mainteneur :** Context Menu Expert Agent  
-**Statut :** � Chapters complété (1/6 pages principales) - Backend routes ajoutées ✅
+**Version :** 1.0
+**Dernière mise à jour :** 25 février 2026
+**Mainteneur :** Context Menu Expert Agent
+**Statut :** [EN COURS] Chapters complété (1/6 pages principales) - Backend routes ajoutées

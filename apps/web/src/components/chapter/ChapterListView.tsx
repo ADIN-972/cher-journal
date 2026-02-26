@@ -3,6 +3,8 @@ import type { Chapter } from "../../stores/catalogStore";
 import ChapterCover from "../common/ChapterCover";
 import ReviewStars from "../common/ReviewStars";
 import { getReadingTime } from "../../lib/functions";
+import BookStore from "../common/BookStore";
+import ChapterIntensityIndicators from "../common/ChapterIntensityIndicators";
 
 interface ChapterListViewProps {
   chapter: Chapter;
@@ -44,11 +46,13 @@ export default function ChapterListView({
     <Link
       to={`/chapters/${chapter.id}`}
       className={`${
-        isTop3
+        "" /*  isTop3
           ? `border-4 ${getRankingStyles(index).border}`
-          : "border dark:border-white/30"
-      } dark:bg-white/5  p-3 rounded-md flex gap-4 group`}>
-      <div className="w-20 h-28 shrink-0 rounded-lg overflow-hidden relative bg-gradient-to-br from-boudoir-800 to-boudoir-900">
+          : "border dark:border-white/30"*/
+      }${
+        "" //" dark:bg-white/5 "
+      } p-3 rounded-md grid grid-cols-[auto_1fr] gap-4 group`}>
+      <div className=" shrink-0 rounded-lg  relative ">
         {top3 &&
           index !== undefined &&
           index < 3 &&
@@ -62,7 +66,7 @@ export default function ChapterListView({
             </div>
           )}
         {chapter.coverAsset?.url ? (
-          <ChapterCover
+          /*<ChapterCover
             imageUrl={`${import.meta.env.VITE_API_URL ?? ""}${chapter.coverAsset.url}`}
             title={chapter.protagonistName || chapter.title}
             showPremiumBadge={false}
@@ -70,7 +74,24 @@ export default function ChapterListView({
             textSize="md"
             showTitleOverlay={false}
             hasGrayscaleEffect={!isTop3 && top3}
-          />
+          />*/
+          <div className=" md:col-span-4 w-[150px] lg:w-[200px]  xl:w-[300px] aspect-[3/4]">
+            <ChapterCover
+              imageUrl={`${import.meta.env.VITE_API_URL ?? ""}${chapter.coverAsset.url}`}
+              title={chapter.protagonistName || chapter.title}
+              showPremiumBadge={false}
+              showLimitedEditionBadge={false}
+              textSize="md"
+              showTitleOverlay={false}
+              hasGrayscaleEffect={!isTop3 && top3}
+              // showPremiumBadge={true}
+              // showLimitedEditionBadge={true}
+            />
+
+            <div className="absolute top-[4%] -left-[20px] w-[200px] lg:w-[263px]  xl:w-[390px] h-auto z-0">
+              <BookStore />
+            </div>
+          </div>
         ) : (
           <div
             className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700"
@@ -79,30 +100,39 @@ export default function ChapterListView({
             }}
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-boudoir-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
       </div>
-
-      <div className="flex flex-col justify-center min-w-0 flex-1">
-        <p className="font-script text-2xl text-gold mb-1">
+      <div className="flex flex-col z-[2] md:ml-10">
+        <p className="font-script text-4xl text-gold mb-1">
           {chapter.protagonistName || "Récit"}
         </p>
-        <h5 className="font-semibold text-charcoal dark:text-white/70 dark:text-white group-hover:text-gold transition-colors mb-2 line-clamp-1">
+        <h5 className="text-umber dark:text-white text-2xl lg:text-5xl font-medium mb-6 leading-tight italic newsreader mt-6">
           {chapter.title}
         </h5>
-        <ReviewStars
-          chapterId={chapter.id}
-          size="sm"
-        />
-        <p className="text-xs text-charcoal dark:text-white/70 line-clamp-2 font-light leading-relaxed mt-2">
+        <p className=" hidden md:flex text-xl lg:text-3xl  text-gray-600 dark:text-gray-300 leading-relaxed italic newsreader col-span-2 p-4">
           {chapter.accroche_love || chapter.accroche_classic}
         </p>
-        <p className="text-xs text-gray-500 flex items-center gap-2 italic mt-1">
-          <span className="material-symbols-outlined text-xs">schedule</span>
-          {chapter.totalCharacterCount
-            ? `${getReadingTime(chapter.totalCharacterCount)} min de lecture`
-            : " "}
-        </p>
+        <div className="flex flex-col ml-auto ">
+          <ReviewStars
+            chapterId={chapter.id}
+            size="sm"
+          />
+          <p className="text-xs text-gray-500 flex items-center gap-2 italic mt-1">
+            <span className="material-symbols-outlined text-xs">schedule</span>
+            {chapter.totalCharacterCount
+              ? `${getReadingTime(chapter.totalCharacterCount)} min de lecture`
+              : " "}
+          </p>
+          {chapter && (
+            <ChapterIntensityIndicators
+              chapter={chapter}
+              variant="compact"
+            />
+          )}
+        </div>
       </div>
+      <p className="md:hidden text-xl text-gray-600 dark:text-gray-300 leading-relaxed italic newsreader col-span-2 p-4">
+        {chapter.accroche_love || chapter.accroche_classic}
+      </p>
     </Link>
   );
 }

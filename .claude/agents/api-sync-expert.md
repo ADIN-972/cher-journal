@@ -38,8 +38,7 @@
    - Appels API via `apps/web/src/lib/api.ts`
 
 3. **Mobile** (`apps/mobile/`)
-   - Application React Native (Expo)
-   - Appels API (à vérifier)
+   - Application React Native (Expo) — **Non actif / à confirmer si applicable**
 
 ### Backend
 
@@ -52,14 +51,22 @@ Chaque module contient :
 - `[feature].schemas.ts` - Validation Zod
 
 **Modules existants :**
-- `admin/chapters/`
-- `admin/users/`
-- `admin/orders/`
-- `admin/volumes/`
-- `admin/images/`
-- `auth/`
-- `reader/`
-- `stripe/`
+- `auth/` — login, logout, me, forgot-password, reset-password
+- `admin/chapters/` — CRUD chapitres, archivage, duplication
+- `admin/volumes/` — CRUD volumes, perspectives
+- `admin/users/` — gestion utilisateurs, rôles
+- `admin/orders/` — commandes, remboursements
+- `admin/images/` — upload et gestion d'assets
+- `admin/pricing/` — PriceSchema, ChapterPriceOverride
+- `admin/promotions/` — promotions et codes promo
+- `admin/bundles/` — packs multi-chapitres
+- `admin/subscriptions/` — abonnements
+- `admin/support/` — tickets support
+- `admin/reviews/` — avis utilisateurs (modération)
+- `admin/system/` — SystemConfig, AuditLog
+- `reader/` — catalog, library, reader, wait
+- `stripe/` — checkout sessions, webhooks
+- `progression/` — XP, badges, constellations, rewards
 
 ## Patterns de Détection
 
@@ -640,7 +647,7 @@ L'agent de sécurité est automatiquement invoqué par `api:security` et vérifi
 
 ---
 
-**Version :** 1.0  
-**Dernière mise à jour :** 12 janvier 2026  
-**Mainteneur :** API Sync Expert Agent  
-**Statut :** 🟡 En cours d'initialisation - Premier scan à effectuer
+**Version :** 2.1
+**Dernière mise à jour :** 25 février 2026
+**Mainteneur :** API Sync Expert Agent
+**Statut :** 🟢 Actif — liste des modules mise à jour (35+ modèles, 16+ modules)

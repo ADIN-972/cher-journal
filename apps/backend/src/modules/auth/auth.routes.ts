@@ -28,4 +28,13 @@ export async function authRoutes(app: FastifyInstance) {
     preHandler: requireAuth,
     handler: controller.me.bind(controller),
   });
+
+  // Password reset routes
+  app.post("/auth/forgot-password", {
+    handler: controller.forgotPassword.bind(controller),
+  });
+
+  app.post("/auth/reset-password", {
+    handler: controller.resetPassword.bind(controller),
+  });
 }

@@ -40,6 +40,7 @@ import { pricingRoutes } from "./modules/reader/pricing/pricing.routes";
 import { reviewsRoutes } from "./modules/reader/reviews/reviews.routes";
 import { promotionsRoutes as userPromotionsRoutes } from "./modules/reader/promotions/promotions.routes";
 import { readerOrdersRoutes } from "./modules/reader/orders/orders.routes";
+import { readerSubscriptionsRoutes } from "./modules/reader/subscriptions/subscriptions.routes";
 import { readerSupportRoutes } from "./modules/reader/support/support.routes";
 import { stripeRoutes } from "./modules/stripe/stripe.routes";
 import { publicAssetsRoutes } from "./modules/public/assets.routes";
@@ -130,6 +131,7 @@ export async function createApp(): Promise<FastifyInstance> {
           code: "VALIDATION_ERROR",
           message: "Invalid request data",
           details: error.validation,
+          ...(config.isDev && { stack: error.stack }),
         },
       });
     }
@@ -140,6 +142,7 @@ export async function createApp(): Promise<FastifyInstance> {
       error: {
         code: error.code || "INTERNAL_ERROR",
         message: config.isDev ? error.message : "Internal server error",
+        ...(config.isDev && { stack: error.stack }),
       },
     });
   });
@@ -166,6 +169,7 @@ export async function createApp(): Promise<FastifyInstance> {
     reviewsRoutes,
     userPromotionsRoutes,
     readerOrdersRoutes,
+    readerSubscriptionsRoutes,
     readerSupportRoutes,
     stripeRoutes,
     adminChaptersRoutes,

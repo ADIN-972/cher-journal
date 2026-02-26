@@ -533,4 +533,131 @@ export const promotionsService = {
       },
     });
   },
+
+  // Fix entitlements for FREE promotions that were applied without creating entitlements
+  async fixMissingFreePromotionEntitlements() {
+    console.log("[fixMissingFreePromotionEntitlements] Starting fix...");
+
+    // Find all applied FREE promotions
+    const appliedFreePromotions = await prisma.appliedPromotion.findMany({
+      where: {
+        promotion: {
+          type: "FREE",
+        },
+      },
+      include: {
+        promotion: true,
+        user: true,
+      },
+    });
+
+    console.log(`[fixMissingFreePromotionEntitlements] Found ${appliedFreePromotions.length} applied FREE promotions`);
+
+    let created = 0;
+    let skipped = 0;
+
+    for (const applied of appliedFreePromotions) {
+      const { userId, promotion, appliedRefId } = applied;
+      const refId = appliedRefId || promotion.refId;
+
+      if (!refId) {
+        console.log(`[fixMissingFreePromotionEntitlements] Skipping - no refId for promotion ${promotion.id}`);
+        skipped++;
+        continue;
+      }
+
+      // Determine versionScope based on promotion scope
+      // POV scopes grant PROTAGONIST access (versionScope: 'ALL')
+      // Regular scopes grant NARRATOR access (versionScope: 'BASE')
+      const isPOVPromotion = promotion.scope?.includes("POV");
+      const versionScope = isPOVPromotion ? "ALL" : "BASE";
+
+      try {
+        if (promotion.scope === "VOLUME" || promotion.scope === "POV_VOLUME") {
+          // Format: "chapterId:volumeNumber"
+          const [chapterId, volumeNumberStr] = refId.split(":");
+          const volumeNumber = parseInt(volumeNumberStr);
+
+          // Check if entitlement already exists
+          const existingEntitlement = await prisma.entitlement.findFirst({
+            where: {
+              userId,
+              chapterId,
+              volumeFrom: { lte: volumeNumber },
+              volumeTo: { gte: volumeNumber },
+            },
+          });
+
+          if (!existingEntitlement) {
+            console.log(
+              `[fixMissingFreePromotionEntitlements] Creating entitlement for user ${userId}, chapter ${chapterId}, volume ${volumeNumber} (scope: ${promotion.scope}, versionScope: ${versionScope})`
+            );
+            await prisma.entitlement.create({
+              data: {
+                userId,
+                chapterId,
+                volumeFrom: volumeNumber,
+                volumeTo: volumeNumber,
+                source: "PROMOTION",
+                versionScope,
+              },
+            });
+            created++;
+          } else {
+            skipped++;
+          }
+        } else if (promotion.scope === "CHAPTER" || promotion.scope === "POV_CHAPTER") {
+          // Get all volumes in this chapter
+          const chapter = await prisma.chapter.findUnique({
+            where: { id: refId },
+            include: {
+              volumes: {
+                select: { volumeNumber: true },
+              },
+            },
+          });
+
+          if (chapter && chapter.volumes.length > 0) {
+            const minVolume = Math.min(...chapter.volumes.map((v) => v.volumeNumber));
+            const maxVolume = Math.max(...chapter.volumes.map((v) => v.volumeNumber));
+
+            // Check if entitlement already exists
+            const existingEntitlement = await prisma.entitlement.findFirst({
+              where: {
+                userId,
+                chapterId: refId,
+              },
+            });
+
+            if (!existingEntitlement) {
+              console.log(
+                `[fixMissingFreePromotionEntitlements] Creating entitlement for user ${userId}, chapter ${refId}, volumes ${minVolume}-${maxVolume} (scope: ${promotion.scope}, versionScope: ${versionScope})`
+              );
+              await prisma.entitlement.create({
+                data: {
+                  userId,
+                  chapterId: refId,
+                  volumeFrom: minVolume,
+                  volumeTo: maxVolume,
+                  source: "PROMOTION",
+                  versionScope,
+                },
+              });
+              created++;
+            } else {
+              skipped++;
+            }
+          }
+        }
+      } catch (error) {
+        console.error(
+          `[fixMissingFreePromotionEntitlements] Error processing applied promotion ${applied.id}:`,
+          error
+        );
+      }
+    }
+
+    console.log(`[fixMissingFreePromotionEntitlements] Complete: created=${created}, skipped=${skipped}`);
+    return { created, skipped, total: appliedFreePromotions.length };
+  },
 };

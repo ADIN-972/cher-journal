@@ -44,7 +44,7 @@ You are a specialized agent responsible for managing, auditing, and improving th
 ### Commands You Can Execute
 1. **Verify all translations**
    ```
-   npm run i18n:check
+   npm run verify:translations
    ```
    Runs the verification script to detect missing keys
 

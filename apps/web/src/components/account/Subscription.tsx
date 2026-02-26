@@ -1,34 +1,126 @@
-import PromotionBadge from '../PromotionBadge';
+import { useState, useEffect } from 'react';
+import { api } from '../../lib/api';
 
-interface PromotionInfo {
-  type: 'PERCENT' | 'FIXED' | 'FREE';
-  value?: number;
-  discountAmount?: number;
+interface SubscriptionData {
+  id: string;
+  status: 'ACTIVE' | 'PAST_DUE' | 'CANCELLED' | 'TRIALING' | 'INCOMPLETE';
+  planName: string;
+  priceAmountCents: number;
+  currency: string;
+  currentPeriodEnd: string;
+  cancelAtPeriodEnd: boolean;
 }
 
-interface SubscriptionProps {
-  basicPromotion?: PromotionInfo;
-  premiumPromotion?: PromotionInfo;
-}
+export default function Subscription() {
+  const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
 
-export default function Subscription({
-  basicPromotion,
-  premiumPromotion,
-}: SubscriptionProps) {
-  const subscriptionPlan = {
-    name: 'Premium',
-    price: 999,
-    period: 'mois',
-    nextBilling: '2024-02-15',
-    features: [
-      'Accès à tous les chapitres',
-      'Nouveautés en avant-première',
-      'Sans publicité',
-      'Téléchargement pour lecture hors-ligne',
-    ],
+  useEffect(() => {
+    fetchSubscription();
+  }, []);
+
+  const fetchSubscription = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await api.getUserSubscription();
+      setSubscription(data);
+    } catch (err) {
+      console.error('Failed to fetch subscription:', err);
+      setError('Impossible de charger votre abonnement.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubscribe = async () => {
+    try {
+      const successUrl = `${window.location.origin}/account/subscription?success=1`;
+      const cancelUrl = `${window.location.origin}/account/subscription`;
+      const session = await api.createSubscriptionCheckout(successUrl, cancelUrl);
+      if (session.url) {
+        window.location.href = session.url;
+      }
+    } catch (err) {
+      console.error('Failed to create subscription checkout:', err);
+      setError('Impossible de créer la session de paiement.');
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!confirm('Êtes-vous sûr de vouloir résilier votre abonnement ? Vous garderez l\'accès jusqu\'à la fin de la période facturée.')) {
+      return;
+    }
+
+    setIsCancelling(true);
+    try {
+      const updated = await api.cancelSubscription();
+      setSubscription(updated);
+    } catch (err) {
+      console.error('Failed to cancel subscription:', err);
+      setError('Impossible de résilier votre abonnement.');
+    } finally {
+      setIsCancelling(false);
+    }
   };
 
   const formatPrice = (cents: number) => `${(cents / 100).toFixed(2)} €`;
+
+  const getStatusBadge = (status: string) => {
+    const styles: Record<string, string> = {
+      ACTIVE: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300',
+      PAST_DUE: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300',
+      CANCELLED: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300',
+      TRIALING: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300',
+      INCOMPLETE: 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300',
+    };
+
+    const labels: Record<string, string> = {
+      ACTIVE: 'Actif',
+      PAST_DUE: 'En retard',
+      CANCELLED: 'Résilié',
+      TRIALING: 'Essai gratuit',
+      INCOMPLETE: 'Incomplet',
+    };
+
+    return (
+      <span className={`px-3 py-1 rounded-full text-xs font-medium ${styles[status] || styles.INCOMPLETE}`}>
+        {labels[status] || 'Inconnu'}
+      </span>
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#c5a059]"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div>
+        <h2 className="text-3xl font-display italic text-[#c5a059] mb-6">
+          Abonnement
+        </h2>
+        <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-900/10 rounded-2xl border border-red-300 dark:border-red-800 p-12 text-center">
+          <span className="material-symbols-outlined text-6xl text-red-500 mb-4 block">
+            error
+          </span>
+          <p className="text-red-800 dark:text-red-300 mb-4">{error}</p>
+          <button
+            onClick={fetchSubscription}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            Réessayer
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -39,9 +131,26 @@ export default function Subscription({
         Gérez votre abonnement et vos avantages.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Current Plan */}
-        <div className="md:col-span-2 space-y-6">
+      {subscription === null ? (
+        // No subscription state
+        <div className="bg-gradient-to-br from-[#c5a059]/10 to-[#c5a059]/5 dark:from-[#2d1620]/60 dark:to-[#2d1620]/40 rounded-2xl border border-[#c5a059]/30 p-12 text-center">
+          <span className="material-symbols-outlined text-6xl text-[#c5a059]/30 mb-4 block">
+            card_membership
+          </span>
+          <p className="text-charcoal dark:text-white/70 italic mb-6">
+            Vous n'avez pas actuellement d'abonnement actif.
+          </p>
+          <button
+            onClick={handleSubscribe}
+            className="bg-[#c5a059] hover:bg-[#a58a3f] text-white px-6 py-3 rounded-xl font-medium transition-colors"
+          >
+            S'abonner maintenant
+          </button>
+        </div>
+      ) : (
+        // Active subscription state
+        <div className="space-y-6">
+          {/* Current Plan Card */}
           <div className="bg-gradient-to-br from-[#c5a059]/10 to-[#c5a059]/5 dark:from-[#2d1620]/60 dark:to-[#2d1620]/40 rounded-2xl border border-[#c5a059]/30 p-8">
             <div className="flex items-start justify-between mb-6">
               <div>
@@ -50,43 +159,65 @@ export default function Subscription({
                     workspace_premium
                   </span>
                   <h3 className="text-2xl font-display italic text-charcoal dark:text-white">
-                    Plan {subscriptionPlan.name}
+                    Plan {subscription.planName}
                   </h3>
                 </div>
-                <p className="text-charcoal dark:text-white/70">
-                  Abonnement actif
-                </p>
+                {getStatusBadge(subscription.status)}
               </div>
               <div className="text-right">
                 <p className="text-3xl font-bold text-[#c5a059]">
-                  {formatPrice(subscriptionPlan.price)}
+                  {formatPrice(subscription.priceAmountCents)}
                 </p>
                 <p className="text-sm text-charcoal dark:text-white/70">
-                  par {subscriptionPlan.period}
+                  par mois
                 </p>
               </div>
             </div>
 
+            {/* Subscription Features */}
             <div className="space-y-3 mb-6">
-              {subscriptionPlan.features.map((feature, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-green-500 text-lg">
-                    check_circle
-                  </span>
-                  <span className="text-charcoal dark:text-white/70">
-                    {feature}
-                  </span>
-                </div>
-              ))}
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-green-500 text-lg">
+                  check_circle
+                </span>
+                <span className="text-charcoal dark:text-white/70">
+                  Accès à tous les chapitres
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-green-500 text-lg">
+                  check_circle
+                </span>
+                <span className="text-charcoal dark:text-white/70">
+                  Nouveautés en avant-première
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-green-500 text-lg">
+                  check_circle
+                </span>
+                <span className="text-charcoal dark:text-white/70">
+                  Sans publicité
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-green-500 text-lg">
+                  check_circle
+                </span>
+                <span className="text-charcoal dark:text-white/70">
+                  Téléchargement pour lecture hors-ligne
+                </span>
+              </div>
             </div>
 
+            {/* Billing Info */}
             <div className="flex items-center gap-2 text-sm text-charcoal dark:text-white/70 mb-6">
               <span className="material-symbols-outlined text-base">
                 calendar_today
               </span>
               <span>
                 Prochain renouvellement le{' '}
-                {new Date(subscriptionPlan.nextBilling).toLocaleDateString('fr-FR', {
+                {new Date(subscription.currentPeriodEnd).toLocaleDateString('fr-FR', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
@@ -94,107 +225,39 @@ export default function Subscription({
               </span>
             </div>
 
+            {/* Action Buttons */}
             <div className="flex gap-3">
-              <button className="flex-1 bg-white dark:bg-boudoir-900/50 border border-boudoir-300 dark:border-boudoir-800 text-charcoal dark:text-white py-3 rounded-xl font-medium hover:border-[#c5a059] transition-all">
-                Modifier le plan
-              </button>
-              <button className="flex-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 py-3 rounded-xl font-medium hover:bg-red-200 dark:hover:bg-red-900/50 transition-all">
-                Résilier
+              <button
+                disabled={isCancelling}
+                className="flex-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 py-3 rounded-xl font-medium hover:bg-red-200 dark:hover:bg-red-900/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleCancel}
+              >
+                {isCancelling ? 'Résiliation en cours...' : 'Résilier'}
               </button>
             </div>
+
+            {subscription.cancelAtPeriodEnd && (
+              <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800">
+                <p className="text-sm text-red-700 dark:text-red-300">
+                  Votre abonnement sera résilié à la fin de la période facturée.
+                </p>
+              </div>
+            )}
           </div>
 
-          {/* Billing History */}
+          {/* Billing History Section (Placeholder) */}
           <div className="bg-white dark:bg-[#2d1620]/60 rounded-2xl border border-boudoir-200 dark:border-[#c5a059]/30 p-6">
             <h3 className="text-xl font-display italic text-charcoal dark:text-white mb-4">
               Historique de facturation
             </h3>
             <div className="space-y-3">
-              {[
-                { date: '2024-01-15', amount: 999, status: 'Payé' },
-                { date: '2023-12-15', amount: 999, status: 'Payé' },
-                { date: '2023-11-15', amount: 999, status: 'Payé' },
-              ].map((invoice, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between py-3 border-b border-boudoir-300 dark:border-boudoir-800 last:border-0"
-                >
-                  <div>
-                    <p className="text-charcoal dark:text-white font-medium">
-                      {new Date(invoice.date).toLocaleDateString('fr-FR')}
-                    </p>
-                    <p className="text-sm text-green-600 dark:text-green-400">
-                      {invoice.status}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-charcoal dark:text-white font-bold">
-                      {formatPrice(invoice.amount)}
-                    </p>
-                    <button className="text-xs text-[#c5a059] hover:underline">
-                      Télécharger
-                    </button>
-                  </div>
-                </div>
-              ))}
+              <p className="text-charcoal dark:text-white/70 italic">
+                Les factures de votre abonnement apparaîtront ici.
+              </p>
             </div>
           </div>
         </div>
-
-        {/* Other Plans */}
-        <div className="space-y-4">
-          <div className="bg-white dark:bg-[#2d1620]/60 rounded-2xl border border-boudoir-200 dark:border-[#c5a059]/30 p-6">
-            <h3 className="text-lg font-display italic text-charcoal dark:text-white mb-4">
-              Autres plans
-            </h3>
-            <div className="space-y-4">
-              <div className="p-4 rounded-xl border border-boudoir-300 dark:border-boudoir-800">
-                <h4 className="font-bold text-charcoal dark:text-white mb-1">
-                  Basique
-                </h4>
-                <div className="relative inline-block mb-2">
-                  {basicPromotion && (
-                    <PromotionBadge
-                      type={basicPromotion.type}
-                      discountPercentage={basicPromotion.type === 'PERCENT' ? basicPromotion.value : undefined}
-                      discountAmount={basicPromotion.type === 'FIXED' ? basicPromotion.discountAmount : undefined}
-                      size="small"
-                    />
-                  )}
-                  <p className="text-2xl font-bold text-[#c5a059]">4,99 €</p>
-                </div>
-                <p className="text-xs text-charcoal dark:text-white/70">
-                  Accès limité au catalogue
-                </p>
-              </div>
-              <div className="p-4 rounded-xl border-2 border-[#c5a059] bg-[#c5a059]/5">
-                <div className="flex items-center justify-between mb-1">
-                  <h4 className="font-bold text-charcoal dark:text-white">
-                    Premium Plus
-                  </h4>
-                  <span className="text-xs bg-[#c5a059] text-white px-2 py-0.5 rounded-full">
-                    Nouveau
-                  </span>
-                </div>
-                <div className="relative inline-block mb-2">
-                  {premiumPromotion && (
-                    <PromotionBadge
-                      type={premiumPromotion.type}
-                      discountPercentage={premiumPromotion.type === 'PERCENT' ? premiumPromotion.value : undefined}
-                      discountAmount={premiumPromotion.type === 'FIXED' ? premiumPromotion.discountAmount : undefined}
-                      size="small"
-                    />
-                  )}
-                  <p className="text-2xl font-bold text-[#c5a059]">19,99 €</p>
-                </div>
-                <p className="text-xs text-charcoal dark:text-white/70">
-                  Tous les avantages + contenu exclusif
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -62,7 +62,7 @@ export default function ChapterGridView({
             title={chapter.protagonistName || chapter.title}
             showPremiumBadge={false}
             showLimitedEditionBadge={false}
-            textSize="md"
+            textSize="auto"
             showTitleOverlay={true}
             hasGrayscaleEffect={!isTop3 && top3}
           />

@@ -1,7 +1,7 @@
 import prisma from '../../lib/prisma';
 import { config } from '@cher-journal/config';
 import Stripe from 'stripe';
-import { OrderType, OrderStatus, EntitlementVersionScope, EntitlementSource, UnlockTriggeredBy } from '@prisma/client';
+import { OrderType, OrderStatus, EntitlementVersionScope, EntitlementSource, UnlockTriggeredBy, SubscriptionStatus } from '@prisma/client';
 import { priceSchemaService } from '../admin/price-schemas/price-schemas.service';
 import { AccessControlService } from '../../lib/accessControl';
 
@@ -499,6 +499,17 @@ export class StripeService {
         await this.handlePaymentSucceeded(event.data.object as Stripe.PaymentIntent);
         break;
 
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated':
+        console.log('[Stripe Webhook] Subscription event');
+        await this.handleSubscriptionUpdated(event.data.object as Stripe.Subscription);
+        break;
+
+      case 'customer.subscription.deleted':
+        console.log('[Stripe Webhook] Subscription deleted');
+        await this.handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
+        break;
+
       default:
         console.log(`[Stripe Webhook] Unhandled event type: ${event.type}`);
     }
@@ -740,5 +751,68 @@ export class StripeService {
   private async handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
     // Additional payment processing if needed
     console.log('Payment succeeded:', paymentIntent.id);
+  }
+
+  private async handleSubscriptionUpdated(stripeSubscription: Stripe.Subscription) {
+    const userId = stripeSubscription.metadata?.userId;
+    if (!userId) {
+      console.log('[Stripe Webhook] ❌ No userId in subscription metadata');
+      return;
+    }
+
+    const statusMap: Record<string, SubscriptionStatus> = {
+      active: SubscriptionStatus.ACTIVE,
+      past_due: SubscriptionStatus.PAST_DUE,
+      canceled: SubscriptionStatus.CANCELLED,
+      trialing: SubscriptionStatus.TRIALING,
+      incomplete: SubscriptionStatus.INCOMPLETE,
+    };
+
+    const status = statusMap[stripeSubscription.status] ?? SubscriptionStatus.INCOMPLETE;
+    const priceItem = stripeSubscription.items.data[0];
+
+    await prisma.subscription.upsert({
+      where: { userId },
+      create: {
+        userId,
+        stripeSubscriptionId: stripeSubscription.id,
+        stripeCustomerId: stripeSubscription.customer as string,
+        status,
+        planName: 'Premium',
+        priceAmountCents: priceItem?.price?.unit_amount ?? 0,
+        currency: (priceItem?.price?.currency ?? 'eur').toUpperCase(),
+        currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
+        currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+        cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+      },
+      update: {
+        stripeSubscriptionId: stripeSubscription.id,
+        stripeCustomerId: stripeSubscription.customer as string,
+        status,
+        priceAmountCents: priceItem?.price?.unit_amount ?? 0,
+        currency: (priceItem?.price?.currency ?? 'eur').toUpperCase(),
+        currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
+        currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+        cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+        cancelledAt: stripeSubscription.canceled_at
+          ? new Date(stripeSubscription.canceled_at * 1000)
+          : undefined,
+      },
+    });
+
+    console.log('[Stripe Webhook] ✅ Subscription updated/created for user:', userId);
+  }
+
+  private async handleSubscriptionDeleted(stripeSubscription: Stripe.Subscription) {
+    await prisma.subscription.updateMany({
+      where: { stripeSubscriptionId: stripeSubscription.id },
+      data: {
+        status: SubscriptionStatus.CANCELLED,
+        cancelledAt: new Date(),
+        cancelAtPeriodEnd: false,
+      },
+    });
+
+    console.log('[Stripe Webhook] ✅ Subscription deleted/cancelled');
   }
 }

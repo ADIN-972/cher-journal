@@ -2,7 +2,7 @@
  * API Client with JWT token management
  */
 
-import { ApplicablePromotion } from '@cher-journal/types';
+import { ApplicablePromotion, SubscriptionData } from '@cher-journal/types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? '';
 
@@ -189,6 +189,24 @@ class ApiClient {
       // Log error but don't throw - logout should still proceed to clear local state
       console.error('Logout API request failed:', error);
     }
+  }
+
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    const response = await this.post<{ success: boolean; data: { message: string } }>(
+      '/auth/forgot-password',
+      { email },
+      false
+    );
+    return response.data;
+  }
+
+  async resetPassword(token: string, password: string): Promise<{ message: string }> {
+    const response = await this.post<{ success: boolean; data: { message: string } }>(
+      '/auth/reset-password',
+      { token, password },
+      false
+    );
+    return response.data;
   }
 
   /**
@@ -444,6 +462,39 @@ class ApiClient {
    */
   async getUserReviews(): Promise<any[]> {
     const response = await this.get<{ success: boolean; data: any[] }>('/reviews/my-reviews');
+    return response.data;
+  }
+
+  /**
+   * Get current user's subscription status (null if no subscription)
+   */
+  async getUserSubscription(): Promise<any | null> {
+    const response = await this.get<{ success: boolean; data: any | null }>('/me/subscription');
+    return response.data;
+  }
+
+  /**
+   * Create a Stripe Checkout session for subscription purchase
+   */
+  async createSubscriptionCheckout(
+    successUrl: string,
+    cancelUrl: string
+  ): Promise<{ sessionId: string; url: string | null }> {
+    const response = await this.post<{ success: boolean; data: { sessionId: string; url: string | null } }>(
+      '/stripe/create-subscription-checkout',
+      { successUrl, cancelUrl }
+    );
+    return response.data;
+  }
+
+  /**
+   * Cancel the current user's subscription at period end
+   */
+  async cancelSubscription(): Promise<any> {
+    const response = await this.post<{ success: boolean; data: any }>(
+      '/me/subscription/cancel',
+      {}
+    );
     return response.data;
   }
 }

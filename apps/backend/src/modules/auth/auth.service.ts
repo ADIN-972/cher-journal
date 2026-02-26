@@ -1,9 +1,10 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import prisma from "../../lib/prisma";
-import { RegisterInput, LoginInput } from "./auth.schemas";
+import { RegisterInput, LoginInput, ForgotPasswordInput, ResetPasswordInput } from "./auth.schemas";
 import { config } from "@cher-journal/config";
 import { UserRole, UserStatus } from "@prisma/client";
+import { sendPasswordResetEmail } from "../../lib/email";
 
 export class AuthService {
   async register(data: RegisterInput) {
@@ -117,5 +118,83 @@ export class AuthService {
       role: session.user.role,
       createdAt: session.user.createdAt,
     };
+  }
+
+  async forgotPassword(data: ForgotPasswordInput) {
+    // Find user by email (but don't reveal if email exists or not for security)
+    const user = await prisma.user.findUnique({
+      where: { email: data.email },
+    });
+
+    if (!user) {
+      // Don't reveal whether email exists (security best practice)
+      return { success: true };
+    }
+
+    // Generate secure 32-byte token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const tokenHash = await bcrypt.hash(resetToken, 10);
+
+    // Store token hash + expiry (1 hour)
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordResetToken: tokenHash,
+        passwordResetExpiry: expiresAt,
+      },
+    });
+
+    // Send password reset email with plain token (token is never stored in plaintext)
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+    await sendPasswordResetEmail(user.email, resetUrl);
+
+    return { success: true };
+  }
+
+  async resetPassword(data: ResetPasswordInput) {
+    // For security, we can't directly match tokens. Need to:
+    // 1. Get user by valid reset token
+    // 2. Check expiry
+    // 3. But since token is hashed, we need to iterate users (or accept plaintext temporarily)
+
+    // NOTE: In a real system, you might store reset tokens in a separate table
+    // For now, we'll use a simpler approach: find users with non-null tokens, check expiry, compare hash
+
+    // Find user with an active password reset token
+    const users = await prisma.user.findMany({
+      where: {
+        passwordResetToken: { not: null },
+        passwordResetExpiry: { gt: new Date() },
+      },
+    });
+
+    let validUser = null;
+    for (const user of users) {
+      if (user.passwordResetToken && await bcrypt.compare(data.token, user.passwordResetToken)) {
+        validUser = user;
+        break;
+      }
+    }
+
+    if (!validUser) {
+      throw new Error("INVALID_OR_EXPIRED_TOKEN");
+    }
+
+    // Hash new password
+    const newPasswordHash = await bcrypt.hash(data.password, 10);
+
+    // Update user password and clear reset token
+    await prisma.user.update({
+      where: { id: validUser.id },
+      data: {
+        passwordHash: newPasswordHash,
+        passwordResetToken: null,
+        passwordResetExpiry: null,
+      },
+    });
+
+    return { success: true };
   }
 }

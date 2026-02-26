@@ -508,3 +508,21 @@ export interface PriceHistory {
   changedBy: string;
   changedAt: Date;
 }
+
+export enum SubscriptionStatus {
+  ACTIVE      = 'ACTIVE',
+  PAST_DUE    = 'PAST_DUE',
+  CANCELLED   = 'CANCELLED',
+  TRIALING    = 'TRIALING',
+  INCOMPLETE  = 'INCOMPLETE',
+}
+
+export interface SubscriptionData {
+  id: string;
+  status: SubscriptionStatus;
+  planName: string;
+  priceAmountCents: number;
+  currency: string;
+  currentPeriodEnd: string;      // ISO date string
+  cancelAtPeriodEnd: boolean;
+}

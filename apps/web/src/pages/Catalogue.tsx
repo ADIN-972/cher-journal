@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCatalogStore } from "../stores/catalogStore";
 import ErrorMessage from "../components/common/ErrorMessage";
@@ -75,7 +75,7 @@ const DEFAULT_SORT_METRICS: SortMetrics = {
   transformation: "none",
 };
 
-// Get initial view type from localStorage or default to "selection"
+// Get initial view type from localStorage or default to "catalog"
 const getInitialViewType = (): ViewType => {
   try {
     const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.VIEW_TYPE);
@@ -86,7 +86,7 @@ const getInitialViewType = (): ViewType => {
     // localStorage might not be available in SSR
     console.warn("localStorage not available:", e);
   }
-  return "selection";
+  return "catalog";
 };
 
 // Get initial sort metrics from localStorage or default to all "none"
@@ -124,6 +124,7 @@ export default function Catalogue() {
     getInitialSortMetrics(),
   );
   const [viewMode, setViewMode] = useState<ViewMode>(getInitialViewMode());
+  
 
   const THEMATIC_SECTIONS = [
     {
@@ -308,6 +309,11 @@ export default function Catalogue() {
     fetchChapters();
   }, [fetchChapters]);
 
+  // Scroll to top when viewType, sortMetrics, or viewMode change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [viewType, sortMetrics, viewMode]);
+
   // Handle sort button clicks with cycling: asc -> desc -> none
   const handleSortClick = (metric: SortBy) => {
     const currentDirection = sortMetrics[metric];
@@ -379,22 +385,12 @@ export default function Catalogue() {
   return (
     <div className="min-h-screen">
       {/* Sticky Filter Section */}
-      <section className="sticky top-12 z-40 bg-boudoir-950/95 backdrop-blur-xl border-b border-boudoir-800">
+      <section className="sticky top-12 z-40 bg-boudoir-300/50 dark:bg-boudoir-900/50 backdrop-blur-xl border-b border-boudoir-800">
         <div className="mx-auto px-6 py-5">
           <div className="flex justify-between items-start md:items-center gap-6">
             {/* View Type Filters */}
             <div className="flex flex-wrap  gap-3 w-full md:w-auto">
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setViewType("selection")}
-                  className={`p-2 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
-                    viewType === "selection"
-                      ? "bg-primary text-white"
-                      : "bg-boudoir-300/50 dark:bg-boudoir-900/50 border border-boudoir-800 text-charcoal dark:text-white/70 hover:border-gold/50"
-                  }`}>
-                  Notre sélection
-                </button>
                 <button
                   type="button"
                   onClick={() => setViewType("catalog")}
@@ -404,6 +400,16 @@ export default function Catalogue() {
                       : "bg-boudoir-300/50 dark:bg-boudoir-900/50 border border-boudoir-800 text-charcoal dark:text-white/70 hover:border-gold/50"
                   }`}>
                   Tout le catalogue
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewType("selection")}
+                  className={`p-2 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                    viewType === "selection"
+                      ? "bg-primary text-white"
+                      : "bg-boudoir-300/50 dark:bg-boudoir-900/50 border border-boudoir-800 text-charcoal dark:text-white/70 hover:border-gold/50"
+                  }`}>
+                  Notre sélection
                 </button>
               </div>
 
@@ -551,7 +557,7 @@ export default function Catalogue() {
               className={`${
                 viewMode === "grid"
                   ? "grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                  : "space-y-4"
+                  : "space-y-14"
               }`}>
               {sortedChapters.map((chapter) =>
                 viewMode === "grid" ? (
@@ -598,7 +604,7 @@ export default function Catalogue() {
                   className={
                     viewMode === "grid"
                       ? "grid grid-cols-2 md:grid-cols-4 gap-3"
-                      : "grid grid-cols-1 md:grid-cols-3 gap-4"
+                      : "grid grid-cols-1  gap-4"
                   }>
                   {section.list.map((chapter, index) =>
                     viewMode === "grid" ? (

@@ -91,14 +91,21 @@ export class PromotionsService {
       throw error;
     }
 
+    const appliedRefId = selectedRefId || promotion.refId;
+
     // 6. Record the applied promotion
     const appliedPromotion = await prisma.appliedPromotion.create({
       data: {
         promotionId,
         userId,
-        appliedRefId: selectedRefId || promotion.refId,
+        appliedRefId,
       },
     });
+
+    // 7. If promotion is FREE, create entitlements to grant actual access
+    if (promotion.type === 'FREE' && appliedRefId) {
+      await this.createEntitlementsFromPromotion(userId, promotion, appliedRefId);
+    }
 
     return {
       success: true,
@@ -110,6 +117,94 @@ export class PromotionsService {
       },
       message: `Promotion "${promotion.name}" applied successfully!`,
     };
+  }
+
+  private async createEntitlementsFromPromotion(
+    userId: string,
+    promotion: any,
+    refId: string
+  ): Promise<void> {
+    try {
+      // Determine versionScope based on promotion scope
+      // POV scopes grant PROTAGONIST access (versionScope: 'ALL')
+      // Regular scopes grant NARRATOR access (versionScope: 'BASE')
+      const isPOVPromotion = promotion.scope?.includes('POV');
+      const versionScope = isPOVPromotion ? 'ALL' : 'BASE';
+
+      if (promotion.scope === 'VOLUME' || promotion.scope === 'POV_VOLUME') {
+        // Format: "chapterId:volumeNumber"
+        const [chapterId, volumeNumberStr] = refId.split(':');
+        const volumeNumber = parseInt(volumeNumberStr);
+
+        // Check if entitlement already exists for this volume
+        const existingEntitlement = await prisma.entitlement.findFirst({
+          where: {
+            userId,
+            chapterId,
+            volumeFrom: { lte: volumeNumber },
+            volumeTo: { gte: volumeNumber },
+          },
+        });
+
+        if (!existingEntitlement) {
+          console.log(
+            `[Promotions] Creating FREE entitlement for user ${userId}, chapter ${chapterId}, volume ${volumeNumber} (scope: ${promotion.scope}, versionScope: ${versionScope})`
+          );
+          await prisma.entitlement.create({
+            data: {
+              userId,
+              chapterId,
+              volumeFrom: volumeNumber,
+              volumeTo: volumeNumber,
+              source: 'PROMOTION',
+              versionScope,
+            },
+          });
+        }
+      } else if (promotion.scope === 'CHAPTER' || promotion.scope === 'POV_CHAPTER') {
+        // Get all volumes in this chapter
+        const chapter = await prisma.chapter.findUnique({
+          where: { id: refId },
+          include: {
+            volumes: {
+              select: { volumeNumber: true },
+            },
+          },
+        });
+
+        if (chapter && chapter.volumes.length > 0) {
+          const minVolume = Math.min(...chapter.volumes.map((v) => v.volumeNumber));
+          const maxVolume = Math.max(...chapter.volumes.map((v) => v.volumeNumber));
+
+          // Check if entitlement already exists
+          const existingEntitlement = await prisma.entitlement.findFirst({
+            where: {
+              userId,
+              chapterId: refId,
+            },
+          });
+
+          if (!existingEntitlement) {
+            console.log(
+              `[Promotions] Creating FREE entitlement for user ${userId}, chapter ${refId}, volumes ${minVolume}-${maxVolume} (scope: ${promotion.scope}, versionScope: ${versionScope})`
+            );
+            await prisma.entitlement.create({
+              data: {
+                userId,
+                chapterId: refId,
+                volumeFrom: minVolume,
+                volumeTo: maxVolume,
+                source: 'PROMOTION',
+                versionScope,
+              },
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('[Promotions] Error creating entitlements from promotion:', error);
+      // Don't throw - the promotion is already recorded, this is just to grant access
+    }
   }
 
   async getUserApplicablePromotions(userId: string): Promise<ApplicablePromotion[]> {

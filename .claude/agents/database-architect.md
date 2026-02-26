@@ -16,314 +16,70 @@ Expert en architecture de bases de données pour Cher Journal. Spécialiste Pris
 
 ## Prisma Schema - Cher Journal
 
-### Schema Complet
-```prisma
-// prisma/schema.prisma
+### Source de Verite
 
-generator client {
-  provider = "prisma-client-js"
-}
+> **IMPORTANT**: Ne jamais maintenir une copie du schema ici. Toujours lire le fichier réel :
+> `apps/backend/prisma/schema.prisma`
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+Le schema a considérablement évolué depuis les premières versions. Il contient maintenant **35+ modèles** répartis en plusieurs systèmes fonctionnels.
 
-// ==================== ENUMS ====================
+### Systèmes Principaux
 
-enum UserStatus {
-  ACTIVE
-  SUSPENDED
-  DELETED
-}
+#### Core (Auth, Content)
+- `User` — avec `firstName`, `lastName`, `username`, `passwordResetToken/Expiry`, gamification relations
+- `Session` — sessions httpOnly avec `sessionToken`, `ipHash`, `userAgentHash`
+- `Chapter` / `Volume` / `VolumeVersion` / `VersionAsset` / `ChapterAsset`
+- `EncryptedBlob` — contenu chiffré (envelope encryption DEK+KEK)
 
-enum UserRole {
-  USER
-  ADMIN
-}
+#### Access & Commerce
+- `Order` — restructuré : `refId` (pas `chapterId`), `volumeNumber` optionnel, `OrderType` élargi (CHAPTER, PREORDER, BUNDLE, COLORING, VERSION_PACK, VOLUME, PERSPECTIVE)
+- `Entitlement` — droits d'accès (BASE=NARRATOR, ALL=NARRATOR+PROTAGONIST)
+- `Unlock` — timer wait-until-free par volume
+- `VolumeRead` — progression **par perspective** (`perspective` field), `canStartWaitFrom`, `progress` (%)
+- `Refund` — remboursements Stripe avec `revokeEntitlements`
+- `Subscription` — abonnements Stripe
 
-enum ChapterStatus {
-  DRAFT
-  IN_PROGRESS
-  PUBLISHED
-  ARCHIVED
-}
+#### Pricing
+- `PriceSchema` — schéma de tarification global (priceFreeToRead, pricePaywall, priceEpilogue, priceProtagonistUnlock)
+- `ChapterPriceOverride` — surcharges par chapitre
+- `Price` / `PriceHistory` — historique des prix
+- `Promotion` / `AppliedPromotion` — promotions avec ciblage utilisateurs
 
-enum Perspective {
-  NARRATOR      // Vue narrateur (inclus dans BASE)
-  PROTAGONIST   // Vue protagoniste (nécessite ALL)
-}
+#### Gamification
+- `UserProgress` — XP (feu/âme/ombre), level
+- `Constellation` / `ChapterConstellation` / `VolumeConstellation` — système de constellations
+- `UserConstellationProgress` — progression par constellation
+- `Badge` / `UserBadge` — badges (PROGRESSION, CONSTELLATION, STYLE, EDITORIAL)
+- `RewardUnlock` / `UserRewardUnlock` — récompenses débloquées
 
-enum OrderType {
-  CHAPTER       // Achat chapitre complet
-  VOLUME        // Achat volume individuel (non utilisé actuellement)
-}
+#### Content Management
+- `ChapterGenreTag` — genres (`ChapterGenre` enum avec 15 valeurs)
+- `Bundle` / `BundleItem` — packs multi-chapitres
+- `ChapterReview` — avis utilisateurs (1-5 étoiles, modération admin)
+- `AssetTag` / `AssetTagging` — tagging des assets
 
-enum OrderStatus {
-  PENDING
-  COMPLETED
-  FAILED
-  REFUNDED
-}
+#### System
+- `AuditLog` — journalisation des actions admin
+- `WebhookEvent` — déduplication webhooks Stripe
+- `Setting` — configuration clé/valeur
+- `SystemConfig` — configuration système (SMTP, paiements, etc.)
+- `SupportClaim` — tickets support utilisateurs
 
-enum EntitlementVersionScope {
-  BASE          // Accès perspective NARRATOR uniquement
-  ALL           // Accès NARRATOR + PROTAGONIST
-}
+### Enums Actuels (résumé)
 
-enum EntitlementSource {
-  PURCHASE      // Achat Stripe
-  PROMO         // Code promo
-  ADMIN         // Attribution admin
-}
-
-enum UnlockTriggeredBy {
-  WAIT          // Timer wait-until-free
-  PURCHASE      // Achat direct
-}
-
-enum AssetKind {
-  IMAGE
-  COVER
-  ILLUSTRATION
-}
-
-// ==================== MODELS ====================
-
-model User {
-  id           String      @id @default(uuid())
-  publicId     String      @unique @default(uuid())
-  email        String      @unique
-  passwordHash String
-  status       UserStatus  @default(ACTIVE)
-  role         UserRole    @default(USER)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-
-  sessions     Session[]
-  orders       Order[]
-  entitlements Entitlement[]
-  unlocks      Unlock[]
-  volumeReads  VolumeRead[]
-
-  @@index([email])
-  @@index([status])
-}
-
-model Session {
-  id        String   @id @default(uuid())
-  token     String   @unique
-  userId    String
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([token])
-  @@index([userId])
-  @@index([expiresAt])
-}
-
-model Chapter {
-  id              String        @id @default(uuid())
-  title           String
-  protagonistName String
-  status          ChapterStatus @default(DRAFT)
-  coverAssetId    String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  coverAsset   ChapterAsset?   @relation("ChapterCover", fields: [coverAssetId], references: [id], onDelete: SetNull)
-  volumes      Volume[]
-  assets       ChapterAsset[]  @relation("ChapterAssets")
-  orders       Order[]
-  entitlements Entitlement[]
-
-  @@index([status])
-}
-
-model Volume {
-  id                    String   @id @default(uuid())
-  chapterId             String
-  volumeNumber          Int
-  isFinalPaywall        Boolean  @default(false)
-  illustrationAssetId   String?
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-
-  chapter           Chapter          @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  illustrationAsset ChapterAsset?    @relation("VolumeIllustration", fields: [illustrationAssetId], references: [id], onDelete: SetNull)
-  versions          VolumeVersion[]
-  unlocks           Unlock[]
-  volumeReads       VolumeRead[]
-
-  @@unique([chapterId, volumeNumber])
-  @@index([chapterId])
-  @@index([volumeNumber])
-}
-
-model VolumeVersion {
-  id                    String      @id @default(uuid())
-  volumeId              String
-  perspective           Perspective
-  title                 String
-  illustrationAssetId   String?
-  textBlobId            String?     @unique
-  createdAt             DateTime    @default(now())
-  updatedAt             DateTime    @updatedAt
-
-  volume            Volume         @relation(fields: [volumeId], references: [id], onDelete: Cascade)
-  illustrationAsset ChapterAsset?  @relation("VolumeVersionIllustration", fields: [illustrationAssetId], references: [id], onDelete: SetNull)
-  textBlob          EncryptedBlob? @relation(fields: [textBlobId], references: [id])
-  assets            VersionAsset[]
-
-  @@unique([volumeId, perspective])
-  @@index([volumeId])
-  @@index([perspective])
-}
-
-model VersionAsset {
-  id              String @id @default(uuid())
-  volumeVersionId String
-  assetOrder      Int
-  chapterAssetId  String
-
-  volumeVersion VolumeVersion @relation(fields: [volumeVersionId], references: [id], onDelete: Cascade)
-  chapterAsset  ChapterAsset  @relation(fields: [chapterAssetId], references: [id], onDelete: Cascade)
-
-  @@unique([volumeVersionId, assetOrder])
-  @@unique([volumeVersionId, chapterAssetId])
-  @@index([volumeVersionId])
-}
-
-model ChapterAsset {
-  id         String    @id @default(uuid())
-  chapterId  String
-  kind       AssetKind
-  label      String?
-  objectKey  String    @unique
-  mimeType   String
-  sizeBytes  Int
-  width      Int?
-  height     Int?
-  createdAt  DateTime  @default(now())
-
-  chapter                     Chapter         @relation("ChapterAssets", fields: [chapterId], references: [id], onDelete: Cascade)
-  usedAsChapterCover          Chapter[]       @relation("ChapterCover")
-  usedAsVolumeIllustration    Volume[]        @relation("VolumeIllustration")
-  usedAsVersionIllustration   VolumeVersion[] @relation("VolumeVersionIllustration")
-  versionAssets               VersionAsset[]
-
-  @@index([chapterId])
-  @@index([kind])
-}
-
-model Order {
-  id                    String      @id @default(uuid())
-  userId                String
-  chapterId             String
-  type                  OrderType
-  status                OrderStatus @default(PENDING)
-  amount                Int
-  currency              String      @default("eur")
-  stripeSessionId       String?     @unique
-  stripePaymentIntentId String?     @unique
-  completedAt           DateTime?
-  createdAt             DateTime    @default(now())
-  updatedAt             DateTime    @updatedAt
-
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chapter      Chapter       @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  entitlements Entitlement[]
-
-  @@index([userId])
-  @@index([chapterId])
-  @@index([status])
-  @@index([stripeSessionId])
-}
-
-model Entitlement {
-  id           String                    @id @default(uuid())
-  userId       String
-  chapterId    String
-  orderId      String?
-  versionScope EntitlementVersionScope
-  source       EntitlementSource
-  volumeFrom   Int
-  volumeTo     Int
-  createdAt    DateTime                  @default(now())
-
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chapter Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  order   Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
-
-  @@index([userId])
-  @@index([chapterId])
-  @@index([userId, chapterId])
-}
-
-model Unlock {
-  id          String            @id @default(uuid())
-  userId      String
-  chapterId   String
-  volumeNumber Int
-  triggeredBy UnlockTriggeredBy
-  unlocksAt   DateTime
-  createdAt   DateTime          @default(now())
-
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  volume  Volume @relation(fields: [chapterId, volumeNumber], references: [chapterId, volumeNumber], onDelete: Cascade)
-
-  @@unique([userId, chapterId, volumeNumber])
-  @@index([userId])
-  @@index([chapterId, volumeNumber])
-  @@index([unlocksAt])
-}
-
-model VolumeRead {
-  id           String   @id @default(uuid())
-  userId       String
-  chapterId    String
-  volumeNumber Int
-  lastReadAt   DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  volume Volume @relation(fields: [chapterId, volumeNumber], references: [chapterId, volumeNumber], onDelete: Cascade)
-
-  @@unique([userId, chapterId, volumeNumber])
-  @@index([userId])
-  @@index([chapterId, volumeNumber])
-}
-
-model EncryptedBlob {
-  id         String   @id @default(uuid())
-  ownerId    String
-  purpose    String
-  cipherText Bytes
-  iv         Bytes
-  tag        Bytes
-  wrappedDek Bytes
-  alg        String
-  version    Int
-  createdAt  DateTime @default(now())
-
-  volumeVersion VolumeVersion?
-
-  @@index([ownerId, purpose])
-}
-
-model WebhookEvent {
-  id          String   @id @default(uuid())
-  externalId  String   @unique
-  type        String
-  payload     Json
-  processedAt DateTime @default(now())
-  createdAt   DateTime @default(now())
-
-  @@index([type])
-  @@index([externalId])
-}
+```
+UserRole: USER | ADMIN | SUPERADMIN
+UserStatus: ACTIVE | SUSPENDED
+ChapterStatus: DRAFT | IN_PROGRESS | PUBLISHED
+VolumeStatus: DRAFT | IN_PROGRESS | PUBLISHED
+Perspective: NARRATOR | PROTAGONIST
+OrderType: CHAPTER | PREORDER | BUNDLE | COLORING | VERSION_PACK | VOLUME | PERSPECTIVE
+OrderStatus: PAID | REFUNDED | PENDING
+EntitlementVersionScope: BASE | ALL
+EntitlementSource: PURCHASE | PREORDER | PACK | SUBSCRIPTION
+PriceScope: VOLUME | CHAPTER | EPILOGUE | POV_CHAPTER | POV_VOLUME | COLORING | BUNDLE | SUBSCRIPTION
+AssetKind: IMAGE | COLORING_PAGE
+BadgeType: PROGRESSION | CONSTELLATION | STYLE | EDITORIAL
 ```
 
 ## Concepts Clés
@@ -335,22 +91,35 @@ model WebhookEvent {
 - Référencé par `VolumeVersion.textBlobId`
 
 ### 2. Entitlements & Unlocks
-- **Entitlement**: Droits d'accès généraux (volumes 1-10, scope BASE/ALL)
+- **Entitlement**: Droits d'accès généraux (volumes 1-N, scope BASE/ALL)
 - **Unlock**: Déblocage spécifique d'un volume (wait ou purchase)
-- Un entitlement peut couvrir plusieurs volumes
+- Un entitlement peut couvrir plusieurs volumes (`volumeFrom` à `volumeTo`)
 - Un unlock est spécifique à un volume
 
 ### 3. Wait-Until-Free
 - `Unlock` créé avec `triggeredBy: WAIT` lors du premier accès
-- `unlocksAt` = maintenant + 24h
+- `unlocksAt` = maintenant + waitDuration (configurable par volume)
 - Un seul wait actif par chapitre (constraint business logic)
-- `VolumeRead` créé/updated pour tracker la lecture
+- `VolumeRead.canStartWaitFrom` = timestamp quand 65% de défilement atteint
+- `VolumeRead.progress` (0-100%) tracke la progression par volume + perspective
 
 ### 4. Perspectives
 - Chaque `Volume` a 2 `VolumeVersion` (NARRATOR + PROTAGONIST)
-- NARRATOR inclus dans scope BASE
+- NARRATOR inclus dans scope BASE (EntitlementVersionScope)
 - PROTAGONIST nécessite scope ALL
-- Permet de raconter l'histoire de 2 points de vue
+- `VolumeRead` tracke la progression **par perspective** (`@@unique([userId, chapterId, volumeNumber, perspective])`)
+
+### 5. Pricing System
+- `PriceSchema` : tarification globale (priceFreeToRead, pricePaywall, priceEpilogue, priceProtagonistUnlock)
+- `ChapterPriceOverride` : exceptions par chapitre (peut surcharger n'importe quel prix du schéma)
+- `Promotion` : réductions avec ciblage utilisateurs, codes promo, date de validité
+- Les prix sont en centimes (amountCents)
+
+### 6. Gamification
+- **XP** : 3 axes (feu/âme/ombre) liés aux métriques émotionnelles du volume
+- **Constellations** : thématiques transversales (chapitres + volumes tagués)
+- **Badges** : débloqués automatiquement selon progression/constellations
+- **Rewards** : contenu bonus débloqué (extraits, playlists, notes d'auteur)
 
 ## Modélisation Best Practices
 

@@ -1,8 +1,10 @@
 import BookClosed from "./common/BookClosed";
 
 interface PerspectiveSelectorProps {
-  selectedPerspective: string;
-  onSelectPerspective: (perspective: string) => void;
+  selectedPerspective: "narrateur" | "protagonist" | "coloriage";
+  onSelectPerspective: (
+    perspective: "narrateur" | "protagonist" | "coloriage",
+  ) => void;
   protagonistName?: string | null;
 }
 
@@ -30,12 +32,12 @@ export default function PerspectiveSelector({
   protagonistName,
 }: PerspectiveSelectorProps) {
   return (
-    <section className="flex flex-row gap-2 mb-20 text-center h-[250px]">
+    <section className="hidden md:flex flex-row gap-2 mb-20 text-center h-[250px]">
       {/* Perspective Cards */}
       {perspectives.map((perspective) => (
         <div
           key={perspective.id}
-          onClick={() => onSelectPerspective(perspective.id)}
+          onClick={() => onSelectPerspective(perspective.id as "narrateur" | "protagonist" | "coloriage")}
           className={`relative cursor-pointer transition-all ${
             selectedPerspective === perspective.id
               ? "w-[200px] h-[300px]"
@@ -52,10 +54,10 @@ export default function PerspectiveSelector({
                 ? "w-[185px] text-2xl leading-6"
                 : "w-[150px] text-md"
             } pl-8 pr-2 aspect-[3/4] items-center justify-center newsreader font-bold leading-4 mr-8 cursor-pointer rounded-lg transition-all text-white`}
-            onClick={() => onSelectPerspective(perspective.id)}>
+            onClick={() => onSelectPerspective(perspective.id as "narrateur" | "protagonist" | "coloriage")}>
             <div className="">
               {typeof perspective.label === "function"
-                ? perspective.label(protagonistName)
+                ? perspective.label(protagonistName ?? undefined)
                 : perspective.label}
             </div>
           </div>

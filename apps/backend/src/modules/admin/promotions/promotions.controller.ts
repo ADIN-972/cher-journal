@@ -240,4 +240,27 @@ export const promotionsController = {
       });
     }
   },
+
+  async fixMissingFreePromotionEntitlements(req: FastifyRequest, reply: FastifyReply) {
+    try {
+      console.log("[fixMissingFreePromotionEntitlements] Admin request to fix missing entitlements");
+      const result = await promotionsService.fixMissingFreePromotionEntitlements();
+      return reply.send({
+        success: true,
+        data: {
+          message: `Fixed ${result.created} missing entitlements (${result.skipped} already existed)`,
+          stats: result,
+        },
+      });
+    } catch (error: any) {
+      console.error("[fixMissingFreePromotionEntitlements] Error:", error);
+      return reply.status(500).send({
+        success: false,
+        error: {
+          code: "FIX_ERROR",
+          message: error.message || "Failed to fix missing entitlements",
+        },
+      });
+    }
+  },
 };

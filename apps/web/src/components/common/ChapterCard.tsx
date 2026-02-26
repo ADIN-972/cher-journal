@@ -55,6 +55,7 @@ export default function ChapterCard({
             showPremiumBadge={false}
             showLimitedEditionBadge={false}
             hasGrayscaleEffect={true}
+            textSize="auto"
             //showBookmarkIcon={hasStartedReading}
             // showFavoriteIcon={isFavorite}
           />

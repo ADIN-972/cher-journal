@@ -31,6 +31,7 @@ export const config = {
     secretKey: process.env.STRIPE_SECRET_KEY || "",
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
     publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || "",
+    subscriptionPriceId: process.env.STRIPE_SUBSCRIPTION_PRICE_ID || "",
   },
 
   // CORS

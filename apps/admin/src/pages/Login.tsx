@@ -133,7 +133,7 @@ export default function Login() {
 
             {/* Footer Links */}
             <div className="mt-8 pt-8 border-t border-gray-700/50 flex flex-col items-center gap-4">
-              <Link to="#" className="text-sm text-gray-400 hover:text-amber-600 transition-colors font-serif italic">
+              <Link to="/forgot-password" className="text-sm text-gray-400 hover:text-amber-600 transition-colors font-serif italic">
                 {t("auth.login.forgot_password")}
               </Link>
               <p className="text-[11px] text-gray-500 uppercase tracking-widest">

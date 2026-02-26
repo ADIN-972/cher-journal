@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Chapters from "./pages/Chapters";
 import ChapterDetail from "./pages/ChapterDetail";
@@ -95,6 +97,14 @@ function App() {
           <Route
             path="/register"
             element={<Register />}
+          />
+          <Route
+            path="/forgot-password"
+            element={<ForgotPassword />}
+          />
+          <Route
+            path="/reset-password"
+            element={<ResetPassword />}
           />
           <Route
             path="*"

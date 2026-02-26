@@ -3,8 +3,12 @@ import { AuthService } from "./auth.service";
 import {
   RegisterInput,
   LoginInput,
+  ForgotPasswordInput,
+  ResetPasswordInput,
   registerSchema,
   loginSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
 } from "./auth.schemas";
 import { config } from "@cher-journal/config";
 import crypto from "crypto";
@@ -162,6 +166,74 @@ export class AuthController {
           error: {
             code: "SESSION_EXPIRED",
             message: "Session expired",
+          },
+        });
+      }
+      throw error;
+    }
+  }
+
+  async forgotPassword(
+    request: FastifyRequest<{ Body: ForgotPasswordInput }>,
+    reply: FastifyReply
+  ) {
+    try {
+      // Validate request body
+      const validationResult = forgotPasswordSchema.safeParse(request.body);
+      if (!validationResult.success) {
+        return reply.status(400).send({
+          success: false,
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Invalid input data",
+            details: validationResult.error.errors,
+          },
+        });
+      }
+
+      await authService.forgotPassword(validationResult.data);
+
+      // Always return success to avoid email enumeration
+      return reply.send({
+        success: true,
+        data: { message: "If an account with this email exists, a password reset link has been sent." },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async resetPassword(
+    request: FastifyRequest<{ Body: ResetPasswordInput }>,
+    reply: FastifyReply
+  ) {
+    try {
+      // Validate request body
+      const validationResult = resetPasswordSchema.safeParse(request.body);
+      if (!validationResult.success) {
+        return reply.status(400).send({
+          success: false,
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Invalid input data",
+            details: validationResult.error.errors,
+          },
+        });
+      }
+
+      await authService.resetPassword(validationResult.data);
+
+      return reply.send({
+        success: true,
+        data: { message: "Password reset successful. You can now log in with your new password." },
+      });
+    } catch (error: any) {
+      if (error.message === "INVALID_OR_EXPIRED_TOKEN") {
+        return reply.status(400).send({
+          success: false,
+          error: {
+            code: "INVALID_OR_EXPIRED_TOKEN",
+            message: "The password reset link is invalid or has expired. Please request a new one.",
           },
         });
       }

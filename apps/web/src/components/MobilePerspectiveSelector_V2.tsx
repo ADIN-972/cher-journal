@@ -42,8 +42,8 @@ export default function MobilePerspectiveSelectorV2({
   protagonistName,
 }: MobilePerspectiveSelectorV2Props) {
   return (
-    <section className="md:hidden px-4 py-8 mb-8">
-      <div className="max-w-sm mx-auto space-y-3">
+    <section className=" px-4 py-8 mb-8">
+      <div className="max-w-sm md:max-w-full mx-auto space-y-3">
         {/* Header */}
         <div className="text-center mb-6">
           <h3 className="font-serif text-sm font-semibold tracking-wider uppercase text-boudoir-600 dark:text-boudoir-300 mb-1">
@@ -53,7 +53,7 @@ export default function MobilePerspectiveSelectorV2({
         </div>
 
         {/* Perspective Cards */}
-        <div className="space-y-2.5">
+        <div className="w-full md:grid md:grid-cols-3 gap-2.5">
           {perspectives.map((perspective) => {
             const isSelected = selectedPerspective === perspective.id;
             const label =
@@ -136,7 +136,7 @@ export default function MobilePerspectiveSelectorV2({
                   {/* Checkmark indicator */}
                   {isSelected && (
                     <div
-                      className={`flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br ${perspective.accentColor} flex items-center justify-center text-white animate-pulse`}>
+                      className={`flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br ${perspective.accentColor} flex items-center justify-center text-white`}>
                       <span className="material-symbols-outlined text-sm">
                         check
                       </span>
