@@ -204,7 +204,7 @@ export default function UserDetailImproved() {
 
       if (e.key === 'Escape') {
         e.preventDefault();
-        setSidebarCollapsed((prev) => !prev);
+        setSidebarCollapsed((prev: boolean) => !prev);
       }
     };
 
@@ -1048,6 +1048,7 @@ export default function UserDetailImproved() {
       {/* Add Entitlement Modal */}
       {showAddEntitlementModal && (
         <AddEntitlementModal
+          isOpen={showAddEntitlementModal}
           userId={user.id}
           onClose={() => setShowAddEntitlementModal(false)}
           onSuccess={() => {
