@@ -10,7 +10,7 @@ export const ChapterHeader: React.FC<ChapterHeaderProps> = ({
   title,
 }) => {
   return (
-    <h3 className="font-semibold text-gray-900 mb-4">
+    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 md:mb-6">
       {protagonistName} : {title}
     </h3>
   );
