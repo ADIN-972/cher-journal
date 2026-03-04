@@ -10,6 +10,7 @@ import PurchaseTimelineChart from "../components/PurchaseTimelineChart";
 import PurchaseDistributionChart from "../components/PurchaseDistributionChart";
 import AddEntitlementModal from "../components/AddEntitlementModal";
 import AssignPromoModal from "../components/AssignPromoModal";
+import { ChapterHeader, VolumeCard } from "../components/ChapterReadingSection";
 import {
   MdArrowBack,
   MdEmail,
@@ -277,11 +278,11 @@ export default function UserDetailImproved() {
             <div className="col-span-1">
               <div className="bg-white rounded-2xl shadow-sm overflow-hidden sticky top-6">
                 {/* Gradient Header with Toggle Button */}
-                <div className="relative h-24 bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400">
+                <div className="flex h-24 bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 items-start justify-end p-3">
                   <button
                     type="button"
                     onClick={() => setSidebarCollapsed((prev: boolean) => !prev)}
-                    className="absolute top-2 right-2 p-1 bg-white rounded-full hover:bg-gray-200 transition-colors"
+                    className=" top-2 right-2 p-1 bg-white rounded-full hover:bg-gray-200 transition-colors"
                     title="Toggle sidebar (Esc)">
                     {sidebarCollapsed ? (
                       <MdChevronLeft size={20} className="text-gray-700" />
@@ -292,7 +293,7 @@ export default function UserDetailImproved() {
                 </div>
 
                 {/* Avatar */}
-                <div className="px-6 pb-6">
+                <div className="flex flex-col px-6 pb-6">
                   <div className="flex justify-center -mt-12 mb-4">
                     <div className="w-20 h-20 rounded-full bg-white p-1 shadow-lg">
                       <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
@@ -556,75 +557,26 @@ export default function UserDetailImproved() {
                               title: read.chapter.title,
                               protagonistName: read.chapter.protagonistName,
                               volumes: [],
-
                             };
                             chapter.volumes.push(read);
                             map.set(read.chapterId, chapter);
                             return map;
                           }, new Map<string, any>()),
                         ).map(([, chapter]) => (
-                          <div
-                            key={chapter.id}
-                            className="border border-gray-200 rounded-lg p-4">
-                            <h3 className="font-semibold text-gray-900 mb-4">
-                              {chapter.protagonistName} :
-                              {chapter.title}
-                            </h3>
+                          <div key={chapter.id}>
+                            <ChapterHeader
+                              protagonistName={chapter.protagonistName}
+                              title={chapter.title}
+                            />
                             <div className="grid grid-cols-2 gap-3">
                               {chapter.volumes
                                 .sort((a, b) => a.volumeNumber - b.volumeNumber)
                                 .map((volume: VolumeRead) => (
-                                  <div
+                                  <VolumeCard
                                     key={volume.id}
-                                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-600 bg-gray-300">
-                                    <div className="flex-1">
-                                      <div className="flex items-center gap-3 mb-2">
-                                        <span className="text-sm font-medium text-gray-700">
-                                          Vol. {volume.volumeNumber}
-                                        </span>
-                                        <span
-                                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                            volume.perspective === "NARRATOR"
-                                              ? "bg-blue-100 text-blue-700"
-                                              : "bg-purple-100 text-purple-700"
-                                          }`}>
-                                          {volume.perspective === "NARRATOR"
-                                            ? "📖 Narrateur"
-                                            : "🔓 Protagoniste"}
-                                        </span>
-                                        <span className="text-xs text-gray-500 ml-auto">
-                                          Ouvert{" "}
-                                          {new Date(
-                                            volume.firstOpenedAt,
-                                          ).toLocaleDateString(locale)}
-                                        </span>
-                                      </div>
-                                      <div className="flex items-center gap-3">
-                                        <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
-                                          <div
-                                            className={`h-full transition-all ${
-                                              volume.perspective === "NARRATOR"
-                                                ? "bg-blue-500"
-                                                : "bg-purple-500"
-                                            }`}
-                                            style={{
-                                              width: `${volume.progress}%`,
-                                            }}></div>
-                                        </div>
-                                        <span className="text-sm font-medium text-gray-700 min-w-[50px] text-right">
-                                          {volume.progress}%
-                                        </span>
-                                      </div>
-                                      {volume.completedAt && (
-                                        <div className="text-xs text-green-600 mt-1">
-                                          ✓ Complété{" "}
-                                          {new Date(
-                                            volume.completedAt,
-                                          ).toLocaleDateString(locale)}
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
+                                    volume={volume}
+                                    locale={locale}
+                                  />
                                 ))}
                             </div>
                           </div>
