@@ -17,13 +17,13 @@ interface VolumeCardProps {
 
 export const VolumeCard: React.FC<VolumeCardProps> = ({
   volume,
-  locale = 'en-US'
+  locale = 'fr-FR'
 }) => {
   // Memoized computed values
   const perspectiveBadgeColor = useMemo(() => {
     return volume.perspective === 'NARRATOR'
-      ? 'bg-blue-100 text-blue-700'
-      : 'bg-purple-100 text-purple-700';
+      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+      : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300';
   }, [volume.perspective]);
 
   const perspectiveLabel = useMemo(() => {
@@ -46,32 +46,36 @@ export const VolumeCard: React.FC<VolumeCardProps> = ({
   }, [volume.completedAt, locale]);
 
   return (
-    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-600 bg-gray-300">
+    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
       <div className="flex-1">
         <div className="flex items-center gap-3 mb-2">
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
             Vol. {volume.volumeNumber}
           </span>
           <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${perspectiveBadgeColor}`}>
             {perspectiveLabel}
           </span>
-          <span className="text-xs text-gray-500 ml-auto">
+          <span className="text-xs text-gray-500 dark:text-gray-400 ml-auto">
             Ouvert {openedDate}
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+          <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
             <div
               className={`h-full transition-all ${progressBarColor}`}
+              role="progressbar"
+              aria-valuenow={volume.progress}
+              aria-valuemin={0}
+              aria-valuemax={100}
               style={{ width: `${volume.progress}%` }}
             />
           </div>
-          <span className="text-sm font-medium text-gray-700 min-w-[50px] text-right">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-200 min-w-[50px] text-right">
             {volume.progress}%
           </span>
         </div>
         {completedDate && (
-          <div className="text-xs text-green-600 mt-1">
+          <div className="text-xs text-green-600 dark:text-green-400 mt-1">
             ✓ Complété {completedDate}
           </div>
         )}
