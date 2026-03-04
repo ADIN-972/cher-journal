@@ -264,11 +264,17 @@ export default function UserDetailImproved() {
         </button>
 
         {/* Two Column Layout */}
-        <div className="flex flex-row gap-6">
+        <div className={`grid gap-6 transition-all duration-300 ${
+          isMobile
+            ? 'grid-cols-1'
+            : sidebarCollapsed
+              ? 'grid-cols-5 lg:grid-cols-5'
+              : 'grid-cols-4 lg:grid-cols-4'
+        }`}>
           {/* Left Column - User Profile (Fixed) */}
           {/* Left Sidebar - Desktop */}
           {!sidebarCollapsed && (
-            <div className="lg:col-span-1">
+            <div className="col-span-1">
               <div className="bg-white rounded-2xl shadow-sm overflow-hidden sticky top-6">
                 {/* Gradient Header with Toggle Button */}
                 <div className="relative h-24 bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400">
@@ -382,7 +388,7 @@ export default function UserDetailImproved() {
 
           {/* Collapsed Icon Bar - Desktop */}
           {sidebarCollapsed && (
-            <div className="hidden lg:flex lg:col-span-0 flex-col items-center gap-2 py-6 px-3 w-20 bg-white rounded-2xl shadow-sm sticky top-6">
+            <div className="hidden lg:flex col-span-1 flex-col items-center gap-2 py-6 px-3 w-20 bg-white rounded-2xl shadow-sm sticky top-6">
               {/* Avatar Icon */}
               <div
                 className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-lg font-bold cursor-pointer hover:shadow-lg transition-shadow"
@@ -430,7 +436,13 @@ export default function UserDetailImproved() {
           )}
 
           {/* Right Column - Content with Tabs */}
-          <div className="flex flex-col w-full lg:col-span-3">
+          <div className={`flex flex-col ${
+            isMobile
+              ? 'col-span-1'
+              : sidebarCollapsed
+                ? 'col-span-4'
+                : 'col-span-3'
+          }`}>
             {/* Tab Navigation */}
             <div className="bg-white rounded-2xl shadow-sm mb-6 p-2">
               <div className="flex gap-2">
