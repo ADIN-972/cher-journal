@@ -23,6 +23,7 @@ import {
   MdBarChart as MdStats,
   MdLocalOffer,
   MdCardGiftcard,
+  MdChevronRight,
   MdChevronLeft,
 } from "react-icons/md";
 
@@ -141,6 +142,21 @@ export default function UserDetailImproved() {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [showAddEntitlementModal, setShowAddEntitlementModal] = useState(false);
   const [showAssignPromoModal, setShowAssignPromoModal] = useState(false);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+
+  // Auto-detect mobile screen size
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) setShowMobileSidebar(false); // Close modal on desktop
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Initialize from localStorage, default to false (expanded)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -178,17 +194,23 @@ export default function UserDetailImproved() {
     }
   }, [sidebarCollapsed]);
 
-  // Handle Escape key to toggle sidebar
+  // Handle Escape key to toggle sidebar (but not when modals are open)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't toggle sidebar if any modal is open
+      if (showAddEntitlementModal || showAssignPromoModal) {
+        return; // Let modal handle Escape
+      }
+
       if (e.key === 'Escape') {
-        setSidebarCollapsed((prev: boolean) => !prev);
+        e.preventDefault();
+        setSidebarCollapsed((prev) => !prev);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [showAddEntitlementModal, showAssignPromoModal]);
 
   // Handle status toggle (stub)
   const handleToggleStatus = () => {
@@ -242,13 +264,26 @@ export default function UserDetailImproved() {
         </button>
 
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="flex flex-row gap-6">
+          {/* Left Column - User Profile (Fixed) */}
           {/* Left Sidebar - Desktop */}
           {!sidebarCollapsed && (
             <div className="lg:col-span-1">
               <div className="bg-white rounded-2xl shadow-sm overflow-hidden sticky top-6">
-                {/* Gradient Header */}
-                <div className="h-24 bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400"></div>
+                {/* Gradient Header with Toggle Button */}
+                <div className="relative h-24 bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400">
+                  <button
+                    type="button"
+                    onClick={() => setSidebarCollapsed((prev: boolean) => !prev)}
+                    className="absolute top-2 right-2 p-1 bg-white rounded-full hover:bg-gray-200 transition-colors"
+                    title="Toggle sidebar (Esc)">
+                    {sidebarCollapsed ? (
+                      <MdChevronLeft size={20} className="text-gray-700" />
+                    ) : (
+                      <MdChevronRight size={20} className="text-gray-700" />
+                    )}
+                  </button>
+                </div>
 
                 {/* Avatar */}
                 <div className="px-6 pb-6">
@@ -395,7 +430,7 @@ export default function UserDetailImproved() {
           )}
 
           {/* Right Column - Content with Tabs */}
-          <div className="lg:col-span-3">
+          <div className="flex flex-col w-full lg:col-span-3">
             {/* Tab Navigation */}
             <div className="bg-white rounded-2xl shadow-sm mb-6 p-2">
               <div className="flex gap-2">
@@ -525,7 +560,7 @@ export default function UserDetailImproved() {
                             </h3>
                             <div className="grid grid-cols-2 gap-3">
                               {chapter.volumes
-                                .sort((a: VolumeRead, b: VolumeRead) => a.volumeNumber - b.volumeNumber)
+                                .sort((a, b) => a.volumeNumber - b.volumeNumber)
                                 .map((volume: VolumeRead) => (
                                   <div
                                     key={volume.id}
@@ -1001,7 +1036,6 @@ export default function UserDetailImproved() {
       {/* Add Entitlement Modal */}
       {showAddEntitlementModal && (
         <AddEntitlementModal
-          isOpen={showAddEntitlementModal}
           userId={user.id}
           onClose={() => setShowAddEntitlementModal(false)}
           onSuccess={() => {
@@ -1022,6 +1056,105 @@ export default function UserDetailImproved() {
             setShowAssignPromoModal(false);
           }}
         />
+      )}
+
+      {/* Mobile Floating Button */}
+      {isMobile && (
+        <>
+          <button
+            onClick={() => setShowMobileSidebar(true)}
+            className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center text-xl font-bold shadow-lg hover:shadow-xl transition-shadow z-40"
+            title="Ouvrir profil">
+            {user.email[0].toUpperCase()}
+          </button>
+
+          {/* Mobile Sidebar Modal */}
+          {showMobileSidebar && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden" onClick={() => setShowMobileSidebar(false)}>
+              <div
+                className="fixed left-0 top-0 bottom-0 w-64 bg-white shadow-lg overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}>
+                {/* Close button */}
+                <div className="flex justify-end p-4">
+                  <button
+                    onClick={() => setShowMobileSidebar(false)}
+                    className="p-1 hover:bg-gray-100 rounded-lg">
+                    <MdChevronLeft size={24} />
+                  </button>
+                </div>
+
+                {/* Sidebar content (reuse from full sidebar) */}
+                <div className="px-6 pb-6">
+                  {/* Avatar */}
+                  <div className="flex justify-center mb-4">
+                    <div className="w-20 h-20 rounded-full bg-white p-1 shadow-lg">
+                      <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
+                        {user.email[0].toUpperCase()}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* User Info */}
+                  <div className="text-center mb-4">
+                    <h2 className="text-lg font-bold text-gray-900 mb-1">
+                      {user.email.split("@")[0]}
+                    </h2>
+                    <p className="text-xs text-gray-500 mb-3">
+                      ID: {user.publicId.slice(0, 12)}
+                    </p>
+                  </div>
+
+                  {/* Status Badge */}
+                  <div className="mb-4 flex justify-center">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        user.status === "ACTIVE"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}>
+                      {user.status}
+                    </span>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="space-y-2">
+                    <button className="w-full py-2 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2">
+                      <MdSend size={16} />
+                      <span>Message</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleToggleStatus();
+                        setShowMobileSidebar(false);
+                      }}
+                      className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-colors flex items-center justify-center gap-2">
+                      <MdEdit size={16} />
+                      <span>Éditer</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAddEntitlementModal(true);
+                        setShowMobileSidebar(false);
+                      }}
+                      className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2">
+                      <MdBook size={16} />
+                      <span>+ Accès</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAssignPromoModal(true);
+                        setShowMobileSidebar(false);
+                      }}
+                      className="w-full py-2 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2">
+                      <MdLocalOffer size={16} />
+                      <span>+ Promo</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
