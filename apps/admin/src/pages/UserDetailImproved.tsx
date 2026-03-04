@@ -23,6 +23,8 @@ import {
   MdBarChart as MdStats,
   MdLocalOffer,
   MdCardGiftcard,
+  MdChevronRight,
+  MdChevronLeft,
 } from "react-icons/md";
 
 interface Promotion {
@@ -251,8 +253,20 @@ export default function UserDetailImproved() {
           {/* Left Column - User Profile (Fixed) */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden sticky top-6">
-              {/* Gradient Header */}
-              <div className="h-24 bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400"></div>
+              {/* Gradient Header with Toggle Button */}
+              <div className="relative h-24 bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400">
+                <button
+                  type="button"
+                  onClick={() => setSidebarCollapsed((prev: boolean) => !prev)}
+                  className="absolute top-2 right-2 p-1 bg-white rounded-full hover:bg-gray-200 transition-colors"
+                  title="Toggle sidebar (Esc)">
+                  {sidebarCollapsed ? (
+                    <MdChevronLeft size={20} className="text-gray-700" />
+                  ) : (
+                    <MdChevronRight size={20} className="text-gray-700" />
+                  )}
+                </button>
+              </div>
 
               {/* Avatar */}
               <div className="px-6 pb-6">
