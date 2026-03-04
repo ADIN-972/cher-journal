@@ -566,11 +566,11 @@ export const promotionsService = {
         continue;
       }
 
-      // Determine versionScope based on promotion scope
-      // POV scopes grant PROTAGONIST access (versionScope: 'ALL')
-      // Regular scopes grant NARRATOR access (versionScope: 'BASE')
+      // Build scopes array based on promotion scope.
+      // POV promotions grant ['BASE', 'POV']; regular grants ['BASE'].
       const isPOVPromotion = promotion.scope?.includes("POV");
-      const versionScope = isPOVPromotion ? "ALL" : "BASE";
+      const scopes: string[] = isPOVPromotion ? ["BASE", "POV"] : ["BASE"];
+      const distinctiveScope = isPOVPromotion ? "POV" : "BASE";
 
       try {
         if (promotion.scope === "VOLUME" || promotion.scope === "POV_VOLUME") {
@@ -578,19 +578,20 @@ export const promotionsService = {
           const [chapterId, volumeNumberStr] = refId.split(":");
           const volumeNumber = parseInt(volumeNumberStr);
 
-          // Check if entitlement already exists
+          // Check if entitlement with distinctive scope already exists for this range
           const existingEntitlement = await prisma.entitlement.findFirst({
             where: {
               userId,
               chapterId,
               volumeFrom: { lte: volumeNumber },
               volumeTo: { gte: volumeNumber },
+              scopes: { has: distinctiveScope },
             },
           });
 
           if (!existingEntitlement) {
             console.log(
-              `[fixMissingFreePromotionEntitlements] Creating entitlement for user ${userId}, chapter ${chapterId}, volume ${volumeNumber} (scope: ${promotion.scope}, versionScope: ${versionScope})`
+              `[fixMissingFreePromotionEntitlements] Creating entitlement for user ${userId}, chapter ${chapterId}, volume ${volumeNumber} (scope: ${promotion.scope}, scopes: ${scopes.join(",")})`
             );
             await prisma.entitlement.create({
               data: {
@@ -599,7 +600,7 @@ export const promotionsService = {
                 volumeFrom: volumeNumber,
                 volumeTo: volumeNumber,
                 source: "PROMOTION",
-                versionScope,
+                scopes,
               },
             });
             created++;
@@ -621,17 +622,18 @@ export const promotionsService = {
             const minVolume = Math.min(...chapter.volumes.map((v) => v.volumeNumber));
             const maxVolume = Math.max(...chapter.volumes.map((v) => v.volumeNumber));
 
-            // Check if entitlement already exists
+            // Check if entitlement with distinctive scope already exists for this chapter
             const existingEntitlement = await prisma.entitlement.findFirst({
               where: {
                 userId,
                 chapterId: refId,
+                scopes: { has: distinctiveScope },
               },
             });
 
             if (!existingEntitlement) {
               console.log(
-                `[fixMissingFreePromotionEntitlements] Creating entitlement for user ${userId}, chapter ${refId}, volumes ${minVolume}-${maxVolume} (scope: ${promotion.scope}, versionScope: ${versionScope})`
+                `[fixMissingFreePromotionEntitlements] Creating entitlement for user ${userId}, chapter ${refId}, volumes ${minVolume}-${maxVolume} (scope: ${promotion.scope}, scopes: ${scopes.join(",")})`
               );
               await prisma.entitlement.create({
                 data: {
@@ -640,7 +642,7 @@ export const promotionsService = {
                   volumeFrom: minVolume,
                   volumeTo: maxVolume,
                   source: "PROMOTION",
-                  versionScope,
+                  scopes,
                 },
               });
               created++;

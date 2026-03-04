@@ -68,7 +68,7 @@ export default function AuditLogs() {
       if (filters.userId) params.append("userId", filters.userId);
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:3000"}/admin/audit-logs/export?${params.toString()}`,
+        `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/admin/audit-logs/export?${params.toString()}`,
         {
           credentials: "include",
           headers: {

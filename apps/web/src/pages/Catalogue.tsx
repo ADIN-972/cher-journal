@@ -529,7 +529,7 @@ export default function Catalogue() {
           // Catalog view - all chapters sorted by intensity metric
           <div>
             <div className="mb-8">
-              <h2 className="text-3xl font-bold text-accent-gold mb-2 italic">
+              <h2 className="text-3xl md:text-4xl font-display italic text-stone-700 dark:text-stone-100 newsreader">
                 Tout le catalogue
               </h2>
               <p className="text-sm text-charcoal dark:text-white/70">
@@ -586,13 +586,13 @@ export default function Catalogue() {
                 <div className="mb-8">
                   <div className="flex flex-col gap-3 sm:flex-row items-end justify-between mb-3">
                     <div>
-                      <h3 className="text-3xl font-bold text-accent-gold mb-2 italic">
+                      <h3 className="text-3xl md:text-4xl font-display italic text-stone-700 dark:text-stone-100 newsreader">
                         {section.title}
                       </h3>
                       <p className="text-xs uppercase tracking-[0.2em] text-charcoal dark:text-white/70 font-semibold mb-1">
                         {section.subtitle}
                       </p>
-                      <p className="text-sm text-charcoal dark:text-white/70 leading-relaxed max-w-2xl">
+                      <p className="handwriting text-xl md:text-2xl text-primary-caramel dark:text-white/60 py-6">
                         {section.description}
                       </p>
                     </div>

@@ -47,7 +47,7 @@ export default function ChapterGridView({
       className={`${
         isTop3 ? `border-4 ${getRankingStyles(index).border}` : "border dark:border-white/30"
       }  dark:bg-white/5 p-3 rounded-2xl group`}>
-      <div className="aspect-[3/4] !text-md overflow-hidden rounded-lg mb-3 relative bg-gradient-to-br from-boudoir-800 to-boudoir-900">
+      <div className="aspect-[3/4] !text-md overflow-hidden rounded-lg mb-3 relative ">
         {isTop3 && getRankingStyles(index) && (
           <div
             className={`absolute top-2 left-2 z-20 flex items-center justify-center w-8 h-8 rounded-full border-2 shadow-lg bg-gradient-to-br ${getRankingStyles(index)?.border} ${getRankingStyles(index)?.gradient}`}>
@@ -74,7 +74,7 @@ export default function ChapterGridView({
             }}
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-boudoir-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+        {/* <div className="absolute inset-0 bg-gradient-to-t from-boudoir-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" /> */}
       </div>
 
       <div className="flex flex-col justify-center min-w-0 flex-1">

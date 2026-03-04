@@ -156,7 +156,7 @@ function AppContent() {
 
 function App() {
   return (
-    <I18nProvider>
+    <I18nProvider defaultLanguage="fr">
       <ToastProvider>
         <AppContent />
       </ToastProvider>

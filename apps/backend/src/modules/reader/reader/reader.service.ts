@@ -287,6 +287,7 @@ export class ReaderService {
           userId,
           chapterId: version.volume.chapterId,
           volumeNumber: version.volume.volumeNumber,
+          perspective: version.perspective,
           firstOpenedAt: new Date(),
         },
       });
@@ -458,51 +459,31 @@ export class ReaderService {
       throw new Error('INVALID_PROGRESS');
     }
 
-    // Get current volume read for this perspective
-    const volumeRead = await prisma.volumeRead.findUnique({
-      where: {
-        userId_chapterId_volumeNumber_perspective: {
-          userId,
-          chapterId,
-          volumeNumber,
-          perspective: perspective as any
-        }
+    // Upsert: atomically create if missing, or no-op on update (handles race conditions)
+    const uniqueKey = {
+      userId_chapterId_volumeNumber_perspective: {
+        userId,
+        chapterId,
+        volumeNumber,
+        perspective: perspective as any
       }
+    };
+
+    const volumeRead = await prisma.volumeRead.upsert({
+      where: uniqueKey,
+      create: { userId, chapterId, volumeNumber, perspective: perspective as any, progress },
+      update: {}, // preserve existing record on conflict — handled below
     });
 
-    if (!volumeRead) {
-      // Create new volume read with progress for this perspective
-      const newRead = await prisma.volumeRead.create({
-        data: {
-          userId,
-          chapterId,
-          volumeNumber,
-          perspective: perspective as any,
-          progress
-        }
-      });
-      return { success: true, progress: newRead.progress };
-    }
-
-    // Only update if new progress is higher
+    // Only update if new progress is higher than what's stored
     if (progress > volumeRead.progress) {
       const updated = await prisma.volumeRead.update({
-        where: {
-          userId_chapterId_volumeNumber_perspective: {
-            userId,
-            chapterId,
-            volumeNumber,
-            perspective: perspective as any
-          }
-        },
-        data: {
-          progress
-        }
+        where: uniqueKey,
+        data: { progress }
       });
       return { success: true, progress: updated.progress };
     }
 
-    // Return current progress if new progress is not higher
     return { success: true, progress: volumeRead.progress };
   }
 

@@ -6,7 +6,7 @@ interface Entitlement {
   chapterId: string;
   volumeFrom: number;
   volumeTo: number;
-  versionScope: string; // BASE | ALL
+  scopes: string[]; // ['BASE'] | ['BASE', 'POV'] | etc.
   source: string; // PURCHASE, PREORDER, PACK, SUBSCRIPTION
   grantedAt: string;
   chapter: {
@@ -151,7 +151,7 @@ export default function ChapterAccessSummary({
                         </span>
                         <span className="text-gray-300">•</span>
                         <span className="text-sm text-gray-600">
-                          {entitlement.versionScope === 'ALL' ? 'Narrateur + Protagoniste' : 'Narrateur'}
+                          {entitlement.scopes?.includes('POV') ? 'Narrateur + Protagoniste' : 'Narrateur'}
                         </span>
                         <span className="text-gray-300">•</span>
                         {getSourceBadge(entitlement.source)}
@@ -198,7 +198,7 @@ export default function ChapterAccessSummary({
                       <div>
                         <span className="text-blue-700">Perspectives:</span>
                         <span className="ml-2 font-medium text-blue-900">
-                          {entitlement.versionScope === 'ALL' ? '👁️👁️' : '👁️'}
+                          {entitlement.scopes?.includes('POV') ? '👁️👁️' : '👁️'}
                         </span>
                       </div>
                       <div>

@@ -193,7 +193,7 @@ export default function Library() {
                       {/* Cover Image */}
                       {chapter.coverAsset?.objectKey ? (
                         <ChapterCover
-                          imageUrl={`${import.meta.env.VITE_API_URL ?? ""}/uploads/${chapter.coverAsset.objectKey}`}
+                          imageUrl={`${import.meta.env.VITE_API_URL ?? ""}/uploads/${chapter.coverAsset.thumbnailObjectKey || chapter.coverAsset.objectKey}`}
                           title={chapter.protagonistName}
                           showPremiumBadge={false}
                           showLimitedEditionBadge={false}

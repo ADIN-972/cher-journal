@@ -355,7 +355,7 @@ class ApiClient {
     chapterId: string;
     type: 'CHAPTER' | 'PREORDER' | 'BUNDLE' | 'COLORING' | 'VERSION_PACK' | 'VOLUME' | 'PERSPECTIVE';
     volumeNumber?: number;  // For VOLUME and PERSPECTIVE type orders
-    versionScope?: 'BASE' | 'ALL';
+    scopes?: string[];
     successUrl: string;
     cancelUrl: string;
   }): Promise<{ sessionId: string; url: string }> {
@@ -368,7 +368,7 @@ class ApiClient {
 
   /**
    * Create checkout session for PROTAGONIST purchases (uses dedicated endpoint)
-   * Always uses versionScope="ALL" and priceProtagonistUnlock pricing
+   * Always uses scopes=['BASE','POV'] and priceProtagonistUnlock pricing
    */
   async createProtagonistCheckoutSession(data: {
     chapterId: string;

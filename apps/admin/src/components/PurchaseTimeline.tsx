@@ -32,7 +32,7 @@ interface Entitlement {
   chapterId: string;
   volumeFrom: number;
   volumeTo: number;
-  versionScope: string; // BASE | ALL
+  scopes: string[]; // ['BASE'] | ['BASE', 'POV'] | etc.
   source: string; // PURCHASE, PREORDER, PACK, SUBSCRIPTION
   grantedAt: string;
   chapter: {
@@ -153,7 +153,7 @@ export default function PurchaseTimeline({ orders, entitlements, locale = 'fr' }
     return {
       chapter: entitlement.chapter.title,
       volumes: `Volumes ${entitlement.volumeFrom}-${entitlement.volumeTo}`,
-      perspective: entitlement.versionScope,
+      perspective: (entitlement.scopes || ['BASE']).join(','),
     };
   };
 
@@ -284,7 +284,7 @@ export default function PurchaseTimeline({ orders, entitlements, locale = 'fr' }
                           <div className="col-span-2">
                             <span className="text-gray-500">Perspectives:</span>
                             <span className="ml-2 font-medium text-gray-900">
-                              {entitlementInfo.perspective === 'ALL'
+                              {entitlementInfo.perspective?.includes('POV')
                                 ? '👁️ Narrateur + Protagoniste'
                                 : '👁️ Narrateur uniquement'}
                             </span>

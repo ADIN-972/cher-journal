@@ -4,11 +4,14 @@ interface ChapterCoverProps {
   showPremiumBadge?: boolean;
   showLimitedEditionBadge?: boolean;
   className?: string;
+  textClassName?: string;
   textSize?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "auto";
   showBookmarkIcon?: boolean;
   showFavoriteIcon?: boolean;
   hasGrayscaleEffect?: boolean;
   showTitleOverlay?: boolean;
+  roundedLeft?: boolean;
+  bordered?: boolean;
 }
 
 export default function ChapterCover({
@@ -19,9 +22,12 @@ export default function ChapterCover({
   showBookmarkIcon = false,
   showFavoriteIcon = false,
   className = "",
+  textClassName = "",
   textSize = "md",
   hasGrayscaleEffect = false,
   showTitleOverlay = true,
+  roundedLeft = true,
+  bordered = true,
 }: ChapterCoverProps) {
   const textSizeClass = {
     sm: "xl:text-sm",
@@ -30,12 +36,13 @@ export default function ChapterCover({
     xl: "xl:text-xl",
     "2xl": "xl:text-2xl",
     "3xl": "xl:text-3xl",
-    "auto": "xl:text-[calc(10%+3vw)] 4xl:text-[calc(10%+1vw)]",
+    auto: "xl:text-[calc(10%+3vw)] 4xl:text-[calc(10%+1vw)]",
   }[textSize];
   return (
     <div className={`relative group h-full ${className}`}>
       <div className="absolute -inset-1 opacity-25 group-hover:opacity-40 transition duration-1000"></div>
-      <div className="relative bg-background-dark rounded-lg rounded-r-md overflow-hidden aspect-[3/4] shadow-2xl z-[2] w-[93%] h-full">
+      <div
+        className={`relative bg-background-dark rounded-lg ${roundedLeft ? "rounded-l-md" : ""} overflow-hidden aspect-[3/4] shadow-2xl z-[2] w-[93%] h-full`}>
         {showBookmarkIcon && (
           <div className="absolute -top-1 right-[5%] flex flex-col items-center group cursor-pointer">
             <div className="bg-gold h-16 w-8 shadow-lg flex items-end justify-center pb-2 rounded-b-sm transition-all group-hover:h-20 z-[1]">
@@ -60,17 +67,26 @@ export default function ChapterCover({
 
         <div className="absolute -inset-2 bg-accent-gold/5 rounded-xl blur-2xl opacity-50 group-hover:opacity-100 transition duration-1000"></div>
 
-        <div className="relative h-full grid grid-rows-[auto_1fr] bg-[#53273F] rounded-[4px] overflow-hidden aspect-[3/4] book-edge ring-1 ring-white/10 transition-transform duration-500 group-hover:scale-[1.01]">
+        <div
+          className={`relative h-full grid grid-rows-[auto_1fr]  ${bordered ? " pl-[2%]" : ""} bg-[#53273F] rounded-[4px] overflow-hidden aspect-[3/4] book-edge ring-1 ring-white/10 transition-transform duration-500 group-hover:scale-[1.01]`}>
           <img
-            className={`w-full h-auto aspect-[3/4] object-cover ${hasGrayscaleEffect ? "grayscale" : ""} group-hover:grayscale-0 opacity-90 group-hover:opacity-100 transition-opacity duration-500`}
+            className={`w-full h-auto ${bordered ? "aspect-[1/1]" : "aspect-[3/4]"}  object-cover ${hasGrayscaleEffect ? "grayscale" : ""} group-hover:grayscale-0 opacity-90 group-hover:opacity-100 transition-opacity duration-500`}
             src={imageUrl ?? "/assets/images/404_bg.png"}
             alt={title}
           />
           {showTitleOverlay && (
             <div
-              className={`absolute bottom-0 grid text-center w-full items-center handwriting leading-4 bg-[#833963]/80  text-shadow-[0_35px_35px_rgb(83_39_63_/_0.85)] ${
-             "text-[calc(10%+5vw)]"// " md:text-[calc(10%+3vw)]"
-              } ${textSizeClass} text-white px-2 py-[10%] transition-colors duration-300 group-hover:text-gold`}>
+              className={` ${bordered ? "" : "absolute"}  grid  bottom-0 items-center handwriting ${
+                textClassName
+                  ? textClassName
+                  : `text-center w-full leading-4
+                ${
+                  "" // bg-[#833963]/80
+                }
+                text-shadow-[0_35px_35px_rgb(83_39_63_/_0.85)] ${
+                  "text-[calc(10%+5vw)]" // " md:text-[calc(10%+3vw)]"
+                } ${textSizeClass} text-white px-2 py-[10%] transition-colors duration-300 group-hover:text-white text-shadow-lg/30`
+              }  z-[1] `}>
               {title}
             </div>
           )}

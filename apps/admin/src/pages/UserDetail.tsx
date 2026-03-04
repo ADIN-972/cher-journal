@@ -168,7 +168,7 @@ export default function UserDetail() {
     chapterId: string;
     volumeFrom: number;
     volumeTo: number;
-    versionScope: string;
+    scopes: string[];
     source: string;
     grantedAt: string;
     chapter: {
@@ -980,7 +980,7 @@ export default function UserDetail() {
                                                 undefined,
                                                 {
                                                   access:
-                                                    entitlement.versionScope,
+                                                    (entitlement.scopes || ['BASE']).join(','),
                                                 }
                                               )}{" "}
                                               •{" "}

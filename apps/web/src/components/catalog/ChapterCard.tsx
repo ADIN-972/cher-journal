@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 interface CoverAsset {
   id: string;
   objectKey: string;
+  thumbnailObjectKey?: string | null;
   mimeType: string;
 }
 
@@ -26,7 +27,7 @@ export default function ChapterCard({
   featured = false,
 }: ChapterCardProps) {
   const coverImage = coverAsset?.objectKey
-    ? `${import.meta.env.VITE_API_URL ?? ''}/uploads/${coverAsset.objectKey}`
+    ? `${import.meta.env.VITE_API_URL ?? ""}/uploads/${coverAsset.thumbnailObjectKey || coverAsset.objectKey}`
     : null;
 
   const formattedDate = publishedAt

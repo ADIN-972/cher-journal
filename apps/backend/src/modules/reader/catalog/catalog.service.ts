@@ -163,22 +163,21 @@ export class CatalogService {
 
     // If user authenticated, check entitlements, unlocks, and volume reads
     let hasAccess = false;
-    let versionScope = null;
+    let scopes: string[] | null = null;
     let unlocks: { volumeNumber: number; unlocksAt: Date }[] = [];
     let volumeReads: { volumeNumber: number; perspective: string; firstReadAt: Date; progress: number; canStartWaitFrom: Date | null }[] = [];
-    let entitlement: any = null;
 
     if (userId) {
-      entitlement = await prisma.entitlement.findFirst({
-        where: {
-          userId,
-          chapterId: id,
-        },
+      // Aggregate all entitlements' scopes so the frontend gets a complete picture.
+      // e.g. if user has ['BASE'] and ['BASE','POV'] from two entitlements,
+      // the combined result is ['BASE', 'POV'].
+      const entitlements = await prisma.entitlement.findMany({
+        where: { userId, chapterId: id },
       });
 
-      if (entitlement) {
+      if (entitlements.length > 0) {
         hasAccess = true;
-        versionScope = entitlement.versionScope;
+        scopes = [...new Set(entitlements.flatMap((e: any) => e.scopes))];
 
         // Fetch user's unlocks for this chapter
         const userUnlocks = await prisma.unlock.findMany({
@@ -373,7 +372,7 @@ export class CatalogService {
       ...chapter,
       volumes: volumesWithAccessibility,
       hasAccess,
-      versionScope,
+      scopes,
       hasStartedReading,
       pricing,
       totalCharacterCount,

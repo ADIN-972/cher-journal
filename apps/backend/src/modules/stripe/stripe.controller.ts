@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { StripeService } from './stripe.service';
-import { OrderType, EntitlementVersionScope } from '@prisma/client';
+import { OrderType } from '@prisma/client';
 
 const service = new StripeService();
 
@@ -11,7 +11,7 @@ export class StripeController {
         chapterId: string;
         type: OrderType;
         volumeNumber?: number;  // For VOLUME type orders
-        versionScope?: EntitlementVersionScope;
+        scopes?: string[];
         successUrl: string;
         cancelUrl: string;
       };
@@ -97,7 +97,7 @@ export class StripeController {
     reply: FastifyReply
   ) {
     try {
-      // PROTAGONIST checkout always uses versionScope="ALL"
+      // PROTAGONIST checkout always uses scopes=['BASE','POV']
       const result = await service.createProtagonistCheckoutSession({
         userId: request.user!.id,
         ...request.body,

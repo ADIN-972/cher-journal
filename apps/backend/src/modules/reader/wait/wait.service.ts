@@ -79,7 +79,7 @@ export class WaitService {
           chapterId: data.chapterId,
           volumeFrom: minVolume,
           volumeTo: maxVolume,
-          versionScope: "BASE", // Free users get only narrator perspective
+          scopes: ["BASE"], // Free users get only narrator perspective
           source: "SUBSCRIPTION", // Using SUBSCRIPTION as a proxy for "free wait-to-read"
         },
       });

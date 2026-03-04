@@ -4,13 +4,13 @@ export const config = {
   isDev: process.env.NODE_ENV !== "production",
 
   // Server
-  port: parseInt(process.env.PORT || "3000", 10),
+  port: parseInt(process.env.PORT || "5000", 10),
   host: process.env.HOST || "0.0.0.0",
 
   // URLs
   frontendUrl: process.env.FRONTEND_URL || "http://localhost:5173",
   adminUrl: process.env.ADMIN_URL || "http://localhost:5174",
-  backendUrl: process.env.BACKEND_URL || "http://localhost:3000",
+  backendUrl: process.env.BACKEND_URL || "http://localhost:5000",
 
   // Database
   databaseUrl:

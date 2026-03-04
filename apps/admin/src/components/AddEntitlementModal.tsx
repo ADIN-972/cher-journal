@@ -30,9 +30,18 @@ export default function AddEntitlementModal({
     chapterId: "",
     volumeFrom: 1,
     volumeTo: 1,
-    versionScope: "BASE" as "BASE" | "ALL",
+    scopes: ["BASE"] as string[],
     source: "SUBSCRIPTION" as "PURCHASE" | "PREORDER" | "PACK" | "SUBSCRIPTION",
   });
+
+  const toggleScope = (scope: string) => {
+    setFormData((prev) => {
+      const has = prev.scopes.includes(scope);
+      const next = has ? prev.scopes.filter((s) => s !== scope) : [...prev.scopes, scope];
+      // Always keep at least one scope
+      return { ...prev, scopes: next.length > 0 ? next : [scope] };
+    });
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -73,7 +82,7 @@ export default function AddEntitlementModal({
         chapterId: "",
         volumeFrom: 1,
         volumeTo: 1,
-        versionScope: "BASE",
+        scopes: ["BASE"],
         source: "SUBSCRIPTION",
       });
     } catch (error: any) {
@@ -206,37 +215,31 @@ export default function AddEntitlementModal({
             </div>
           </div>
 
-          {/* Version Scope */}
+          {/* Scopes */}
           <div className="group">
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               {t("add_entitlement_modal.scope", "Perspectives")}{" "}
               <span className="text-red-500">*</span>
             </label>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() =>
-                  setFormData({ ...formData, versionScope: "BASE" })
-                }
-                className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  formData.versionScope === "BASE"
-                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg"
-                    : "bg-white/50 border-2 border-gray-200 text-gray-700 hover:border-indigo-300"
-                }`}>
-                📖 BASE (Narrateur)
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  setFormData({ ...formData, versionScope: "ALL" })
-                }
-                className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  formData.versionScope === "ALL"
-                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg"
-                    : "bg-white/50 border-2 border-gray-200 text-gray-700 hover:border-indigo-300"
-                }`}>
-                👤 ALL (Narrateur + Protagoniste)
-              </button>
+            <div className="grid grid-cols-2 gap-2">
+              {(["BASE", "POV", "COLORING", "LETTER", "NEWSLETTER"] as const).map((scope) => (
+                <button
+                  key={scope}
+                  type="button"
+                  onClick={() => toggleScope(scope)}
+                  className={`px-4 py-3 rounded-xl text-sm font-medium transition-all text-left flex items-center gap-2 ${
+                    formData.scopes.includes(scope)
+                      ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg"
+                      : "bg-white/50 border-2 border-gray-200 text-gray-700 hover:border-indigo-300"
+                  }`}>
+                  <span className={`w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center text-xs ${
+                    formData.scopes.includes(scope) ? "bg-white/30 border-white/50" : "border-gray-400"
+                  }`}>
+                    {formData.scopes.includes(scope) && "✓"}
+                  </span>
+                  {scope}
+                </button>
+              ))}
             </div>
           </div>
 

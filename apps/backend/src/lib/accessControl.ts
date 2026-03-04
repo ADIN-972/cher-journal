@@ -73,17 +73,37 @@ export class AccessControlService {
       return { hasAccess: true };
     }
 
-    // For non-free volumes, check entitlement
+    // For non-free volumes, check entitlement.
+    // For PROTAGONIST we query specifically for ALL versionScope so that a BASE
+    // entitlement (narrator) never shadows an existing ALL entitlement (protagonist).
     const entitlement = await prisma.entitlement.findFirst({
       where: {
         userId,
         chapterId,
         volumeFrom: { lte: volumeNumber },
         volumeTo: { gte: volumeNumber },
+        ...(perspective === Perspective.PROTAGONIST ? { scopes: { has: 'POV' } } : {}),
       },
     });
 
     if (!entitlement) {
+      // For PROTAGONIST: distinguish between "has narrator only" vs "no entitlement at all"
+      if (perspective === Perspective.PROTAGONIST) {
+        const narratorEntitlement = await prisma.entitlement.findFirst({
+          where: {
+            userId,
+            chapterId,
+            volumeFrom: { lte: volumeNumber },
+            volumeTo: { gte: volumeNumber },
+          },
+        });
+        if (narratorEntitlement) {
+          console.log(
+            `[AccessControlService] Perspective PROTAGONIST denied: only BASE entitlement exists for userId=${userId}, chapterId=${chapterId}, volumeNumber=${volumeNumber}`
+          );
+          return { hasAccess: false, reason: 'WRONG_PERSPECTIVE' };
+        }
+      }
       console.log(
         `[AccessControlService] No entitlement found for userId=${userId}, chapterId=${chapterId}, volumeNumber=${volumeNumber}`
       );
@@ -91,16 +111,8 @@ export class AccessControlService {
     }
 
     console.log(
-      `[AccessControlService] Found entitlement: source=${entitlement.source}, volumeFrom=${entitlement.volumeFrom}, volumeTo=${entitlement.volumeTo}, versionScope=${entitlement.versionScope}`
+      `[AccessControlService] Found entitlement: source=${entitlement.source}, volumeFrom=${entitlement.volumeFrom}, volumeTo=${entitlement.volumeTo}, scopes=${entitlement.scopes.join(',')}`
     );
-
-    // Check perspective access
-    if (perspective === Perspective.PROTAGONIST && entitlement.versionScope !== 'ALL') {
-      console.log(
-        `[AccessControlService] Perspective PROTAGONIST denied: entitlement versionScope=${entitlement.versionScope}`
-      );
-      return { hasAccess: false, reason: 'WRONG_PERSPECTIVE' };
-    }
 
     // Final paywall volumes are blocked (need upgrade)
     if (volume.isFinalPaywall) {
@@ -230,8 +242,8 @@ export class AccessControlService {
 
     // Check perspective access: volume 1 is always accessible for NARRATOR, but other perspectives need ALL versionScope
     if (perspective !== Perspective.NARRATOR && volumeNumber === 1) {
-      // For PROTAGONIST perspective on volume 1, need ALL versionScope entitlement
-      const hasAllAccess = await this.checkEntitlementWithVersionScope(userId, chapterId, 'ALL');
+      // For PROTAGONIST perspective on volume 1, need POV scope entitlement
+      const hasAllAccess = await this.checkEntitlementWithScope(userId, chapterId, 'POV');
       if (!hasAllAccess) {
         return {
           isAccessible: false,
@@ -381,12 +393,15 @@ export class AccessControlService {
    * (but NOT SUBSCRIPTION which is free wait-to-read)
    */
   private async checkFullAccess(userId: string, chapterId: string, volumeNumber: number, perspective: Perspective = Perspective.NARRATOR): Promise<boolean> {
+    // For PROTAGONIST, look specifically for entitlements with 'POV' in scopes so a BASE-only
+    // entitlement does not shadow an existing POV entitlement and incorrectly deny access.
     const entitlement = await prisma.entitlement.findFirst({
       where: {
         userId,
         chapterId,
         volumeFrom: { lte: volumeNumber },
         volumeTo: { gte: volumeNumber },
+        ...(perspective === Perspective.PROTAGONIST ? { scopes: { has: 'POV' } } : {}),
       },
     });
 
@@ -394,23 +409,18 @@ export class AccessControlService {
       return false;
     }
 
-    // Check versionScope: BASE only grants NARRATOR access, ALL grants all perspectives
-    if (entitlement.versionScope === 'BASE' && perspective !== Perspective.NARRATOR) {
-      return false;
-    }
-
     return true;
   }
 
   /**
-   * Check if user has an entitlement with specific versionScope for this chapter
+   * Check if user has an entitlement containing a specific scope for this chapter
    */
-  private async checkEntitlementWithVersionScope(userId: string, chapterId: string, versionScope: string): Promise<boolean> {
+  private async checkEntitlementWithScope(userId: string, chapterId: string, scope: string): Promise<boolean> {
     const entitlement = await prisma.entitlement.findFirst({
       where: {
         userId,
         chapterId,
-        versionScope: versionScope as any,
+        scopes: { has: scope },
       },
     });
 

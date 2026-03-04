@@ -53,10 +53,7 @@ export enum OrderStatus {
   PENDING = "PENDING",
 }
 
-export enum EntitlementVersionScope {
-  BASE = "BASE",
-  ALL = "ALL",
-}
+export type EntitlementScope = 'BASE' | 'POV' | 'COLORING' | 'LETTER' | 'NEWSLETTER';
 
 export enum EntitlementSource {
   PURCHASE = "PURCHASE",
@@ -138,7 +135,7 @@ export interface Chapter {
   hasStartedReading?: boolean; // True if user has started reading any volume (progress > 0)
   hasAccess?: boolean; // True if user has entitlement to this chapter
   isFavorite?: boolean; // True if this chapter is marked as "Sélection du moment"
-  versionScope?: EntitlementVersionScope | null; // Version scope of user's entitlement
+  scopes?: string[] | null; // Entitlement scopes for this chapter (e.g. ['BASE', 'POV', 'COLORING'])
   accroche_classic?: string | null;
   accroche_dark?: string | null;
   accroche_love?: string | null;
@@ -295,7 +292,7 @@ export interface Entitlement {
   chapterId: string;
   volumeFrom: number;
   volumeTo: number;
-  versionScope: EntitlementVersionScope;
+  scopes: string[];
   source: EntitlementSource;
   grantedAt: Date;
 }

@@ -1,7 +1,7 @@
 import prisma from '../../lib/prisma';
 import { config } from '@cher-journal/config';
 import Stripe from 'stripe';
-import { OrderType, OrderStatus, EntitlementVersionScope, EntitlementSource, UnlockTriggeredBy, SubscriptionStatus } from '@prisma/client';
+import { OrderType, OrderStatus, EntitlementSource, UnlockTriggeredBy, SubscriptionStatus } from '@prisma/client';
 import { priceSchemaService } from '../admin/price-schemas/price-schemas.service';
 import { AccessControlService } from '../../lib/accessControl';
 
@@ -14,7 +14,7 @@ interface CreateCheckoutOptions {
   chapterId: string;
   type: OrderType;
   volumeNumber?: number;  // For VOLUME type orders
-  versionScope?: EntitlementVersionScope;
+  scopes?: string[];       // Entitlement scopes to grant (e.g. ['BASE'] or ['BASE','POV'])
   successUrl: string;
   cancelUrl: string;
 }
@@ -162,8 +162,8 @@ export class StripeService {
         options.chapterId
       );
 
-      // For PROTAGONIST perspective (ALL versionScope), calculate price based on non-accessible volumes for that perspective
-      const isProtagonistBundle = options.versionScope === EntitlementVersionScope.ALL;
+      // For PROTAGONIST perspective (POV scope), calculate price based on non-accessible volumes for that perspective
+      const isProtagonistBundle = options.scopes?.includes('POV') ?? false;
 
       // For PROTAGONIST bundles, we need to check which volumes are already accessible for that perspective
       for (const volume of chapter.volumes) {
@@ -236,7 +236,7 @@ export class StripeService {
           currency: 'eur',
           product_data: {
             name: `${chapter.title} - Full Chapter`,
-            description: options.versionScope === EntitlementVersionScope.ALL
+            description: options.scopes?.includes('POV')
               ? 'Narrator + Protagonist perspectives'
               : 'Narrator perspective only',
           },
@@ -270,7 +270,7 @@ export class StripeService {
         userId: options.userId,
         chapterId: options.chapterId,
         orderType: options.type,
-        versionScope: options.versionScope || EntitlementVersionScope.BASE,
+        scopes: (options.scopes || ['BASE']).join(','),
         ...(options.volumeNumber && { volumeNumber: String(options.volumeNumber) }),
       },
     });
@@ -435,7 +435,7 @@ export class StripeService {
         userId: options.userId,
         chapterId: options.chapterId,
         orderType: options.type,
-        versionScope: EntitlementVersionScope.ALL,
+        scopes: 'BASE,POV',
         perspective: 'PROTAGONIST',
         ...(options.volumeNumber && { volumeNumber: String(options.volumeNumber) }),
       },
@@ -524,8 +524,9 @@ export class StripeService {
       return;
     }
 
-    const { orderId, userId, chapterId, orderType, versionScope, volumeNumber } = metadata;
-    console.log('[Stripe Webhook] Metadata:', { orderId, userId, chapterId, orderType, volumeNumber });
+    const { orderId, userId, chapterId, orderType, scopes: scopesStr, volumeNumber } = metadata;
+    const scopes: string[] = scopesStr ? scopesStr.split(',') : ['BASE'];
+    console.log('[Stripe Webhook] Metadata:', { orderId, userId, chapterId, orderType, scopes, volumeNumber });
 
     // Update order
     console.log('[Stripe Webhook] Updating order status to PAID...');
@@ -572,7 +573,7 @@ export class StripeService {
             chapterId,
             volumeFrom: volNum,
             volumeTo: volNum,
-            versionScope: (versionScope || EntitlementVersionScope.BASE) as EntitlementVersionScope,
+            scopes,
             source: EntitlementSource.PURCHASE,
           },
         });
@@ -642,12 +643,13 @@ export class StripeService {
       });
 
       if (existingEntitlement) {
-        // Update existing entitlement to include ALL perspective
-        console.log('[Stripe Webhook] Updating entitlement versionScope to ALL');
+        // Update existing entitlement to include POV scope
+        console.log('[Stripe Webhook] Updating entitlement scopes to include POV');
+        const updatedScopes = [...new Set([...(existingEntitlement.scopes || ['BASE']), 'POV'])];
         await prisma.entitlement.update({
           where: { id: existingEntitlement.id },
           data: {
-            versionScope: EntitlementVersionScope.ALL,
+            scopes: updatedScopes,
           },
         });
         console.log('[Stripe Webhook] ✅ Entitlement updated with protagonist perspective');
@@ -685,7 +687,7 @@ export class StripeService {
               source: EntitlementSource.PURCHASE,
               volumeFrom: minVolume,
               volumeTo: maxVolume,
-              versionScope: (versionScope || EntitlementVersionScope.BASE) as EntitlementVersionScope,
+              scopes,
             },
           });
           console.log('[Stripe Webhook] ✅ Entitlement updated');
@@ -698,7 +700,7 @@ export class StripeService {
               chapterId,
               volumeFrom: minVolume,
               volumeTo: maxVolume,
-              versionScope: (versionScope || EntitlementVersionScope.BASE) as EntitlementVersionScope,
+              scopes,
               source: EntitlementSource.PURCHASE,
             },
           });

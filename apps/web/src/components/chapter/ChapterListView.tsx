@@ -82,7 +82,7 @@ export default function ChapterListView({
               showPremiumBadge={false}
               showLimitedEditionBadge={false}
               textSize="md"
-              showTitleOverlay={false}
+              showTitleOverlay={true}
               hasGrayscaleEffect={!isTop3 && top3}
               // showPremiumBadge={true}
               // showLimitedEditionBadge={true}
@@ -130,7 +130,7 @@ export default function ChapterListView({
           )}
         </div>
       </div>
-      <p className="md:hidden text-xl text-gray-600 dark:text-gray-300 leading-relaxed italic newsreader col-span-2 p-4">
+      <p className="md:hidden text-xl/6 text-gray-600 text-center  dark:text-gray-300 italic newsreader col-span-2 p-4">
         {chapter.accroche_love || chapter.accroche_classic}
       </p>
     </Link>

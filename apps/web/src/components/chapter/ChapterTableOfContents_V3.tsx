@@ -183,7 +183,7 @@ export default forwardRef<HTMLElement, ChapterTableOfContentsV3Props>(
                   }}
                   onMouseEnter={() => setHoveredVolumeId(volume.id)}
                   onMouseLeave={() => setHoveredVolumeId(null)}
-                  className={`relative w-full book-3d ${isUnlocked ? (perspectiveKey === "NARRATOR" ? "bg-deep-burgundy" : "bg-deep-rose") : "bg-gray-800"} text-left`}
+                  className={`relative w-full book-3d ${isUnlocked ? (perspectiveKey === "NARRATOR" ? "bg-[#27365e]" : "bg-[#533470]") : "bg-gray-800"} text-left`}
                   style={
                     {
                       "--z-index": displayedVolumes.length - index,
@@ -206,17 +206,17 @@ export default forwardRef<HTMLElement, ChapterTableOfContentsV3Props>(
                     style={{
                       clipPath: "ellipse(50% 25% at center top)",
                     }}></div>
-                  <div className="book-spine-3d z-[5]">
+                  <div className="book-spine-3d z-[5] w-[94%] h-full md:w-[92%]">
                     {/* <div className="spine-texture-3d"></div> */}
-                    <div className="grid grid-cols-12 w-full h-full items-center z-[5]">
-                      <div className="flex items-center justify-center col-span-1 text-gold font-serif  text-xl">
+                    <div className="grid grid-cols-12 w-full h-full items-center z-[5] gap-1">
+                      <div className="grid h-full items-center justify-center col-span-2 md:col-span-1 text-gold font-serif  text-xl p-3 border-r border-gold/50">
                         {toRomanNumeral(volume.volumeNumber)}
                       </div>
-                      <div className="col-span-5 h-full flex items-center px-3 mr-1 border-r border-gold/50 text-boudoir-silk font-serif text-sm md:text-lg tracking-wide line-clamp-2 ">
+                      <div className="grid col-span-10 md:col-span-11 text-center md:text-left h-full w-full flex items-center px-3 mr-1 border-l-2 border-r-2 border-gold/50 text-boudoir-silk font-serif text-xs md:text-lg tracking-wide line-clamp-2 newsreader">
                         {volume.title}
                       </div>
-                      <div
-                        className={`${isUnlocked ? "col-span-6" : "col-span-5"} flex flex-col items-center space-x-3 text-white justify-center  h-full  items-center px-3 mr-1 border-l-2 border-gold/50`}>
+                      {/* <div
+                        className={`${isUnlocked ? "col-span-5 md:col-span-6" : "col-span-4 md:col-span-5"} flex flex-col items-center space-x-3 text-white justify-center  h-full  items-center px-3 border-l-2 border-gold/50`}>
                         <div className="grid w-full text-[10px] text-center md:text-xs text-gray-400 italic">
                           {isUnlocked
                             ? "Une histoire captivante..."
@@ -251,7 +251,7 @@ export default forwardRef<HTMLElement, ChapterTableOfContentsV3Props>(
                             </div>
                           </div>
                         )}
-                      </div>
+                      </div> */}
                       {/* <div className="col-span-1 text-center">
                         <span className="material-symbols-outlined text-xl text-boudoir-gold">
                           {isUnlocked ? "auto_stories" : "lock"}

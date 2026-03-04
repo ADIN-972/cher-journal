@@ -244,7 +244,7 @@ model Entitlement {
   chapterId    String
   volumeFrom   Int
   volumeTo     Int
-  versionScope EntitlementVersionScope @default(BASE)
+  scopes       String[]              @default(["BASE"])
   source       EntitlementSource
   grantedAt    DateTime                @default(now())
   chapter      Chapter                 @relation(fields: [chapterId], references: [id], onDelete: Cascade)
@@ -829,11 +829,6 @@ enum RefundStatus {
 enum RefundType {
   FULL
   PARTIAL
-}
-
-enum EntitlementVersionScope {
-  BASE
-  ALL
 }
 
 enum EntitlementSource {

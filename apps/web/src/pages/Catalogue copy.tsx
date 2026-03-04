@@ -436,7 +436,7 @@ export default function Catalogue() {
           // Filtered view - single list
           <div>
             <div className="mb-8">
-              <h2 className="text-3xl font-bold text-accent-gold mb-2 italic">
+              <h2 className="text-3xl md:text-4xl font-display italic text-stone-700 dark:text-stone-100 newsreader">
                 {GENRES[selectedGenre].label}
               </h2>
               <p className="text-sm text-charcoal dark:text-white/70">
@@ -482,7 +482,7 @@ export default function Catalogue() {
                           }}
                         />
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-boudoir-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                      {/* <div className="absolute inset-0 bg-gradient-to-t from-boudoir-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" /> */}
 
                       {/* Lire l'extrait Button */}
                       {/* <div className="absolute inset-0 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -623,7 +623,7 @@ export default function Catalogue() {
                           />
                         )}
 
-                        <div className="absolute inset-0 bg-gradient-to-t from-boudoir-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                        {/* <div className="absolute inset-0 bg-gradient-to-t from-boudoir-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" /> */}
 
                         {/* Lire l'extrait Button */}
                         {/* <div className="absolute inset-0 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100 transition-opacity">

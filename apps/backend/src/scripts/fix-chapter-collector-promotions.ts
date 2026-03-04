@@ -88,7 +88,7 @@ async function fixChapterCollectorPromotions() {
             volumeFrom: volumeNumber,
             volumeTo: volumeNumber,
             source: 'PROMOTION',
-            versionScope: 'BASE',
+            scopes: ['BASE'],
           },
         });
         console.log(`   ✓ Created entitlement`);
@@ -142,7 +142,7 @@ async function fixChapterCollectorPromotions() {
             volumeFrom: minVolume,
             volumeTo: maxVolume,
             source: 'PROMOTION',
-            versionScope: 'BASE',
+            scopes: ['BASE'],
           },
         });
         console.log(`   ✓ Created entitlement for volumes ${minVolume}-${maxVolume}`);

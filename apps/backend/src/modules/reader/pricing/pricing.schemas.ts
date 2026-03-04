@@ -9,5 +9,5 @@ export const getVolumePriceSchema = z.object({
 export const createCheckoutSchema = z.object({
   chapterId: z.string().uuid(),
   volumeNumber: z.number().int().positive(),
-  versionScope: z.enum(["BASE", "ALL"]).default("BASE"),
+  scopes: z.array(z.string()).default(["BASE"]),
 });

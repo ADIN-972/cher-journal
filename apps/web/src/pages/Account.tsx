@@ -215,7 +215,7 @@ export default function Account() {
                         }`}>
                         {item.icon}
                       </span>
-                      <div className="hidden lg:block">
+                      <div className="hidden md:block">
                         <span
                           className={`text-sm font-display italic ${
                             activeSection === item.id
@@ -227,7 +227,7 @@ export default function Account() {
                       </div>
                     </div>
                     <p
-                      className={`text-xs ml-8 hidden lg:block ${
+                      className={`text-xs ml-8 hidden md:block ${
                         activeSection === item.id
                           ? "text-charcoal dark:text-white/60"
                           : "text-charcoal dark:text-white/70"
@@ -246,7 +246,7 @@ export default function Account() {
                     <span className="material-symbols-outlined text-lg text-red-400">
                       logout
                     </span>
-                    <span className="text-sm font-display italic text-red-400 group-hover:text-red-300 hidden lg:inline">
+                    <span className="text-sm font-display italic text-red-400 group-hover:text-red-300 hidden md:inline">
                       {t("account.logout")}
                     </span>
                   </div>

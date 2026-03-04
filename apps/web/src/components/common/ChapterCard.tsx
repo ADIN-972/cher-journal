@@ -47,7 +47,7 @@ export default function ChapterCard({
       className="grid grid-cols-[120px_1fr] md:grid-cols-[200px_1fr] h-full md:flex md:flex-col gap-4 group cursor-pointer py-10 bg-white border-slate-200 dark:bg-white/5 dark:border-white/10 border-y shadow-md dark:shadow-boudoir-950/50 p-4 rounded-xl border border-boudoir-200/50 dark:border-boudoir-800/50 hover:border-gold/30 dark:hover:border-gold/50 transition-all"
       onClick={onClick}>
       {/* Thumbnail */}
-      <div className="aspect-[3/4] shrink-0 rounded-lg overflow-hidden relative bg-gradient-to-br from-boudoir-200 to-boudoir-300 dark:from-boudoir-800 dark:to-boudoir-900 shadow-sm">
+      <div className="aspect-[3/4] shrink-0 rounded-lg overflow-hidden relative  shadow-sm">
         {imageUrl ? (
           <ChapterCover
             imageUrl={imageUrl}

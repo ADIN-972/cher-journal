@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cher Journal — Wireframe Audit: W11 Mon Compte (/account)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Comic Sans MS', 'Chalkboard SE', cursive; background: #e8e8e8; color: #333; }
+
+    /* ── Legend badges ── */
+    .bg { padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: bold; color: #fff; display: inline-block; }
+    .bg-g { background: #4CAF50; }
+    .bg-o { background: #FF9800; }
+    .bg-r { background: #e53935; }
+
+    /* ── Component badge (absolute positioned) ── */
+    .cb { position: absolute; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; z-index: 10; color: #fff; font-family: Arial, sans-serif; }
+    .cb.g { background: #4CAF50; }
+    .cb.o { background: #FF9800; }
+    .cb.r { background: #e53935; }
+
+    /* ── Annotations ── */
+    .ann { border-radius: 4px; padding: 7px 12px; font-size: 11px; font-style: italic; margin-top: 8px; border: 1px dashed; }
+    .ann.g { background: #e8f5e9; border-color: #81c784; color: #2e7d32; }
+    .ann.o { background: #fff3e0; border-color: #ffb74d; color: #e65100; }
+    .ann.r { background: #ffebee; border-color: #e57373; color: #b71c1c; }
+
+    /* ── Banner ── */
+    .banner { background: #fff; border-bottom: 2px solid #666; padding: 14px 28px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+    .banner h1 { font-size: 17px; }
+    .banner p  { font-size: 11px; color: #666; font-style: italic; margin-top: 3px; }
+    .legend    { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin-top: 8px; font-size: 11px; }
+
+    /* ── Section separators ── */
+    .sep { background: #555; color: #fff; padding: 10px 28px; font-size: 13px; font-weight: bold; letter-spacing: .08em; display: flex; align-items: center; gap: 14px; margin-top: 32px; }
+    .sep span { font-size: 11px; font-weight: normal; opacity: .7; }
+    .sep-sub { background: #777; color: #fff; padding: 7px 28px 7px 44px; font-size: 11px; letter-spacing: .05em; display: flex; align-items: center; gap: 12px; margin-top: 2px; }
+
+    /* ── Screen wrapper ── */
+    .screen { max-width: 1280px; margin: 16px auto 0; background: #fff; border: 2px solid #555; border-radius: 3px; overflow: hidden; }
+
+    /* ── Navbar ── */
+    .nav { height: 52px; background: #f0f0f0; border-bottom: 2px solid #bbb; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; position: relative; }
+    .nav-brand { font-size: 18px; font-style: italic; }
+    .nav-icons { display: flex; gap: 8px; }
+    .nav-icon  { width: 28px; height: 28px; border: 1px dashed #aaa; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; position: relative; }
+    .nav-search { border: 1px dashed #999; border-radius: 16px; padding: 4px 12px 4px 28px; font-size: 11px; font-family: inherit; width: 160px; color: #999; }
+
+    /* ── Page header ── */
+    .page-hdr { padding: 24px 28px 16px; border-bottom: 1px dashed #ddd; position: relative; }
+    .page-hdr h1 { font-size: 24px; font-style: italic; }
+    .page-hdr p  { font-size: 11px; color: #888; margin-top: 4px; font-style: italic; }
+
+    /* ── Two-column layout ── */
+    .layout { display: grid; grid-template-columns: 160px 1fr; gap: 0; min-height: 560px; }
+
+    /* ── Sidebar ── */
+    .sidebar { background: #2a2a2a; padding: 12px 8px; border-right: 2px solid #555; position: relative; }
+    .sidebar-title { color: #888; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; padding: 0 8px; margin-bottom: 8px; }
+    .nav-item { display: flex; align-items: flex-start; gap: 8px; padding: 7px 8px; border-radius: 4px; margin-bottom: 2px; cursor: pointer; position: relative; }
+    .nav-item.active { background: rgba(200,160,90,.2); border: 1px solid rgba(200,160,90,.5); }
+    .nav-item-icon { width: 16px; height: 16px; background: #555; border-radius: 2px; flex-shrink: 0; margin-top: 1px; }
+    .nav-item-icon.gold { background: #c5a059; }
+    .nav-item-text { flex: 1; }
+    .nav-item-label { font-size: 10px; color: #ccc; font-style: italic; display: block; }
+    .nav-item-label.gold { color: #c5a059; font-weight: bold; }
+    .nav-item-desc  { font-size: 9px; color: #777; display: block; margin-top: 1px; }
+    .nav-divider { height: 1px; background: #444; margin: 8px 0; }
+    .nav-logout { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 4px; margin-top: 8px; cursor: pointer; }
+    .nav-logout-icon { width: 16px; height: 16px; background: #c33; border-radius: 2px; flex-shrink: 0; }
+    .nav-logout-label { font-size: 10px; color: #f44; font-style: italic; }
+
+    /* ── Main content area ── */
+    .main { padding: 20px; position: relative; }
+    .sec-title { font-size: 20px; font-style: italic; color: #8a6a30; margin-bottom: 6px; }
+    .sec-sub    { font-size: 11px; color: #888; font-style: italic; margin-bottom: 16px; }
+
+    /* ── Cards / boxes ── */
+    .card { border: 1px dashed #ccc; border-radius: 8px; background: #fafafa; padding: 16px; position: relative; margin-bottom: 12px; }
+    .card-hdr { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .card-icon { width: 20px; height: 20px; background: #c5a059; border-radius: 3px; flex-shrink: 0; }
+    .card-title { font-size: 13px; font-style: italic; }
+    .card.danger { background: #fff5f5; border-color: #f99; }
+
+    /* ── Empty state ── */
+    .empty { border: 1px dashed #ccc; border-radius: 8px; background: #fafafa; padding: 40px 20px; text-align: center; position: relative; }
+    .empty-icon { width: 40px; height: 40px; background: #e0e0e0; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .empty-text  { font-size: 12px; color: #999; font-style: italic; }
+    .empty-btn   { margin-top: 12px; display: inline-block; border: 2px solid #8a6a30; border-radius: 4px; padding: 6px 18px; font-size: 11px; font-family: inherit; }
+
+    /* ── Form elements ── */
+    .form-row  { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .form-group { margin-bottom: 12px; }
+    .form-label { font-size: 10px; color: #666; display: block; margin-bottom: 4px; }
+    .form-input { border: 1px dashed #aaa; border-radius: 6px; padding: 8px 10px; font-size: 11px; font-family: inherit; width: 100%; background: #f9f9f9; color: #555; }
+    .form-btn   { border: none; border-radius: 6px; padding: 8px 18px; font-size: 11px; font-family: inherit; background: #c5a059; color: #fff; cursor: pointer; }
+    .form-btn.outline { background: #f0f0f0; color: #555; border: 1px dashed #aaa; }
+    .form-btn.danger  { background: #e53935; color: #fff; }
+
+    /* ── Toggle row ── */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #eee; }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-info { flex: 1; }
+    .toggle-info strong { font-size: 12px; display: block; font-style: italic; }
+    .toggle-info span   { font-size: 10px; color: #888; }
+    .toggle-channels { display: flex; gap: 6px; }
+    .toggle-pill { border: 1px dashed #aaa; border-radius: 10px; padding: 2px 8px; font-size: 10px; }
+    .toggle-pill.on { background: #c5a059; color: #fff; border-color: #c5a059; }
+    .toggle-switch { width: 34px; height: 18px; background: #c5a059; border-radius: 9px; position: relative; flex-shrink: 0; }
+    .toggle-knob   { position: absolute; right: 2px; top: 2px; width: 14px; height: 14px; background: #fff; border-radius: 50%; }
+
+    /* ── Device card ── */
+    .device-card { border: 1px dashed #ccc; border-radius: 6px; padding: 12px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; position: relative; }
+    .device-icon { width: 28px; height: 28px; background: #ddd; border-radius: 4px; flex-shrink: 0; }
+    .device-info strong { font-size: 12px; display: block; }
+    .device-info span   { font-size: 10px; color: #888; }
+    .device-badge { font-size: 9px; background: #4CAF50; color: #fff; border-radius: 2px; padding: 1px 6px; }
+
+    /* ── Payment card ── */
+    .pay-card { border: 1px dashed #ccc; border-radius: 6px; padding: 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; position: relative; }
+    .pay-logo  { width: 40px; height: 24px; background: #ddd; border-radius: 3px; flex-shrink: 0; }
+    .pay-info  { flex: 1; font-size: 11px; }
+    .pay-default { font-size: 9px; background: #e0e0e0; border-radius: 2px; padding: 1px 6px; }
+
+    /* ── Book grid ── */
+    .books-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .book-card  { border: 1px dashed #ccc; border-radius: 4px; overflow: hidden; position: relative; }
+    .book-cover { width: 100%; aspect-ratio: 2/3; background: #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #aaa; }
+    .book-meta  { padding: 5px; }
+    .book-title { font-size: 9px; font-weight: bold; }
+    .book-vol   { font-size: 8px; color: #888; }
+
+    /* ── Font size selector ── */
+    .font-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+    .font-opt  { border: 2px dashed #ccc; border-radius: 6px; padding: 10px; text-align: center; }
+    .font-opt.active { border-color: #c5a059; background: rgba(197,160,89,.1); }
+    .font-aa   { font-weight: bold; display: block; }
+    .font-lbl  { font-size: 9px; color: #888; }
+
+    /* ── Freq radio ── */
+    .freq-opt { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 11px; }
+    .radio    { width: 14px; height: 14px; border: 2px dashed #aaa; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .radio.on::after { content: ''; width: 7px; height: 7px; background: #c5a059; border-radius: 50%; display: block; }
+
+    /* ── Footer ── */
+    .footer { border-top: 1px dashed #ddd; padding: 24px 28px; background: #f5f0e8; }
+    .footer-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .footer-col h6 { font-size: 10px; text-transform: uppercase; letter-spacing: .15em; color: #888; margin-bottom: 10px; }
+    .footer-link { font-size: 11px; color: #aaa; display: block; margin-bottom: 6px; }
+    .footer-brand { font-size: 18px; font-style: italic; margin-bottom: 8px; }
+    .footer-input { border: 1px dashed #aaa; border-radius: 4px; padding: 6px 10px; font-size: 11px; font-family: inherit; width: 100%; margin-bottom: 6px; }
+    .footer-btn   { width: 100%; background: #e53935; color: #fff; border: none; border-radius: 4px; padding: 6px; font-size: 11px; font-family: inherit; }
+
+    /* ── Mobile screen ── */
+    .screen-mobile { max-width: 390px; margin: 16px auto 0; background: #fff; border: 2px solid #555; border-radius: 3px; overflow: hidden; }
+    .nav-mobile { height: 44px; background: #f0f0f0; border-bottom: 2px solid #bbb; padding: 0 14px; display: flex; align-items: center; justify-content: space-between; }
+    .layout-mobile { display: grid; grid-template-columns: 40px 1fr; min-height: 500px; }
+    .sidebar-mobile { background: #2a2a2a; padding: 8px 4px; border-right: 2px solid #555; }
+    .sidebar-icon { width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+    .sidebar-icon.active { background: rgba(200,160,90,.3); }
+    .icon-sq { width: 14px; height: 14px; background: #555; border-radius: 2px; }
+    .icon-sq.gold { background: #c5a059; }
+    .main-mobile { padding: 12px; position: relative; }
+
+    /* ── Proposed improvements callout ── */
+    .proposal-box { border: 2px solid #FF9800; border-radius: 6px; background: #fff8f0; padding: 14px 16px; margin-top: 12px; }
+    .proposal-box h4 { font-size: 12px; color: #e65100; margin-bottom: 8px; }
+    .proposal-box ul { font-size: 11px; color: #555; padding-left: 16px; }
+    .proposal-box ul li { margin-bottom: 4px; }
+
+    /* Missing element placeholder */
+    .missing { border: 2px dashed #FF9800; border-radius: 6px; background: #fff8f0; padding: 12px; text-align: center; font-size: 11px; color: #e65100; font-style: italic; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     BANNER
+══════════════════════════════════════ -->
+<div class="banner">
+  <div>
+    <h1>Cher Journal — Wireframe Audit : W11 Mon Compte <code style="font-size:12px">/account</code></h1>
+    <p>Audit du 26 février 2026 · https://app.moncherjournal.com/account · 15 screenshots (11 desktop + 4 mobile)</p>
+  </div>
+  <div class="legend">
+    <span><span class="bg bg-g">REUSE</span> Composant existant OK</span>
+    <span><span class="bg bg-o">NEW</span> À créer / améliorer</span>
+    <span><span class="bg bg-r">FIX</span> Bug / problème UX</span>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 1 : VUE GLOBALE (Layout)
+══════════════════════════════════════ -->
+<div class="sep">VUE GLOBALE — Structure de la page <span>/account (desktop 1280px)</span></div>
+
+<div class="screen">
+  <!-- Navbar -->
+  <div class="nav">
+    <span class="nav-brand" style="position:relative">
+      <span class="cb g" style="top:-8px;left:-2px">REUSE</span>
+      ✦ Cher Journal
+    </span>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div class="nav-icons" style="position:relative">
+        <span class="cb g" style="top:-8px;left:-2px">REUSE</span>
+        <div class="nav-icon">✦</div>
+        <div class="nav-icon">📚</div>
+        <div class="nav-icon">ℹ</div>
+      </div>
+      <input class="nav-search" type="text" placeholder="Chercher un récit..." />
+      <div class="nav-icons">
+        <div class="nav-icon">☀</div>
+        <div class="nav-icon">🔖</div>
+        <div class="nav-icon">⏱</div>
+        <div class="nav-icon" style="border:2px solid #c5a059">👤</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page header -->
+  <div class="page-hdr" style="position:relative">
+    <span class="cb r" style="top:8px;right:8px">FIX</span>
+    <h1>👤 My Personal Space</h1>
+    <p>Welcome User, manage your account and preferences</p>
+    <div class="ann r">Texte en anglais ! "Welcome User" → devrait être en français et utiliser le prénom : "Bienvenue [Prénom], gérez votre espace personnel"</div>
+  </div>
+
+  <!-- Two-column layout -->
+  <div class="layout">
+    <!-- Sidebar -->
+    <div class="sidebar" style="position:relative">
+      <span class="cb g" style="top:4px;right:4px">REUSE</span>
+
+      <div class="nav-item active">
+        <div class="nav-item-icon gold"></div>
+        <div class="nav-item-text">
+          <span class="nav-item-label gold">My Books</span>
+          <span class="nav-item-desc">My personal library</span>
+        </div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-item-icon"></div>
+        <div class="nav-item-text">
+          <span class="nav-item-label">My Purchases</span>
+          <span class="nav-item-desc">Transaction history</span>
+        </div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-item-icon"></div>
+        <div class="nav-item-text">
+          <span class="nav-item-label">Claims & Support</span>
+          <span class="nav-item-desc">Support and assistance</span>
+        </div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-item-icon"></div>
+        <div class="nav-item-text">
+          <span class="nav-item-label">My Reviews</span>
+          <span class="nav-item-desc">Reviews and impressions</span>
+        </div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-item-icon"></div>
+        <div class="nav-item-text">
+          <span class="nav-item-label">Available Promotions</span>
+          <span class="nav-item-desc">Special offers just for you</span>
+        </div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-item-icon"></div>
+        <div class="nav-item-text">
+          <span class="nav-item-label">Subscription Info</span>
+          <span class="nav-item-desc">Manage my subscription</span>
+        </div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-item-icon"></div>
+        <div class="nav-item-text">
+          <span class="nav-item-label">Preferences</span>
+          <span class="nav-item-desc">Customization</span>
+        </div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-item-icon"></div>
+        <div class="nav-item-text">
+          <span class="nav-item-label">Notifications</span>
+          <span class="nav-item-desc">Notification settings</span>
+        </div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-item-icon"></div>
+        <div class="nav-item-text">
+          <span class="nav-item-label">Connected Devices</span>
+          <span class="nav-item-desc">Device management</span>
+        </div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-item-icon"></div>
+        <div class="nav-item-text">
+          <span class="nav-item-label">Account Info</span>
+          <span class="nav-item-desc">Security and password</span>
+        </div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-item-icon"></div>
+        <div class="nav-item-text">
+          <span class="nav-item-label">Payment Methods</span>
+          <span class="nav-item-desc">Cards and payments</span>
+        </div>
+      </div>
+      <div class="nav-divider"></div>
+      <div class="nav-logout">
+        <div class="nav-logout-icon"></div>
+        <span class="nav-logout-label">Sign Out</span>
+      </div>
+      <div class="ann r" style="font-size:9px;margin-top:8px">Tous les labels sidebar sont en anglais (i18n manquant)</div>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+      <div class="missing">[ Contenu de la section active s'affiche ici ]<br>Voir détail de chaque section ci-dessous →</div>
+
+      <div class="proposal-box" style="margin-top:16px">
+        <h4>🔶 Amélioration suggérée : en-tête de section</h4>
+        <ul>
+          <li>Ajouter un avatar/photo de profil dans le page header</li>
+          <li>Afficher le nom complet de l'utilisateur (pas "User")</li>
+          <li>Ajouter un indicateur de complétion du profil (ex : "Profil complet à 60%")</li>
+          <li>Ajouter badges de statut (abonné, niveau gamification)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div style="padding: 0 0 0 28px; max-width:1280px; margin: 4px auto;">
+  <div class="ann r">⚠ PROBLÈME GLOBAL : Toutes les traductions de la sidebar sont en anglais. i18n non branché sur Account.tsx (labels des menuItems en dur en anglais via t() qui retourne les clés non traduites).</div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 2 : MY BOOKS (Bibliothèque)
+══════════════════════════════════════ -->
+<div class="sep">SECTION — my-books <span>Composant Library complet intégré</span></div>
+
+<div class="screen">
+  <div class="nav"><span class="nav-brand">✦ Cher Journal</span><div class="nav-icons"><div class="nav-icon">👤</div></div></div>
+  <div class="layout">
+    <div class="sidebar" style="position:relative">
+      <div class="nav-item active"><div class="nav-item-icon gold"></div><div class="nav-item-text"><span class="nav-item-label gold">My Books</span></div></div>
+      <div class="nav-item"><div class="nav-item-icon"></div></div>
+      <div class="nav-item"><div class="nav-item-icon"></div></div>
+      <div class="nav-item"><div class="nav-item-icon"></div></div>
+      <div class="nav-item"><div class="nav-item-icon"></div></div>
+      <div class="nav-item"><div class="nav-item-icon"></div></div>
+      <div class="nav-item"><div class="nav-item-icon"></div></div>
+    </div>
+    <div class="main" style="position:relative">
+      <span class="cb o" style="top:8px;right:8px">NEW</span>
+      <!-- Sub-section tabs -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;position:relative">
+        <span class="cb o" style="top:-8px;left:-2px">NEW</span>
+        <div style="border:2px solid #c5a059;border-radius:4px;padding:4px 12px;font-size:11px;background:rgba(197,160,89,.1)">Détails de lecture</div>
+        <div style="border:1px dashed #aaa;border-radius:4px;padding:4px 12px;font-size:11px">Livres de Coloriage</div>
+        <div style="border:1px dashed #aaa;border-radius:4px;padding:4px 12px;font-size:11px">Chapitres Débloqués</div>
+      </div>
+
+      <!-- Book grid -->
+      <div class="books-grid">
+        <div class="book-card"><div class="book-cover">img</div><div class="book-meta"><div class="book-title">Héroïne</div><div class="book-vol">Ch.1 • 3 vol</div></div></div>
+        <div class="book-card"><div class="book-cover">img</div><div class="book-meta"><div class="book-title">Anaïs</div><div class="book-vol">Ch.2 • 5 vol</div></div></div>
+        <div class="book-card"><div class="book-cover">img</div><div class="book-meta"><div class="book-title">Jasmine</div><div class="book-vol">Ch.3 • 2 vol</div></div></div>
+        <div class="book-card"><div class="book-cover">img</div><div class="book-meta"><div class="book-title">Sandrine</div><div class="book-vol">Ch.4</div></div></div>
+        <div class="book-card"><div class="book-cover">img</div><div class="book-meta"><div class="book-title">Nadine</div><div class="book-vol">Ch.5</div></div></div>
+        <div class="book-card"><div class="book-cover">img</div><div class="book-meta"></div></div>
+        <div class="book-card"><div class="book-cover">img</div><div class="book-meta"></div></div>
+        <div class="book-card"><div class="book-cover">img</div><div class="book-meta"></div></div>
+        <div class="book-card"><div class="book-cover">img</div><div class="book-meta"></div></div>
+        <div class="book-card"><div class="book-cover">img</div><div class="book-meta"></div></div>
+      </div>
+
+      <div class="ann o">Problème UX : le composant Library complet est intégré dans /account/my-books — on ne sait plus si on est dans "Mon Compte" ou dans "Ma Bibliothèque". Les deux pages font doublon. Suggéré : garder ici uniquement un résumé (nb de volumes lus, progression, dernière lecture) avec un lien vers /library.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 3 : PURCHASES (Achats)
+══════════════════════════════════════ -->
+<div class="sep">SECTION — purchases <span>Historique des Achats</span></div>
+
+<div class="screen">
+  <div class="nav"><span class="nav-brand">✦ Cher Journal</span></div>
+  <div class="layout">
+    <div class="sidebar">
+      <div class="nav-item"><div class="nav-item-icon"></div></div>
+      <div class="nav-item active"><div class="nav-item-icon gold"></div><div class="nav-item-text"><span class="nav-item-label gold">My Purchases</span></div></div>
+      <div class="nav-item"><div class="nav-item-icon"></div></div>
+      <div class="nav-item"><div class="nav-item-icon"></div></div>
+      <div class="nav-item"><div class="nav-item-icon"></div></div>
+    </div>
+    <div class="main">
+      <div class="sec-title">Historique des Achats</div>
+      <div class="sec-sub">Consultez l'historique complet de vos transactions.</div>
+
+      <!-- Missing: stats header -->
+      <div class="missing" style="margin-bottom:12px">
+        <span class="cb o" style="top:-8px;left:-2px;position:relative">NEW</span>
+        [MANQUANT] Résumé financier : total dépensé, nb de commandes, nb de remboursements
+      </div>
+
+      <!-- Empty state (actuel) -->
+      <div class="empty" style="position:relative">
+        <span class="cb r" style="top:8px;right:8px">FIX</span>
+        <div class="empty-icon">🛍</div>
+        <div class="empty-text">Aucun achat pour le moment</div>
+      </div>
+      <div class="ann r">L'état vide est trop grand et sans action. Ajouter : lien "Découvrir le catalogue" + mettre l'état vide en plus compact (50px de haut, pas 250px).</div>
+
+      <!-- Example of a purchase card (how it would look) -->
+      <div style="margin-top:16px;font-size:11px;color:#888;font-style:italic">— Exemple de carte d'achat (quand données présentes) :</div>
+      <div class="card" style="margin-top:8px;position:relative">
+        <span class="cb g" style="top:8px;right:8px">REUSE</span>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-size:13px;font-style:italic">Le Corps de Victoire — Volume 3</div>
+            <div style="font-size:10px;color:#888;margin-top:4px">15 janvier 2026</div>
+            <span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;font-size:9px">Complété</span>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:16px;font-weight:bold;color:#8a6a30">2,99 €</div>
+            <button class="form-btn outline" style="margin-top:4px;font-size:10px">Voir le reçu</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 4 : PROMOTIONS
+══════════════════════════════════════ -->
+<div class="sep">SECTION — promotions <span>Available Promotions</span></div>
+
+<div class="screen">
+  <div class="nav"><span class="nav-brand">✦ Cher Journal</span></div>
+  <div class="layout">
+    <div class="sidebar">
+      <div class="nav-item"><div class="nav-item-icon"></div></div>
+      <div class="nav-item"><div class="nav-item-icon"></div></div>
+      <div class="nav-item"><div class="nav-item-icon"></div></div>
+      <div class="nav-item"><div class="nav-item-icon"></div></div>
+      <div class="nav-item active"><div class="nav-item-icon gold"></div><div class="nav-item-text"><span class="nav-item-label gold">Available Promotions</span></div></div>
+    </div>
+    <div class="main">
+      <div class="sec-title">Available Promotions</div>
+      <div class="sec-sub" style="position:relative">
+        <span class="cb r" style="position:absolute;top:-6px;right:0">FIX</span>
+        Discover exclusive offers tailored for you (EN !)
+      </div>
+
+      <!-- Code promo input (MANQUANT) -->
+      <div class="missing" style="margin-bottom:12px;position:relative">
+        <span class="cb o" style="top:-8px;left:-2px;position:relative">NEW</span>
+        [MANQUANT] Zone de saisie de code promo : [ _______________ ] [ APPLIQUER ]
+      </div>
+
+      <!-- Empty state actuel -->
+      <div class="empty" style="position:relative">
+        <span class="cb r" style="top:8px;right:8px">FIX</span>
+        <div class="empty-icon">🎁</div>
+        <div class="empty-text">No promotions available</div>
+        <div style="font-size:10px;color:#bbb;margin-top:4px">Check back soon for special offers</div>
+      </div>
+      <div class="ann r">Double problème : (1) Texte en anglais "No promotions available / Check back soon". (2) État vide n'explique pas comment obtenir des promos ni ne redirige vers le catalogue.</div>
+      <div class="ann o">Amélioration : si l'utilisateur a des promos appliquées (cas normal), afficher les promotions actives avec dates d'expiration et chapitres/volumes concernés.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 5 : SUBSCRIPTION
+══════════════════════════════════════ -->
+<div class="sep">SECTION — subscription <span>Abonnement</span></div>
+
+<div class="screen">
+  <div class="nav"><span class="nav-brand">✦ Cher Journal</span></div>
+  <div class="layout">
+    <div class="sidebar">
+      <div class="nav-item active"><div class="nav-item-icon gold"></div><div class="nav-item-text"><span class="nav-item-label gold">Subscription Info</span></div></div>
+    </div>
+    <div class="main">
+      <div class="sec-title">Abonnement</div>
+      <div class="sec-sub">Gérez votre abonnement et vos avantages.</div>
+
+      <!-- Empty state actuel -->
+      <div class="empty" style="position:relative">
+        <span class="cb r" style="top:8px;right:8px">FIX</span>
+        <div class="empty-icon">💳</div>
+        <div class="empty-text">Vous n'avez pas actuellement d'abonnement actif.</div>
+        <div class="empty-btn">S'abonner maintenant</div>
+      </div>
+      <div class="ann r">État vide non actionnable : "S'abonner maintenant" n'est pas un lien cliquable (ou ne dirige vers rien de concret). Pas de prix ni d'avantages présentés.</div>
+
+      <!-- Proposition : plans d'abonnement -->
+      <div class="missing" style="margin-top:12px;position:relative">
+        <span class="cb o" style="top:-8px;left:-2px;position:relative">NEW</span>
+        [À CRÉER] Présenter les plans d'abonnement même quand non abonné :<br>
+        Plan Lecteur (X€/mois) · Plan VIP (Y€/mois) — avec comparaison des avantages
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 6 : PREFERENCES
+══════════════════════════════════════ -->
+<div class="sep">SECTION — preferences <span>Préférences ✅ bien conçue</span></div>
+
+<div class="screen">
+  <div class="nav"><span class="nav-brand">✦ Cher Journal</span></div>
+  <div class="layout">
+    <div class="sidebar">
+      <div class="nav-item active"><div class="nav-item-icon gold"></div><div class="nav-item-text"><span class="nav-item-label gold">Preferences</span></div></div>
+    </div>
+    <div class="main">
+      <div class="sec-title">Préférences</div>
+      <div class="sec-sub">Personnalisez votre expérience de lecture.</div>
+
+      <!-- Thème toggle -->
+      <div class="card" style="position:relative">
+        <span class="cb g" style="top:8px;right:8px">REUSE</span>
+        <div class="toggle-row">
+          <div class="toggle-info"><strong>🌙 Thème</strong><span>Choisissez entre le mode clair et sombre</span></div>
+          <div class="toggle-switch"><div class="toggle-knob"></div></div>
+        </div>
+      </div>
+
+      <!-- Taille de police -->
+      <div class="card" style="position:relative">
+        <span class="cb g" style="top:8px;right:8px">REUSE</span>
+        <div class="card-hdr"><div class="card-icon" style="font-size:12px;display:flex;align-items:center;justify-content:center">Aa</div><span class="card-title">Taille de police</span></div>
+        <div class="font-grid">
+          <div class="font-opt"><span class="font-aa" style="font-size:11px">Aa</span><span class="font-lbl">Petit</span></div>
+          <div class="font-opt active"><span class="font-aa" style="font-size:14px">Aa</span><span class="font-lbl">Moyen</span></div>
+          <div class="font-opt"><span class="font-aa" style="font-size:18px">Aa</span><span class="font-lbl">Grand</span></div>
+        </div>
+      </div>
+
+      <!-- Toggles -->
+      <div class="card" style="position:relative">
+        <span class="cb g" style="top:8px;right:8px">REUSE</span>
+        <div class="toggle-row">
+          <div class="toggle-info"><strong>▶ Lecture automatique</strong><span>Passer automatiquement au chapitre suivant</span></div>
+          <div class="toggle-switch"><div class="toggle-knob"></div></div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info"><strong>🛡 Contenu pour adultes</strong><span>Afficher le contenu réservé aux adultes</span></div>
+          <div class="toggle-switch"><div class="toggle-knob"></div></div>
+        </div>
+      </div>
+
+      <button class="form-btn" style="width:100%;padding:10px">SAUVEGARDER LES PRÉFÉRENCES</button>
+
+      <div class="ann o">Amélioration : les préférences ne sont pas persistées côté serveur (font size, autoplay). Si l'utilisateur change d'appareil, les préférences sont perdues. → Ajouter un appel API /user/preferences au save.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 7 : NOTIFICATIONS
+══════════════════════════════════════ -->
+<div class="sep">SECTION — notifications <span>Paramètres de notifications ✅ bien conçue</span></div>
+
+<div class="screen">
+  <div class="nav"><span class="nav-brand">✦ Cher Journal</span></div>
+  <div class="layout">
+    <div class="sidebar">
+      <div class="nav-item active"><div class="nav-item-icon gold"></div><div class="nav-item-text"><span class="nav-item-label gold">Notifications</span></div></div>
+    </div>
+    <div class="main">
+      <div class="sec-title">Notifications</div>
+      <div class="sec-sub">Gérez vos préférences de notifications.</div>
+
+      <div class="card" style="position:relative">
+        <span class="cb g" style="top:8px;right:8px">REUSE</span>
+        <div class="toggle-row">
+          <div class="toggle-info"><strong>📖 Nouveaux chapitres</strong><span>Recevoir des notifs pour les nouvelles publications</span></div>
+          <div class="toggle-channels">
+            <span class="toggle-pill on">✉ Email</span>
+            <span class="toggle-pill">📱 Push</span>
+          </div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info"><strong>🎁 Promotions et offres</strong><span>Offres spéciales et réductions</span></div>
+          <div class="toggle-channels">
+            <span class="toggle-pill on">✉ Email</span>
+            <span class="toggle-pill on">📱 Push</span>
+          </div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info"><strong>💬 Réponses aux avis</strong><span>Quand quelqu'un répond à vos avis</span></div>
+          <div class="toggle-channels">
+            <span class="toggle-pill on">✉ Email</span>
+            <span class="toggle-pill">📱 Push</span>
+          </div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info"><strong>📰 Newsletter</strong><span>Recevez notre newsletter bimensuelle</span></div>
+          <div class="toggle-channels">
+            <span class="toggle-pill on">✉ Email</span>
+            <span class="toggle-pill">📱 Push</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:8px;position:relative">
+        <span class="cb g" style="top:8px;right:8px">REUSE</span>
+        <div class="card-hdr"><span class="card-title">Fréquence des notifications</span></div>
+        <div class="freq-opt"><div class="radio on"></div>Immédiatement</div>
+        <div class="freq-opt"><div class="radio"></div>Une fois par jour</div>
+        <div class="freq-opt"><div class="radio"></div>Une fois par semaine</div>
+      </div>
+
+      <button class="form-btn" style="width:100%;padding:10px;margin-top:8px">SAUVEGARDER</button>
+
+      <div class="ann g">Section bien conçue : double toggle Email/Push, fréquence, bouton save. Pattern réutilisable pour d'autres paramètres.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 8 : CONNECTED DEVICES
+══════════════════════════════════════ -->
+<div class="sep">SECTION — devices <span>Appareils Connectés ✅ excellent</span></div>
+
+<div class="screen">
+  <div class="nav"><span class="nav-brand">✦ Cher Journal</span></div>
+  <div class="layout">
+    <div class="sidebar">
+      <div class="nav-item active"><div class="nav-item-icon gold"></div><div class="nav-item-text"><span class="nav-item-label gold">Connected Devices</span></div></div>
+    </div>
+    <div class="main">
+      <div class="sec-title">Appareils Connectés</div>
+      <div class="sec-sub">Gérez les appareils ayant accès à votre compte.</div>
+
+      <!-- Security notice -->
+      <div class="card" style="background:#fffce8;border-color:#ffc107;margin-bottom:16px;position:relative">
+        <span class="cb g" style="top:8px;right:8px">REUSE</span>
+        <div style="font-size:11px;color:#666;">🔒 Conseil de sécurité : si vous n'utilisez plus un appareil, déconnectez-le.</div>
+      </div>
+
+      <!-- Device cards -->
+      <div class="device-card" style="position:relative">
+        <span class="cb g" style="top:4px;right:4px">REUSE</span>
+        <div class="device-icon"></div>
+        <div class="device-info">
+          <strong>Windows PC <span class="device-badge">Actuel</span></strong>
+          <span>Chrome 121 · Paris, France · 90.x.x.175</span>
+        </div>
+      </div>
+      <div class="device-card">
+        <div class="device-icon"></div>
+        <div class="device-info">
+          <strong>iPhone 13</strong>
+          <span>Safari 16 · Lyon, France · 91.x.x.175</span>
+        </div>
+        <button class="form-btn outline" style="position:absolute;right:10px;font-size:9px;padding:4px 8px">Déconnecter</button>
+      </div>
+      <div class="device-card">
+        <div class="device-icon"></div>
+        <div class="device-info">
+          <strong>iPad Pro</strong>
+          <span>Safari iPad · Paris, France · 90.x.x.178</span>
+        </div>
+        <button class="form-btn outline" style="position:absolute;right:10px;font-size:9px;padding:4px 8px">Déconnecter</button>
+      </div>
+
+      <button class="form-btn danger" style="width:100%;padding:10px;margin-top:12px">DÉCONNECTER TOUS LES AUTRES APPAREILS</button>
+
+      <div class="ann g">Section exemplaire : badge "Actuel", infos OS/browser/IP, bouton déconnexion individuel et global. Design sécurité bien pensé.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 9 : ACCOUNT INFO
+══════════════════════════════════════ -->
+<div class="sep">SECTION — account-info <span>Informations de Compte</span></div>
+
+<div class="screen">
+  <div class="nav"><span class="nav-brand">✦ Cher Journal</span></div>
+  <div class="layout">
+    <div class="sidebar">
+      <div class="nav-item active"><div class="nav-item-icon gold"></div><div class="nav-item-text"><span class="nav-item-label gold">Account Info</span></div></div>
+    </div>
+    <div class="main">
+      <div class="sec-title">Informations de Compte</div>
+      <div class="sec-sub">Gérez vos informations personnelles et votre sécurité.</div>
+
+      <!-- Personal info -->
+      <div class="card" style="position:relative">
+        <span class="cb r" style="top:8px;right:8px">FIX</span>
+        <div class="card-hdr"><div class="card-icon"></div><span class="card-title">Informations Personnelles</span></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Prénom</label>
+            <input class="form-input" type="text" value="" placeholder="(vide — non chargé)" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nom</label>
+            <input class="form-input" type="text" value="" placeholder="(vide — non chargé)" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" type="email" value="chapter.collector@example.com" />
+        </div>
+        <button class="form-btn">Mettre à jour</button>
+        <div class="ann r">Bug : les champs Prénom et Nom sont vides alors que l'utilisateur a firstName/lastName en base. Les champs utilisent defaultValue={user?.firstName} mais si le composant AccountInfo n'est pas passé l'user, les champs restent vides. Vérifier le prop drilling / store access.</div>
+        <div class="ann o">Bouton "Mettre à jour" contient un TODO : l'API /user/profile n'est pas appelée. La sauvegarde ne fonctionne pas réellement.</div>
+      </div>
+
+      <!-- Security -->
+      <div class="card" style="margin-top:8px;position:relative">
+        <span class="cb g" style="top:8px;right:8px">REUSE</span>
+        <div class="card-hdr" style="justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:8px"><div class="card-icon"></div><span class="card-title">Sécurité</span></div>
+          <button class="form-btn outline" style="font-size:10px">Changer le mot de passe</button>
+        </div>
+        <div style="font-size:11px;color:#888;display:flex;align-items:center;gap:6px">✅ Dernière modification il y a 3 mois</div>
+        <div class="ann r">"Dernière modification il y a 3 mois" est hardcodé dans le JSX (texte statique, pas une vraie date calculée).</div>
+      </div>
+
+      <!-- Danger zone -->
+      <div class="card danger" style="margin-top:8px;position:relative">
+        <span class="cb g" style="top:8px;right:8px">REUSE</span>
+        <div class="card-hdr"><span style="color:#c33">⚠</span><span class="card-title" style="color:#c33">Zone de danger</span></div>
+        <div style="font-size:11px;color:#c33;margin-bottom:10px">La suppression de votre compte est définitive et irréversible. Toutes vos données seront perdues.</div>
+        <button class="form-btn danger">Supprimer mon compte</button>
+        <div class="ann o">Amélioration UX : ajouter une modale de confirmation avec saisie du mot de passe avant suppression. Le bouton rouge direct est trop risqué.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 10 : PAYMENT METHODS
+══════════════════════════════════════ -->
+<div class="sep">SECTION — payment-info <span>Moyens de Paiement ✅ très bien</span></div>
+
+<div class="screen">
+  <div class="nav"><span class="nav-brand">✦ Cher Journal</span></div>
+  <div class="layout">
+    <div class="sidebar">
+      <div class="nav-item active"><div class="nav-item-icon gold"></div><div class="nav-item-text"><span class="nav-item-label gold">Payment Methods</span></div></div>
+    </div>
+    <div class="main">
+      <div class="sec-title">Moyens de Paiement</div>
+      <div class="sec-sub">Gérez vos informations bancaires et moyens de paiement.</div>
+
+      <div class="pay-card" style="position:relative">
+        <span class="cb g" style="top:4px;right:4px">REUSE</span>
+        <div class="pay-logo" style="background:#1a1f71;color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center">VISA</div>
+        <div class="pay-info">
+          <strong>•••• •••• •••• 4242</strong>
+          <span style="font-size:9px;color:#888;display:block">Expire 12/2025</span>
+        </div>
+        <span class="pay-default">Défini par défaut</span>
+      </div>
+      <div class="pay-card">
+        <div class="pay-logo" style="background:#eb001b;color:#fff;font-size:8px;display:flex;align-items:center;justify-content:center">Mastercard</div>
+        <div class="pay-info">
+          <strong>•••• •••• •••• 5555</strong>
+          <span style="font-size:9px;color:#888;display:block">Expire 06/2026</span>
+        </div>
+      </div>
+
+      <div style="border:2px dashed #c5a059;border-radius:6px;padding:10px;text-align:center;margin-top:8px;font-size:12px;color:#8a6a30;">
+        + Ajouter un moyen de paiement
+      </div>
+
+      <div style="background:#e8f5e9;border:1px dashed #81c784;border-radius:4px;padding:8px 12px;margin-top:10px;font-size:10px;color:#2e7d32">
+        🔒 Paiements sécurisés : vos informations de paiement sont cryptées et sécurisées.
+      </div>
+
+      <div class="ann g">Section très bien conçue : logos Visa/Mastercard, masquage des numéros, badge "défaut", bouton d'ajout, notice sécurité Stripe. Design pro et rassurant.</div>
+      <div class="ann o">Amélioration possible : ajouter une date d'expiration en rouge quand la carte expire dans moins de 30 jours. Permettre de définir un autre défaut directement.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     VUE TABLETTE 768px
+══════════════════════════════════════ -->
+<div class="sep">VUE TABLETTE — 768×1024 <span>Breakpoint intermédiaire — sidebar icônes seules</span></div>
+
+<div style="max-width:1280px;margin:0 auto;padding:16px 28px;">
+  <div class="ann r" style="margin-bottom:16px;">⚠ PROBLÈME TABLETTE : À 768px, la sidebar passe en icônes-seules (identique au mobile) car le code utilise <code>hidden lg:block</code> pour les labels. Le breakpoint <code>lg</code> = 1024px — donc les tablettes (768-1023px) n'ont jamais les labels de navigation visibles.</div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(2,768px);gap:24px;padding:0 28px 24px;overflow-x:auto;">
+
+  <!-- Tablet: preferences -->
+  <div>
+    <div style="font-size:12px;font-weight:bold;margin-bottom:8px">preferences (768px) — Sidebar icônes seules</div>
+    <div style="max-width:768px;background:#fff;border:2px solid #555;border-radius:3px;overflow:hidden;">
+      <!-- Navbar tablet -->
+      <div style="height:44px;background:#f0f0f0;border-bottom:2px solid #bbb;padding:0 20px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:16px;font-style:italic">☰ ✦ Cher Journal</span>
+        <div style="display:flex;gap:6px">
+          <div class="nav-icon" style="width:24px;height:24px">☀</div>
+          <div class="nav-icon" style="width:24px;height:24px">🔖</div>
+          <div class="nav-icon" style="width:24px;height:24px;border:2px solid #c5a059">👤</div>
+        </div>
+      </div>
+      <!-- Page header -->
+      <div style="padding:16px 20px 8px;position:relative">
+        <span class="cb r" style="top:8px;right:8px">FIX</span>
+        <div style="font-size:20px;font-style:italic">👤 My Personal Space</div>
+        <div style="font-size:10px;color:#888;font-style:italic">Welcome User, manage your account and preferences</div>
+      </div>
+      <!-- Layout -->
+      <div style="display:grid;grid-template-columns:52px 1fr;min-height:600px;">
+        <!-- Sidebar icônes seules -->
+        <div style="background:#2a2a2a;padding:8px 6px;border-right:2px solid #555;position:relative;">
+          <span class="cb r" style="top:4px;right:-14px;white-space:nowrap">FIX</span>
+          <div style="margin-bottom:4px;width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;"><div style="width:16px;height:16px;background:#555;border-radius:2px;"></div></div>
+          <div style="margin-bottom:4px;width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;"><div style="width:16px;height:16px;background:#555;border-radius:2px;"></div></div>
+          <div style="margin-bottom:4px;width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;"><div style="width:16px;height:16px;background:#555;border-radius:2px;"></div></div>
+          <div style="margin-bottom:4px;width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;"><div style="width:16px;height:16px;background:#555;border-radius:2px;"></div></div>
+          <div style="margin-bottom:4px;width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;"><div style="width:16px;height:16px;background:#555;border-radius:2px;"></div></div>
+          <div style="margin-bottom:4px;width:36px;height:36px;border-radius:4px;background:rgba(200,160,90,.2);border:1px solid rgba(200,160,90,.4);display:flex;align-items:center;justify-content:center;"><div style="width:16px;height:16px;background:#c5a059;border-radius:2px;"></div></div>
+          <div style="margin-bottom:4px;width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;"><div style="width:16px;height:16px;background:#555;border-radius:2px;"></div></div>
+          <div style="margin-bottom:4px;width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;"><div style="width:16px;height:16px;background:#555;border-radius:2px;"></div></div>
+          <div style="margin-bottom:4px;width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;"><div style="width:16px;height:16px;background:#555;border-radius:2px;"></div></div>
+          <div style="margin-bottom:4px;width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;"><div style="width:16px;height:16px;background:#555;border-radius:2px;"></div></div>
+          <div style="margin-top:8px;width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;"><div style="width:16px;height:16px;background:#c33;border-radius:2px;"></div></div>
+        </div>
+        <!-- Main: preferences -->
+        <div style="padding:16px;">
+          <div style="font-size:16px;font-style:italic;color:#8a6a30;margin-bottom:4px">Préférences</div>
+          <div style="font-size:10px;color:#888;margin-bottom:12px;font-style:italic">Personnalisez votre expérience de lecture.</div>
+          <div class="card" style="margin-bottom:8px">
+            <div class="toggle-row"><div class="toggle-info"><strong>🌙 Thème</strong><span>Mode clair/sombre</span></div><div class="toggle-switch"><div class="toggle-knob"></div></div></div>
+          </div>
+          <div class="card" style="margin-bottom:8px">
+            <div style="font-size:11px;font-style:italic;margin-bottom:8px">Taille de police</div>
+            <div class="font-grid"><div class="font-opt"><span class="font-aa" style="font-size:10px">Aa</span><span class="font-lbl">Petit</span></div><div class="font-opt active"><span class="font-aa" style="font-size:14px">Aa</span><span class="font-lbl">Moyen</span></div><div class="font-opt"><span class="font-aa" style="font-size:18px">Aa</span><span class="font-lbl">Grand</span></div></div>
+          </div>
+          <div class="card" style="margin-bottom:8px">
+            <div class="toggle-row"><div class="toggle-info"><strong>▶ Auto-lecture</strong></div><div class="toggle-switch"><div class="toggle-knob"></div></div></div>
+            <div class="toggle-row"><div class="toggle-info"><strong>🛡 Adultes</strong></div><div class="toggle-switch"><div class="toggle-knob"></div></div></div>
+          </div>
+          <button class="form-btn" style="width:100%;padding:8px">SAUVEGARDER LES PRÉFÉRENCES</button>
+        </div>
+      </div>
+    </div>
+    <div class="ann r" style="max-width:768px;margin-top:6px">Sur tablette (768px), la sidebar est réduite aux icônes sans labels. La section active n'est identifiable que par sa couleur dorée. Il faut soit descendre le breakpoint à md (768px), soit ajouter des tooltips au hover.</div>
+  </div>
+
+  <!-- Tablet: account-info -->
+  <div>
+    <div style="font-size:12px;font-weight:bold;margin-bottom:8px">account-info (768px) — Zone de danger pleine largeur</div>
+    <div style="max-width:768px;background:#fff;border:2px solid #555;border-radius:3px;overflow:hidden;">
+      <div style="height:44px;background:#f0f0f0;border-bottom:2px solid #bbb;padding:0 20px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:16px;font-style:italic">☰ ✦ Cher Journal</span>
+      </div>
+      <div style="padding:16px 20px 8px;"><div style="font-size:20px;font-style:italic">👤 My Personal Space</div></div>
+      <div style="display:grid;grid-template-columns:52px 1fr;min-height:500px;">
+        <div style="background:#2a2a2a;padding:8px 6px;border-right:2px solid #555;">
+          <div style="margin-bottom:4px;width:36px;height:36px;border-radius:4px;background:rgba(200,160,90,.2);border:1px solid rgba(200,160,90,.4);display:flex;align-items:center;justify-content:center;"><div style="width:16px;height:16px;background:#c5a059;border-radius:2px;"></div></div>
+          <!-- ... icônes ... -->
+        </div>
+        <div style="padding:16px;position:relative;">
+          <span class="cb r" style="top:8px;right:8px">FIX</span>
+          <div style="font-size:16px;font-style:italic;color:#8a6a30;margin-bottom:10px">Informations de Compte</div>
+          <!-- Personal info -->
+          <div class="card" style="margin-bottom:8px;position:relative">
+            <span class="cb r" style="top:4px;right:4px">FIX</span>
+            <div style="font-size:11px;font-style:italic;margin-bottom:8px">Informations Personnelles</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+              <div><label class="form-label">Prénom</label><input class="form-input" placeholder="(vide)" /></div>
+              <div><label class="form-label">Nom</label><input class="form-input" placeholder="(vide)" /></div>
+            </div>
+            <div class="form-group"><label class="form-label">Email</label><input class="form-input" value="chapter.collector@example.com" /></div>
+            <button class="form-btn" style="font-size:10px">Mettre à jour</button>
+          </div>
+          <!-- Security -->
+          <div class="card" style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:11px;font-style:italic">🔒 Sécurité</span>
+              <button class="form-btn outline" style="font-size:9px;padding:3px 8px">Changer mdp</button>
+            </div>
+            <div style="font-size:10px;color:#888;margin-top:6px">✅ Dernière modif il y a 3 mois</div>
+          </div>
+          <!-- Danger zone -->
+          <div class="card danger" style="position:relative">
+            <span class="cb r" style="top:4px;right:4px">FIX</span>
+            <div style="font-size:11px;color:#c33;font-style:italic;margin-bottom:6px">⚠ Zone de danger</div>
+            <div style="font-size:10px;color:#c33;margin-bottom:10px">Suppression définitive et irréversible.</div>
+            <button class="form-btn danger" style="width:100%;padding:8px">Supprimer mon compte</button>
+          </div>
+          <div class="ann r" style="margin-top:8px">Sur tablette, le bouton "Supprimer mon compte" est pleine largeur et très visible. Réduire sa taille ou exiger une confirmation explicite (saisie de l'email).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Proposition responsive -->
+<div style="max-width:1280px;margin:0 auto 0;padding:0 28px 24px;">
+  <div class="proposal-box">
+    <h4>🔶 Proposition : améliorer le responsive de la sidebar (tablette)</h4>
+    <ul>
+      <li><strong>Option A</strong> : Passer le breakpoint de <code>lg</code> (1024px) à <code>md</code> (768px) dans les classes Tailwind de la sidebar → les labels apparaissent dès 768px</li>
+      <li><strong>Option B</strong> : Ajouter un tooltip (<code>title</code> ou popover) sur chaque icône de la sidebar quand les labels sont masqués → l'utilisateur sait où il va avant de cliquer</li>
+      <li><strong>Option C</strong> : Utiliser un drawer/bottom sheet pour la navigation sur tablette comme sur mobile → expérience tactile optimale</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     VUE MOBILE
+══════════════════════════════════════ -->
+<div class="sep">VUE MOBILE — 390×844 <span>Sections : my-books · account-info · preferences</span></div>
+
+<div style="display:grid;grid-template-columns:repeat(3,390px);gap:24px;padding:16px 28px;overflow-x:auto;">
+
+  <!-- Mobile: my-books -->
+  <div>
+    <div style="font-size:12px;font-weight:bold;margin-bottom:8px">my-books (mobile)</div>
+    <div class="screen-mobile">
+      <div class="nav-mobile">
+        <span style="font-size:13px;font-style:italic">☰ ✦ Cher Journal</span>
+        <div style="display:flex;gap:6px">
+          <div class="nav-icon" style="width:22px;height:22px;font-size:9px">☀</div>
+          <div class="nav-icon" style="width:22px;height:22px;font-size:9px">🔖</div>
+          <div class="nav-icon" style="width:22px;height:22px;font-size:9px;border:2px solid #c5a059">👤</div>
+        </div>
+      </div>
+      <div class="layout-mobile">
+        <div class="sidebar-mobile">
+          <div class="sidebar-icon active"><div class="icon-sq gold"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+        </div>
+        <div class="main-mobile" style="position:relative">
+          <span class="cb r" style="top:4px;right:4px">FIX</span>
+          <div style="font-size:14px;font-style:italic;color:#8a6a30;margin-bottom:4px">My Personal Space</div>
+          <div style="font-size:9px;color:#888;font-style:italic;margin-bottom:10px">Welcome User...</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <div class="book-card"><div class="book-cover" style="height:80px">img</div><div class="book-meta"><div class="book-title">Héroïne</div></div></div>
+            <div class="book-card"><div class="book-cover" style="height:80px">img</div><div class="book-meta"><div class="book-title">Anaïs</div></div></div>
+            <div class="book-card"><div class="book-cover" style="height:80px">img</div></div>
+            <div class="book-card"><div class="book-cover" style="height:80px">img</div></div>
+          </div>
+          <div class="ann r" style="font-size:9px;margin-top:8px">Sidebar mobile = icônes seules sans tooltip. Impossible de savoir quelle section on va ouvrir sans tester chaque icône.</div>
+        </div>
+      </div>
+    </div>
+    <div class="ann o" style="margin-top:6px">Sur mobile la sidebar est réduite aux icônes uniquement. Ajouter un tooltip au tap, ou utiliser un drawer bottom sheet pour la navigation.</div>
+  </div>
+
+  <!-- Mobile: account-info -->
+  <div>
+    <div style="font-size:12px;font-weight:bold;margin-bottom:8px">account-info (mobile)</div>
+    <div class="screen-mobile">
+      <div class="nav-mobile">
+        <span style="font-size:13px;font-style:italic">☰ ✦ Cher Journal</span>
+      </div>
+      <div class="layout-mobile">
+        <div class="sidebar-mobile">
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon active"><div class="icon-sq gold"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+        </div>
+        <div class="main-mobile">
+          <div style="font-size:13px;font-style:italic;color:#8a6a30;margin-bottom:8px">Informations<br>de Compte</div>
+          <div class="card" style="padding:10px;margin-bottom:8px;position:relative">
+            <span class="cb r" style="top:4px;right:4px">FIX</span>
+            <div style="font-size:10px;font-style:italic;margin-bottom:6px">Informations Personnelles</div>
+            <div class="form-group"><label class="form-label">Prénom</label><input class="form-input" type="text" placeholder="(vide)" /></div>
+            <div class="form-group"><label class="form-label">Nom</label><input class="form-input" type="text" placeholder="(vide)" /></div>
+            <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" value="chapter.coll..." /></div>
+            <button class="form-btn" style="font-size:10px;padding:6px">Mettre à jour</button>
+          </div>
+          <div class="card danger" style="padding:10px">
+            <div style="font-size:10px;color:#c33;font-style:italic;margin-bottom:6px">Zone de danger</div>
+            <div style="font-size:9px;color:#c33;margin-bottom:8px">La suppression est définitive...</div>
+            <button class="form-btn danger" style="font-size:10px;padding:6px;width:100%">Supprimer mon compte</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ann r" style="margin-top:6px">Sur mobile la zone de danger "Supprimer mon compte" est très accessible (pleine largeur, rouge vif). Risque de tap accidentel.</div>
+  </div>
+
+  <!-- Mobile: preferences -->
+  <div>
+    <div style="font-size:12px;font-weight:bold;margin-bottom:8px">preferences (mobile)</div>
+    <div class="screen-mobile">
+      <div class="nav-mobile">
+        <span style="font-size:13px;font-style:italic">☰ ✦ Cher Journal</span>
+      </div>
+      <div class="layout-mobile">
+        <div class="sidebar-mobile">
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon"><div class="icon-sq"></div></div>
+          <div class="sidebar-icon active"><div class="icon-sq gold"></div></div>
+        </div>
+        <div class="main-mobile">
+          <div style="font-size:13px;font-style:italic;color:#8a6a30;margin-bottom:8px">Préférences</div>
+          <div class="card" style="padding:10px;margin-bottom:6px;position:relative">
+            <span class="cb g" style="top:4px;right:4px">REUSE</span>
+            <div class="toggle-row">
+              <div class="toggle-info"><strong style="font-size:11px">🌙 Thème</strong></div>
+              <div class="toggle-switch"><div class="toggle-knob"></div></div>
+            </div>
+          </div>
+          <div class="card" style="padding:10px;margin-bottom:6px;position:relative">
+            <span class="cb g" style="top:4px;right:4px">REUSE</span>
+            <div style="font-size:11px;font-style:italic;margin-bottom:6px">Taille de police</div>
+            <div class="font-grid">
+              <div class="font-opt"><span class="font-aa" style="font-size:10px">Aa</span><span class="font-lbl">Petit</span></div>
+              <div class="font-opt active"><span class="font-aa" style="font-size:13px">Aa</span><span class="font-lbl">Moyen</span></div>
+              <div class="font-opt"><span class="font-aa" style="font-size:16px">Aa</span><span class="font-lbl">Grand</span></div>
+            </div>
+          </div>
+          <div class="card" style="padding:10px;margin-bottom:6px">
+            <div class="toggle-row">
+              <div class="toggle-info"><strong style="font-size:11px">▶ Auto-lecture</strong></div>
+              <div class="toggle-switch"><div class="toggle-knob"></div></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><strong style="font-size:11px">🛡 Adultes</strong></div>
+              <div class="toggle-switch"><div class="toggle-knob"></div></div>
+            </div>
+          </div>
+          <button class="form-btn" style="width:100%;font-size:10px;padding:8px">SAUVEGARDER</button>
+        </div>
+      </div>
+    </div>
+    <div class="ann g" style="margin-top:6px">Preferences est parfaitement responsive sur mobile. Tous les toggles s'affichent bien, le sélecteur de police est lisible.</div>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════
+     RÉSUMÉ EXÉCUTIF
+══════════════════════════════════════ -->
+<div class="sep" style="margin-top:40px">RÉSUMÉ EXÉCUTIF — Score & Actions prioritaires</div>
+
+<div style="max-width:1280px;margin:0 auto;padding:20px 28px;background:#fff;border-left:2px solid #555;border-right:2px solid #555;border-bottom:2px solid #555;margin-bottom:40px;">
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-bottom:24px;">
+
+    <!-- FIX -->
+    <div style="border:2px solid #e53935;border-radius:6px;padding:14px;">
+      <h3 style="color:#e53935;font-size:13px;margin-bottom:10px;">🔴 FIX — À corriger en priorité (6)</h3>
+      <ul style="font-size:11px;padding-left:16px;line-height:1.8">
+        <li>Sidebar labels en anglais (i18n non branché)</li>
+        <li>Page header "Welcome User" en anglais</li>
+        <li>Section promotions : texte "No promotions" en anglais</li>
+        <li>Prénom/Nom vides dans account-info</li>
+        <li>"Dernière modification" hardcodée</li>
+        <li>Suppression compte sans confirmation renforcée</li>
+      </ul>
+    </div>
+
+    <!-- NEW -->
+    <div style="border:2px solid #FF9800;border-radius:6px;padding:14px;">
+      <h3 style="color:#e65100;font-size:13px;margin-bottom:10px;">🟠 NEW — Fonctionnalités manquantes (6)</h3>
+      <ul style="font-size:11px;padding-left:16px;line-height:1.8">
+        <li>Avatar/photo de profil</li>
+        <li>Plans d'abonnement dans la section subscription</li>
+        <li>Résumé financier en haut des achats</li>
+        <li>Champ code promo dans promotions</li>
+        <li>Sauvegarde serveur des préférences (API)</li>
+        <li>Bouton "Mettre à jour" profil (API todo)</li>
+      </ul>
+    </div>
+
+    <!-- REUSE -->
+    <div style="border:2px solid #4CAF50;border-radius:6px;padding:14px;">
+      <h3 style="color:#2e7d32;font-size:13px;margin-bottom:10px;">🟢 REUSE — Ce qui fonctionne bien (6)</h3>
+      <ul style="font-size:11px;padding-left:16px;line-height:1.8">
+        <li>Sidebar navigation (design, gold active)</li>
+        <li>Connected Devices (sécurité, badges)</li>
+        <li>Notifications (double toggle email/push)</li>
+        <li>Preferences (font size selector, toggles)</li>
+        <li>Payment Methods (logo, masquage, badge défaut)</li>
+        <li>Zone de danger (styling cohérent)</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Score global -->
+  <div style="border:1px dashed #ccc;border-radius:6px;padding:14px;background:#fafafa;">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div style="font-size:16px;font-style:italic;font-weight:bold;">Score UX global : <span style="color:#FF9800">6.5 / 10</span></div>
+        <div style="font-size:11px;color:#888;margin-top:4px">Bon socle (layout, components réutilisables), mais i18n cassé et plusieurs sections vides/non actives</div>
+      </div>
+      <div style="font-size:11px;line-height:1.8;">
+        <strong>Points forts :</strong> Devices, Notifications, Preferences, Payment<br>
+        <strong>Points faibles :</strong> i18n sidebar, empty states passifs, intégration Library redondante<br>
+        <strong>Action #1 :</strong> Fixer les traductions manquantes dans Account.tsx (t() keys)
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

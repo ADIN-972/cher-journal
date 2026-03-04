@@ -83,7 +83,7 @@ export default function ColoringGallery({ chapter }: ColoringGalleryProps) {
           </p>
         </div>
         <div className="flex flex-col gap-4">
-          <button className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-lg font-bold tracking-wider uppercase text-sm shadow-xl shadow-primary/20 transition-all flex items-center gap-2">
+          <button className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-lg font-bold tracking-wider uppercase text-sm shadow-xl shadow-primary/20 transition-all flex items-center gap-2 whitespace-nowrap">
             <span className="material-symbols-outlined">auto_awesome</span>
             Débloquer l'accès complet
           </button>
@@ -191,11 +191,11 @@ export function LockedCard({
 }) {
   return (
     <div className="group relative aspect-[3/4] rounded-lg overflow-hidden border border-white/10 bg-slate-100/50 dark:bg-slate-900/50 hover:border-primary/40 transition-all">
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
-        <p className="text-xs uppercase tracking-tighter text-slate-400">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/20 dark:from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
+        <p className="text-xs uppercase tracking-tighter text-slate-600 dark:text-slate-400">
           {title}
         </p>
-        <p className="text-sm font-display italic text-white">{description}</p>
+        <p className="text-sm font-display italic text-slate-800 dark:text-white">{description}</p>
       </div>
       <div className="w-full h-full flex items-center justify-center opacity-20 grayscale group-hover:grayscale-0 group-hover:opacity-40 transition-all">
         <span className="material-symbols-outlined text-6xl">lock</span>

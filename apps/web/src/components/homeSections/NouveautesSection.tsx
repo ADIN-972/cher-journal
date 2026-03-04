@@ -12,24 +12,24 @@ interface CarouselItem {
   hasStartedReading?: boolean;
 }
 
-interface NouveautésSectionProps {
+interface NouveautesSectionProps {
   chapters: Chapter[];
   items: CarouselItem[];
 }
 
-export default function NouveautésSection({
+export default function NouveautesSection({
   chapters,
   items,
-}: NouveautésSectionProps) {
+}: NouveautesSectionProps) {
   return (
-    <section className="max-w-[1280px] mx-auto px-6 py-12">
+    <section className="hidden lg:flex flex-col max-w-[1280px] mx-auto px-6 py-12">
       {/* Section Header */}
       <div className="flex justify-between items-end mb-8">
-        <div>
-          <h3 className="text-3xl font-bold text-accent-gold mb-2 italic">
+        <div className="">
+          <h3 className="text-3xl md:text-4xl font-display italic text-stone-700 dark:text-stone-100 newsreader">
             Nouveautés
           </h3>
-          <p className="text-xs text-charcoal dark:text-white/70 italic">
+          <p className="handwriting text-xl md:text-2xl text-primary-caramel mt-1">
             Écrits à la lumière de la bougie...
           </p>
         </div>
@@ -50,7 +50,7 @@ export default function NouveautésSection({
             key={item.id}
             to={`/chapters/${item.id}`}
             className="group">
-            <div className="aspect-[3/4] min-w-[150px] overflow-hidden mb-3 relative bg-gradient-to-br from-boudoir-800 to-boudoir-900">
+            <div className="aspect-[3/4] min-w-[150px] overflow-hidden mb-3 relative">
               {item.imageUrl ? (
                 <ChapterCover
                   imageUrl={item.imageUrl}
@@ -76,7 +76,6 @@ export default function NouveautésSection({
                   }}
                 />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-boudoir-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
             </div>
             <h4 className=" text-sm font-bold text-charcoal dark:text-white/70 group-hover:text-gold transition-colors newsreader">
               {item.title || item.fallbackTitle}

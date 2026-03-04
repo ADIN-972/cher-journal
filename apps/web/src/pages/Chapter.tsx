@@ -196,7 +196,7 @@ export default function Chapter() {
         chapterId: id,
         type: "VOLUME",
         volumeNumber,
-        versionScope: "BASE",
+        scopes: ["BASE"],
         successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
         cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
       });
@@ -232,7 +232,7 @@ export default function Chapter() {
           chapterId: id,
           type: "VOLUME",
           volumeNumber: selectedVolumeForPurchase.volumeNumber,
-          versionScope: "BASE",
+          scopes: ["BASE"],
           successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
           cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
         });
@@ -290,7 +290,7 @@ export default function Chapter() {
         const result = await api.createCheckoutSession({
           chapterId: id,
           type: "CHAPTER",
-          versionScope: "BASE",
+          scopes: ["BASE"],
           successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
           cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
         });
@@ -339,7 +339,7 @@ export default function Chapter() {
       const result = await api.createCheckoutSession({
         chapterId: id,
         type: "CHAPTER",
-        versionScope: "BASE",
+        scopes: ["BASE"],
         successUrl: `${window.location.origin}/chapters/${id}/protagonist?purchase=success`,
         cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
       });
@@ -389,15 +389,6 @@ export default function Chapter() {
     }
   };
 
-  // Handle reading next volume from EndOfVolumeUI
-  const handleReadNext = (nextVolumeId: string, nextVolumeNumber: number) => {
-    setSelectedVolume({
-      id: nextVolumeId,
-      volumeNumber: nextVolumeNumber,
-    });
-    // Reader will automatically load the new volume since volumeId prop changed
-  };
-
   // Handle purchase/unlock
   const handleUnlock = async () => {
     if (!id) return;
@@ -422,12 +413,12 @@ export default function Chapter() {
     try {
       setIsPurchasing(true);
 
-      const chapterVersionScope =
-        selectedPerspective === "protagonist" ? "ALL" : "BASE";
+      const chapterScopes =
+        selectedPerspective === "protagonist" ? ["BASE", "POV"] : ["BASE"];
       const { url } = await api.createCheckoutSession({
         chapterId: id,
         type: "CHAPTER",
-        versionScope: chapterVersionScope,
+        scopes: chapterScopes,
         successUrl: `${window.location.origin}/chapters/${id}?purchase=success`,
         cancelUrl: `${window.location.origin}/chapters/${id}?purchase=cancelled`,
       });
@@ -583,7 +574,10 @@ export default function Chapter() {
 
       {/* Chapters List or Coloring Gallery */}
       {selectedPerspective === "coloriage" ? (
-        <ColoringGallery chapterId={id!} />
+        <ColoringGallery
+          // chapterId={id!}
+          chapter={currentChapter}
+        />
       ) : (
         <ChapterTableOfContents_V3
           ref={chaptersListRef}
@@ -600,8 +594,6 @@ export default function Chapter() {
           chapterId={id!}
         />
       )}
-
-      
 
       {/* Pricing Section - Only show if user hasn't purchased everything */}
       {currentChapter.pricing && (
@@ -626,68 +618,25 @@ export default function Chapter() {
       />
 
       {/* Reader Drawer - Only show for narrator/protagonist perspectives */}
-      {selectedVolume && currentChapter && selectedPerspective !== "coloriage" && (
-        <ReaderDrawer
-          isOpen={readerOpen}
-          onClose={() => {
-            setReaderOpen(false);
-            // Refresh chapter data when drawer closes
-            if (id) {
-              fetchChapter(id);
+      {selectedVolume &&
+        currentChapter &&
+        selectedPerspective !== "coloriage" && (
+          <ReaderDrawer
+            isOpen={readerOpen}
+            onClose={() => {
+              setReaderOpen(false);
+              if (id) fetchChapter(id);
+            }}
+            volumeId={selectedVolume.id}
+            chapterId={id!}
+            volumeNumber={selectedVolume.volumeNumber}
+            perspective={
+              selectedPerspective === "protagonist" ? "PROTAGONIST" : "NARRATOR"
             }
-          }}
-          volumeId={selectedVolume.id}
-          chapterId={id!}
-          volumeNumber={selectedVolume.volumeNumber}
-          perspective={
-            selectedPerspective === "protagonist" ? "PROTAGONIST" : "NARRATOR"
-          }
-          nextVolume={(() => {
-            const vol = currentChapter.volumes?.find(
-              (v) => v.volumeNumber === selectedVolume.volumeNumber + 1,
-            );
-            const perspectiveKey = getPerspectiveKey();
-            const access = vol?.accessByPerspective?.[perspectiveKey];
-            return vol
-              ? {
-                  ...vol,
-                  isAccessible: access?.isAccessible ?? false,
-                  blockageType: access?.blockageType ?? undefined,
-                  blockageInfo: access?.blockageInfo,
-                }
-              : null;
-          })()}
-          onReadNext={handleReadNext}
-          onPurchasePerspective={handlePurchasePerspective}
-          totalVolumes={currentChapter.volumes?.length ?? 10}
-          allVolumesOwned={(() => {
-            const perspectiveKey = getPerspectiveKey();
-            return (
-              currentChapter.volumes?.every((vol) => {
-                const access = vol.accessByPerspective?.[perspectiveKey];
-                return access?.isAccessible === true && !access?.blockageType;
-              }) ?? false
-            );
-          })()}
-          chapterPrice={(() => {
-            if (selectedPerspective === "protagonist") {
-              // PROTAGONIST: Calculate total price = (count of non-free, non-accessible volumes) × priceProtagonistUnlock
-              const perspectiveKey = getPerspectiveKey();
-              const inaccessibleNonFreeVolumes =
-                currentChapter.volumes?.filter((vol) => {
-                  const access = vol.accessByPerspective?.[perspectiveKey];
-                  return !vol.isFree && !access?.isAccessible;
-                }) ?? [];
-              const pricePerVolume =
-                currentChapter.pricing?.priceProtagonistUnlock ?? 99;
-              return inaccessibleNonFreeVolumes.length * pricePerVolume;
-            } else {
-              // NARRATOR: Use bundle discounted price (remaining volumes to purchase)
-              return currentChapter.pricing?.bundleDiscountedPrice;
-            }
-          })()}
-        />
-      )}
+            chapter={currentChapter}
+            onPurchasePerspective={handlePurchasePerspective}
+          />
+        )}
 
       {/* Purchase Drawer - NARRATOR */}
       {selectedVolumeForPurchase &&

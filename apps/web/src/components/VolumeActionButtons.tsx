@@ -43,13 +43,11 @@ export default function VolumeActionButtons({
     e.stopPropagation();
     if (!chapterId) return;
     try {
-      const volumeVersionScope =
-        selectedPerspective === "protagonist" ? "ALL" : "BASE";
       const { url } = await api.createCheckoutSession({
         chapterId: chapterId,
         type: "VOLUME",
         volumeNumber: volume.volumeNumber,
-        versionScope: volumeVersionScope,
+        scopes: selectedPerspective === "protagonist" ? ["BASE", "POV"] : ["BASE"],
         successUrl: `${window.location.origin}/chapters/${chapterId}?purchase=success`,
         cancelUrl: `${window.location.origin}/chapters/${chapterId}?purchase=cancelled`,
       });

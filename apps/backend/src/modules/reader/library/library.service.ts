@@ -98,7 +98,7 @@ export class LibraryService {
         chapter: serializedChapter,
         availableVolumes,
         currentVolume,
-        versionScope: ent.versionScope,
+        scopes: ent.scopes,
         waitStatus: activeWait ? {
           isActive: true,
           unlocksAt: activeWait.unlocksAt,

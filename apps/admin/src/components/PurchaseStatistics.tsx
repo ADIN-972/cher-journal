@@ -22,7 +22,7 @@ interface Entitlement {
   chapterId: string;
   volumeFrom: number;
   volumeTo: number;
-  versionScope: string;
+  scopes: string[];
   source: string;
   grantedAt: string;
   chapter: {
@@ -56,7 +56,7 @@ export default function PurchaseStatistics({
   );
 
   // Count perspective upgrades (ALL scope)
-  const perspectiveUpgrades = entitlements.filter((e) => e.versionScope === 'ALL').length;
+  const perspectiveUpgrades = entitlements.filter((e) => e.scopes?.includes('POV')).length;
 
   // Count subscriptions
   const subscriptions = entitlements.filter((e) => e.source === 'SUBSCRIPTION').length;

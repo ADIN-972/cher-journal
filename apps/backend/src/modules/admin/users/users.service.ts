@@ -168,6 +168,7 @@ export class UsersService {
               select: {
                 id: true,
                 title: true,
+                protagonistName: true,
               },
             },
           },
@@ -377,7 +378,7 @@ export class UsersService {
           chapterId: data.chapterId,
           volumeFrom: data.volumeFrom,
           volumeTo: data.volumeTo,
-          versionScope: data.versionScope,
+          scopes: data.scopes,
           source: data.source,
         },
         include: {

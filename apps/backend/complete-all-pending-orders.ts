@@ -6,7 +6,7 @@
  */
 
 import prisma from './src/lib/prisma';
-import { OrderStatus, EntitlementSource, EntitlementVersionScope } from '@prisma/client';
+import { OrderStatus, EntitlementSource } from '@prisma/client';
 
 async function completeAllPendingOrders() {
   console.log('🔍 Looking for PENDING orders...');
@@ -78,7 +78,7 @@ async function completeAllPendingOrders() {
             where: { id: existingEntitlement.id },
             data: {
               source: EntitlementSource.PURCHASE,
-              versionScope: EntitlementVersionScope.BASE,
+              scopes: ["BASE"],
               volumeFrom: minVolume,
               volumeTo: maxVolume
             }
@@ -92,7 +92,7 @@ async function completeAllPendingOrders() {
               chapterId: chapterId,
               volumeFrom: minVolume,
               volumeTo: maxVolume,
-              versionScope: EntitlementVersionScope.BASE,
+              scopes: ["BASE"],
               source: EntitlementSource.PURCHASE
             }
           });

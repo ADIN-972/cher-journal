@@ -4,7 +4,7 @@ echo  Cher Journal - Cloudflare Tunnels
 echo ================================================
 echo.
 echo Ce script va demarrer 3 tunnels Cloudflare :
-echo  - Backend (port 3000)
+echo  - Backend (port 5000)
 echo  - Web App (port 5173)
 echo  - Admin App (port 5174)
 echo.
@@ -14,8 +14,8 @@ echo.
 pause
 
 echo.
-echo [1/3] Demarrage du tunnel Backend (port 3000)...
-start "Backend Tunnel" cmd /k "C:\cloudflared\cloudflared.exe tunnel --url http://localhost:3000"
+echo [1/3] Demarrage du tunnel Backend (port 5000)...
+start "Backend Tunnel" cmd /k "C:\cloudflared\cloudflared.exe tunnel --url http://localhost:5000"
 timeout /t 3 >nul
 
 echo [2/3] Demarrage du tunnel Web App (port 5173)...

@@ -28,7 +28,7 @@ export default function MostPassionateSection({
     <section className="max-w-[1280px] mx-auto px-6 py-16">
       {/* Section Header */}
       <div className="mb-10">
-        <h3 className="text-3xl font-bold text-accent-gold mb-2 italic">
+        <h3 className="text-3xl md:text-4xl font-display italic text-stone-700 dark:text-stone-100 newsreader">
           Les plus passionnants
         </h3>
       </div>

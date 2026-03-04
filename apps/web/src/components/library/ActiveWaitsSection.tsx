@@ -34,7 +34,7 @@ export default function ActiveWaitsSection() {
         chapterId: wait.chapterId,
         type: "VOLUME",
         volumeNumber: wait.volumeNumber,
-        versionScope: "BASE",
+        scopes: ["BASE"],
         successUrl: `${window.location.origin}/chapters/${wait.chapterId}?purchase=success`,
         cancelUrl: window.location.href,
       });
@@ -53,7 +53,7 @@ export default function ActiveWaitsSection() {
       const { url } = await api.createCheckoutSession({
         chapterId: wait.chapterId,
         type: "CHAPTER",
-        versionScope: "BASE",
+        scopes: ["BASE"],
         successUrl: `${window.location.origin}/chapters/${wait.chapterId}?purchase=success`,
         cancelUrl: window.location.href,
       });

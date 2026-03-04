@@ -4,18 +4,19 @@ import { getGenreTranslation } from "../lib/genreTranslations";
 import {
   HeroSection,
   AtmospheresFilter,
-  NouveautésSection,
+  NouveautesSection,
   CherJournalQuote,
   MostPassionateSection,
   WomenOfCherJournalQuote,
+  NouveautesSectionV2,
 } from "../components/homeSections";
+import NouveautesSectionV3 from "../components/homeSections/NouveautesSection_V3";
 
 export default function HomeNew() {
   const { chapters, fetchChapters } = useCatalogStore();
   const [selectedAtmosphere, setSelectedAtmosphere] = useState<string | null>(
     null,
   );
-
 
   // Extract all unique genres from chapters
   const availableGenres = useMemo(() => {
@@ -92,6 +93,17 @@ export default function HomeNew() {
     hasStartedReading: chapter.hasStartedReading,
     isFavorite: chapter.isFavorite,
     protagonistName: chapter.protagonistName,
+    accroche_classic: chapter.accroche_classic,
+    accroche_dark: chapter.accroche_dark,
+    accroche_dark_collection: chapter.accroche_dark_collection,
+    accroche_love: chapter.accroche_love,
+    accroche_marketing: chapter.accroche_marketing,
+    description: chapter.description,
+    genres: chapter.genres,
+    niveau_danger: chapter.niveau_danger,
+    niveau_douceur: chapter.niveau_douceur,
+    niveau_intensite: chapter.niveau_intensite,
+    niveau_transformation: chapter.niveau_transformation,
   }));
 
   // Get popular items from filtered chapters
@@ -151,7 +163,6 @@ export default function HomeNew() {
       }));
   }, [chapters]);
 
-
   return (
     <div className="min-h-screen">
       {heroData && (
@@ -167,10 +178,15 @@ export default function HomeNew() {
         selectedAtmosphere={selectedAtmosphere}
         onSelectAtmosphere={setSelectedAtmosphere}
       /> */}
-      <NouveautésSection
+      <NouveautesSection
         chapters={filteredChapters}
         items={carouselItems}
       />
+      <NouveautesSectionV2
+        chapters={filteredChapters}
+        items={carouselItems}
+      />
+    
       <CherJournalQuote chapters={chapters} />
       <MostPassionateSection
         chapters={filteredChapters}

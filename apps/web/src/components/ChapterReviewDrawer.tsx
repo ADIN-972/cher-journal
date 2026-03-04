@@ -9,6 +9,7 @@ interface ChapterReviewDrawerProps {
     chapterTitle: string;
     coverAsset?: {
       objectKey: string;
+      thumbnailObjectKey?: string | null;
     };
   } | null;
 }
@@ -99,7 +100,7 @@ export default function ChapterReviewDrawer({ isOpen, onClose, chapter }: Chapte
               {chapter.coverAsset?.objectKey && (
                 <div className="w-16 h-24 rounded-lg overflow-hidden shadow-lg border border-[#c5a059]/20">
                   <img
-                    src={`${import.meta.env.VITE_API_URL ?? ""}/uploads/${chapter.coverAsset.objectKey}`}
+                    src={`${import.meta.env.VITE_API_URL ?? ""}/uploads/${chapter.coverAsset.thumbnailObjectKey || chapter.coverAsset.objectKey}`}
                     alt={chapter.chapterTitle}
                     className="w-full h-full object-cover"
                   />

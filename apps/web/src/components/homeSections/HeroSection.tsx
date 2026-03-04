@@ -19,7 +19,7 @@ export default function HeroSection({ chapters, heroData }: HeroSectionProps) {
     <section className="relative h-[85vh] w-full overflow-hidden">
       {/* Background Image with Gradient Overlay */}
       <div className="absolute inset-0 bg-cover bg-center homeBanner" />
-      <div className="absolute inset-0 bg-gradient-to-r from-boudoir-950/80 via-boudoir-950/60 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r dark:from-boudoir-950/80  dark:via-boudoir-950/60 to-transparent" />
 
       {/* Hero Content */}
       <div className="relative h-full max-w-[1280px] mx-auto px-6 flex flex-col justify-center items-start">

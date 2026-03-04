@@ -2,7 +2,6 @@ import { z } from "zod";
 import {
   UserRole,
   UserStatus,
-  EntitlementVersionScope,
   EntitlementSource,
 } from "@prisma/client";
 
@@ -17,7 +16,7 @@ export const createEntitlementSchema = z.object({
   chapterId: z.string().uuid(),
   volumeFrom: z.number().int().min(1),
   volumeTo: z.number().int().min(1),
-  versionScope: z.nativeEnum(EntitlementVersionScope),
+  scopes: z.array(z.string()).default(["BASE"]),
   source: z.nativeEnum(EntitlementSource),
 });
 

@@ -125,30 +125,48 @@ export class PromotionsService {
     refId: string
   ): Promise<void> {
     try {
-      // Determine versionScope based on promotion scope
-      // POV scopes grant PROTAGONIST access (versionScope: 'ALL')
-      // Regular scopes grant NARRATOR access (versionScope: 'BASE')
+      // Build scopes array based on promotion scope.
+      // POV promotions grant ['BASE', 'POV']; regular grants ['BASE'].
+      // Future: COLORING promotions would grant ['COLORING'], etc.
       const isPOVPromotion = promotion.scope?.includes('POV');
-      const versionScope = isPOVPromotion ? 'ALL' : 'BASE';
+      const scopes: string[] = isPOVPromotion ? ['BASE', 'POV'] : ['BASE'];
+      // The scope value that uniquely identifies this promotion type for duplicate checks
+      const distinctiveScope = isPOVPromotion ? 'POV' : 'BASE';
 
       if (promotion.scope === 'VOLUME' || promotion.scope === 'POV_VOLUME') {
-        // Format: "chapterId:volumeNumber"
-        const [chapterId, volumeNumberStr] = refId.split(':');
-        const volumeNumber = parseInt(volumeNumberStr);
+        // refId format: "chapterId:volumeNumber" OR just "chapterId" for custom promotions
+        let chapterId: string;
+        let volumeNumber: number;
 
-        // Check if entitlement already exists for this volume
+        if (refId.includes(':')) {
+          const [cId, volStr] = refId.split(':');
+          chapterId = cId;
+          volumeNumber = parseInt(volStr);
+        } else {
+          // refId is just a chapterId – find the next volume to unlock
+          chapterId = refId;
+          volumeNumber = await this.findNextVolumeToUnlock(userId, chapterId, isPOVPromotion);
+          if (volumeNumber === -1) {
+            console.log(`[Promotions] No volume to unlock for user ${userId}, chapter ${chapterId} (scope: ${promotion.scope})`);
+            return;
+          }
+        }
+
+        // Check if an entitlement already exists containing the distinctive scope for this range.
+        // This prevents duplicates while allowing both BASE and POV entitlements to coexist.
         const existingEntitlement = await prisma.entitlement.findFirst({
           where: {
             userId,
             chapterId,
             volumeFrom: { lte: volumeNumber },
             volumeTo: { gte: volumeNumber },
+            scopes: { has: distinctiveScope },
           },
         });
 
         if (!existingEntitlement) {
           console.log(
-            `[Promotions] Creating FREE entitlement for user ${userId}, chapter ${chapterId}, volume ${volumeNumber} (scope: ${promotion.scope}, versionScope: ${versionScope})`
+            `[Promotions] Creating FREE entitlement for user ${userId}, chapter ${chapterId}, volume ${volumeNumber} (scope: ${promotion.scope}, scopes: ${scopes.join(',')})`
           );
           await prisma.entitlement.create({
             data: {
@@ -157,45 +175,50 @@ export class PromotionsService {
               volumeFrom: volumeNumber,
               volumeTo: volumeNumber,
               source: 'PROMOTION',
-              versionScope,
+              scopes,
             },
           });
         }
       } else if (promotion.scope === 'CHAPTER' || promotion.scope === 'POV_CHAPTER') {
-        // Get all volumes in this chapter
+        // Get the first volume number in this chapter (volumeFrom)
         const chapter = await prisma.chapter.findUnique({
           where: { id: refId },
           include: {
             volumes: {
+              orderBy: { volumeNumber: 'asc' },
               select: { volumeNumber: true },
+              take: 1,
             },
           },
         });
 
         if (chapter && chapter.volumes.length > 0) {
-          const minVolume = Math.min(...chapter.volumes.map((v) => v.volumeNumber));
-          const maxVolume = Math.max(...chapter.volumes.map((v) => v.volumeNumber));
+          const minVolume = chapter.volumes[0].volumeNumber;
+          // Use 9999 as volumeTo so future volumes published after the promo is applied
+          // are also covered without needing to update the entitlement.
+          const UNLIMITED_VOLUME = 9999;
 
-          // Check if entitlement already exists
+          // Check if an entitlement already exists containing the distinctive scope for this chapter.
           const existingEntitlement = await prisma.entitlement.findFirst({
             where: {
               userId,
               chapterId: refId,
+              scopes: { has: distinctiveScope },
             },
           });
 
           if (!existingEntitlement) {
             console.log(
-              `[Promotions] Creating FREE entitlement for user ${userId}, chapter ${refId}, volumes ${minVolume}-${maxVolume} (scope: ${promotion.scope}, versionScope: ${versionScope})`
+              `[Promotions] Creating FREE entitlement for user ${userId}, chapter ${refId}, volumes ${minVolume}-${UNLIMITED_VOLUME} (scope: ${promotion.scope}, scopes: ${scopes.join(',')})`
             );
             await prisma.entitlement.create({
               data: {
                 userId,
                 chapterId: refId,
                 volumeFrom: minVolume,
-                volumeTo: maxVolume,
+                volumeTo: UNLIMITED_VOLUME,
                 source: 'PROMOTION',
-                versionScope,
+                scopes,
               },
             });
           }
@@ -205,6 +228,49 @@ export class PromotionsService {
       console.error('[Promotions] Error creating entitlements from promotion:', error);
       // Don't throw - the promotion is already recorded, this is just to grant access
     }
+  }
+
+  private async findNextVolumeToUnlock(
+    userId: string,
+    chapterId: string,
+    isPOV: boolean
+  ): Promise<number> {
+    const chapter = await prisma.chapter.findUnique({
+      where: { id: chapterId },
+      include: {
+        volumes: {
+          orderBy: { volumeNumber: 'asc' },
+          select: { volumeNumber: true },
+        },
+      },
+    });
+
+    if (!chapter || chapter.volumes.length === 0) return -1;
+
+    const entitlements = await prisma.entitlement.findMany({
+      where: { userId, chapterId },
+      select: { volumeFrom: true, volumeTo: true, scopes: true },
+    });
+
+    for (const vol of chapter.volumes) {
+      const n = vol.volumeNumber;
+      const hasBase = entitlements.some(
+        (e) => e.volumeFrom <= n && e.volumeTo >= n && (e.scopes.includes('BASE') || e.scopes.includes('POV'))
+      );
+      const hasPOV = entitlements.some(
+        (e) => e.volumeFrom <= n && e.volumeTo >= n && e.scopes.includes('POV')
+      );
+
+      if (isPOV) {
+        // POV_VOLUME: needs narrator access, but not yet protagonist access
+        if (hasBase && !hasPOV) return n;
+      } else {
+        // VOLUME: needs no narrator access yet
+        if (!hasBase) return n;
+      }
+    }
+
+    return -1;
   }
 
   async getUserApplicablePromotions(userId: string): Promise<ApplicablePromotion[]> {

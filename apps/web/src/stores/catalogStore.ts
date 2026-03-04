@@ -40,7 +40,7 @@ export interface Chapter {
   hasAccess?: boolean;
   hasStartedReading?: boolean; // True if user has progress > 0 in any volume
   isFavorite?: boolean; // True if this chapter is marked as "Sélection du moment"
-  versionScope?: "BASE" | "ALL" | null;
+  scopes?: string[] | null;
   pricing?: Pricing;
   totalCharacterCount?: number;
   description?: string | null;
