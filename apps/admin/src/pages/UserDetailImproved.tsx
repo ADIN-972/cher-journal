@@ -93,7 +93,7 @@ interface Entitlement {
   chapterId: string;
   volumeFrom: number;
   volumeTo: number;
-  versionScope: string;
+  scopes: string[];
   source: string;
   grantedAt: string;
   chapter: {
@@ -113,17 +113,18 @@ interface VolumeRead {
   id: string;
   chapterId: string;
   volumeNumber: number;
-  perspective: 'NARRATOR' | 'PROTAGONIST';
+  perspective: "NARRATOR" | "PROTAGONIST";
   progress: number;
   firstOpenedAt: string;
   completedAt: string | null;
   chapter: {
     id: string;
     title: string;
+    protagonistName: string;
   };
 }
 
-type TabType = 'overview' | 'purchases' | 'access' | 'promotions';
+type TabType = "overview" | "purchases" | "access" | "promotions";
 
 export default function UserDetailImproved() {
   const { id } = useParams();
@@ -136,9 +137,19 @@ export default function UserDetailImproved() {
 
   const [user, setUser] = useState<UserDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [showAddEntitlementModal, setShowAddEntitlementModal] = useState(false);
   const [showAssignPromoModal, setShowAssignPromoModal] = useState(false);
+
+  // Initialize from localStorage, default to false (expanded)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      const stored = localStorage.getItem('userDetailSidebarCollapsed');
+      return stored ? JSON.parse(stored) : false;
+    } catch {
+      return false;
+    }
+  });
 
   // Load user data
   const loadUser = async () => {
@@ -156,6 +167,33 @@ export default function UserDetailImproved() {
     loadUser();
     // eslint-disable-next-line
   }, [id]);
+
+  // Persist collapsed state to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('userDetailSidebarCollapsed', JSON.stringify(sidebarCollapsed));
+    } catch {
+      // Silently fail if localStorage unavailable
+    }
+  }, [sidebarCollapsed]);
+
+  // Handle Escape key to toggle sidebar (but not when modals are open)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't toggle sidebar if any modal is open
+      if (showAddEntitlementModal || showAssignPromoModal) {
+        return; // Let modal handle Escape
+      }
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setSidebarCollapsed((prev) => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showAddEntitlementModal, showAssignPromoModal]);
 
   // Handle status toggle (stub)
   const handleToggleStatus = () => {
@@ -175,10 +213,26 @@ export default function UserDetailImproved() {
   }
 
   const tabs = [
-    { id: 'overview' as TabType, label: 'Vue d\'ensemble', icon: <MdStats size={20} /> },
-    { id: 'purchases' as TabType, label: 'Historique d\'achats', icon: <MdTimeline size={20} /> },
-    { id: 'access' as TabType, label: 'Accès aux chapitres', icon: <MdBook size={20} /> },
-    { id: 'promotions' as TabType, label: 'Promotions', icon: <MdCardGiftcard size={20} /> },
+    {
+      id: "overview" as TabType,
+      label: "Vue d'ensemble",
+      icon: <MdStats size={20} />,
+    },
+    {
+      id: "purchases" as TabType,
+      label: "Historique d'achats",
+      icon: <MdTimeline size={20} />,
+    },
+    {
+      id: "access" as TabType,
+      label: "Accès aux chapitres",
+      icon: <MdBook size={20} />,
+    },
+    {
+      id: "promotions" as TabType,
+      label: "Promotions",
+      icon: <MdCardGiftcard size={20} />,
+    },
   ];
 
   return (
@@ -391,7 +445,7 @@ export default function UserDetailImproved() {
                         <MdBook className="text-purple-500" />
                         Chapitres entamés - Progression de lecture
                       </h2>
-                      <div className="space-y-6">
+                      <div className="grid grid-cols-1 space-y-6">
                         {user.reads.length === 0 && (
                           <div className="text-center py-8 text-gray-500">
                             <MdBook
@@ -407,7 +461,9 @@ export default function UserDetailImproved() {
                             const chapter = map.get(read.chapterId) || {
                               id: read.chapterId,
                               title: read.chapter.title,
+                              protagonistName: read.chapter.protagonistName,
                               volumes: [],
+
                             };
                             chapter.volumes.push(read);
                             map.set(read.chapterId, chapter);
@@ -418,62 +474,65 @@ export default function UserDetailImproved() {
                             key={chapter.id}
                             className="border border-gray-200 rounded-lg p-4">
                             <h3 className="font-semibold text-gray-900 mb-4">
+                              {chapter.protagonistName} :
                               {chapter.title}
                             </h3>
-                            <div className="space-y-3">
-                              {chapter.volumes.map((volume: VolumeRead) => (
-                                <div
-                                  key={volume.id}
-                                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-2">
-                                      <span className="text-sm font-medium text-gray-700">
-                                        Vol. {volume.volumeNumber}
-                                      </span>
-                                      <span
-                                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                          volume.perspective === "NARRATOR"
-                                            ? "bg-blue-100 text-blue-700"
-                                            : "bg-purple-100 text-purple-700"
-                                        }`}>
-                                        {volume.perspective === "NARRATOR"
-                                          ? "📖 Narrateur"
-                                          : "🔓 Protagoniste"}
-                                      </span>
-                                      <span className="text-xs text-gray-500 ml-auto">
-                                        Ouvert{" "}
-                                        {new Date(
-                                          volume.firstOpenedAt,
-                                        ).toLocaleDateString(locale)}
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                      <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
-                                        <div
-                                          className={`h-full transition-all ${
+                            <div className="grid grid-cols-2 gap-3">
+                              {chapter.volumes
+                                .sort((a, b) => a.volumeNumber - b.volumeNumber)
+                                .map((volume: VolumeRead) => (
+                                  <div
+                                    key={volume.id}
+                                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-600 bg-gray-300">
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-3 mb-2">
+                                        <span className="text-sm font-medium text-gray-700">
+                                          Vol. {volume.volumeNumber}
+                                        </span>
+                                        <span
+                                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                                             volume.perspective === "NARRATOR"
-                                              ? "bg-blue-500"
-                                              : "bg-purple-500"
-                                          }`}
-                                          style={{
-                                            width: `${volume.progress}%`,
-                                          }}></div>
+                                              ? "bg-blue-100 text-blue-700"
+                                              : "bg-purple-100 text-purple-700"
+                                          }`}>
+                                          {volume.perspective === "NARRATOR"
+                                            ? "📖 Narrateur"
+                                            : "🔓 Protagoniste"}
+                                        </span>
+                                        <span className="text-xs text-gray-500 ml-auto">
+                                          Ouvert{" "}
+                                          {new Date(
+                                            volume.firstOpenedAt,
+                                          ).toLocaleDateString(locale)}
+                                        </span>
                                       </div>
-                                      <span className="text-sm font-medium text-gray-700 min-w-[50px] text-right">
-                                        {volume.progress}%
-                                      </span>
+                                      <div className="flex items-center gap-3">
+                                        <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                                          <div
+                                            className={`h-full transition-all ${
+                                              volume.perspective === "NARRATOR"
+                                                ? "bg-blue-500"
+                                                : "bg-purple-500"
+                                            }`}
+                                            style={{
+                                              width: `${volume.progress}%`,
+                                            }}></div>
+                                        </div>
+                                        <span className="text-sm font-medium text-gray-700 min-w-[50px] text-right">
+                                          {volume.progress}%
+                                        </span>
+                                      </div>
+                                      {volume.completedAt && (
+                                        <div className="text-xs text-green-600 mt-1">
+                                          ✓ Complété{" "}
+                                          {new Date(
+                                            volume.completedAt,
+                                          ).toLocaleDateString(locale)}
+                                        </div>
+                                      )}
                                     </div>
-                                    {volume.completedAt && (
-                                      <div className="text-xs text-green-600 mt-1">
-                                        ✓ Complété{" "}
-                                        {new Date(
-                                          volume.completedAt,
-                                        ).toLocaleDateString(locale)}
-                                      </div>
-                                    )}
                                   </div>
-                                </div>
-                              ))}
+                                ))}
                             </div>
                           </div>
                         ))}
