@@ -49,3 +49,6 @@ apps/mobile/dist/
 # Build artifacts
 *.tgz
 .turbo/
+
+# Git worktrees
+.worktrees/
