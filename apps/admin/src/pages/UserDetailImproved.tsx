@@ -23,6 +23,7 @@ import {
   MdBarChart as MdStats,
   MdLocalOffer,
   MdCardGiftcard,
+  MdChevronLeft,
 } from "react-icons/md";
 
 interface Promotion {
@@ -524,7 +525,7 @@ export default function UserDetailImproved() {
                             </h3>
                             <div className="grid grid-cols-2 gap-3">
                               {chapter.volumes
-                                .sort((a, b) => a.volumeNumber - b.volumeNumber)
+                                .sort((a: VolumeRead, b: VolumeRead) => a.volumeNumber - b.volumeNumber)
                                 .map((volume: VolumeRead) => (
                                   <div
                                     key={volume.id}
@@ -1000,6 +1001,7 @@ export default function UserDetailImproved() {
       {/* Add Entitlement Modal */}
       {showAddEntitlementModal && (
         <AddEntitlementModal
+          isOpen={showAddEntitlementModal}
           userId={user.id}
           onClose={() => setShowAddEntitlementModal(false)}
           onSuccess={() => {
