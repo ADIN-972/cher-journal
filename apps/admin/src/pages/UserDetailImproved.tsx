@@ -570,7 +570,7 @@ export default function UserDetailImproved() {
                             />
                             <div className="grid grid-cols-2 gap-3">
                               {chapter.volumes
-                                .sort((a, b) => a.volumeNumber - b.volumeNumber)
+                                .sort((a: VolumeRead, b: VolumeRead) => a.volumeNumber - b.volumeNumber)
                                 .map((volume: VolumeRead) => (
                                   <VolumeCard
                                     key={volume.id}
