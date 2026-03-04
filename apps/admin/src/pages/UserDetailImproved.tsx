@@ -140,6 +140,16 @@ export default function UserDetailImproved() {
   const [showAddEntitlementModal, setShowAddEntitlementModal] = useState(false);
   const [showAssignPromoModal, setShowAssignPromoModal] = useState(false);
 
+  // Initialize from localStorage, default to false (expanded)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      const stored = localStorage.getItem('userDetailSidebarCollapsed');
+      return stored ? JSON.parse(stored) : false;
+    } catch {
+      return false;
+    }
+  });
+
   // Load user data
   const loadUser = async () => {
     setLoading(true);
@@ -156,6 +166,15 @@ export default function UserDetailImproved() {
     loadUser();
     // eslint-disable-next-line
   }, [id]);
+
+  // Persist collapsed state to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('userDetailSidebarCollapsed', JSON.stringify(sidebarCollapsed));
+    } catch {
+      // Silently fail if localStorage unavailable
+    }
+  }, [sidebarCollapsed]);
 
   // Handle status toggle (stub)
   const handleToggleStatus = () => {
