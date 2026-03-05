@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 // Use localhost for proxy to avoid circular routing through Cloudflare tunnel
-const targetURL = "http://localhost:3000";
+const targetURL = "http://localhost:5000";
 
 export default defineConfig({
   plugins: [react()],
