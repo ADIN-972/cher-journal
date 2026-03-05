@@ -159,7 +159,7 @@ git commit -m "Your message"
 | Test | Status | Meaning |
 |------|--------|---------|
 | Database Connection | PASS | PostgreSQL is accessible |
-| Health Check | PASS | Backend is running on port 3000 |
+| Health Check | PASS | Backend is running on port 5000 |
 | CORS Configuration | PASS | Frontend can call API from https://app.moncherjournal.com |
 | Auth Login | PASS | User exists in DB and authentication works |
 | Get Chapters | PASS | Chapters API returns data from database |
@@ -185,7 +185,7 @@ git commit -m "Your message"
 
 **Problem**: "Health Check failed"
 - Ensure backend is running: `npm run dev:backend`
-- Check port 3000 is not in use: `netstat -ano | findstr :3000`
+- Check port 5000 is not in use: `netstat -ano | findstr :3000`
 - Check backend logs for errors
 
 **Problem**: "CORS Configuration failed"

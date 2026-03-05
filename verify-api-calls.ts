@@ -7,7 +7,7 @@ import fetch from 'node-fetch';
 import { PrismaClient } from '@prisma/client';
 import chalk from 'chalk';
 
-const API_BASE = 'http://localhost:3000';
+const API_BASE = 'http://localhost:5000';
 const prisma = new PrismaClient();
 
 interface TestResult {

@@ -316,7 +316,7 @@ npm run api:sync                # Sync route inventory
 
 ### Development Commands
 ```bash
-npm run dev:backend             # Start backend (port 3000)
+npm run dev:backend             # Start backend (port 5000)
 npm run dev:admin               # Start admin (port 5174)
 npm run dev:web                 # Start web (port 5173)
 ./start-cloudflared.bat         # Start Cloudflare tunnel

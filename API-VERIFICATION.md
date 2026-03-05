@@ -37,7 +37,7 @@ This will:
 ```
 🔍 API Call Verification
 
-Testing API: http://localhost:3000
+Testing API: http://localhost:5000
 Database: PostgreSQL (cherjournal_claude)
 
 ✅ Database Connection: PASS
@@ -127,7 +127,7 @@ await logResult(await testNewEndpoint());
 ## Environment Requirements
 
 The script expects:
-- Backend running on `http://localhost:3000`
+- Backend running on `http://localhost:5000`
 - PostgreSQL database `cherjournal_claude`
 - Seed users: `admin@cherjournal.com` / `admin123`
 - All services accessible and healthy

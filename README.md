@@ -94,7 +94,7 @@ Cela créera:
 npm run dev:backend
 ```
 
-Le serveur démarre sur `http://localhost:3000`
+Le serveur démarre sur `http://localhost:5000`
 
 Endpoints disponibles avec ET sans préfixe `/api`:
 - `/auth/register`, `/auth/login`, `/auth/logout`, `/me`

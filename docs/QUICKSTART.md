@@ -53,7 +53,7 @@ Ouvrir **3 terminaux** :
 ```bash
 npm run dev:backend
 ```
-→ API disponible sur http://localhost:3000
+→ API disponible sur http://localhost:5000
 
 **Terminal 2 - Admin:**
 ```bash
