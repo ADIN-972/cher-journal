@@ -44,6 +44,7 @@ import { readerSubscriptionsRoutes } from "./modules/reader/subscriptions/subscr
 import { readerSupportRoutes } from "./modules/reader/support/support.routes";
 import { stripeRoutes } from "./modules/stripe/stripe.routes";
 import { publicAssetsRoutes } from "./modules/public/assets.routes";
+import { customStoriesRoutes } from "./modules/custom-stories/custom-stories.routes";
 
 export async function createApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -171,6 +172,7 @@ export async function createApp(): Promise<FastifyInstance> {
     readerOrdersRoutes,
     readerSubscriptionsRoutes,
     readerSupportRoutes,
+    customStoriesRoutes,
     stripeRoutes,
     adminChaptersRoutes,
     adminVolumesRoutes,
