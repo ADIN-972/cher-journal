@@ -1,8 +1,10 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { CustomStoriesService } from './custom-stories.service';
 import { CreateStoryDto, UpdateStoryDto } from './dto/create-story.dto';
+import { CustomStoriesUploadService } from './custom-stories-upload.service';
 
 const service = new CustomStoriesService();
+const uploadService = new CustomStoriesUploadService();
 
 export class CustomStoriesController {
   /**
@@ -245,6 +247,104 @@ export class CustomStoriesController {
       return reply.send(stats);
     } catch (error: any) {
       return reply.status(500).send({ error: error.message });
+    }
+  }
+
+  /**
+   * Upload photo for custom story
+   */
+  async uploadPhoto(request: FastifyRequest, reply: FastifyReply) {
+    const userId = (request.user as any)?.id;
+    if (!userId) {
+      return reply.status(401).send({ error: 'Unauthorized' });
+    }
+
+    try {
+      let currentPhotoCount = 0;
+      let fileData: {
+        filename: string;
+        mimetype: string;
+        buffer: Buffer;
+      } | undefined;
+
+      const parts = request.parts();
+
+      for await (const part of parts) {
+        if (part.type === 'file') {
+          fileData = {
+            filename: part.filename,
+            mimetype: part.mimetype,
+            buffer: await part.toBuffer(),
+          };
+        } else {
+          // It's a field
+          const value = (part as any).value;
+          if (part.fieldname === 'currentPhotoCount') {
+            currentPhotoCount = parseInt(value) || 0;
+          }
+        }
+      }
+
+      if (!fileData) {
+        return reply.status(400).send({
+          error: 'No file uploaded',
+          code: 'NO_FILE',
+        });
+      }
+
+      // Validate photo limit
+      const withinLimit = await uploadService.validatePhotoLimit(userId, currentPhotoCount);
+      if (!withinLimit) {
+        return reply.status(400).send({
+          error: 'Photo limit exceeded',
+          code: 'PHOTO_LIMIT_EXCEEDED',
+        });
+      }
+
+      // Upload file
+      const userIp = request.ip || '';
+      const userAgent = request.headers['user-agent'] || '';
+
+      const uploadResult = await uploadService.uploadFile(
+        fileData.buffer,
+        fileData.filename,
+        fileData.mimetype,
+        userId,
+        userIp,
+        userAgent,
+      );
+
+      return reply.status(201).send({
+        success: true,
+        data: uploadResult,
+      });
+    } catch (error: any) {
+      // Handle specific error codes
+      if (error.code === 'INVALID_MIME_TYPE') {
+        return reply.status(400).send({
+          error: error.message,
+          code: 'INVALID_MIME_TYPE',
+        });
+      }
+
+      if (error.code === 'FILE_TOO_LARGE') {
+        return reply.status(400).send({
+          error: error.message,
+          code: 'FILE_TOO_LARGE',
+        });
+      }
+
+      if (error.code === 'MALWARE_DETECTED') {
+        return reply.status(403).send({
+          error: 'File failed security scan',
+          code: 'MALWARE_DETECTED',
+        });
+      }
+
+      return reply.status(500).send({
+        error: error.message,
+        code: 'UPLOAD_ERROR',
+      });
     }
   }
 }

@@ -5,6 +5,12 @@ import { CustomStoriesController } from './custom-stories.controller';
 const controller = new CustomStoriesController();
 
 export async function customStoriesRoutes(app: FastifyInstance) {
+  // Photo upload endpoint
+  app.post('/custom-stories/photos/upload', {
+    preHandler: requireAuth,
+    handler: controller.uploadPhoto.bind(controller),
+  });
+
   // User routes
   app.post('/custom-stories', {
     preHandler: requireAuth,
