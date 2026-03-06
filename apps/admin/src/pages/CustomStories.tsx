@@ -15,6 +15,7 @@ import {
   MdCategory,
 } from 'react-icons/md';
 import CustomStoryDetailModal from '../components/CustomStoryDetailModal';
+import TableGrid, { TableColumn, TableAction } from '../components/TableGrid';
 
 interface CustomStory {
   id: string;
@@ -150,6 +151,77 @@ export default function CustomStories() {
     });
   };
 
+  // Table columns configuration
+  const columns: TableColumn<CustomStory>[] = [
+    {
+      header: 'Protagoniste',
+      render: (story) => (
+        <div className="flex items-center gap-3">
+          <MdPerson className="w-5 h-5 text-gray-400" />
+          <div>
+            <p className="font-medium text-gray-900 dark:text-white">{story.protagonistName}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{story.photoAssetIds.length} photos</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: 'Utilisateur',
+      render: (story) => (
+        <div className="flex items-center gap-2">
+          <MdEmail className="w-4 h-4 text-gray-400" />
+          <div className="text-sm">
+            <p className="font-medium text-gray-900 dark:text-white">{story.user.firstName} {story.user.lastName}</p>
+            <p className="text-xs text-gray-500">{story.email}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: 'Genres',
+      render: (story) => (
+        <div className="flex flex-wrap gap-1">
+          {story.selectedGenres.slice(0, 2).map((genre, idx) => (
+            <span key={idx} className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">
+              {genre}
+            </span>
+          ))}
+          {story.selectedGenres.length > 2 && (
+            <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">
+              +{story.selectedGenres.length - 2}
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      header: 'Explicité',
+      accessor: 'explicitLevel',
+    },
+    {
+      header: 'Statut',
+      render: (story) => getStatusBadge(story.status),
+    },
+    {
+      header: 'Date',
+      render: (story) => (
+        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+          <MdCalendarToday className="w-4 h-4" />
+          {formatDate(story.submittedAt)}
+        </div>
+      ),
+    },
+  ];
+
+  // Table actions configuration
+  const actions: TableAction<CustomStory>[] = [
+    {
+      label: 'Examiner',
+      onClick: (story) => handleOpenDetail(story),
+      className: 'px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors',
+    },
+  ];
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -242,90 +314,14 @@ export default function CustomStories() {
 
       {/* Stories List */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        {loading ? (
-          <div className="flex items-center justify-center p-12">
-            <div className="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full"></div>
-          </div>
-        ) : stories.length === 0 ? (
-          <div className="p-12 text-center">
-            <p className="text-gray-600 dark:text-gray-400 mb-2">Aucune demande trouvée</p>
-            <p className="text-sm text-gray-500">Vérifiez le filtre ou attendez les nouvelles demandes</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Protagoniste</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Utilisateur</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Genres</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Explicité</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Statut</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Date</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {stories.map((story) => (
-                  <tr key={story.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <MdPerson className="w-5 h-5 text-gray-400" />
-                        <div>
-                          <p className="font-medium text-gray-900 dark:text-white">{story.protagonistName}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{story.photoAssetIds.length} photos</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <MdEmail className="w-4 h-4 text-gray-400" />
-                        <div className="text-sm">
-                          <p className="font-medium text-gray-900 dark:text-white">{story.user.firstName} {story.user.lastName}</p>
-                          <p className="text-xs text-gray-500">{story.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-1">
-                        {story.selectedGenres.slice(0, 2).map((genre, idx) => (
-                          <span key={idx} className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">
-                            {genre}
-                          </span>
-                        ))}
-                        {story.selectedGenres.length > 2 && (
-                          <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">
-                            +{story.selectedGenres.length - 2}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
-                      {story.explicitLevel}
-                    </td>
-                    <td className="px-6 py-4">
-                      {getStatusBadge(story.status)}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                        <MdCalendarToday className="w-4 h-4" />
-                        {formatDate(story.submittedAt)}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => handleOpenDetail(story)}
-                        className="px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
-                      >
-                        Examiner
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <TableGrid
+          data={stories}
+          columns={columns}
+          actions={actions}
+          getItemId={(story) => story.id}
+          loading={loading}
+          emptyMessage="Aucune demande trouvée"
+        />
       </div>
 
       {/* Pagination */}
