@@ -37,6 +37,16 @@ export async function customStoriesRoutes(app: FastifyInstance) {
   });
 
   // Admin routes
+  app.get('/admin/custom-stories/stats', {
+    preHandler: requireAuth,
+    handler: controller.adminGetStats.bind(controller),
+  });
+
+  app.get('/admin/custom-stories', {
+    preHandler: requireAuth,
+    handler: controller.adminListAll.bind(controller),
+  });
+
   app.get('/admin/custom-stories/pending', {
     preHandler: requireAuth,
     handler: controller.adminListPending.bind(controller),

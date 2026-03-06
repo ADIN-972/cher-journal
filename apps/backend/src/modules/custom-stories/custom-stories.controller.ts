@@ -211,4 +211,40 @@ export class CustomStoriesController {
       return reply.status(500).send({ error: error.message });
     }
   }
+
+  /**
+   * Admin: List all stories with pagination and filtering
+   */
+  async adminListAll(request: FastifyRequest, reply: FastifyReply) {
+    // TODO: Add admin guard check
+    const query = request.query as {
+      status?: string;
+      page?: string;
+      limit?: string;
+    };
+
+    try {
+      const page = parseInt(query.page || '1');
+      const limit = parseInt(query.limit || '20');
+      const status = query.status;
+
+      const stories = await service.listForModerationPaginated(status, page, limit);
+      return reply.send(stories);
+    } catch (error: any) {
+      return reply.status(500).send({ error: error.message });
+    }
+  }
+
+  /**
+   * Admin: Get statistics
+   */
+  async adminGetStats(request: FastifyRequest, reply: FastifyReply) {
+    // TODO: Add admin guard check
+    try {
+      const stats = await service.getStoryStats();
+      return reply.send(stats);
+    } catch (error: any) {
+      return reply.status(500).send({ error: error.message });
+    }
+  }
 }
