@@ -86,7 +86,7 @@ export default function CustomStories() {
         params.append('status', statusFilter);
       }
 
-      const response = await api.get(`/api/admin/custom-stories?${params.toString()}`);
+      const response = await api.get(`/admin/custom-stories?${params.toString()}`);
       setStories(response.data.stories || []);
       setTotalPages(response.data.pagination?.totalPages || 1);
     } catch (error: any) {
@@ -98,7 +98,7 @@ export default function CustomStories() {
 
   const loadStats = async () => {
     try {
-      const response = await api.get('/api/admin/custom-stories/stats');
+      const response = await api.get('/admin/custom-stories/stats');
       setStats(response.data);
     } catch (error) {
       console.error('Error loading stats:', error);
