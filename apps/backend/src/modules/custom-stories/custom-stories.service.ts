@@ -1,8 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import { CreateStoryDto, UpdateStoryDto } from './dto/create-story.dto';
+import { CustomStoriesNotificationsService } from './custom-stories-notifications.service';
 import * as crypto from 'crypto';
 
 const prisma = new PrismaClient();
+const notificationsService = new CustomStoriesNotificationsService();
 
 export class CustomStoriesService {
   /**
@@ -184,7 +186,16 @@ export class CustomStoriesService {
    * Approve story
    */
   async approveStory(storyId: string, adminId: string) {
-    return prisma.customStoryRequest.update({
+    // Fetch story first to get userId
+    const story = await prisma.customStoryRequest.findUnique({
+      where: { id: storyId },
+    });
+
+    if (!story) {
+      throw new Error('Story not found');
+    }
+
+    const approved = await prisma.customStoryRequest.update({
       where: { id: storyId },
       data: {
         status: 'APPROVED',
@@ -193,6 +204,15 @@ export class CustomStoriesService {
       },
       include: { volumeProposals: true },
     });
+
+    // Send approval notification
+    await notificationsService.notifyApproved({
+      userId: story.userId,
+      storyId: storyId,
+      status: 'APPROVED',
+    });
+
+    return approved;
   }
 
   /**
@@ -204,7 +224,16 @@ export class CustomStoriesService {
     reason: string,
     notes?: string,
   ) {
-    return prisma.customStoryRequest.update({
+    // Fetch story first to get userId
+    const story = await prisma.customStoryRequest.findUnique({
+      where: { id: storyId },
+    });
+
+    if (!story) {
+      throw new Error('Story not found');
+    }
+
+    const rejected = await prisma.customStoryRequest.update({
       where: { id: storyId },
       data: {
         status: 'REJECTED',
@@ -215,17 +244,46 @@ export class CustomStoriesService {
       },
       include: { volumeProposals: true },
     });
+
+    // Send rejection notification
+    await notificationsService.notifyRejected({
+      userId: story.userId,
+      storyId: storyId,
+      status: 'REJECTED',
+      rejectionReason: reason,
+      rejectionNotes: notes,
+    });
+
+    return rejected;
   }
 
   /**
    * Mark as under review
    */
   async markUnderReview(storyId: string) {
-    return prisma.customStoryRequest.update({
+    // Fetch story first to get userId
+    const story = await prisma.customStoryRequest.findUnique({
+      where: { id: storyId },
+    });
+
+    if (!story) {
+      throw new Error('Story not found');
+    }
+
+    const underReview = await prisma.customStoryRequest.update({
       where: { id: storyId },
       data: { status: 'UNDER_REVIEW' },
       include: { volumeProposals: true },
     });
+
+    // Send under review notification
+    await notificationsService.notifyUnderReview({
+      userId: story.userId,
+      storyId: storyId,
+      status: 'UNDER_REVIEW',
+    });
+
+    return underReview;
   }
 
   /**
