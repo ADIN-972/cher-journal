@@ -13,6 +13,7 @@ import Notifications from "../components/account/Notifications";
 import ConnectedDevices from "../components/account/ConnectedDevices";
 import AccountInfo from "../components/account/AccountInfo";
 import PaymentMethods from "../components/account/PaymentMethods";
+import CustomStoryRequests from "../components/account/CustomStoryRequests";
 
 type AccountSection =
   | "my-books"
@@ -25,7 +26,8 @@ type AccountSection =
   | "notifications"
   | "devices"
   | "account-info"
-  | "payment-info";
+  | "payment-info"
+  | "custom-stories";
 
 interface MenuItem {
   id: AccountSection;
@@ -65,6 +67,7 @@ export default function Account() {
       "devices",
       "account-info",
       "payment-info",
+      "custom-stories",
     ].includes(value);
   };
 
@@ -86,6 +89,12 @@ export default function Account() {
       label: t("account.menu.claims"),
       icon: "support_agent",
       description: t("account.menu.claims_desc"),
+    },
+    {
+      id: "custom-stories",
+      label: "Mes Demandes",
+      icon: "auto_awesome",
+      description: "Vos demandes de création d'histoires personnalisées",
     },
     {
       id: "reviews",
@@ -150,6 +159,8 @@ export default function Account() {
         return <PurchaseHistory />;
       case "claims":
         return <SupportClaims />;
+      case "custom-stories":
+        return <CustomStoryRequests />;
       case "reviews":
         return <MyReviews />;
       case "promotions":
