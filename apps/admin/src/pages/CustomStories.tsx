@@ -15,7 +15,8 @@ import {
   MdCategory,
 } from 'react-icons/md';
 import CustomStoryDetailModal from '../components/CustomStoryDetailModal';
-import TableGrid, { TableColumn, TableAction } from '../components/TableGrid';
+import { SmartTableGrid, type SmartTableColumn } from '../components/SmartTableGrid';
+import { TableAction } from '../components/TableGrid';
 
 interface CustomStory {
   id: string;
@@ -152,9 +153,11 @@ export default function CustomStories() {
   };
 
   // Table columns configuration
-  const columns: TableColumn<CustomStory>[] = [
+  const columns: SmartTableColumn<CustomStory>[] = [
     {
+      id: 'protagoniste',
       header: 'Protagoniste',
+      defaultVisible: true,
       render: (story) => (
         <div className="flex items-center gap-3">
           <MdPerson className="w-5 h-5 text-gray-400" />
@@ -166,7 +169,9 @@ export default function CustomStories() {
       ),
     },
     {
+      id: 'utilisateur',
       header: 'Utilisateur',
+      defaultVisible: true,
       render: (story) => (
         <div className="flex items-center gap-2">
           <MdEmail className="w-4 h-4 text-gray-400" />
@@ -178,7 +183,9 @@ export default function CustomStories() {
       ),
     },
     {
+      id: 'genres',
       header: 'Genres',
+      defaultVisible: true,
       render: (story) => (
         <div className="flex flex-wrap gap-1">
           {story.selectedGenres.slice(0, 2).map((genre, idx) => (
@@ -195,15 +202,21 @@ export default function CustomStories() {
       ),
     },
     {
+      id: 'explicite',
       header: 'Explicité',
+      defaultVisible: true,
       accessor: 'explicitLevel',
     },
     {
+      id: 'statut',
       header: 'Statut',
+      defaultVisible: true,
       render: (story) => getStatusBadge(story.status),
     },
     {
+      id: 'date',
       header: 'Date',
+      defaultVisible: true,
       render: (story) => (
         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
           <MdCalendarToday className="w-4 h-4" />
@@ -314,7 +327,8 @@ export default function CustomStories() {
 
       {/* Stories List */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <TableGrid
+        <SmartTableGrid
+          listName="custom-stories"
           data={stories}
           columns={columns}
           actions={actions}
