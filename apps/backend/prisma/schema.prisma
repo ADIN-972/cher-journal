@@ -917,7 +917,7 @@ model CustomStoryRequest {
   explicitLevel String
 
   // Niveaux Émotionnels
-  niveauIntensité Int @db.SmallInt
+  niveauIntensitee Int @db.SmallInt
   niveauDouceur Int @db.SmallInt
   niveauDanger Int @db.SmallInt
   niveauTransformation Int @db.SmallInt
