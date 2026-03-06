@@ -14,6 +14,7 @@ import Library from "./pages/Library";
 import Profile from "./pages/Profile";
 import ActiveTimers from "./pages/ActiveTimers";
 import Account from "./pages/Account";
+import CreateStory from "./pages/CreateStory";
 import LayoutNew from "./components/common/LayoutNew";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import ScrollToTop from "./components/common/ScrollToTop";
@@ -123,6 +124,16 @@ function AppContent() {
             <ProtectedRoute>
               <LayoutNew>
                 <Profile />
+              </LayoutNew>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/create-story"
+          element={
+            <ProtectedRoute>
+              <LayoutNew>
+                <CreateStory />
               </LayoutNew>
             </ProtectedRoute>
           }
