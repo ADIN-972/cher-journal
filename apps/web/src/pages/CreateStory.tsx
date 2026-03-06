@@ -12,6 +12,7 @@ import StoryStep3Emotions from "../components/CreateStory/StoryStep3Emotions";
 import StoryStep4Structure from "../components/CreateStory/StoryStep4Structure";
 import StoryStep5Finalize from "../components/CreateStory/StoryStep5Finalize";
 import StoryStep2Protagonist from "../components/CreateStory/StoryStep2Protagonist";
+import { api } from "../lib/api";
 
 const INITIAL_FORM_DATA: StoryFormData = {
   protagonistName: "",
@@ -60,18 +61,7 @@ export default function CreateStoryPage() {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/custom-stories", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.error?.message || "Erreur lors de la soumission");
-      }
-
+      await api.post("/custom-stories", formData);
       toast.success("Votre demande a été reçue! Merci de votre intérêt.");
       navigate("/account/custom-stories");
     } catch (error: any) {
