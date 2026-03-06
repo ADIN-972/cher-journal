@@ -4,6 +4,9 @@ import toast from 'react-hot-toast';
 import { StoryFormData, StoryStep, VolumeProposal } from '../components/CreateStory/types';
 import StepIndicator from '../components/CreateStory/StepIndicator';
 import StoryStep1Protagonist from '../components/CreateStory/StoryStep1Protagonist';
+import StoryStep3Emotions from '../components/CreateStory/StoryStep3Emotions';
+import StoryStep4Structure from '../components/CreateStory/StoryStep4Structure';
+import StoryStep5Finalize from '../components/CreateStory/StoryStep5Finalize';
 
 const INITIAL_FORM_DATA: StoryFormData = {
   protagonistName: '',
@@ -121,7 +124,7 @@ export default function CreateStoryPage() {
             <StoryStep1Protagonist formData={formData} setFormData={setFormData} />
           )}
 
-          {/* Step 2: Personality (Placeholder) */}
+          {/* Step 2: Personality */}
           {currentStep === 2 && (
             <div className="space-y-6">
               <div>
@@ -196,13 +199,19 @@ export default function CreateStoryPage() {
             </div>
           )}
 
-          {/* Steps 3-5: Placeholder */}
-          {currentStep > 2 && (
-            <div className="text-center py-12">
-              <p className="text-gray-600 dark:text-gray-400">
-                Étape {currentStep} - À venir dans la prochaine mise à jour
-              </p>
-            </div>
+          {/* Step 3: Emotions */}
+          {currentStep === 3 && (
+            <StoryStep3Emotions formData={formData} setFormData={setFormData} />
+          )}
+
+          {/* Step 4: Structure */}
+          {currentStep === 4 && (
+            <StoryStep4Structure formData={formData} setFormData={setFormData} />
+          )}
+
+          {/* Step 5: Finalize */}
+          {currentStep === 5 && (
+            <StoryStep5Finalize formData={formData} setFormData={setFormData} />
           )}
 
           {/* Navigation Buttons */}
