@@ -32,6 +32,7 @@ model User {
   progress              UserProgress?
   rewardUnlocks         UserRewardUnlock[]
   reads                 VolumeRead[]
+  customStoryRequests   CustomStoryRequest[]
 
   @@map("users")
 }
@@ -899,6 +900,77 @@ enum SupportClaimCategory {
   BILLING
   CONTENT
   OTHER
+}
+
+model CustomStoryRequest {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+
+  // Protagoniste
+  protagonistName String
+  photoAssetIds String[]
+
+  // Personnalité
+  description String
+  selectedGenres String[]
+  explicitLevel String
+
+  // Niveaux Émotionnels
+  niveauIntensité Int @db.SmallInt
+  niveauDouceur Int @db.SmallInt
+  niveauDanger Int @db.SmallInt
+  niveauTransformation Int @db.SmallInt
+
+  // Structure Histoire
+  volumeProposals VolumeProposal[]
+  storyEnding String
+  storyEndingCustom String? @db.Text
+
+  // Contact & Consentements
+  email String
+  rgpdConsent Boolean @default(false)
+  ccpaConsent Boolean @default(false)
+
+  // Modération & Traçabilité
+  status String @default("PENDING")
+  rejectionReason String?
+  rejectionNotes String?
+
+  // Sécurité & Analytics
+  userIp String
+  userMacAddress String?
+  userLocation String?
+  userAgent String
+
+  // Timestamps
+  submittedAt DateTime @default(now())
+  reviewedAt DateTime?
+  reviewedBy String?
+  dataRetentionDeletedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([submittedAt])
+  @@index([dataRetentionDeletedAt])
+  @@map("custom_story_requests")
+}
+
+model VolumeProposal {
+  id String @id @default(cuid())
+  customStoryRequestId String
+  customStoryRequest CustomStoryRequest @relation(fields: [customStoryRequestId], references: [id], onDelete: Cascade)
+
+  volumeNumber Int @db.SmallInt
+  proposedLocation String
+  proposedOrientation String
+  proposedTwist String
+
+  @@unique([customStoryRequestId, volumeNumber])
+  @@map("volume_proposals")
 }
 
 enum SupportClaimStatus {
