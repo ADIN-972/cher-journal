@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { CreateStoryDto, UpdateStoryDto } from './dto/create-story.dto';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
