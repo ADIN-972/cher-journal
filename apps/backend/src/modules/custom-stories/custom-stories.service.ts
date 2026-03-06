@@ -1,12 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma.service';
+import { PrismaClient } from '@prisma/client';
 import { CreateStoryDto, UpdateStoryDto } from './dto/create-story.dto';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 
-@Injectable()
+const prisma = new PrismaClient();
+
 export class CustomStoriesService {
-  constructor(private prisma: PrismaService) {}
-
   /**
    * Hash IP address with salt for security
    */
@@ -16,7 +14,16 @@ export class CustomStoriesService {
   }
 
   /**
-   * Create a new custom story request (draft)
+   * Get geolocation from IP (simplified)
+   */
+  private getLocationFromIp(ip: string): string | null {
+    // In production, use a proper geolocation service
+    // For now, return null or a placeholder
+    return null;
+  }
+
+  /**
+   * Create a new custom story request
    */
   async createStory(
     userId: string,
@@ -26,8 +33,9 @@ export class CustomStoriesService {
     userMacAddress?: string,
   ) {
     const hashedIp = this.hashIp(userIp);
+    const location = this.getLocationFromIp(userIp);
 
-    return this.prisma.customStoryRequest.create({
+    return prisma.customStoryRequest.create({
       data: {
         userId,
         protagonistName: dto.protagonistName,
@@ -46,10 +54,10 @@ export class CustomStoriesService {
         photoAssetIds: dto.photoAssetIds,
         userIp: hashedIp,
         userMacAddress,
-        userLocation: 'UNKNOWN', // TODO: Add geolocation
+        userLocation: location,
         userAgent,
         volumeProposals: {
-          create: dto.volumeProposals.map(vol => ({
+          create: dto.volumeProposals.map((vol) => ({
             volumeNumber: vol.volumeNumber,
             proposedLocation: vol.proposedLocation,
             proposedOrientation: vol.proposedOrientation,
@@ -69,7 +77,7 @@ export class CustomStoriesService {
     userId: string,
     dto: UpdateStoryDto,
   ) {
-    return this.prisma.customStoryRequest.update({
+    return prisma.customStoryRequest.update({
       where: { id: storyId },
       data: {
         ...(dto.protagonistName && { protagonistName: dto.protagonistName }),
@@ -92,10 +100,10 @@ export class CustomStoriesService {
   /**
    * Get story by ID
    */
-  async getStory(storyId: string, userId: string) {
-    return this.prisma.customStoryRequest.findUnique({
+  async getStory(storyId: string, userId?: string) {
+    return prisma.customStoryRequest.findUnique({
       where: { id: storyId },
-      include: { volumeProposals: true },
+      include: { volumeProposals: true, user: { select: { id: true, email: true, firstName: true, lastName: true, username: true } } },
     });
   }
 
@@ -103,7 +111,7 @@ export class CustomStoriesService {
    * List user's stories
    */
   async listUserStories(userId: string) {
-    return this.prisma.customStoryRequest.findMany({
+    return prisma.customStoryRequest.findMany({
       where: { userId },
       include: { volumeProposals: true },
       orderBy: { submittedAt: 'desc' },
@@ -114,7 +122,7 @@ export class CustomStoriesService {
    * Submit story for review
    */
   async submitStory(storyId: string, userId: string) {
-    return this.prisma.customStoryRequest.update({
+    return prisma.customStoryRequest.update({
       where: { id: storyId },
       data: { status: 'PENDING' },
       include: { volumeProposals: true },
@@ -122,45 +130,73 @@ export class CustomStoriesService {
   }
 
   /**
-   * Cancel story (only if PENDING or UNDER_REVIEW)
+   * Cancel story
    */
   async cancelStory(storyId: string, userId: string) {
-    return this.prisma.customStoryRequest.update({
+    return prisma.customStoryRequest.update({
       where: { id: storyId },
       data: { status: 'CANCELLED' },
     });
   }
 
   /**
-   * Admin: List stories for moderation
+   * List stories for moderation (with filter)
    */
   async listForModeration(status?: string) {
-    return this.prisma.customStoryRequest.findMany({
+    return prisma.customStoryRequest.findMany({
       where: status ? { status } : {},
-      include: {
-        volumeProposals: true,
-        user: { select: { id: true, email: true, username: true } }
-      },
+      include: { volumeProposals: true, user: { select: { id: true, email: true, firstName: true, lastName: true, username: true } } },
       orderBy: { submittedAt: 'asc' },
     });
   }
 
   /**
-   * Admin: Approve story
+   * List stories with pagination (admin)
+   */
+  async listForModerationPaginated(status?: string, page: number = 1, limit: number = 20) {
+    const skip = (page - 1) * limit;
+
+    const [stories, total] = await Promise.all([
+      prisma.customStoryRequest.findMany({
+        where: status ? { status } : {},
+        include: { volumeProposals: true, user: { select: { id: true, email: true, firstName: true, lastName: true, username: true } } },
+        orderBy: { submittedAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.customStoryRequest.count({
+        where: status ? { status } : {},
+      }),
+    ]);
+
+    return {
+      stories,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  /**
+   * Approve story
    */
   async approveStory(storyId: string, adminId: string) {
-    return this.prisma.customStoryRequest.update({
+    return prisma.customStoryRequest.update({
       where: { id: storyId },
       data: {
         status: 'APPROVED',
         reviewedAt: new Date(),
         reviewedBy: adminId,
       },
+      include: { volumeProposals: true },
     });
   }
 
   /**
-   * Admin: Reject story
+   * Reject story
    */
   async rejectStory(
     storyId: string,
@@ -168,7 +204,7 @@ export class CustomStoriesService {
     reason: string,
     notes?: string,
   ) {
-    return this.prisma.customStoryRequest.update({
+    return prisma.customStoryRequest.update({
       where: { id: storyId },
       data: {
         status: 'REJECTED',
@@ -177,17 +213,40 @@ export class CustomStoriesService {
         reviewedAt: new Date(),
         reviewedBy: adminId,
       },
+      include: { volumeProposals: true },
     });
   }
 
   /**
-   * Admin: Mark as under review
+   * Mark as under review
    */
   async markUnderReview(storyId: string) {
-    return this.prisma.customStoryRequest.update({
+    return prisma.customStoryRequest.update({
       where: { id: storyId },
       data: { status: 'UNDER_REVIEW' },
+      include: { volumeProposals: true },
     });
+  }
+
+  /**
+   * Get statistics
+   */
+  async getStoryStats() {
+    const [total, pending, underReview, approved, rejected] = await Promise.all([
+      prisma.customStoryRequest.count(),
+      prisma.customStoryRequest.count({ where: { status: 'PENDING' } }),
+      prisma.customStoryRequest.count({ where: { status: 'UNDER_REVIEW' } }),
+      prisma.customStoryRequest.count({ where: { status: 'APPROVED' } }),
+      prisma.customStoryRequest.count({ where: { status: 'REJECTED' } }),
+    ]);
+
+    return {
+      total,
+      pending,
+      underReview,
+      approved,
+      rejected,
+    };
   }
 
   /**
@@ -197,7 +256,7 @@ export class CustomStoriesService {
     const threeMonthsAgo = new Date();
     threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-    return this.prisma.customStoryRequest.deleteMany({
+    return prisma.customStoryRequest.deleteMany({
       where: {
         dataRetentionDeletedAt: {
           lte: threeMonthsAgo,

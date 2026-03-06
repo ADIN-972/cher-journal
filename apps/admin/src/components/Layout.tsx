@@ -24,6 +24,7 @@ import {
   MdCardGiftcard,
   MdRateReview,
   MdContactSupport,
+  MdAutoAwesome,
 } from "react-icons/md";
 import { ImAddressBook } from "react-icons/im";
 
@@ -53,6 +54,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     if (location.pathname === "/reviews") return t("navigation.reviews");
     if (location.pathname === "/promotions") return t("navigation.promotions");
     if (location.pathname === "/support-claims") return "Support Claims";
+    if (location.pathname === "/custom-stories") return "Histoires Personnalisées";
     if (location.pathname.startsWith("/bundles")) return t("navigation.bundles");
     if (location.pathname === "/prices") return t("navigation.pricing");
     if (location.pathname.startsWith("/pricing")) return t("navigation.pricing_v2");
@@ -242,6 +244,28 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             />
             {sidebarOpen && <span className="font-medium">Support Claims</span>}
             {isActive("/support-claims") && sidebarOpen && (
+              <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>
+            )}
+          </Link>
+
+          {/* Custom Stories */}
+          <Link
+            to="/custom-stories"
+            className={`group flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 ${
+              isActive("/custom-stories")
+                ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/50"
+                : "text-gray-300 hover:bg-white/5 hover:text-white"
+            }`}>
+            <MdAutoAwesome
+              className={`w-5 h-5 ${!isActive("/custom-stories") && "group-hover:scale-110 transition-transform"}`}
+            />
+            {sidebarOpen && (
+              <div className="flex flex-col">
+                <span className="font-medium">Histoires Personnalisées</span>
+                <span className="text-xs text-gray-400">Modération des demandes</span>
+              </div>
+            )}
+            {isActive("/custom-stories") && sidebarOpen && (
               <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>
             )}
           </Link>

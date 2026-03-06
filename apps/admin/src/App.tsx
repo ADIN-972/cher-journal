@@ -31,6 +31,7 @@ import SystemConfig from "./pages/SystemConfig";
 import Reviews from "./pages/Reviews";
 import SupportClaims from "./pages/SupportClaims";
 import SupportClaimDetail from "./pages/SupportClaimDetail";
+import CustomStories from "./pages/CustomStories";
 import PricingLayout from "./components/PricingLayout";
 import Layout from "./components/Layout";
 
@@ -236,6 +237,10 @@ function App() {
           <Route
             path="/support-claims/:id"
             element={<SupportClaimDetail />}
+          />
+          <Route
+            path="/custom-stories"
+            element={<CustomStories />}
           />
           <Route
             path="/bundles"
