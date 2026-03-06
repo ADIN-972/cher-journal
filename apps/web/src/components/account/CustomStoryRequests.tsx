@@ -9,67 +9,30 @@ import {
   MdCategory,
   MdArrowForward,
 } from 'react-icons/md';
-
-interface CustomStory {
-  id: string;
-  protagonistName: string;
-  description: string;
-  selectedGenres: string[];
-  explicitLevel: string;
-  status: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED';
-  submittedAt: string;
-  rejectionReason?: string;
-  photoAssetIds: string[];
-}
+import { useCustomStoryStore } from '../../stores/customStoryStore';
 
 export default function CustomStoryRequests() {
-  const [stories, setStories] = useState<CustomStory[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedStory, setSelectedStory] = useState<CustomStory | null>(null);
+  const { stories, isLoading, error, fetchStories, cancelStory, clearError } = useCustomStoryStore();
+  const [selectedStory, setSelectedStory] = useState<typeof stories[number] | null>(null);
 
   useEffect(() => {
-    loadStories();
-  }, []);
+    fetchStories();
+  }, [fetchStories]);
 
-  const loadStories = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/custom-stories', {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to load custom stories');
-      }
-
-      const data = await response.json();
-      setStories(data || []);
-    } catch (error: any) {
-      toast.error(error.message || 'Erreur lors du chargement des demandes');
-    } finally {
-      setLoading(false);
+  // Show error toast if error occurs
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      clearError();
     }
-  };
+  }, [error, clearError]);
 
   const handleCancel = async (storyId: string) => {
     if (!confirm('Êtes-vous sûr de vouloir annuler cette demande ?')) return;
 
     try {
-      const response = await fetch(`/api/custom-stories/${storyId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to cancel story');
-      }
-
+      await cancelStory(storyId);
       toast.success('Demande annulée');
-      loadStories();
       setSelectedStory(null);
     } catch (error: any) {
       toast.error(error.message || 'Erreur lors de l\'annulation');
@@ -126,7 +89,7 @@ export default function CustomStoryRequests() {
     });
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center p-12">
         <div className="animate-spin w-8 h-8 border-4 border-rose-600 border-t-transparent rounded-full"></div>
