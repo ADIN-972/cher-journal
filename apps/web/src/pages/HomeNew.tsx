@@ -11,6 +11,7 @@ import {
   NouveautesSectionV2,
 } from "../components/homeSections";
 import NouveautesSectionV3 from "../components/homeSections/NouveautesSection_V3";
+import CustomStoryTeaser from "../components/CustomStoryTeaser";
 
 export default function HomeNew() {
   const { chapters, fetchChapters } = useCatalogStore();
@@ -193,6 +194,7 @@ export default function HomeNew() {
         items={topIntensityChapters}
       />
       <WomenOfCherJournalQuote chapters={chapters} />
+      <CustomStoryTeaser />
     </div>
   );
 }
