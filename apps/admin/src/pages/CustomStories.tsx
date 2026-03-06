@@ -87,8 +87,9 @@ export default function CustomStories() {
       }
 
       const response = await api.get(`/admin/custom-stories?${params.toString()}`);
-      setStories(response.data.stories || []);
-      setTotalPages(response.data.pagination?.totalPages || 1);
+      const data = response.data || response;
+      setStories(data.stories || []);
+      setTotalPages(data.pagination?.totalPages || 1);
     } catch (error: any) {
       toast.error(error.message || 'Erreur lors du chargement des demandes');
     } finally {
@@ -99,7 +100,8 @@ export default function CustomStories() {
   const loadStats = async () => {
     try {
       const response = await api.get('/admin/custom-stories/stats');
-      setStats(response.data);
+      const stats = response.data || response;
+      setStats(stats);
     } catch (error) {
       console.error('Error loading stats:', error);
     }
