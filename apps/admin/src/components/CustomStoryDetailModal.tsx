@@ -10,7 +10,7 @@ import {
   MdPerson,
   MdEmail,
   MdCategory,
-  MdVolume,
+  MdVolumeUp,
 } from 'react-icons/md';
 
 interface CustomStoryDetailModalProps {
@@ -38,7 +38,7 @@ export default function CustomStoryDetailModal({
   const handleApprove = async () => {
     setLoading(true);
     try {
-      await api.post(`/api/admin/custom-stories/${story.id}/approve`);
+      await api.post(`/admin/custom-stories/${story.id}/approve`);
       toast.success('Demande approuvée avec succès');
       onActionSuccess();
     } catch (error: any) {
@@ -56,7 +56,7 @@ export default function CustomStoryDetailModal({
 
     setLoading(true);
     try {
-      await api.post(`/api/admin/custom-stories/${story.id}/reject`, {
+      await api.post(`/admin/custom-stories/${story.id}/reject`, {
         reason: rejectionReason,
         notes: rejectionNotes,
       });
@@ -72,7 +72,7 @@ export default function CustomStoryDetailModal({
   const handleMarkUnderReview = async () => {
     setLoading(true);
     try {
-      await api.post(`/api/admin/custom-stories/${story.id}/under-review`);
+      await api.post(`/admin/custom-stories/${story.id}/under-review`);
       toast.success('Demande marquée comme en examen');
       onActionSuccess();
     } catch (error: any) {
@@ -119,12 +119,13 @@ export default function CustomStoryDetailModal({
         <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
           <div>
             <h2 className="text-2xl font-bold">{story.protagonistName}</h2>
-            <p className="text-indigo-100 text-sm mt-1">Demande de création personnalisée</p>
+            <p className="text-indigo-100 text-sm mt-1">
+              Demande de création personnalisée
+            </p>
           </div>
           <button
             onClick={onClose}
-            className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
-          >
+            className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors">
             <MdClose className="w-6 h-6" />
           </button>
         </div>
@@ -135,23 +136,32 @@ export default function CustomStoryDetailModal({
           <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className={`w-3 h-3 rounded-full ${
-                  story.status === 'APPROVED' ? 'bg-green-500' :
-                  story.status === 'REJECTED' ? 'bg-red-500' :
-                  story.status === 'UNDER_REVIEW' ? 'bg-blue-500' :
-                  'bg-yellow-500'
-                }`}></div>
+                <div
+                  className={`w-3 h-3 rounded-full ${
+                    story.status === "APPROVED"
+                      ? "bg-green-500"
+                      : story.status === "REJECTED"
+                        ? "bg-red-500"
+                        : story.status === "UNDER_REVIEW"
+                          ? "bg-blue-500"
+                          : "bg-yellow-500"
+                  }`}></div>
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Statut</p>
-                  <p className={`text-lg font-semibold ${getStatusColor(story.status)}`}>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Statut
+                  </p>
+                  <p
+                    className={`text-lg font-semibold ${getStatusColor(story.status)}`}>
                     {getStatusLabel(story.status)}
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-600 dark:text-gray-400">Soumis le</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Soumis le
+                </p>
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {new Date(story.submittedAt).toLocaleDateString('fr-FR')}
+                  {new Date(story.submittedAt).toLocaleDateString("fr-FR")}
                 </p>
               </div>
             </div>
@@ -163,11 +173,15 @@ export default function CustomStoryDetailModal({
               <div className="flex items-start gap-3">
                 <MdPerson className="w-5 h-5 text-indigo-600 mt-1 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Utilisateur</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Utilisateur
+                  </p>
                   <p className="font-medium text-gray-900 dark:text-white">
                     {story.user.firstName} {story.user.lastName}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{story.user.username || 'N/A'}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {story.user.username || "N/A"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -176,8 +190,12 @@ export default function CustomStoryDetailModal({
               <div className="flex items-start gap-3">
                 <MdEmail className="w-5 h-5 text-indigo-600 mt-1 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Email</p>
-                  <p className="font-medium text-gray-900 dark:text-white break-all">{story.email}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Email
+                  </p>
+                  <p className="font-medium text-gray-900 dark:text-white break-all">
+                    {story.email}
+                  </p>
                 </div>
               </div>
             </div>
@@ -192,10 +210,14 @@ export default function CustomStoryDetailModal({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Genres</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Genres
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {story.selectedGenres.map((genre: string, idx: number) => (
-                    <span key={idx} className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 rounded-full text-sm">
+                    <span
+                      key={idx}
+                      className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 rounded-full text-sm">
                       {genre}
                     </span>
                   ))}
@@ -203,23 +225,31 @@ export default function CustomStoryDetailModal({
               </div>
 
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Niveau d'explicité</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Niveau d'explicité
+                </p>
                 <p className="inline-block px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 rounded-full text-sm font-medium">
                   {story.explicitLevel}
                 </p>
               </div>
 
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fin imaginée</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Fin imaginée
+                </p>
                 <p className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium inline-block">
                   {story.storyEnding}
                 </p>
               </div>
 
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Photos</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Photos
+                </p>
                 <p className="text-sm text-gray-700 dark:text-gray-300">
-                  {story.photoAssetIds.length} photo{story.photoAssetIds.length !== 1 ? 's' : ''} uploadée{story.photoAssetIds.length !== 1 ? 's' : ''}
+                  {story.photoAssetIds.length} photo
+                  {story.photoAssetIds.length !== 1 ? "s" : ""} uploadée
+                  {story.photoAssetIds.length !== 1 ? "s" : ""}
                 </p>
               </div>
             </div>
@@ -227,25 +257,32 @@ export default function CustomStoryDetailModal({
 
           {/* Emotional Levels */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Niveaux Émotionnels</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Niveaux Émotionnels
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
-                { label: 'Intensité', value: story.niveauIntensitee },
-                { label: 'Douceur', value: story.niveauDouceur },
-                { label: 'Danger', value: story.niveauDanger },
-                { label: 'Transformation', value: story.niveauTransformation },
+                { label: "Intensité", value: story.niveauIntensitee },
+                { label: "Douceur", value: story.niveauDouceur },
+                { label: "Danger", value: story.niveauDanger },
+                { label: "Transformation", value: story.niveauTransformation },
               ].map((level, idx) => (
-                <div key={idx} className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                <div
+                  key={idx}
+                  className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{level.label}</p>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {level.label}
+                    </p>
                     <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map((dot) => (
                         <div
                           key={dot}
                           className={`w-2 h-2 rounded-full ${
-                            dot <= level.value ? 'bg-red-600' : 'bg-gray-300 dark:bg-gray-600'
-                          }`}
-                        ></div>
+                            dot <= level.value
+                              ? "bg-red-600"
+                              : "bg-gray-300 dark:bg-gray-600"
+                          }`}></div>
                       ))}
                     </div>
                   </div>
@@ -256,40 +293,57 @@ export default function CustomStoryDetailModal({
 
           {/* Description */}
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Description & Personnalité</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Description & Personnalité
+            </h3>
             <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-              <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{story.description}</p>
+              <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                {story.description}
+              </p>
             </div>
           </div>
 
           {/* Volume Proposals */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <MdVolume className="w-5 h-5" />
+              <MdVolumeUp className="w-5 h-5" />
               Propositions pour les 10 Volumes
             </h3>
             <div className="space-y-3 max-h-96 overflow-y-auto">
               {story.volumeProposals?.map((vol: any, idx: number) => (
                 <details
                   key={idx}
-                  className="group border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer"
-                >
+                  className="group border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer">
                   <summary className="px-4 py-3 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between font-medium text-gray-900 dark:text-white">
                     <span>Volume {vol.volumeNumber}</span>
-                    <span className="group-open:rotate-180 transition-transform">▼</span>
+                    <span className="group-open:rotate-180 transition-transform">
+                      ▼
+                    </span>
                   </summary>
                   <div className="px-4 py-3 space-y-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30">
                     <div>
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lieu / Région</p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">{vol.proposedLocation || '-'}</p>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Lieu / Région
+                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        {vol.proposedLocation || "-"}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Événement clé</p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">{vol.proposedOrientation || '-'}</p>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Événement clé
+                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        {vol.proposedOrientation || "-"}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Twist / Surprise</p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">{vol.proposedTwist || '-'}</p>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Twist / Surprise
+                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        {vol.proposedTwist || "-"}
+                      </p>
                     </div>
                   </div>
                 </details>
@@ -298,72 +352,80 @@ export default function CustomStoryDetailModal({
           </div>
 
           {/* Rejection Info (if rejected) */}
-          {story.status === 'REJECTED' && (
+          {story.status === "REJECTED" && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 space-y-2">
-              <p className="text-sm font-semibold text-red-800 dark:text-red-300">Raison du rejet</p>
-              <p className="text-sm text-red-700 dark:text-red-400">{story.rejectionReason}</p>
+              <p className="text-sm font-semibold text-red-800 dark:text-red-300">
+                Raison du rejet
+              </p>
+              <p className="text-sm text-red-700 dark:text-red-400">
+                {story.rejectionReason}
+              </p>
               {story.rejectionNotes && (
                 <>
-                  <p className="text-sm font-semibold text-red-800 dark:text-red-300 mt-2">Notes additionnelles</p>
-                  <p className="text-sm text-red-700 dark:text-red-400 whitespace-pre-wrap">{story.rejectionNotes}</p>
+                  <p className="text-sm font-semibold text-red-800 dark:text-red-300 mt-2">
+                    Notes additionnelles
+                  </p>
+                  <p className="text-sm text-red-700 dark:text-red-400 whitespace-pre-wrap">
+                    {story.rejectionNotes}
+                  </p>
                 </>
               )}
             </div>
           )}
 
           {/* Action Section */}
-          {action === 'view' && story.status === 'PENDING' && (
+          {action === "view" && story.status === "PENDING" && (
             <div className="flex gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
               <button
-                onClick={() => setAction('mark-review')}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-              >
+                onClick={() => setAction("mark-review")}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
                 <MdPending className="w-4 h-4" />
                 Marquer en examen
               </button>
               <button
-                onClick={() => setAction('approve')}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
-              >
+                onClick={() => setAction("approve")}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
                 <MdCheckCircle className="w-4 h-4" />
                 Approuver
               </button>
               <button
-                onClick={() => setAction('reject')}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
-              >
+                onClick={() => setAction("reject")}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center justify-center gap-2">
                 <MdCancel className="w-4 h-4" />
                 Rejeter
               </button>
             </div>
           )}
 
-          {action === 'approve' && (
+          {action === "approve" && (
             <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 space-y-4 pt-6 border-t">
               <div>
-                <p className="font-semibold text-green-800 dark:text-green-300 mb-2">Êtes-vous sûr d'approuver cette demande ?</p>
-                <p className="text-sm text-green-700 dark:text-green-400">L'utilisateur sera notifié et sa demande sera marquée comme approuvée.</p>
+                <p className="font-semibold text-green-800 dark:text-green-300 mb-2">
+                  Êtes-vous sûr d'approuver cette demande ?
+                </p>
+                <p className="text-sm text-green-700 dark:text-green-400">
+                  L'utilisateur sera notifié et sa demande sera marquée comme
+                  approuvée.
+                </p>
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={handleApprove}
                   disabled={loading}
-                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 transition-colors"
-                >
-                  {loading ? 'Traitement...' : 'Confirmer l\'approbation'}
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 transition-colors">
+                  {loading ? "Traitement..." : "Confirmer l'approbation"}
                 </button>
                 <button
-                  onClick={() => setAction('view')}
+                  onClick={() => setAction("view")}
                   disabled={loading}
-                  className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors"
-                >
+                  className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors">
                   Annuler
                 </button>
               </div>
             </div>
           )}
 
-          {action === 'reject' && (
+          {action === "reject" && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 space-y-4 pt-6 border-t">
               <div>
                 <label className="block text-sm font-semibold text-red-800 dark:text-red-300 mb-2">
@@ -395,44 +457,45 @@ export default function CustomStoryDetailModal({
                 <button
                   onClick={handleReject}
                   disabled={loading}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 transition-colors"
-                >
-                  {loading ? 'Traitement...' : 'Confirmer le rejet'}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 transition-colors">
+                  {loading ? "Traitement..." : "Confirmer le rejet"}
                 </button>
                 <button
                   onClick={() => {
-                    setAction('view');
-                    setRejectionReason('');
-                    setRejectionNotes('');
+                    setAction("view");
+                    setRejectionReason("");
+                    setRejectionNotes("");
                   }}
                   disabled={loading}
-                  className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors"
-                >
+                  className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors">
                   Annuler
                 </button>
               </div>
             </div>
           )}
 
-          {action === 'mark-review' && (
+          {action === "mark-review" && (
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 space-y-4 pt-6 border-t">
               <div>
-                <p className="font-semibold text-blue-800 dark:text-blue-300 mb-2">Marquer comme en examen ?</p>
-                <p className="text-sm text-blue-700 dark:text-blue-400">Cette demande sera passée au statut "En examen" et retirée de la liste des demandes en attente.</p>
+                <p className="font-semibold text-blue-800 dark:text-blue-300 mb-2">
+                  Marquer comme en examen ?
+                </p>
+                <p className="text-sm text-blue-700 dark:text-blue-400">
+                  Cette demande sera passée au statut "En examen" et retirée de
+                  la liste des demandes en attente.
+                </p>
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={handleMarkUnderReview}
                   disabled={loading}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                >
-                  {loading ? 'Traitement...' : 'Confirmer'}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                  {loading ? "Traitement..." : "Confirmer"}
                 </button>
                 <button
-                  onClick={() => setAction('view')}
+                  onClick={() => setAction("view")}
                   disabled={loading}
-                  className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors"
-                >
+                  className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors">
                   Annuler
                 </button>
               </div>
