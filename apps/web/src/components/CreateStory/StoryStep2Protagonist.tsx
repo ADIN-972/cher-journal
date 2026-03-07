@@ -41,11 +41,10 @@ function StoryStep2Protagonist({
     <div className="space-y-6">
       <div className="border-l-4 border-gold pl-6">
         <h2 className="font-serif text-3xl text-charcoal dark:text-white italic">
-          Personnalité & Histoire
+          {t("createStory.step_2_protagonist.title")}
         </h2>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Décrivez la personnalité, les désirs et l'histoire de votre
-          protagoniste
+          {t("createStory.step_2_protagonist.description")}
         </p>
       </div>
 
@@ -62,24 +61,23 @@ function StoryStep2Protagonist({
           </svg>
         </div>
         <p className="text-xs uppercase font-bold text-brand-gold mb-2">
-          Conseil d'auteur
+          {t("createStory.step_2_protagonist.tip_label")}
         </p>
         <p className="text-sm font-light leading-relaxed italic">
-          "Plus les détails physiques sont précis, plus l'immersion sera
-          profonde lors de la lecture de vos volumes."
+          "{t("createStory.step_2_protagonist.tip_text")}"
         </p>
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Description personnalité / histoire *
+          {t("createStory.step_2_protagonist.description_label")}
         </label>
         <textarea
           value={formData.description}
           onChange={(e) =>
             setFormData({ ...formData, description: e.target.value })
           }
-          placeholder="Décrivez sa personnalité, ses désirs secrets, son histoire..."
+          placeholder={t("createStory.step_2_protagonist.description_placeholder")}
           rows={5}
           className="text-charcoal dark:text-white w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white"
         />
@@ -87,7 +85,7 @@ function StoryStep2Protagonist({
 
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-          Genres associés (max 5) *
+          {t("createStory.step_2_protagonist.genres_label")}
         </label>
         <div className="flex flex-wrap gap-2">
           {Object.keys(GENRES)
@@ -115,7 +113,7 @@ function StoryStep2Protagonist({
 
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-          Niveau d'explicité *
+          {t("createStory.step_2_protagonist.explicit_level_label")}
         </label>
         <div className="space-y-2">
           {EXPLICIT_LEVELS.map((level) => {

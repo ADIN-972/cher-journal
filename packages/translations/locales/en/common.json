@@ -1302,6 +1302,16 @@
       "name_placeholder": "Ex: Emma, Veronica, Marie...",
       "tip": "💡 <strong>Tip:</strong> Choose photos that capture the essence of your protagonist - her style, her charisma, her mystery."
     },
+    "step_2_protagonist": {
+      "title": "Personality & Story",
+      "description": "Describe the personality, desires, and story of your protagonist",
+      "tip_label": "Author's Advice",
+      "tip_text": "The more precise the physical details, the deeper the immersion will be when reading your volumes.",
+      "description_label": "Personality / Story Description *",
+      "description_placeholder": "Describe her personality, secret desires, her story...",
+      "genres_label": "Associated Genres (max 5) *",
+      "explicit_level_label": "Explicitness Level *"
+    },
     "emotional_levels": {
       "title": "Emotional Levels",
       "description": "Describe the intensity, softness, danger, and emotional transformation of your story.",
