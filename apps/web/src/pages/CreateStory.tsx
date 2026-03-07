@@ -44,10 +44,68 @@ export default function CreateStoryPage() {
   const [formData, setFormData] = useState<StoryFormData>(INITIAL_FORM_DATA);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  /**
+   * Validate required fields for current step
+   */
+  const validateCurrentStep = (): boolean => {
+    const missingFields: string[] = [];
+
+    switch (currentStep) {
+      case 1: // Protagonist
+        if (!formData.protagonistName?.trim()) {
+          missingFields.push("Nom du protagoniste");
+        }
+        if (!formData.photoAssetIds || formData.photoAssetIds.length === 0) {
+          missingFields.push("Au moins une photo");
+        }
+        break;
+
+      case 2: // Personality
+        if (!formData.description?.trim()) {
+          missingFields.push("Description du personnage");
+        }
+        if (!formData.selectedGenres || formData.selectedGenres.length === 0) {
+          missingFields.push("Au moins un genre");
+        }
+        break;
+
+      case 3: // Emotions
+        // Step 3 has sliders with defaults, validation optional
+        break;
+
+      case 4: // Structure
+        // Step 4 has optional volume details
+        break;
+
+      case 5: // Finalize
+        if (!formData.email?.trim()) {
+          missingFields.push("Adresse email");
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+          missingFields.push("Email invalide");
+        }
+        if (!formData.rgpdConsent) {
+          missingFields.push("Acceptation des conditions RGPD");
+        }
+        if (!formData.ccpaConsent) {
+          missingFields.push("Acceptation des conditions CCPA");
+        }
+        break;
+    }
+
+    if (missingFields.length > 0) {
+      toast.error(`Champs obligatoires manquants:\n• ${missingFields.join("\n• ")}`);
+      return false;
+    }
+
+    return true;
+  };
+
   const handleNext = () => {
     if (currentStep < 5) {
-      setCurrentStep((prev) => (prev + 1) as StoryStep);
-      window.scrollTo(0, 0);
+      if (validateCurrentStep()) {
+        setCurrentStep((prev) => (prev + 1) as StoryStep);
+        window.scrollTo(0, 0);
+      }
     }
   };
 
@@ -59,6 +117,11 @@ export default function CreateStoryPage() {
   };
 
   const handleSubmit = async () => {
+    // Validate final step before submitting
+    if (!validateCurrentStep()) {
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await api.post("/custom-stories", formData);
