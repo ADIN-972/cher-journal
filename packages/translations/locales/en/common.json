@@ -1367,6 +1367,26 @@
           "description": "Lets the reader imagine what comes next"
         }
       }
+    },
+    "step_5_finalize": {
+      "title": "Finalization",
+      "description": "Provide the final details and consents needed to finalize your story.",
+      "email_label": "Email Address *",
+      "email_placeholder": "your.email@example.com",
+      "email_help": "To receive updates on your request",
+      "legal_title": "Ownership & Copyright",
+      "legal_text": "The texts created from your request will become the property of <strong>Cher Journal</strong>. The author reserves the right to follow or not the suggestions you propose. Cher Journal may adapt, modify or complete your story according to its artistic vision.",
+      "rgpd_label": "I accept the <strong>GDPR privacy policy</strong> and understand that my data will be kept for 3 months for moderation and security purposes *",
+      "ccpa_label": "I accept the <strong>CCPA privacy policy</strong> *",
+      "summary_title": "Request Summary",
+      "summary_protagonist": "Protagonist",
+      "summary_genres": "Selected Genres",
+      "summary_explicit_level": "Explicit Level",
+      "summary_photos": "Photos Uploaded",
+      "summary_ending": "Imagined Ending",
+      "summary_undefined": "(not defined)",
+      "summary_none": "(none)",
+      "ready_message": "✅ <strong>Ready to continue?</strong> Verify that all required fields are filled in and click \"Submit my request\"."
     }
   }
 }

@@ -1367,6 +1367,26 @@
           "description": "Laisse le lecteur imaginer la suite"
         }
       }
+    },
+    "step_5_finalize": {
+      "title": "Finalisation",
+      "description": "Fournissez les derniers détails et consentements nécessaires pour finaliser votre histoire.",
+      "email_label": "Adresse email *",
+      "email_placeholder": "votre.email@exemple.com",
+      "email_help": "Pour recevoir les mises à jour sur votre demande",
+      "legal_title": "Propriété & Droits d'Auteur",
+      "legal_text": "Les textes créés à partir de votre demande deviendront propriété de <strong>Cher Journal</strong>. L'auteur se réserve le droit de suivre ou non les suggestions que vous proposez. Cher Journal pourra adapter, modifier ou compléter votre histoire selon sa vision artistique.",
+      "rgpd_label": "J'accepte la <strong>politique de confidentialité RGPD</strong> et comprends que mes données seront conservées 3 mois pour modération et sécurité *",
+      "ccpa_label": "J'accepte la <strong>politique de confidentialité CCPA</strong> *",
+      "summary_title": "Résumé de votre demande",
+      "summary_protagonist": "Protagoniste",
+      "summary_genres": "Genres sélectionnés",
+      "summary_explicit_level": "Niveau d'explicité",
+      "summary_photos": "Photos uploadées",
+      "summary_ending": "Fin imaginée",
+      "summary_undefined": "(non défini)",
+      "summary_none": "(aucun)",
+      "ready_message": "✅ <strong>Prêt à continuer?</strong> Vérifiez que tous les champs requis sont remplis et cliquez sur \"Soumettre ma demande\"."
     }
   }
 }
