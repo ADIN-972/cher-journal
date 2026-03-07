@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { MdImage, MdClose, MdArrowBack } from "react-icons/md";
 import { api } from "../lib/api";
+import { getImageUrl } from "../lib/imageUtils";
 import Modal from "../components/Modal";
 import ImageGallery from "../components/ImageGallery";
 import { useI18n } from "../lib/i18n";
@@ -71,11 +72,7 @@ export default function VolumeForm() {
       setChapterTitle(volume.chapter?.title || "");
       if (volume.illustrationAsset) {
         const asset = volume.illustrationAsset;
-        setIllustrationPreview(
-          asset.thumbnailObjectKey
-            ? `/uploads/${asset.thumbnailObjectKey}`
-            : `/uploads/${asset.objectKey}`
-        );
+        setIllustrationPreview(getImageUrl(asset));
       }
     } catch (error: any) {
       toast.error(t("volume_form.errors.load_volume"));
@@ -139,11 +136,7 @@ export default function VolumeForm() {
 
   const handleSelectIllustration = (asset: any) => {
     setFormData({ ...formData, illustrationAssetId: asset.id });
-    setIllustrationPreview(
-      asset.thumbnailObjectKey
-        ? `/uploads/${asset.thumbnailObjectKey}`
-        : `/uploads/${asset.objectKey}`
-    );
+    setIllustrationPreview(getImageUrl(asset));
     setShowImageSelector(false);
   };
 

@@ -9,6 +9,7 @@ import {
 } from "react-icons/md";
 import toast from "react-hot-toast";
 import { api } from "../lib/api";
+import { getImageUrl } from "../lib/imageUtils";
 
 interface Asset {
   id: string;
@@ -222,11 +223,7 @@ export default function DuplicateManager({
                               {/* Image Preview */}
                               <div className="aspect-square bg-gray-100 overflow-hidden flex items-center justify-center">
                                 <img
-                                  src={
-                                    asset.thumbnailObjectKey
-                                      ? `/uploads/${asset.thumbnailObjectKey}`
-                                      : `/uploads/${asset.objectKey}`
-                                  }
+                                  src={getImageUrl(asset)}
                                   alt={asset.label || "Image"}
                                   className="w-full h-full object-cover"
                                 />
