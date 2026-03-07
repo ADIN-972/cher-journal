@@ -150,6 +150,53 @@ class ApiClient {
   }
 
   /**
+   * Upload files with FormData
+   */
+  async upload<T = any>(endpoint: string, formData: FormData, includeAuth: boolean = true): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+
+    const headers: HeadersInit = {};
+    if (includeAuth) {
+      const token = this.getToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: formData,
+        credentials: 'include',
+      });
+
+      // Handle 401 Unauthorized - token expired
+      if (response.status === 401) {
+        this.clearToken();
+        window.location.href = '/login';
+        throw new Error('Session expired. Please login again.');
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const errorMessage = data.error?.message || data.message || data.error || 'Upload failed';
+        const error = new Error(errorMessage);
+        if (data.error?.code) {
+          (error as any).code = data.error.code;
+        }
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Upload request failed:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Authentication endpoints
    */
   async login(email: string, password: string): Promise<{ user: any }> {

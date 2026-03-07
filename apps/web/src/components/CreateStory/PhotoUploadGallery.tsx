@@ -1,12 +1,19 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { MdClose, MdImage } from 'react-icons/md';
+import { api } from '../../lib/api';
 
 interface PhotoUploadGalleryProps {
-  photos: string[];
+  photos: string[]; // asset IDs
   onPhotosChange: (photos: string[]) => void;
   maxPhotos?: number;
   maxSizeMb?: number;
+}
+
+interface PhotoPreview {
+  url: string; // uploaded image URL from server
+  dataUrl: string; // local preview URL (used while uploading)
+  isUploading?: boolean;
 }
 
 export default function PhotoUploadGallery({
@@ -16,12 +23,13 @@ export default function PhotoUploadGallery({
   maxSizeMb = 5,
 }: PhotoUploadGalleryProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [previews, setPreviews] = useState<PhotoPreview[]>([]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const maxBytes = maxSizeMb * 1024 * 1024;
     const validFiles: File[] = [];
-    let remainingSlots = maxPhotos - photos.length;
+    let remainingSlots = maxPhotos - (photos.length + previews.length);
 
     // Validate all files first
     for (const file of files) {
@@ -46,21 +54,68 @@ export default function PhotoUploadGallery({
       remainingSlots--;
     }
 
-    // Read all valid files in parallel
+    // Create data URLs and upload files in parallel
     const readPromises = validFiles.map((file) => {
-      return new Promise<string>((resolve) => {
+      return new Promise<{ file: File; dataUrl: string }>((resolve) => {
         const reader = new FileReader();
         reader.onload = (event) => {
           const dataUrl = event.target?.result as string;
-          resolve(dataUrl);
+          resolve({ file, dataUrl });
         };
         reader.readAsDataURL(file);
       });
     });
 
     try {
-      const dataUrls = await Promise.all(readPromises);
-      onPhotosChange([...photos, ...dataUrls]);
+      const fileDataPairs = await Promise.all(readPromises);
+
+      // Upload files in parallel
+      const uploadPromises = fileDataPairs.map(async (pair) => {
+        try {
+          const formData = new FormData();
+          formData.append('file', pair.file);
+          formData.append('currentPhotoCount', String(photos.length + previews.length));
+
+          const response = await api.upload('/custom-stories/photos/upload', formData);
+          return {
+            success: true,
+            url: response.data?.url || '',
+            dataUrl: pair.dataUrl,
+          };
+        } catch (error: any) {
+          toast.error(`Erreur lors de l'upload de ${pair.file.name}`);
+          return {
+            success: false,
+            url: '',
+            dataUrl: pair.dataUrl,
+          };
+        }
+      });
+
+      const uploadResults = await Promise.all(uploadPromises);
+
+      // Filter successful uploads
+      const successfulUrls = uploadResults
+        .filter((result) => result.success)
+        .map((result) => result.url);
+
+      const successfulPreviews = uploadResults
+        .filter((result) => result.success)
+        .map((result) => ({
+          url: result.url,
+          dataUrl: result.dataUrl,
+          isUploading: false,
+        }));
+
+      // Update previews and photos
+      setPreviews((prev) => [...prev, ...successfulPreviews]);
+
+      // Update parent form data with image URLs
+      onPhotosChange([...photos, ...successfulUrls]);
+
+      if (successfulUrls.length > 0) {
+        toast.success(`${successfulUrls.length} photo(s) uploadée(s)`);
+      }
     } catch (error) {
       toast.error('Erreur lors du chargement des images');
     }
@@ -72,7 +127,13 @@ export default function PhotoUploadGallery({
   };
 
   const handleRemovePhoto = (index: number) => {
+    // Remove from uploaded photos
     onPhotosChange(photos.filter((_, i) => i !== index));
+  };
+
+  const handleRemovePreview = (index: number) => {
+    // Remove from local previews
+    setPreviews(previews.filter((_, i) => i !== index));
   };
 
   return (
@@ -81,23 +142,23 @@ export default function PhotoUploadGallery({
           Galerie de Références
         </label>
       <div className="flex justify-between items-center">
-        
         <span className="text-xs text-gray-500">
-          {photos.length}/{maxPhotos} photos
+          {photos.length + previews.length}/{maxPhotos} photos
         </span>
       </div>
 
-      {/* Mini Gallery */}
-      {photos.length > 0 && (
+      {/* Mini Gallery - Uploaded photos + Previews */}
+      {(photos.length > 0 || previews.length > 0) && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-          {photos.map((photo, idx) => (
+          {/* Uploaded photos */}
+          {photos.map((photoUrl, idx) => (
             <div
-              key={idx}
+              key={`uploaded-${idx}`}
               className="relative group">
               <img
-                src={photo}
+                src={photoUrl}
                 alt={`Photo ${idx + 1}`}
-                className="w-full h-32 object-cover rounded-lg  dark:border-gray-700"
+                className="w-full h-32 object-cover rounded-lg dark:border-gray-700"
               />
               <button
                 type="button"
@@ -107,11 +168,34 @@ export default function PhotoUploadGallery({
               </button>
             </div>
           ))}
+          {/* Preview photos (being uploaded) */}
+          {previews.map((preview, idx) => (
+            <div
+              key={`preview-${idx}`}
+              className="relative group">
+              <img
+                src={preview.dataUrl}
+                alt={`Preview ${idx + 1}`}
+                className="w-full h-32 object-cover rounded-lg dark:border-gray-700 opacity-75"
+              />
+              {preview.isUploading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg">
+                  <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-red-500" />
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => handleRemovePreview(idx)}
+                className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <MdClose size={16} />
+              </button>
+            </div>
+          ))}
         </div>
       )}
 
       {/* Upload Area */}
-      {photos.length < maxPhotos && (
+      {photos.length + previews.length < maxPhotos && (
         <div
           onClick={() => fileInputRef.current?.click()}
           className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 hover:border-red-400 transition-colors cursor-pointer text-center">
