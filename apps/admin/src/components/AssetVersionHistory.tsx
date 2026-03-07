@@ -9,6 +9,7 @@ import {
 } from "react-icons/md";
 import toast from "react-hot-toast";
 import { api } from "../lib/api";
+import { getImageUrl } from "../lib/imageUtils";
 
 interface Asset {
   id: string;
@@ -252,11 +253,7 @@ export default function AssetVersionHistory({
                         {/* Image Preview */}
                         <div className="aspect-square bg-gray-100  overflow-hidden flex items-center justify-center">
                           <img
-                            src={
-                              version.thumbnailObjectKey
-                                ? `/uploads/${version.thumbnailObjectKey}`
-                                : `/uploads/${version.objectKey}`
-                            }
+                            src={getImageUrl(version)}
                             alt={version.label || "Version"}
                             className="w-full h-full object-cover"
                           />
@@ -288,7 +285,7 @@ export default function AssetVersionHistory({
 
                         {/* Download Button */}
                         <a
-                          href={`/uploads/${version.objectKey}`}
+                          href={`${import.meta.env.VITE_API_URL || 'https://api.moncherjournal.com'}/uploads/${version.objectKey}`}
                           download
                           className="absolute bottom-2 right-2 p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                           title="Télécharger cette version">

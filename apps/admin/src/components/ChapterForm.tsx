@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { MdImage, MdClose } from "react-icons/md";
 import { useI18n, useGenreLabels } from "../lib/i18n";
+import { getImageUrl } from "../lib/imageUtils";
 import Modal from "./Modal";
 import ImageGallery from "./ImageGallery";
 
@@ -97,11 +98,7 @@ export default function ChapterForm({
   useEffect(() => {
     if ((initialData as any)?.coverAsset) {
       const asset = (initialData as any).coverAsset as any;
-      setCoverPreview(
-        asset.thumbnailObjectKey
-          ? `/uploads/${asset.thumbnailObjectKey}`
-          : `/uploads/${asset.objectKey}`
-      );
+      setCoverPreview(getImageUrl(asset));
     } else {
       // Clear preview if no cover asset
       setCoverPreview(null);
@@ -110,11 +107,7 @@ export default function ChapterForm({
 
   const handleSelectCover = (asset: any) => {
     setFormData({ ...formData, coverAssetId: asset.id });
-    setCoverPreview(
-      asset.thumbnailObjectKey
-        ? `/uploads/${asset.thumbnailObjectKey}`
-        : `/uploads/${asset.objectKey}`
-    );
+    setCoverPreview(getImageUrl(asset));
   };
 
   const handleRemoveCover = () => {

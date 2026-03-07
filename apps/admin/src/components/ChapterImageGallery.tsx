@@ -11,6 +11,7 @@ import {
 } from "react-icons/md";
 import toast from "react-hot-toast";
 import { api } from "../lib/api";
+import { getImageUrl } from "../lib/imageUtils";
 import ImageUpload from "./ImageUpload";
 import ConfirmDialog from "./ConfirmDialog";
 import AssetFilters, { FilterState } from "./AssetFilters";
@@ -253,11 +254,7 @@ export default function ChapterImageGallery({
               {/* Image Container */}
               <div className="aspect-square bg-gray-100 overflow-hidden flex items-center justify-center">
                 <img
-                  src={
-                    asset.thumbnailObjectKey
-                      ? `/uploads/${asset.thumbnailObjectKey}`
-                      : `/uploads/${asset.objectKey}`
-                  }
+                  src={getImageUrl(asset)}
                   alt={asset.label || "Image"}
                   className="w-full h-full object-cover"
                 />
