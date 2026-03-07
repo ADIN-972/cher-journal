@@ -71,8 +71,22 @@ export default function CustomStories() {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedStory, setSelectedStory] = useState<CustomStory | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'card'>('list');
+  const [viewMode, setViewModeState] = useState<'list' | 'card'>('list');
   const { t } = useI18n();
+
+  // Initialize viewMode from localStorage on mount
+  useEffect(() => {
+    const savedViewMode = localStorage.getItem('customStories_viewMode') as 'list' | 'card' | null;
+    if (savedViewMode && ['list', 'card'].includes(savedViewMode)) {
+      setViewModeState(savedViewMode);
+    }
+  }, []);
+
+  // Save viewMode to localStorage whenever it changes
+  const setViewMode = (mode: 'list' | 'card') => {
+    setViewModeState(mode);
+    localStorage.setItem('customStories_viewMode', mode);
+  };
 
   useEffect(() => {
     loadStories();
@@ -366,7 +380,7 @@ export default function CustomStories() {
           <p className="text-gray-600 dark:text-gray-400">Aucune demande trouvée</p>
         </div>
       ) : viewMode === 'list' ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="">
           <SmartTableGrid
             listName="custom-stories"
             data={stories}
