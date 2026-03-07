@@ -52,7 +52,15 @@ export default function CustomStoryDetailModal({
     setLoadingPhotos(true);
     try {
       // Filter out data URLs - only fetch real asset IDs from the API
-      const assetIds = story.photoAssetIds.filter((id: string) => !id.startsWith('data:'));
+      let assetIds = story.photoAssetIds.filter((id: string) => !id.startsWith('data:'));
+
+      // Extract just the filename if the ID contains a path (defensive for legacy data)
+      assetIds = assetIds.map((id: string) => {
+        if (id.includes('/')) {
+          return id.split('/').pop() || id;
+        }
+        return id;
+      });
 
       if (assetIds.length === 0) {
         setPhotos([]);
