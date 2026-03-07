@@ -91,7 +91,15 @@ export default function CreateStoryPage() {
     }
 
     if (missingFields.length > 0) {
-      toast.error(`Champs obligatoires manquants:\n• ${missingFields.join("\n• ")}`);
+      // Show custom toast with list of missing fields
+      toast.error(() => (
+        <div>
+          <div className="font-semibold mb-2">Veuillez remplir:</div>
+          {missingFields.map((field, idx) => (
+            <div key={idx}>• {field}</div>
+          ))}
+        </div>
+      ));
       return false;
     }
 
@@ -102,6 +110,7 @@ export default function CreateStoryPage() {
     if (currentStep < 5) {
       if (validateCurrentStep()) {
         setCurrentStep((prev) => (prev + 1) as StoryStep);
+        toast.success(`Étape ${currentStep} complétée ✓`);
         window.scrollTo(0, 0);
       }
     }
