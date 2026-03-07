@@ -110,8 +110,9 @@ export default function PhotoUploadGallery({
       // Update previews and photos
       setPreviews((prev) => [...prev, ...successfulPreviews]);
 
-      // Update parent form data with image URLs
-      onPhotosChange([...photos, ...successfulUrls]);
+      // Update parent form data with image URLs (filter out any data URLs, keep only server URLs)
+      const validPhotos = photos.filter((url) => !url.startsWith('data:'));
+      onPhotosChange([...validPhotos, ...successfulUrls]);
 
       if (successfulUrls.length > 0) {
         toast.success(`${successfulUrls.length} photo(s) uploadée(s)`);
