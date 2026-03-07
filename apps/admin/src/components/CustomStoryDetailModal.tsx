@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import toast from 'react-hot-toast';
-import { api } from '../lib/api';
+import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
+import { api } from "../lib/api";
 import {
   MdClose,
   MdCheckCircle,
@@ -11,7 +11,8 @@ import {
   MdEmail,
   MdCategory,
   MdVolumeUp,
-} from 'react-icons/md';
+  MdImage,
+} from "react-icons/md";
 
 interface CustomStoryDetailModalProps {
   story: any;
@@ -20,7 +21,7 @@ interface CustomStoryDetailModalProps {
   onActionSuccess: () => void;
 }
 
-type ModalAction = 'view' | 'approve' | 'reject' | 'mark-review';
+type ModalAction = "view" | "approve" | "reject" | "mark-review";
 
 export default function CustomStoryDetailModal({
   story,
@@ -28,10 +29,40 @@ export default function CustomStoryDetailModal({
   onClose,
   onActionSuccess,
 }: CustomStoryDetailModalProps) {
-  const [action, setAction] = useState<ModalAction>('view');
-  const [rejectionReason, setRejectionReason] = useState('');
-  const [rejectionNotes, setRejectionNotes] = useState('');
+  const [action, setAction] = useState<ModalAction>("view");
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [rejectionNotes, setRejectionNotes] = useState("");
   const [loading, setLoading] = useState(false);
+  const [photos, setPhotos] = useState<any[]>([]);
+  const [loadingPhotos, setLoadingPhotos] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && story?.photoAssetIds?.length > 0) {
+      loadPhotos();
+    }
+  }, [isOpen, story?.photoAssetIds]);
+
+  const loadPhotos = async () => {
+    if (!story?.photoAssetIds || story.photoAssetIds.length === 0) {
+      setPhotos([]);
+      return;
+    }
+
+    setLoadingPhotos(true);
+    try {
+      const photoData = await Promise.all(
+        story.photoAssetIds.map((assetId: string) =>
+          api.get(`/admin/assets/${assetId}`).then(res => res.data)
+        )
+      );
+      setPhotos(photoData.filter(Boolean));
+    } catch (error: any) {
+      console.error("Erreur lors du chargement des photos:", error);
+      setPhotos([]);
+    } finally {
+      setLoadingPhotos(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -39,10 +70,10 @@ export default function CustomStoryDetailModal({
     setLoading(true);
     try {
       await api.post(`/admin/custom-stories/${story.id}/approve`);
-      toast.success('Demande approuvée avec succès');
+      toast.success("Demande approuvée avec succès");
       onActionSuccess();
     } catch (error: any) {
-      toast.error(error.message || 'Erreur lors de l\'approbation');
+      toast.error(error.message || "Erreur lors de l'approbation");
     } finally {
       setLoading(false);
     }
@@ -50,7 +81,7 @@ export default function CustomStoryDetailModal({
 
   const handleReject = async () => {
     if (!rejectionReason.trim()) {
-      toast.error('Veuillez entrer une raison de rejet');
+      toast.error("Veuillez entrer une raison de rejet");
       return;
     }
 
@@ -60,10 +91,10 @@ export default function CustomStoryDetailModal({
         reason: rejectionReason,
         notes: rejectionNotes,
       });
-      toast.success('Demande rejetée');
+      toast.success("Demande rejetée");
       onActionSuccess();
     } catch (error: any) {
-      toast.error(error.message || 'Erreur lors du rejet');
+      toast.error(error.message || "Erreur lors du rejet");
     } finally {
       setLoading(false);
     }
@@ -73,10 +104,10 @@ export default function CustomStoryDetailModal({
     setLoading(true);
     try {
       await api.post(`/admin/custom-stories/${story.id}/under-review`);
-      toast.success('Demande marquée comme en examen');
+      toast.success("Demande marquée comme en examen");
       onActionSuccess();
     } catch (error: any) {
-      toast.error(error.message || 'Erreur lors de la mise à jour');
+      toast.error(error.message || "Erreur lors de la mise à jour");
     } finally {
       setLoading(false);
     }
@@ -84,29 +115,29 @@ export default function CustomStoryDetailModal({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'PENDING':
-        return 'text-yellow-600';
-      case 'UNDER_REVIEW':
-        return 'text-blue-600';
-      case 'APPROVED':
-        return 'text-green-600';
-      case 'REJECTED':
-        return 'text-red-600';
+      case "PENDING":
+        return "text-yellow-600";
+      case "UNDER_REVIEW":
+        return "text-blue-600";
+      case "APPROVED":
+        return "text-green-600";
+      case "REJECTED":
+        return "text-red-600";
       default:
-        return 'text-gray-600';
+        return "text-gray-600";
     }
   };
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'PENDING':
-        return 'En attente';
-      case 'UNDER_REVIEW':
-        return 'En examen';
-      case 'APPROVED':
-        return 'Approuvé';
-      case 'REJECTED':
-        return 'Rejeté';
+      case "PENDING":
+        return "En attente";
+      case "UNDER_REVIEW":
+        return "En examen";
+      case "APPROVED":
+        return "Approuvé";
+      case "REJECTED":
+        return "Rejeté";
       default:
         return status;
     }
@@ -204,7 +235,6 @@ export default function CustomStoryDetailModal({
           {/* Story Details */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <MdCategory className="w-5 h-5" />
               Paramètres de l'histoire
             </h3>
 
@@ -251,9 +281,49 @@ export default function CustomStoryDetailModal({
                   {story.photoAssetIds.length !== 1 ? "s" : ""} uploadée
                   {story.photoAssetIds.length !== 1 ? "s" : ""}
                 </p>
+
               </div>
             </div>
           </div>
+
+          {/* Photos Gallery */}
+          {story.photoAssetIds.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Galerie de Photos
+              </h3>
+              {loadingPhotos ? (
+                <div className="flex items-center justify-center py-8 text-gray-500">
+                  Chargement des photos...
+                </div>
+              ) : photos.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {photos.map((photo, idx) => (
+                    <div
+                      key={idx}
+                      className="group relative bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden aspect-square flex items-center justify-center">
+                      <img
+                        src={
+                          photo.thumbnailObjectKey
+                            ? `/uploads/${photo.thumbnailObjectKey}`
+                            : `/uploads/${photo.objectKey}`
+                        }
+                        alt={`Photo ${idx + 1}`}
+                        className="w-full h-full object-cover hover:opacity-90 transition-opacity"
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <MdImage className="w-8 h-8 text-gray-400 mb-2" />
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Photos non disponibles
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Emotional Levels */}
           <div className="space-y-4">
@@ -306,48 +376,52 @@ export default function CustomStoryDetailModal({
           {/* Volume Proposals */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <MdVolumeUp className="w-5 h-5" />
               Propositions pour les 10 Volumes
             </h3>
             <div className="space-y-3 max-h-96 overflow-y-auto">
-              {story.volumeProposals?.map((vol: any, idx: number) => (
-                <details
-                  key={idx}
-                  className="group border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer">
-                  <summary className="px-4 py-3 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between font-medium text-gray-900 dark:text-white">
-                    <span>Volume {vol.volumeNumber}</span>
-                    <span className="group-open:rotate-180 transition-transform">
-                      ▼
-                    </span>
-                  </summary>
-                  <div className="px-4 py-3 space-y-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30">
-                    <div>
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Lieu / Région
-                      </p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">
-                        {vol.proposedLocation || "-"}
-                      </p>
+              {story.volumeProposals?.map((vol: any, idx: number) => {
+                if (!vol) {
+                  return <></>;
+                }
+                return (
+                  <details
+                    key={idx}
+                    className="group border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer">
+                    <summary className="px-4 py-3 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between font-medium text-gray-900 dark:text-white">
+                      <span>Volume {vol.volumeNumber}</span>
+                      <span className="group-open:rotate-180 transition-transform">
+                        ▼
+                      </span>
+                    </summary>
+                    <div className="px-4 py-3 space-y-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30">
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Lieu / Région
+                        </p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          {vol.proposedLocation || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Événement clé
+                        </p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          {vol.proposedOrientation || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Twist / Surprise
+                        </p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          {vol.proposedTwist || "-"}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Événement clé
-                      </p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">
-                        {vol.proposedOrientation || "-"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Twist / Surprise
-                      </p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">
-                        {vol.proposedTwist || "-"}
-                      </p>
-                    </div>
-                  </div>
-                </details>
-              ))}
+                  </details>
+                );
+              })}
             </div>
           </div>
 
