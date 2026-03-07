@@ -80,16 +80,10 @@ export class CustomStoriesUploadService {
         return true; // File is suspicious
       }
 
-      // Check for embedded executables (ELF, PE headers)
-      const elfSignature = buffer.indexOf(Buffer.from([0x7f, 0x45, 0x4c, 0x46])); // ELF
-      const peSignature = buffer.indexOf(Buffer.from('MZ')); // PE (Windows executable)
-
-      if (elfSignature !== -1 || peSignature !== -1) {
-        console.warn('Executable code detected in file');
-        return true; // File contains executable code
-      }
-
-      return false; // File appears clean
+      // File signature validation passed - image appears clean
+      // (Searching for executable signatures throughout the file causes
+      // too many false positives with compressed image data)
+      return false;
     } catch (error) {
       console.error('Error during malware detection:', error);
       // Default to allow on error (better UX than blocking legitimate files)
