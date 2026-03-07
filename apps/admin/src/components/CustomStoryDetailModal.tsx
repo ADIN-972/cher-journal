@@ -51,8 +51,16 @@ export default function CustomStoryDetailModal({
 
     setLoadingPhotos(true);
     try {
+      // Filter out data URLs - only fetch real asset IDs from the API
+      const assetIds = story.photoAssetIds.filter((id: string) => !id.startsWith('data:'));
+
+      if (assetIds.length === 0) {
+        setPhotos([]);
+        return;
+      }
+
       const photoData = await Promise.all(
-        story.photoAssetIds.map((assetId: string) =>
+        assetIds.map((assetId: string) =>
           api.get(`/admin/assets/${assetId}`).then(res => res.data)
         )
       );
