@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { api } from "../lib/api";
+import { getImageUrl } from "../lib/imageUtils";
 import {
   MdClose,
   MdCheckCircle,
@@ -303,11 +304,7 @@ export default function CustomStoryDetailModal({
                       key={idx}
                       className="group relative bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden aspect-square flex items-center justify-center">
                       <img
-                        src={
-                          photo.thumbnailObjectKey
-                            ? `/uploads/${photo.thumbnailObjectKey}`
-                            : `/uploads/${photo.objectKey}`
-                        }
+                        src={getImageUrl(photo)}
                         alt={`Photo ${idx + 1}`}
                         className="w-full h-full object-cover hover:opacity-90 transition-opacity"
                       />
