@@ -1335,6 +1335,29 @@
       "scale_low": "Low",
       "scale_high": "High",
       "tip": "💡 <strong>Tip:</strong> These levels will guide our authors to create a story perfectly calibrated to your desires."
+    },
+    "explicit_levels": {
+      "title": "Explicitness Level",
+      "romantic": {
+        "label": "Romantic",
+        "description": "Suggested scenes, emotional focus"
+      },
+      "suggestive": {
+        "label": "Suggestive",
+        "description": "Evocative moments, evasive descriptions"
+      },
+      "sensual": {
+        "label": "Sensual",
+        "description": "Detailed descriptions, poetic language"
+      },
+      "explicit": {
+        "label": "Explicit",
+        "description": "Direct and detailed descriptions"
+      },
+      "very_explicit": {
+        "label": "Very Explicit",
+        "description": "Very crude and direct descriptions"
+      }
     }
   }
 }
