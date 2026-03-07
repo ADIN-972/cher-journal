@@ -268,25 +268,8 @@
   },
   "genres": {
     "label": "Genres",
-    "help": "Sélectionnez un ou plusieurs genres qui décrivent ce chapitre",
-    "PASSIONS_CHARNELLES": "Passions Charnelles",
-    "ROMANCES_TENDRES": "Romances Tendres",
-    "MYSTERIES_SENSUELS": "Mystères Sensuels",
-    "INTERDITS": "Interdits",
-    "CONQUETES": "Conquêtes",
-    "REVES_SECRETS": "Rêves Secrets",
-    "PASSION_BRUTALE": "Passion Brute",
-    "AMOUR_COMPLIQUE": "Amour Compliqué",
-    "DESIR_NOCTURNE": "Désir Nocturne",
-    "LIBERATION": "Libération",
-    "DECOUVERTE_DE_SOI": "Découverte de soi",
-    "INTIMITE_PSYCHOLOGIQUE": "Intimité Psychologique",
-    "EVEIL_DU_DESIR": "Éveil du Désir",
-    "RELATIONS_TRANSFORMATRICES": "Relations Transformatrices",
-    "MEMOIRE_DU_CORPS": "Mémoire du Corps"
-  },
-  "genres_definitions": {
     "intro": "Les récits de Cher Journal explorent le désir comme une expérience humaine, sensorielle et transformatrice. Chaque genre n'est pas une catégorie figée, mais une porte d'entrée émotionnelle. Un même récit peut appartenir à plusieurs genres, car le désir est multiple, mouvant, et jamais réductible à un seul élan.",
+    "help": "Sélectionnez un ou plusieurs genres qui décrivent ce chapitre",
     "usage": "Les genres sont utilisés : pour orienter le lecteur, pour respecter la diversité des sensibilités, pour affirmer une ligne éditoriale exigeante et littéraire.",
     "PASSIONS_CHARNELLES": {
       "title": "Passions Charnelles",
@@ -1357,6 +1340,32 @@
       "very_explicit": {
         "label": "Très explicite",
         "description": "Descriptions très crues et directes"
+      }
+    },
+    "step_4_structure": {
+      "title": "Structure de l'Histoire",
+      "description": "Décrivez la structure de votre histoire, les volumes et la fin.",
+      "ending_question": "Comment l'histoire finit-elle? *",
+      "ending_details_label": "Détails de la fin (optionnel)",
+      "ending_details_placeholder": "Décrivez plus précisément comment vous imaginez la conclusion...",
+      "volumes_title": "Les 10 Volumes",
+      "ending_options": {
+        "HAPPY": {
+          "label": "Happy Ending",
+          "description": "Finale heureuse, satisfaisante pour tous"
+        },
+        "BITTERSWEET": {
+          "label": "Doux-Amer",
+          "description": "Joies et peines mélangées, réaliste"
+        },
+        "TRAGIC": {
+          "label": "Tragique",
+          "description": "Fin sombre, sacrifice ou perte majeure"
+        },
+        "OPEN": {
+          "label": "Fin Ouverte",
+          "description": "Laisse le lecteur imaginer la suite"
+        }
       }
     }
   }

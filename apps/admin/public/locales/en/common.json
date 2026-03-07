@@ -268,25 +268,8 @@
   },
   "genres": {
     "label": "Genres",
-    "help": "Select one or more genres that describe this chapter",
-    "PASSIONS_CHARNELLES": "Passionate Desires",
-    "ROMANCES_TENDRES": "Sweet Romance",
-    "MYSTERIES_SENSUELS": "Sensual Mystery",
-    "INTERDITS": "Forbidden",
-    "CONQUETES": "Seduction & Conquest",
-    "REVES_SECRETS": "Secret Dreams",
-    "PASSION_BRUTALE": "Raw Passion",
-    "AMOUR_COMPLIQUE": "Complicated Love",
-    "DESIR_NOCTURNE": "Nocturnal Desire",
-    "LIBERATION": "Liberation",
-    "DECOUVERTE_DE_SOI": "Self-Discovery",
-    "INTIMITE_PSYCHOLOGIQUE": "Psychological Intimacy",
-    "EVEIL_DU_DESIR": "Awakening of Desire",
-    "RELATIONS_TRANSFORMATRICES": "Transformative Relations",
-    "MEMOIRE_DU_CORPS": "Body Memory"
-  },
-  "genres_definitions": {
     "intro": "The stories of Cher Journal explore desire as a human, sensory and transformative experience. Each genre is not a fixed category, but an emotional gateway. A single story can belong to multiple genres, because desire is multiple, ever-changing, and never reducible to a single impulse.",
+    "help": "Select one or more genres that describe this chapter",
     "usage": "Genres are used: to guide the reader, to respect the diversity of sensibilities, to affirm a demanding and literary editorial line.",
     "PASSIONS_CHARNELLES": {
       "title": "Passionate Desires",
@@ -1300,6 +1283,64 @@
       "targeting_criteria_configured": "Advanced criteria configured",
       "targeting_users_targeted": "Targeted Users:",
       "targeting_no_users": "-"
+    }
+  },
+  "createStory": {
+    "title": "Create Your Story",
+    "subtitle": "5 steps to describe your vision",
+    "step_indicator": "Step {current} of {total}",
+    "button_previous": "← Previous",
+    "button_next": "Next →",
+    "button_submit": "Submit my request",
+    "button_submitting": "Sending...",
+    "success_message": "Your request has been received! Thank you for your interest.",
+    "error_generic": "An error occurred",
+    "emotional_levels": {
+      "title": "Emotional Levels",
+      "description": "Describe the intensity, softness, danger, and emotional transformation of your story.",
+      "summary_title": "Emotional summary",
+      "intensity": {
+        "label": "Intensity",
+        "description": "Strength of desire, carnal tension"
+      },
+      "softness": {
+        "label": "Softness",
+        "description": "Tenderness, vulnerability, delicacy"
+      },
+      "danger": {
+        "label": "Danger",
+        "description": "Emotional, social, moral, or physical risk"
+      },
+      "transformation": {
+        "label": "Transformation",
+        "description": "Character evolution, major changes"
+      },
+      "scale_low": "Low",
+      "scale_high": "High",
+      "tip": "💡 <strong>Tip:</strong> These levels will guide our authors to create a story perfectly calibrated to your desires."
+    },
+    "explicit_levels": {
+      "title": "Explicitness Level",
+      "romantic": {
+        "label": "Romantic",
+        "description": "Suggested scenes, emotional focus"
+      },
+      "suggestive": {
+        "label": "Suggestive",
+        "description": "Evocative moments, evasive descriptions"
+      },
+      "sensual": {
+        "label": "Sensual",
+        "description": "Detailed descriptions, poetic language"
+      },
+      "explicit": {
+        "label": "Explicit",
+        "description": "Direct and detailed descriptions"
+      },
+      "very_explicit": {
+        "label": "Very explicit",
+        "description": "Very raw and direct descriptions"
+      }
     }
   }
 }

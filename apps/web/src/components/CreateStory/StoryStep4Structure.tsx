@@ -1,27 +1,12 @@
 import React, { useState } from "react";
+import { useTranslation } from "../../lib/i18n";
 import { StoryFormData, VolumeProposal } from "./types";
 
 const ENDING_OPTIONS = [
-  {
-    value: "HAPPY",
-    label: "Happy Ending",
-    description: "Finale heureuse, satisfaisante pour tous",
-  },
-  {
-    value: "BITTERSWEET",
-    label: "Doux-Amer",
-    description: "Joies et peines mélangées, réaliste",
-  },
-  {
-    value: "TRAGIC",
-    label: "Tragique",
-    description: "Fin sombre, sacrifice ou perte majeure",
-  },
-  {
-    value: "OPEN",
-    label: "Fin Ouverte",
-    description: "Laisse le lecteur imaginer la suite",
-  },
+  { value: "HAPPY" },
+  { value: "BITTERSWEET" },
+  { value: "TRAGIC" },
+  { value: "OPEN" },
 ];
 
 interface StoryStep4StructureProps {
@@ -33,6 +18,7 @@ export default function StoryStep4Structure({
   formData,
   setFormData,
 }: StoryStep4StructureProps) {
+  const { t } = useTranslation();
   const [expandedVolume, setExpandedVolume] = useState<number | null>(1);
 
   const updateVolume = (volumeNumber: number, field: string, value: string) => {
@@ -46,17 +32,17 @@ export default function StoryStep4Structure({
     <div className="space-y-6">
       <div className="border-l-4 border-gold pl-6">
         <h2 className="font-serif text-3xl text-charcoal dark:text-white italic">
-          Structure de l'Histoire
+          {t("createStory.step_4_structure.title")}
         </h2>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Décrivez la structure de votre histoire, les volumes et la fin.
+          {t("createStory.step_4_structure.description")}
         </p>
       </div>
 
       {/* Ending Choice */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-          Comment l'histoire finit-elle? *
+          {t("createStory.step_4_structure.ending_question")}
         </label>
         <div className="space-y-2">
           {ENDING_OPTIONS.map((option) => (
@@ -72,10 +58,10 @@ export default function StoryStep4Structure({
                   : "border-gray-200 dark:border-gray-700"
               }`}>
               <p className="font-medium text-gray-900 dark:text-white">
-                {option.label}
+                {t(`createStory.step_4_structure.ending_options.${option.value}.label`)}
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                {option.description}
+                {t(`createStory.step_4_structure.ending_options.${option.value}.description`)}
               </p>
             </button>
           ))}
@@ -85,14 +71,14 @@ export default function StoryStep4Structure({
       {/* Ending Custom Details */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Détails de la fin (optionnel)
+          {t("createStory.step_4_structure.ending_details_label")}
         </label>
         <textarea
           value={formData.storyEndingCustom || ""}
           onChange={(e) =>
             setFormData({ ...formData, storyEndingCustom: e.target.value })
           }
-          placeholder="Décrivez plus précisément comment vous imaginez la conclusion..."
+          placeholder={t("createStory.step_4_structure.ending_details_placeholder")}
           rows={3}
           className="text-charcoal dark:text-white w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white"
         />
@@ -101,7 +87,7 @@ export default function StoryStep4Structure({
       {/* 10 Volumes */}
       <div>
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-          Les 10 Volumes
+          {t("createStory.step_4_structure.volumes_title")}
         </h3>
         <div className="space-y-3">
           {formData.volumeProposals.map((volume) => (

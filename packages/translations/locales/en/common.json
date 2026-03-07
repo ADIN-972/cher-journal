@@ -268,25 +268,8 @@
   },
   "genres": {
     "label": "Genres",
-    "help": "Select one or more genres that describe this chapter",
-    "PASSIONS_CHARNELLES": "Passionate Desires",
-    "ROMANCES_TENDRES": "Sweet Romance",
-    "MYSTERIES_SENSUELS": "Sensual Mystery",
-    "INTERDITS": "Forbidden",
-    "CONQUETES": "Seduction & Conquest",
-    "REVES_SECRETS": "Secret Dreams",
-    "PASSION_BRUTALE": "Raw Passion",
-    "AMOUR_COMPLIQUE": "Complicated Love",
-    "DESIR_NOCTURNE": "Nocturnal Desire",
-    "LIBERATION": "Liberation",
-    "DECOUVERTE_DE_SOI": "Self-Discovery",
-    "INTIMITE_PSYCHOLOGIQUE": "Psychological Intimacy",
-    "EVEIL_DU_DESIR": "Awakening of Desire",
-    "RELATIONS_TRANSFORMATRICES": "Transformative Relations",
-    "MEMOIRE_DU_CORPS": "Body Memory"
-  },
-  "genres_definitions": {
     "intro": "The stories of Cher Journal explore desire as a human, sensory and transformative experience. Each genre is not a fixed category, but an emotional gateway. A single story can belong to multiple genres, because desire is multiple, ever-changing, and never reducible to a single impulse.",
+    "help": "Select one or more genres that describe this chapter",
     "usage": "Genres are used: to guide the reader, to respect the diversity of sensibilities, to affirm a demanding and literary editorial line.",
     "PASSIONS_CHARNELLES": {
       "title": "Passionate Desires",
@@ -1357,6 +1340,32 @@
       "very_explicit": {
         "label": "Very explicit",
         "description": "Very raw and direct descriptions"
+      }
+    },
+    "step_4_structure": {
+      "title": "Story Structure",
+      "description": "Describe the structure of your story, the volumes and the ending.",
+      "ending_question": "How does the story end? *",
+      "ending_details_label": "Ending details (optional)",
+      "ending_details_placeholder": "Describe more precisely how you imagine the conclusion...",
+      "volumes_title": "The 10 Volumes",
+      "ending_options": {
+        "HAPPY": {
+          "label": "Happy Ending",
+          "description": "Happy, satisfying ending for all"
+        },
+        "BITTERSWEET": {
+          "label": "Bittersweet",
+          "description": "Mixed joys and sorrows, realistic"
+        },
+        "TRAGIC": {
+          "label": "Tragic",
+          "description": "Dark ending, sacrifice or major loss"
+        },
+        "OPEN": {
+          "label": "Open Ending",
+          "description": "Lets the reader imagine what comes next"
+        }
       }
     }
   }
