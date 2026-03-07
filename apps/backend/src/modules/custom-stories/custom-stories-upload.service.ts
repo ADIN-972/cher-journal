@@ -13,6 +13,7 @@ interface UploadValidationResult {
 
 export class CustomStoriesUploadService {
   private readonly uploadDir = process.env.UPLOAD_DIR || './uploads/custom-stories';
+  private readonly publicUrl = process.env.PUBLIC_URL || 'http://localhost:5000';
   private readonly maxFileSize = 5 * 1024 * 1024; // 5MB
   private readonly allowedMimeTypes = ['image/jpeg', 'image/png'];
   private readonly maxPhotosPerRequest = 10;
@@ -158,14 +159,16 @@ export class CustomStoriesUploadService {
     });
 
     // Return file info with appropriate path structure
-    const urlPath = storyId
+    const relativePath = storyId
       ? `/uploads/custom-stories/${storyId}/${uniqueFilename}`
       : `/uploads/custom-stories/temp/${userId}/${uniqueFilename}`;
+
+    const fullUrl = `${this.publicUrl}${relativePath}`;
 
     return {
       id: uniqueFilename,
       filename: filename,
-      url: urlPath,
+      url: fullUrl,
     };
   }
 
