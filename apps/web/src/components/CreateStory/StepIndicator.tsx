@@ -1,13 +1,20 @@
 import React from 'react';
-import { StoryStep } from './types';
+import toast from 'react-hot-toast';
+import { StoryStep, StoryFormData } from './types';
 
 interface StepIndicatorProps {
   currentStep: StoryStep;
   setCurrentStep: (step: StoryStep) => void;
   totalSteps: number;
+  formData?: StoryFormData;
+  validateStep?: (step: StoryStep) => boolean;
 }
 
-export default function StepIndicator({ currentStep, setCurrentStep, totalSteps }: StepIndicatorProps) {
+export default function StepIndicator({
+  currentStep,
+  setCurrentStep,
+  validateStep
+}: StepIndicatorProps) {
   const steps = [
     { number: 1, label: 'Protagoniste' },
     { number: 2, label: 'Personnalité' },
@@ -16,13 +23,35 @@ export default function StepIndicator({ currentStep, setCurrentStep, totalSteps 
     { number: 5, label: 'Finalisation' },
   ];
 
+  const handleStepClick = (targetStep: StoryStep) => {
+    // Allow going back to previous steps without validation
+    if (targetStep < currentStep) {
+      setCurrentStep(targetStep);
+      return;
+    }
+
+    // Prevent going forward without validation
+    if (targetStep > currentStep) {
+      if (validateStep && !validateStep(currentStep)) {
+        return; // Toast already shown by validateStep
+      }
+      setCurrentStep(targetStep);
+      toast.success(`Étape ${currentStep} complétée ✓`);
+    }
+  };
+
   return (
     <div className="flex justify-between items-center w-full mb-8">
       {steps.map((step, idx) => (
-        <button key={step.number} className="flex items-center flex-1"
-        onClick={()=> {
-          setCurrentStep(step.number as StoryStep)
-        }}
+        <button
+          key={step.number}
+          onClick={() => {
+            handleStepClick(step.number as StoryStep);
+          }}
+          disabled={step.number > currentStep}
+          className={`flex items-center flex-1 ${
+            step.number > currentStep ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+          }`}
         >
           <div
             className={`grid w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${

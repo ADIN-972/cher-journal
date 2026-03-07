@@ -162,6 +162,7 @@ export default function CreateStoryPage() {
             setCurrentStep={setCurrentStep}
             currentStep={currentStep}
             totalSteps={5}
+            validateStep={validateCurrentStep}
           />
         </div>
 
