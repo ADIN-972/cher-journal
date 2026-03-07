@@ -19,7 +19,7 @@ export default function LayoutNew({ children }: LayoutNewProps) {
   return (
     <div className="dark:bg-boudoir-950 dark:text-white bg-light-background dark:bg-background-dark text-light-text min-h-screen flex flex-col">
       {/* Header / TopNavBar */}
-      <header className="fixed top-0 w-full   text-soft-gold bg-opacity-70 z-50  dark:bg-background-dark bg-light-surface backdrop-blur-md dark:border-b dark:border-[#c5a059]/30 border-b border-light-border glass-effect">
+      <header className="fixed top-0 w-full   text-soft-gold bg-opacity-70 z-50 dg-white dark:bg-background-dark bg-light-surface backdrop-blur-md dark:border-b dark:border-[#c5a059]/30 border-b border-light-border glass-effect">
         <div className="max-w-[1280px] mx-auto px-6 h-16 flex items-center justify-between">
           {/* Left Section - Logo & Navigation */}
           <div className="flex items-center gap-10 text-white">

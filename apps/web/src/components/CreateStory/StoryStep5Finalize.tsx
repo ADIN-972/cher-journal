@@ -1,5 +1,5 @@
-import React from 'react';
-import { StoryFormData } from './types';
+import React from "react";
+import { StoryFormData } from "./types";
 
 interface StoryStep5FinalizeProps {
   formData: StoryFormData;
@@ -12,12 +12,13 @@ export default function StoryStep5Finalize({
 }: StoryStep5FinalizeProps) {
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-light text-rose-900 dark:text-rose-100 mb-4">
-          Étape 5: Finalisation
+      <div className="border-l-4 border-gold pl-6">
+        <h2 className="font-serif text-3xl text-charcoal dark:text-white italic">
+          Finalisation
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          Derniers détails et consentements
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
+          Fournissez les derniers détails et consentements nécessaires pour
+          finaliser votre histoire.
         </p>
       </div>
 
@@ -31,7 +32,7 @@ export default function StoryStep5Finalize({
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           placeholder="votre.email@exemple.com"
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500  dark:text-white"
           required
         />
         <p className="text-xs text-gray-500 mt-1">
@@ -101,7 +102,7 @@ export default function StoryStep5Finalize({
               Protagoniste
             </span>
             <span className="font-medium text-gray-900 dark:text-white">
-              {formData.protagonistName || '(non défini)'}
+              {formData.protagonistName || "(non défini)"}
             </span>
           </div>
           <div className="flex justify-between">
@@ -110,8 +111,8 @@ export default function StoryStep5Finalize({
             </span>
             <span className="font-medium text-gray-900 dark:text-white">
               {formData.selectedGenres.length > 0
-                ? formData.selectedGenres.join(', ')
-                : '(aucun)'}
+                ? formData.selectedGenres.join(", ")
+                : "(aucun)"}
             </span>
           </div>
           <div className="flex justify-between">
@@ -143,8 +144,8 @@ export default function StoryStep5Finalize({
 
       <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
         <p className="text-sm text-green-800 dark:text-green-200">
-          ✅ <strong>Prêt à continuer?</strong> Vérifiez que tous les champs requis
-          sont remplis et cliquez sur "Soumettre ma demande".
+          ✅ <strong>Prêt à continuer?</strong> Vérifiez que tous les champs
+          requis sont remplis et cliquez sur "Soumettre ma demande".
         </p>
       </div>
     </div>

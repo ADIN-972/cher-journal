@@ -205,7 +205,7 @@ export default function Account() {
         <div className="grid grid-cols-[auto_1fr] gap-4 lg:gap-8">
           {/* Sidebar Navigation */}
           <aside className="flex-shrink-0">
-            <div className="bg-gradient-to-br from-[#2d1620]/80 to-[#2d1620]/60 rounded-md border border-[#c5a059]/30 p-1 lg:p-6 sticky top-24">
+            <div className="bg-gradient-to-br from-[#d1d1d1]/80  to-[#c7c7c7]/60 dark:from-[#2d1620]/80 dark:to-[#2d1620]/60 rounded-md border border-[#c5a059]/30 p-1 lg:p-6 sticky top-24">
               <nav className="grid grid-cols-1 gap-1">
                 {menuItems.map((item) => (
                   <button

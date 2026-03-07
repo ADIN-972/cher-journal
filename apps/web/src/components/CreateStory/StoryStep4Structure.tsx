@@ -1,26 +1,26 @@
-import React, { useState } from 'react';
-import { StoryFormData, VolumeProposal } from './types';
+import React, { useState } from "react";
+import { StoryFormData, VolumeProposal } from "./types";
 
 const ENDING_OPTIONS = [
   {
-    value: 'HAPPY',
-    label: 'Happy Ending',
-    description: 'Finale heureuse, satisfaisante pour tous',
+    value: "HAPPY",
+    label: "Happy Ending",
+    description: "Finale heureuse, satisfaisante pour tous",
   },
   {
-    value: 'BITTERSWEET',
-    label: 'Doux-Amer',
-    description: 'Joies et peines mélangées, réaliste',
+    value: "BITTERSWEET",
+    label: "Doux-Amer",
+    description: "Joies et peines mélangées, réaliste",
   },
   {
-    value: 'TRAGIC',
-    label: 'Tragique',
-    description: 'Fin sombre, sacrifice ou perte majeure',
+    value: "TRAGIC",
+    label: "Tragique",
+    description: "Fin sombre, sacrifice ou perte majeure",
   },
   {
-    value: 'OPEN',
-    label: 'Fin Ouverte',
-    description: 'Laisse le lecteur imaginer la suite',
+    value: "OPEN",
+    label: "Fin Ouverte",
+    description: "Laisse le lecteur imaginer la suite",
   },
 ];
 
@@ -37,19 +37,19 @@ export default function StoryStep4Structure({
 
   const updateVolume = (volumeNumber: number, field: string, value: string) => {
     const updated = formData.volumeProposals.map((vol) =>
-      vol.volumeNumber === volumeNumber ? { ...vol, [field]: value } : vol
+      vol.volumeNumber === volumeNumber ? { ...vol, [field]: value } : vol,
     );
     setFormData({ ...formData, volumeProposals: updated });
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-light text-rose-900 dark:text-rose-100 mb-4">
-          Étape 4: Structure de l'Histoire
+      <div className="border-l-4 border-gold pl-6">
+        <h2 className="font-serif text-3xl text-charcoal dark:text-white italic">
+          Structure de l'Histoire
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          Proposez des idées pour les 10 volumes et la fin
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
+          Décrivez la structure de votre histoire, les volumes et la fin.
         </p>
       </div>
 
@@ -68,8 +68,8 @@ export default function StoryStep4Structure({
               }
               className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-all ${
                 formData.storyEnding === option.value
-                  ? 'border-red-600 bg-red-50 dark:bg-red-900/20'
-                  : 'border-gray-200 dark:border-gray-700'
+                  ? "border-red-600 bg-red-50 dark:bg-red-900/20"
+                  : "border-gray-200 dark:border-gray-700"
               }`}>
               <p className="font-medium text-gray-900 dark:text-white">
                 {option.label}
@@ -88,13 +88,13 @@ export default function StoryStep4Structure({
           Détails de la fin (optionnel)
         </label>
         <textarea
-          value={formData.storyEndingCustom || ''}
+          value={formData.storyEndingCustom || ""}
           onChange={(e) =>
             setFormData({ ...formData, storyEndingCustom: e.target.value })
           }
           placeholder="Décrivez plus précisément comment vous imaginez la conclusion..."
           rows={3}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white"
+          className="text-charcoal dark:text-white w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white"
         />
       </div>
 
@@ -115,7 +115,7 @@ export default function StoryStep4Structure({
                   setExpandedVolume(
                     expandedVolume === volume.volumeNumber
                       ? null
-                      : volume.volumeNumber
+                      : volume.volumeNumber,
                   )
                 }
                 className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between transition-all">
@@ -123,7 +123,7 @@ export default function StoryStep4Structure({
                   Volume {volume.volumeNumber}
                 </span>
                 <span className="text-gray-500">
-                  {expandedVolume === volume.volumeNumber ? '▼' : '▶'}
+                  {expandedVolume === volume.volumeNumber ? "▼" : "▶"}
                 </span>
               </button>
 
@@ -140,12 +140,12 @@ export default function StoryStep4Structure({
                       onChange={(e) =>
                         updateVolume(
                           volume.volumeNumber,
-                          'proposedLocation',
-                          e.target.value
+                          "proposedLocation",
+                          e.target.value,
                         )
                       }
                       placeholder="Ex: Paris, Venise, une maison de campagne..."
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white text-sm"
+                      className="text-charcoal dark:text-white w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white text-sm"
                     />
                   </div>
 
@@ -159,12 +159,12 @@ export default function StoryStep4Structure({
                       onChange={(e) =>
                         updateVolume(
                           volume.volumeNumber,
-                          'proposedOrientation',
-                          e.target.value
+                          "proposedOrientation",
+                          e.target.value,
                         )
                       }
                       placeholder="Ex: Première rencontre, trahison révélée..."
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white text-sm"
+                      className="text-charcoal dark:text-white w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white text-sm"
                     />
                   </div>
 
@@ -178,12 +178,12 @@ export default function StoryStep4Structure({
                       onChange={(e) =>
                         updateVolume(
                           volume.volumeNumber,
-                          'proposedTwist',
-                          e.target.value
+                          "proposedTwist",
+                          e.target.value,
                         )
                       }
                       placeholder="Ex: Révélation d'un secret, virage inattendu..."
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white text-sm"
+                      className="text-charcoal dark:text-white w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white text-sm"
                     />
                   </div>
                 </div>
@@ -195,8 +195,8 @@ export default function StoryStep4Structure({
 
       <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg p-4">
         <p className="text-sm text-rose-800 dark:text-rose-200">
-          💡 <strong>Conseil:</strong> Vous pouvez remplir tous les champs ou seulement
-          les points clés. Laissez place à la créativité!
+          💡 <strong>Conseil:</strong> Vous pouvez remplir tous les champs ou
+          seulement les points clés. Laissez place à la créativité!
         </p>
       </div>
     </div>

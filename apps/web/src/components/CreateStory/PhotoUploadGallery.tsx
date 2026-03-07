@@ -97,7 +97,7 @@ export default function PhotoUploadGallery({
               <img
                 src={photo}
                 alt={`Photo ${idx + 1}`}
-                className="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                className="w-full h-32 object-cover rounded-lg  dark:border-gray-700"
               />
               <button
                 type="button"
@@ -126,7 +126,7 @@ export default function PhotoUploadGallery({
             ref={fileInputRef}
             type="file"
             multiple
-            
+
             accept="image/jpeg,image/png"
             onChange={handleFileSelect}
             className="hidden"

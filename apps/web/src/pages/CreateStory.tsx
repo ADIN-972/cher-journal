@@ -72,14 +72,16 @@ export default function CreateStoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-red-50 dark:from-zinc-900 dark:to-rose-900/20 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-white to-red-50 dark:from-red-900/50 dark:to-rose-900/20 py-12 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-light text-rose-900 dark:text-rose-100 mb-3">
-            Créez votre histoire
+        <div className=" mb-12">
+          <h1 className="flex items-center  text-3xl md:text-4xl font-display italic text-stone-700 dark:text-stone-100 newsreader">
+            Créez
+            <span className="text-6xl md:text-7xl mx-2 text-gold">votre</span>
+              histoire
           </h1>
-          <p className="text-rose-700 dark:text-rose-300">
+          <p className="text-sm text-charcoal dark:text-white/70">
             5 étapes pour nous décrire votre vision
           </p>
         </div>
@@ -94,7 +96,7 @@ export default function CreateStoryPage() {
         </div>
 
         {/* Form Container */}
-        <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-lg p-8 space-y-6">
+        <div className="bg-white dark:bg-black/20 rounded-xl shadow-lg p-8 space-y-6">
           {/* Step 1: Protagonist */}
           {currentStep === 1 && (
             <StoryStep1Protagonist

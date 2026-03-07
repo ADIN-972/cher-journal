@@ -239,10 +239,18 @@
   line-height: var(--reader-line-height, 1.7);
 }
 /* Slot z-index classes (4 possible values used by FlipBook)                  */
-.reader-slot-z-neg10 { z-index: -10; }
-.reader-slot-z-0     { z-index:   0; }
-.reader-slot-z-10    { z-index:  10; }
-.reader-slot-z-20    { z-index:  20; }
+.reader-slot-z-neg10 {
+  z-index: -10;
+}
+.reader-slot-z-0 {
+  z-index: 0;
+}
+.reader-slot-z-10 {
+  z-index: 10;
+}
+.reader-slot-z-20 {
+  z-index: 20;
+}
 /* Progress bar fill: width driven by --progress-w CSS variable               */
 .reader-progress-fill {
   width: var(--progress-w, 0%);
@@ -253,7 +261,7 @@
 }
 /* Paper texture overlay for the reader                                        */
 .reader-texture-overlay {
-  background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCun0EQcjBjiCTdnHOJgZTarDmGw709yp6EFjwQJVqOfJPpXCGA2dVGnbbryLC32uOcFACnOFMHbW_QYWx7pc4-eaP0rcW87VCju5ZRhEU9BhZSKoCdIhssIIE1fQ8XMDsdrVuuBN1ir1qWRA9O4DXi2fqaIS9t1K-ioACIQtpafqOhkb4DNaqi-GSnGcSOBM7xSJDIwzCRon4cbVPNc4KthOKux_Ox7gZumz9MtHcXAXeHcgz7adSjpMiycNm_cAbnsIqJ1pMkqjg');
+  background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCun0EQcjBjiCTdnHOJgZTarDmGw709yp6EFjwQJVqOfJPpXCGA2dVGnbbryLC32uOcFACnOFMHbW_QYWx7pc4-eaP0rcW87VCju5ZRhEU9BhZSKoCdIhssIIE1fQ8XMDsdrVuuBN1ir1qWRA9O4DXi2fqaIS9t1K-ioACIQtpafqOhkb4DNaqi-GSnGcSOBM7xSJDIwzCRon4cbVPNc4KthOKux_Ox7gZumz9MtHcXAXeHcgz7adSjpMiycNm_cAbnsIqJ1pMkqjg");
 }
 
 body {
@@ -298,6 +306,14 @@ body {
 .text-soft-gold {
   /* --tw-text-opacity: 1; */
   color: rgb(212 175 55 / var(--tw-text-opacity, 1));
+}
+.text-primary-caramel {
+  /* --tw-text-opacity: 1; */
+  color: rgb(139 94 60 / var(--tw-text-opacity, 1));
+}
+.text-accent-prune {
+  /* --tw-text-opacity: 1; */
+  color: rgb(74 29 51 / var(--tw-text-opacity, 1));
 }
 .text-gold,
 .text-accent-gold {
@@ -385,6 +401,23 @@ html {
   color-scheme: dark;
 }
 
+.bg-brand-prune {
+  --tw-bg-opacity: 1;
+  background-color: rgb(74 21 75 / var(--tw-bg-opacity, 1));
+}
+
+.text-brand-gold {
+  --tw-text-opacity: 1;
+  color: rgb(236 164 19 / var(--tw-text-opacity, 1));
+}
+.bg-brand-parchment {
+  --tw-bg-opacity: 1;
+  background-color: rgb(247 242 232 / var(--tw-bg-opacity, 1));
+}
+
+.border-brand-gold\/30 {
+  border-color: rgb(236 164 19 / 0.3);
+}
 .glass-effect {
   /* background: rgba(26, 13, 18, 0.8); */
   -webkit-backdrop-filter: blur(10px);
@@ -937,10 +970,6 @@ html {
   gap: 40px;
   padding: 40px;
   animation: carouselSlide 12s infinite step-end;
-}
-.glass-effect {
-  background: rgba(45, 27, 20, 0.85);
-  backdrop-filter: blur(12px);
 }
 .curtain-overlay {
   position: absolute;

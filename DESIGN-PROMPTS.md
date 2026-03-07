@@ -666,6 +666,142 @@ These design prompts are comprehensive specifications for generating production-
 
 ---
 
+## 12. Custom Story Requests
+
+**Purpose**: Allow users to request custom/personalized stories to be created
+
+**URL**: `/account/custom-stories`
+
+**Layout Structure**:
+- Full-width container with max-width constraint
+- Header section with title and CTA button
+- List of user's custom story requests
+- Creation form (modal or in-page section)
+
+**Header Section**:
+- Title: "Mes Demandes" or "Demandes de Créations Personnalisées" (serif italic gold, 28px)
+- Subtitle: "Vos demandes de création d'histoires personnalisées"
+- Primary Button: "+ Nouvelle Demande" (gold background, hover effect)
+- Optional: Stats summary (Total requests, Completed, In progress)
+
+**Requests List/Grid**:
+- Responsive: 1 column (mobile), 2 columns (tablet), 3 columns (desktop, if grid view)
+- Gap: 1.5rem
+- Sort/Filter options: By status, date, priority
+
+**Request Card**:
+- Container: rounded-2xl, dark background, gold border/30, hover:shadow-lg
+- Header Section:
+  - Request Title: serif italic, 16px, bold
+  - Status Badge: Prominent badge (PENDING, IN_PROGRESS, COMPLETED, DECLINED)
+    - Pending: bg-yellow-100 dark:bg-yellow-900/30
+    - In Progress: bg-blue-100 dark:bg-blue-900/30
+    - Completed: bg-green-100 dark:bg-green-900/30
+    - Declined: bg-red-100 dark:bg-red-900/30
+- Details Section:
+  - Request date: "Requested on [date]"
+  - Description preview: 2-3 lines of text
+  - Tags/Categories: Small badges (Romance, Fantasy, Erotica, etc.)
+  - Priority level (optional): Low/Medium/High indicator
+- Progress Section (if In Progress):
+  - Progress bar showing completion percentage
+  - Estimated completion date (if available)
+  - Current status message: "Being written", "In review", etc.
+- Footer Section:
+  - Action button: "View Details" / "View Story" (if completed)
+  - Edit link: "Edit Request" (if pending)
+  - Delete link: "Cancel Request" with confirmation modal
+
+**Request Detail Modal/Page** (on "View Details" click):
+- Header: Request title, full status badge, creation date
+- Full Description: Complete request text
+- Details Grid:
+  - Genre: [genre tags]
+  - Themes: [theme tags]
+  - Character preferences: [text]
+  - Plot requirements: [text]
+  - Tone/Style: [descriptive text]
+  - Word count requirement: [number]
+- Timeline:
+  - Status history showing progression
+  - Last update timestamp
+  - Estimated delivery date (if available)
+- Feedback Section (if declined):
+  - Admin feedback explaining why request was declined
+  - Button to resubmit with modifications
+- Story Display (if completed):
+  - Full story content with reading interface
+  - Download options (PDF, EPUB, etc.)
+  - "Add to My Library" button
+- Action Buttons:
+  - Edit Request (if pending)
+  - Cancel Request (if pending, with confirmation)
+  - Close modal
+
+**New Request Modal/Form**:
+- Wizard or form with sections:
+
+  **Section 1: Basic Info**
+  - Request Title (text input)
+  - Genre (checkboxes or multi-select): Romance, Fantasy, Science Fiction, Historical, Contemporary, Erotica, etc.
+  - Themes (multi-select/tags): Suggest common themes
+
+  **Section 2: Story Details**
+  - Full Description (textarea, 500+ characters)
+  - Character preferences (textarea)
+  - Plot/Story arc requirements (textarea)
+  - Tone/Style: radio buttons (Sweet, Sensual, Explicit, Romantic, Dark, etc.)
+
+  **Section 3: Preferences**
+  - Preferred word count (number input or range slider): 5,000 - 50,000+
+  - POV preference: Narrator / Protagonist / Multiple POVs
+  - Timeline/Setting preferences (optional textarea)
+  - Special requests or notes (textarea)
+
+  **Section 4: Review & Submit**
+  - Summary of request details
+  - Checkbox: "I agree to the custom story creation terms"
+  - Submit button: "Soumettre la Demande"
+  - Cancel button
+
+**Form Styling**:
+- Input fields: rounded-xl, border boudoir-300 dark:border-boudoir-800
+- bg-white dark:bg-boudoir-900/30
+- focus:ring-2 focus:ring-[#c5a059]
+- Textarea: min-height 120px, similar styling as inputs
+- Checkboxes/Radio: Custom styled with gold accent
+- Multi-select tags: gold background, removable with × button
+
+**Empty State** (no requests):
+- Centered container
+- auto_awesome icon (80px, light gold/30)
+- Message: "Aucune demande pour le moment"
+- Subtext: "Créez votre première demande de histoire personnalisée"
+- CTA Button: "+ Créer une Demande"
+
+**Status Timeline** (detailed view):
+- Vertical timeline showing:
+  - Request submitted: [date/time]
+  - Request acknowledged: [date/time]
+  - Writing in progress: [date/time]
+  - Under review: [date/time]
+  - Completed: [date/time] (if completed)
+- Color coded by status
+- Messages/updates at each stage
+
+**Responsive Behavior**:
+- Mobile: Full width cards, modal forms take full height with scroll
+- Tablet: 2-column grid, modal on side drawer
+- Desktop: 3-column grid, centered modal with backdrop
+
+**Validation Messages**:
+- Required fields: "This field is required"
+- Min length: "Description must be at least 100 characters"
+- Helpful hints under fields: "Be specific about what you want"
+- Success message: "Demande soumise avec succès! We'll review it shortly."
+
+---
+
 ## General Design Guidelines
 
 ### Spacing
