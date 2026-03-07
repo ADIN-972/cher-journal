@@ -55,9 +55,7 @@ export default function CreateStoryPage() {
         if (!formData.protagonistName?.trim()) {
           missingFields.push("Nom du protagoniste");
         }
-        if (!formData.photoAssetIds || formData.photoAssetIds.length === 0) {
-          missingFields.push("Au moins une photo");
-        }
+        // Photos are optional
         break;
 
       case 2: // Personality
