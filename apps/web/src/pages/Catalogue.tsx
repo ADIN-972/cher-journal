@@ -33,31 +33,31 @@ type Genre =
   | "MEMOIRE_DU_CORPS";
 
 export const GENRES: Record<Genre, { translationKey: string; icon: string }> = {
-  all: { translationKey: "catalog.genres.all", icon: "category" },
+  all: { translationKey: "genres.all", icon: "category" },
   PASSIONS_CHARNELLES: {
-    translationKey: "catalog.genres.PASSIONS_CHARNELLES",
+    translationKey: "genres.PASSIONS_CHARNELLES",
     icon: "local_fire_department",
   },
-  ROMANCES_TENDRES: { translationKey: "catalog.genres.ROMANCES_TENDRES", icon: "favorite" },
-  MYSTERIES_SENSUELS: { translationKey: "catalog.genres.MYSTERIES_SENSUELS", icon: "nightlife" },
-  INTERDITS: { translationKey: "catalog.genres.INTERDITS", icon: "lock" },
-  CONQUETES: { translationKey: "catalog.genres.CONQUETES", icon: "trending_up" },
-  REVES_SECRETS: { translationKey: "catalog.genres.REVES_SECRETS", icon: "cloud" },
-  PASSION_BRUTALE: { translationKey: "catalog.genres.PASSION_BRUTALE", icon: "whatshot" },
-  AMOUR_COMPLIQUE: { translationKey: "catalog.genres.AMOUR_COMPLIQUE", icon: "favorite_border" },
-  DESIR_NOCTURNE: { translationKey: "catalog.genres.DESIR_NOCTURNE", icon: "dark_mode" },
-  LIBERATION: { translationKey: "catalog.genres.LIBERATION", icon: "flight_takeoff" },
-  DECOUVERTE_DE_SOI: { translationKey: "catalog.genres.DECOUVERTE_DE_SOI", icon: "lightbulb" },
+  ROMANCES_TENDRES: { translationKey: "genres.ROMANCES_TENDRES", icon: "favorite" },
+  MYSTERIES_SENSUELS: { translationKey: "genres.MYSTERIES_SENSUELS", icon: "nightlife" },
+  INTERDITS: { translationKey: "genres.INTERDITS", icon: "lock" },
+  CONQUETES: { translationKey: "genres.CONQUETES", icon: "trending_up" },
+  REVES_SECRETS: { translationKey: "genres.REVES_SECRETS", icon: "cloud" },
+  PASSION_BRUTALE: { translationKey: "genres.PASSION_BRUTALE", icon: "whatshot" },
+  AMOUR_COMPLIQUE: { translationKey: "genres.AMOUR_COMPLIQUE", icon: "favorite_border" },
+  DESIR_NOCTURNE: { translationKey: "genres.DESIR_NOCTURNE", icon: "dark_mode" },
+  LIBERATION: { translationKey: "genres.LIBERATION", icon: "flight_takeoff" },
+  DECOUVERTE_DE_SOI: { translationKey: "genres.DECOUVERTE_DE_SOI", icon: "lightbulb" },
   INTIMITE_PSYCHOLOGIQUE: {
-    translationKey: "catalog.genres.INTIMITE_PSYCHOLOGIQUE",
+    translationKey: "genres.INTIMITE_PSYCHOLOGIQUE",
     icon: "psychology",
   },
-  EVEIL_DU_DESIR: { translationKey: "catalog.genres.EVEIL_DU_DESIR", icon: "sunrise" },
+  EVEIL_DU_DESIR: { translationKey: "genres.EVEIL_DU_DESIR", icon: "sunrise" },
   RELATIONS_TRANSFORMATRICES: {
-    translationKey: "catalog.genres.RELATIONS_TRANSFORMATRICES",
+    translationKey: "genres.RELATIONS_TRANSFORMATRICES",
     icon: "auto_fix_high",
   },
-  MEMOIRE_DU_CORPS: { translationKey: "catalog.genres.MEMOIRE_DU_CORPS", icon: "self_improvement" },
+  MEMOIRE_DU_CORPS: { translationKey: "genres.MEMOIRE_DU_CORPS", icon: "self_improvement" },
 };
 
 // LocalStorage keys
