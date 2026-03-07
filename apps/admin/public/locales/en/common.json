@@ -1295,6 +1295,23 @@
     "button_submitting": "Sending...",
     "success_message": "Your request has been received! Thank you for your interest.",
     "error_generic": "An error occurred",
+    "step_1_protagonist": {
+      "title": "The Protagonist",
+      "description": "Tell us about your protagonist. Her name, appearance, your photos...",
+      "name_label": "Protagonist's Name *",
+      "name_placeholder": "Ex: Emma, Veronica, Marie...",
+      "tip": "💡 <strong>Tip:</strong> Choose photos that capture the essence of your protagonist - her style, her charisma, her mystery."
+    },
+    "step_2_protagonist": {
+      "title": "Personality & Story",
+      "description": "Describe the personality, desires, and story of your protagonist",
+      "tip_label": "Author's Advice",
+      "tip_text": "The more precise the physical details, the deeper the immersion will be when reading your volumes.",
+      "description_label": "Personality / Story Description *",
+      "description_placeholder": "Describe her personality, secret desires, her story...",
+      "genres_label": "Associated Genres (max 5) *",
+      "explicit_level_label": "Explicitness Level *"
+    },
     "emotional_levels": {
       "title": "Emotional Levels",
       "description": "Describe the intensity, softness, danger, and emotional transformation of your story.",
@@ -1341,6 +1358,52 @@
         "label": "Very explicit",
         "description": "Very raw and direct descriptions"
       }
+    },
+    "step_4_structure": {
+      "title": "Story Structure",
+      "description": "Describe the structure of your story, the volumes and the ending.",
+      "ending_question": "How does the story end? *",
+      "ending_details_label": "Ending details (optional)",
+      "ending_details_placeholder": "Describe more precisely how you imagine the conclusion...",
+      "volumes_title": "The 10 Volumes",
+      "ending_options": {
+        "HAPPY": {
+          "label": "Happy Ending",
+          "description": "Happy, satisfying ending for all"
+        },
+        "BITTERSWEET": {
+          "label": "Bittersweet",
+          "description": "Mixed joys and sorrows, realistic"
+        },
+        "TRAGIC": {
+          "label": "Tragic",
+          "description": "Dark ending, sacrifice or major loss"
+        },
+        "OPEN": {
+          "label": "Open Ending",
+          "description": "Lets the reader imagine what comes next"
+        }
+      }
+    },
+    "step_5_finalize": {
+      "title": "Finalization",
+      "description": "Provide the final details and consents needed to finalize your story.",
+      "email_label": "Email Address *",
+      "email_placeholder": "your.email@example.com",
+      "email_help": "To receive updates on your request",
+      "legal_title": "Ownership & Copyright",
+      "legal_text": "The texts created from your request will become the property of <strong>Cher Journal</strong>. The author reserves the right to follow or not the suggestions you propose. Cher Journal may adapt, modify or complete your story according to its artistic vision.",
+      "rgpd_label": "I accept the <strong>GDPR privacy policy</strong> and understand that my data will be kept for 3 months for moderation and security purposes *",
+      "ccpa_label": "I accept the <strong>CCPA privacy policy</strong> *",
+      "summary_title": "Request Summary",
+      "summary_protagonist": "Protagonist",
+      "summary_genres": "Selected Genres",
+      "summary_explicit_level": "Explicit Level",
+      "summary_photos": "Photos Uploaded",
+      "summary_ending": "Imagined Ending",
+      "summary_undefined": "(not defined)",
+      "summary_none": "(none)",
+      "ready_message": "✅ <strong>Ready to continue?</strong> Verify that all required fields are filled in and click \"Submit my request\"."
     }
   }
 }

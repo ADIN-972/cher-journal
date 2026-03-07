@@ -8,7 +8,6 @@ import {
   MdCheck,
 } from "react-icons/md";
 import toast from "react-hot-toast";
-import { useTranslation } from "react-i18next";
 import { api } from "../lib/api";
 import { useI18n } from "../lib/i18n";
 

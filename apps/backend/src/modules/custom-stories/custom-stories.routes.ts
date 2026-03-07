@@ -5,7 +5,14 @@ import { CustomStoriesController } from './custom-stories.controller';
 const controller = new CustomStoriesController();
 
 export async function customStoriesRoutes(app: FastifyInstance) {
-  // Photo upload endpoint (organized by story ID)
+  // Photo upload endpoint (organized by story ID when available)
+  // Can accept storyId as route parameter or query parameter
+  app.post('/custom-stories/photos/upload', {
+    preHandler: requireAuth,
+    handler: controller.uploadPhoto.bind(controller),
+  });
+
+  // Alternative: upload to specific story (bypasses temp folder)
   app.post('/custom-stories/:storyId/photos/upload', {
     preHandler: requireAuth,
     handler: controller.uploadPhoto.bind(controller),

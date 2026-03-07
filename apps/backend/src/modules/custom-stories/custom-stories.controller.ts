@@ -255,14 +255,11 @@ export class CustomStoriesController {
    */
   async uploadPhoto(request: FastifyRequest, reply: FastifyReply) {
     const userId = (request.user as any)?.id;
-    const storyId = (request.params as any).storyId;
+    // Try to get storyId from route params, query params, or use temp folder with userId
+    const storyId = (request.params as any).storyId || (request.query as any).storyId;
 
     if (!userId) {
       return reply.status(401).send({ error: 'Unauthorized' });
-    }
-
-    if (!storyId) {
-      return reply.status(400).send({ error: 'Story ID required' });
     }
 
     try {
@@ -316,7 +313,7 @@ export class CustomStoriesController {
         fileData.filename,
         fileData.mimetype,
         userId,
-        storyId,
+        storyId || undefined,
         userIp,
         userAgent,
       );

@@ -1295,6 +1295,23 @@
     "button_submitting": "Envoi...",
     "success_message": "Votre demande a été reçue! Merci de votre intérêt.",
     "error_generic": "Une erreur est survenue",
+    "step_1_protagonist": {
+      "title": "La Protagoniste",
+      "description": "Décrivez-nous votre protagoniste. Son nom, son apparence, vos photos...",
+      "name_label": "Nom de la protagoniste *",
+      "name_placeholder": "Ex: Emma, Veronica, Marie...",
+      "tip": "💡 <strong>Conseil:</strong> Choisissez des photos qui capturent l'essence de votre protagoniste - son style, son charisme, son mystère."
+    },
+    "step_2_protagonist": {
+      "title": "Personnalité & Histoire",
+      "description": "Décrivez la personnalité, les désirs et l'histoire de votre protagoniste",
+      "tip_label": "Conseil d'auteur",
+      "tip_text": "Plus les détails physiques sont précis, plus l'immersion sera profonde lors de la lecture de vos volumes.",
+      "description_label": "Description personnalité / histoire *",
+      "description_placeholder": "Décrivez sa personnalité, ses désirs secrets, son histoire...",
+      "genres_label": "Genres associés (max 5) *",
+      "explicit_level_label": "Niveau d'explicité *"
+    },
     "emotional_levels": {
       "title": "Niveaux Émotionnels",
       "description": "Décrivez l'intensité, la douceur, le danger et la transformation émotionnelle de votre histoire.",
@@ -1341,6 +1358,52 @@
         "label": "Très explicite",
         "description": "Descriptions très crues et directes"
       }
+    },
+    "step_4_structure": {
+      "title": "Structure de l'Histoire",
+      "description": "Décrivez la structure de votre histoire, les volumes et la fin.",
+      "ending_question": "Comment l'histoire finit-elle? *",
+      "ending_details_label": "Détails de la fin (optionnel)",
+      "ending_details_placeholder": "Décrivez plus précisément comment vous imaginez la conclusion...",
+      "volumes_title": "Les 10 Volumes",
+      "ending_options": {
+        "HAPPY": {
+          "label": "Happy Ending",
+          "description": "Finale heureuse, satisfaisante pour tous"
+        },
+        "BITTERSWEET": {
+          "label": "Doux-Amer",
+          "description": "Joies et peines mélangées, réaliste"
+        },
+        "TRAGIC": {
+          "label": "Tragique",
+          "description": "Fin sombre, sacrifice ou perte majeure"
+        },
+        "OPEN": {
+          "label": "Fin Ouverte",
+          "description": "Laisse le lecteur imaginer la suite"
+        }
+      }
+    },
+    "step_5_finalize": {
+      "title": "Finalisation",
+      "description": "Fournissez les derniers détails et consentements nécessaires pour finaliser votre histoire.",
+      "email_label": "Adresse email *",
+      "email_placeholder": "votre.email@exemple.com",
+      "email_help": "Pour recevoir les mises à jour sur votre demande",
+      "legal_title": "Propriété & Droits d'Auteur",
+      "legal_text": "Les textes créés à partir de votre demande deviendront propriété de <strong>Cher Journal</strong>. L'auteur se réserve le droit de suivre ou non les suggestions que vous proposez. Cher Journal pourra adapter, modifier ou compléter votre histoire selon sa vision artistique.",
+      "rgpd_label": "J'accepte la <strong>politique de confidentialité RGPD</strong> et comprends que mes données seront conservées 3 mois pour modération et sécurité *",
+      "ccpa_label": "J'accepte la <strong>politique de confidentialité CCPA</strong> *",
+      "summary_title": "Résumé de votre demande",
+      "summary_protagonist": "Protagoniste",
+      "summary_genres": "Genres sélectionnés",
+      "summary_explicit_level": "Niveau d'explicité",
+      "summary_photos": "Photos uploadées",
+      "summary_ending": "Fin imaginée",
+      "summary_undefined": "(non défini)",
+      "summary_none": "(aucun)",
+      "ready_message": "✅ <strong>Prêt à continuer?</strong> Vérifiez que tous les champs requis sont remplis et cliquez sur \"Soumettre ma demande\"."
     }
   }
 }

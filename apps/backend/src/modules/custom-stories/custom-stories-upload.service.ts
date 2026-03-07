@@ -113,7 +113,7 @@ export class CustomStoriesUploadService {
     filename: string,
     mimetype: string,
     userId: string,
-    storyId: string,
+    storyId: string | undefined,
     userIp: string,
     userAgent: string,
   ): Promise<{ id: string; filename: string; url: string }> {
@@ -137,15 +137,16 @@ export class CustomStoriesUploadService {
     const extension = mimetype === 'image/jpeg' ? 'jpg' : 'png';
     const uniqueFilename = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}.${extension}`;
 
-    // Organize by story ID subdirectory
-    const storyUploadDir = path.join(this.uploadDir, storyId);
+    // Organize by story ID if provided, otherwise use temp folder with userId
+    const organizationFolder = storyId || `temp/${userId}`;
+    const uploadSubDir = path.join(this.uploadDir, organizationFolder);
 
-    // Create story subdirectory if it doesn't exist
-    if (!fs.existsSync(storyUploadDir)) {
-      fs.mkdirSync(storyUploadDir, { recursive: true });
+    // Create subdirectory if it doesn't exist
+    if (!fs.existsSync(uploadSubDir)) {
+      fs.mkdirSync(uploadSubDir, { recursive: true });
     }
 
-    const filepath = path.join(storyUploadDir, uniqueFilename);
+    const filepath = path.join(uploadSubDir, uniqueFilename);
 
     // Write file to disk
     await fs.promises.writeFile(filepath, buffer);
@@ -154,7 +155,7 @@ export class CustomStoriesUploadService {
     const hashedIp = this.hashIp(userIp);
     console.log(`Custom story photo uploaded: ${uniqueFilename}`, {
       userId,
-      storyId,
+      storyId: storyId || 'temp',
       hashedIp,
       userAgent,
       mimetype,
@@ -162,20 +163,30 @@ export class CustomStoriesUploadService {
       originalFilename: filename,
     });
 
-    // Return file info with story ID in path
+    // Return file info with appropriate path structure
+    const urlPath = storyId
+      ? `/uploads/custom-stories/${storyId}/${uniqueFilename}`
+      : `/uploads/custom-stories/temp/${userId}/${uniqueFilename}`;
+
     return {
       id: uniqueFilename,
       filename: filename,
-      url: `/uploads/custom-stories/${storyId}/${uniqueFilename}`,
+      url: urlPath,
     };
   }
 
   /**
    * Delete uploaded file
    */
-  async deleteFile(fileId: string, storyId: string): Promise<void> {
-    const storyUploadDir = path.join(this.uploadDir, storyId);
-    const filepath = path.join(storyUploadDir, fileId);
+  async deleteFile(fileId: string, storyId: string | undefined, userId?: string): Promise<void> {
+    // Determine the folder based on storyId or temp folder
+    const organizationFolder = storyId || (userId ? `temp/${userId}` : '');
+    if (!organizationFolder) {
+      throw new Error('Either storyId or userId must be provided');
+    }
+
+    const uploadSubDir = path.join(this.uploadDir, organizationFolder);
+    const filepath = path.join(uploadSubDir, fileId);
 
     // Security check: ensure path is within upload directory
     const resolvedPath = path.resolve(filepath);
