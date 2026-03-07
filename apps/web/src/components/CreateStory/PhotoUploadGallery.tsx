@@ -77,9 +77,17 @@ export default function PhotoUploadGallery({
           formData.append('currentPhotoCount', String(photos.length + previews.length));
 
           const response = await api.upload('/custom-stories/photos/upload', formData);
+
+          // Extract just the filename from the response
+          // Backend returns id as filename, but if it contains a path, extract just the filename
+          let id = response.data?.id || '';
+          if (id && id.includes('/')) {
+            id = id.split('/').pop() || '';
+          }
+
           return {
             success: true,
-            id: response.data?.id || '',
+            id,
             url: response.data?.url || '',
             dataUrl: pair.dataUrl,
           };

@@ -165,10 +165,12 @@ export class CustomStoriesUploadService {
 
     const fullUrl = `${this.publicUrl}${relativePath}`;
 
+    // IMPORTANT: id must be ONLY the filename, not the path
+    // The frontend uses this ID with the admin API which appends it to paths
     return {
-      id: uniqueFilename,
+      id: uniqueFilename,  // Just filename: "1234567890-abc123.jpg"
       filename: filename,
-      url: fullUrl,
+      url: fullUrl,        // Full URL: "https://api.moncherjournal.com/uploads/custom-stories/temp/userId/filename.jpg"
     };
   }
 
