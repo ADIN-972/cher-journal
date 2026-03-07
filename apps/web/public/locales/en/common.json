@@ -1301,5 +1301,40 @@
       "targeting_users_targeted": "Targeted Users:",
       "targeting_no_users": "-"
     }
+  },
+  "createStory": {
+    "title": "Create Your Story",
+    "subtitle": "5 steps to describe your vision to us",
+    "step_indicator": "Step {current} of {total}",
+    "button_previous": "← Previous",
+    "button_next": "Next →",
+    "button_submit": "Submit My Request",
+    "button_submitting": "Sending...",
+    "success_message": "Your request has been received! Thank you for your interest.",
+    "error_generic": "An error occurred",
+    "emotional_levels": {
+      "title": "Emotional Levels",
+      "description": "Describe the intensity, softness, danger, and emotional transformation of your story.",
+      "summary_title": "Emotional Summary",
+      "intensity": {
+        "label": "Intensity",
+        "description": "Strength of desire, carnal tension"
+      },
+      "softness": {
+        "label": "Softness",
+        "description": "Tenderness, vulnerability, delicacy"
+      },
+      "danger": {
+        "label": "Danger",
+        "description": "Emotional, social, moral, or physical risk"
+      },
+      "transformation": {
+        "label": "Transformation",
+        "description": "Character evolution, major changes"
+      },
+      "scale_low": "Low",
+      "scale_high": "High",
+      "tip": "💡 <strong>Tip:</strong> These levels will guide our authors to create a story perfectly calibrated to your desires."
+    }
   }
 }
