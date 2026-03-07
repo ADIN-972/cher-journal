@@ -79,6 +79,7 @@ export default function PhotoUploadGallery({
           const response = await api.upload('/custom-stories/photos/upload', formData);
           return {
             success: true,
+            id: response.data?.id || '',
             url: response.data?.url || '',
             dataUrl: pair.dataUrl,
           };
@@ -86,6 +87,7 @@ export default function PhotoUploadGallery({
           toast.error(`Erreur lors de l'upload de ${pair.file.name}`);
           return {
             success: false,
+            id: '',
             url: '',
             dataUrl: pair.dataUrl,
           };
@@ -95,9 +97,9 @@ export default function PhotoUploadGallery({
       const uploadResults = await Promise.all(uploadPromises);
 
       // Filter successful uploads
-      const successfulUrls = uploadResults
+      const successfulIds = uploadResults
         .filter((result) => result.success)
-        .map((result) => result.url);
+        .map((result) => result.id);
 
       const successfulPreviews = uploadResults
         .filter((result) => result.success)
@@ -110,12 +112,12 @@ export default function PhotoUploadGallery({
       // Update previews and photos
       setPreviews((prev) => [...prev, ...successfulPreviews]);
 
-      // Update parent form data with image URLs (filter out any data URLs, keep only server URLs)
-      const validPhotos = photos.filter((url) => !url.startsWith('data:'));
-      onPhotosChange([...validPhotos, ...successfulUrls]);
+      // Update parent form data with asset IDs (filter out any data URLs from existing photos)
+      const validPhotos = photos.filter((id) => !id.startsWith('data:'));
+      onPhotosChange([...validPhotos, ...successfulIds]);
 
-      if (successfulUrls.length > 0) {
-        toast.success(`${successfulUrls.length} photo(s) uploadée(s)`);
+      if (successfulIds.length > 0) {
+        toast.success(`${successfulIds.length} photo(s) uploadée(s)`);
       }
     } catch (error) {
       toast.error('Erreur lors du chargement des images');
