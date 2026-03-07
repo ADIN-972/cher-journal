@@ -101,7 +101,25 @@
     "free": "Gratuit",
     "read_now": "Lire maintenant",
     "buy": "Acheter",
-    "add_to_library": "Ajouter à la bibliothèque"
+    "add_to_library": "Ajouter à la bibliothèque",
+    "genres": {
+      "all": "Tous les genres",
+      "PASSIONS_CHARNELLES": "Passions Charnelles",
+      "ROMANCES_TENDRES": "Romances Tendres",
+      "MYSTERIES_SENSUELS": "Mystères Sensuels",
+      "INTERDITS": "Interdits",
+      "CONQUETES": "Conquêtes",
+      "REVES_SECRETS": "Rêves Secrets",
+      "PASSION_BRUTALE": "Passion Brutale",
+      "AMOUR_COMPLIQUE": "Amour Compliqué",
+      "DESIR_NOCTURNE": "Désir Nocturne",
+      "LIBERATION": "Libération",
+      "DECOUVERTE_DE_SOI": "Découverte de Soi",
+      "INTIMITE_PSYCHOLOGIQUE": "Intimité Psychologique",
+      "EVEIL_DU_DESIR": "Éveil du Désir",
+      "RELATIONS_TRANSFORMATRICES": "Relations Transformatrices",
+      "MEMOIRE_DU_CORPS": "Mémoire du Corps"
+    }
   },
   "chapter": {
     "title": "Récit",

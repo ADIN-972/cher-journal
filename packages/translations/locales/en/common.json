@@ -101,7 +101,25 @@
     "free": "Free",
     "read_now": "Read Now",
     "buy": "Buy",
-    "add_to_library": "Add to Library"
+    "add_to_library": "Add to Library",
+    "genres": {
+      "all": "All Genres",
+      "PASSIONS_CHARNELLES": "Carnal Passions",
+      "ROMANCES_TENDRES": "Tender Romances",
+      "MYSTERIES_SENSUELS": "Sensual Mysteries",
+      "INTERDITS": "Forbidden",
+      "CONQUETES": "Conquests",
+      "REVES_SECRETS": "Secret Dreams",
+      "PASSION_BRUTALE": "Brutal Passion",
+      "AMOUR_COMPLIQUE": "Complicated Love",
+      "DESIR_NOCTURNE": "Nocturnal Desire",
+      "LIBERATION": "Liberation",
+      "DECOUVERTE_DE_SOI": "Self-Discovery",
+      "INTIMITE_PSYCHOLOGIQUE": "Psychological Intimacy",
+      "EVEIL_DU_DESIR": "Awakening of Desire",
+      "RELATIONS_TRANSFORMATRICES": "Transformative Relationships",
+      "MEMOIRE_DU_CORPS": "Memory of the Body"
+    }
   },
   "chapter": {
     "title": "Story",
