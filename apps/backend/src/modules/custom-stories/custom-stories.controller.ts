@@ -255,8 +255,14 @@ export class CustomStoriesController {
    */
   async uploadPhoto(request: FastifyRequest, reply: FastifyReply) {
     const userId = (request.user as any)?.id;
+    const storyId = (request.params as any).storyId;
+
     if (!userId) {
       return reply.status(401).send({ error: 'Unauthorized' });
+    }
+
+    if (!storyId) {
+      return reply.status(400).send({ error: 'Story ID required' });
     }
 
     try {
@@ -310,6 +316,7 @@ export class CustomStoriesController {
         fileData.filename,
         fileData.mimetype,
         userId,
+        storyId,
         userIp,
         userAgent,
       );

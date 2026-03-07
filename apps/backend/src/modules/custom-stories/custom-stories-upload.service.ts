@@ -113,6 +113,7 @@ export class CustomStoriesUploadService {
     filename: string,
     mimetype: string,
     userId: string,
+    storyId: string,
     userIp: string,
     userAgent: string,
   ): Promise<{ id: string; filename: string; url: string }> {
@@ -135,7 +136,16 @@ export class CustomStoriesUploadService {
     // Generate unique filename
     const extension = mimetype === 'image/jpeg' ? 'jpg' : 'png';
     const uniqueFilename = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}.${extension}`;
-    const filepath = path.join(this.uploadDir, uniqueFilename);
+
+    // Organize by story ID subdirectory
+    const storyUploadDir = path.join(this.uploadDir, storyId);
+
+    // Create story subdirectory if it doesn't exist
+    if (!fs.existsSync(storyUploadDir)) {
+      fs.mkdirSync(storyUploadDir, { recursive: true });
+    }
+
+    const filepath = path.join(storyUploadDir, uniqueFilename);
 
     // Write file to disk
     await fs.promises.writeFile(filepath, buffer);
@@ -144,6 +154,7 @@ export class CustomStoriesUploadService {
     const hashedIp = this.hashIp(userIp);
     console.log(`Custom story photo uploaded: ${uniqueFilename}`, {
       userId,
+      storyId,
       hashedIp,
       userAgent,
       mimetype,
@@ -151,19 +162,20 @@ export class CustomStoriesUploadService {
       originalFilename: filename,
     });
 
-    // Return file info
+    // Return file info with story ID in path
     return {
       id: uniqueFilename,
       filename: filename,
-      url: `/uploads/custom-stories/${uniqueFilename}`,
+      url: `/uploads/custom-stories/${storyId}/${uniqueFilename}`,
     };
   }
 
   /**
    * Delete uploaded file
    */
-  async deleteFile(fileId: string): Promise<void> {
-    const filepath = path.join(this.uploadDir, fileId);
+  async deleteFile(fileId: string, storyId: string): Promise<void> {
+    const storyUploadDir = path.join(this.uploadDir, storyId);
+    const filepath = path.join(storyUploadDir, fileId);
 
     // Security check: ensure path is within upload directory
     const resolvedPath = path.resolve(filepath);

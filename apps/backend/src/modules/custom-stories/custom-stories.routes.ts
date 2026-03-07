@@ -5,8 +5,8 @@ import { CustomStoriesController } from './custom-stories.controller';
 const controller = new CustomStoriesController();
 
 export async function customStoriesRoutes(app: FastifyInstance) {
-  // Photo upload endpoint
-  app.post('/custom-stories/photos/upload', {
+  // Photo upload endpoint (organized by story ID)
+  app.post('/custom-stories/:storyId/photos/upload', {
     preHandler: requireAuth,
     handler: controller.uploadPhoto.bind(controller),
   });
