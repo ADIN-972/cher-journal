@@ -17,10 +17,13 @@ export default function PhotoUploadGallery({
 }: PhotoUploadGalleryProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const maxBytes = maxSizeMb * 1024 * 1024;
+    const validFiles: File[] = [];
+    let remainingSlots = maxPhotos - photos.length;
 
+    // Validate all files first
     for (const file of files) {
       if (!['image/jpeg', 'image/png'].includes(file.type)) {
         toast.error(`Format non supporté: ${file.name}. Utilisez JPG ou PNG.`);
@@ -34,18 +37,32 @@ export default function PhotoUploadGallery({
         continue;
       }
 
-      if (photos.length >= maxPhotos) {
+      if (remainingSlots <= 0) {
         toast.error(`Maximum ${maxPhotos} photos autorisées`);
         break;
       }
 
-      // Create local URL for preview
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const dataUrl = event.target?.result as string;
-        onPhotosChange([...photos, dataUrl]);
-      };
-      reader.readAsDataURL(file);
+      validFiles.push(file);
+      remainingSlots--;
+    }
+
+    // Read all valid files in parallel
+    const readPromises = validFiles.map((file) => {
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const dataUrl = event.target?.result as string;
+          resolve(dataUrl);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    try {
+      const dataUrls = await Promise.all(readPromises);
+      onPhotosChange([...photos, ...dataUrls]);
+    } catch (error) {
+      toast.error('Erreur lors du chargement des images');
     }
 
     // Reset input
@@ -60,10 +77,11 @@ export default function PhotoUploadGallery({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Photos de la protagoniste
+      <label className="block text-sm font-semibold  text-charcoal dark:text-white italic uppercase tracking-wider">
+          Galerie de Références
         </label>
+      <div className="flex justify-between items-center">
+        
         <span className="text-xs text-gray-500">
           {photos.length}/{maxPhotos} photos
         </span>
@@ -73,7 +91,9 @@ export default function PhotoUploadGallery({
       {photos.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {photos.map((photo, idx) => (
-            <div key={idx} className="relative group">
+            <div
+              key={idx}
+              className="relative group">
               <img
                 src={photo}
                 alt={`Photo ${idx + 1}`}
@@ -106,6 +126,7 @@ export default function PhotoUploadGallery({
             ref={fileInputRef}
             type="file"
             multiple
+            
             accept="image/jpeg,image/png"
             onChange={handleFileSelect}
             className="hidden"
