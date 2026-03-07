@@ -1304,18 +1304,18 @@
   },
   "createStory": {
     "title": "Create Your Story",
-    "subtitle": "5 steps to describe your vision to us",
+    "subtitle": "5 steps to describe your vision",
     "step_indicator": "Step {current} of {total}",
     "button_previous": "← Previous",
     "button_next": "Next →",
-    "button_submit": "Submit My Request",
+    "button_submit": "Submit my request",
     "button_submitting": "Sending...",
     "success_message": "Your request has been received! Thank you for your interest.",
     "error_generic": "An error occurred",
     "emotional_levels": {
       "title": "Emotional Levels",
       "description": "Describe the intensity, softness, danger, and emotional transformation of your story.",
-      "summary_title": "Emotional Summary",
+      "summary_title": "Emotional summary",
       "intensity": {
         "label": "Intensity",
         "description": "Strength of desire, carnal tension"
@@ -1355,8 +1355,8 @@
         "description": "Direct and detailed descriptions"
       },
       "very_explicit": {
-        "label": "Very Explicit",
-        "description": "Very crude and direct descriptions"
+        "label": "Very explicit",
+        "description": "Very raw and direct descriptions"
       }
     }
   }

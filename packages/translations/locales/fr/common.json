@@ -1301,5 +1301,63 @@
       "targeting_users_targeted": "Utilisateurs ciblés:",
       "targeting_no_users": "-"
     }
+  },
+  "createStory": {
+    "title": "Créez votre histoire",
+    "subtitle": "5 étapes pour nous décrire votre vision",
+    "step_indicator": "Étape {current} sur {total}",
+    "button_previous": "← Précédent",
+    "button_next": "Suivant →",
+    "button_submit": "Soumettre ma demande",
+    "button_submitting": "Envoi...",
+    "success_message": "Votre demande a été reçue! Merci de votre intérêt.",
+    "error_generic": "Une erreur est survenue",
+    "emotional_levels": {
+      "title": "Niveaux Émotionnels",
+      "description": "Décrivez l'intensité, la douceur, le danger et la transformation émotionnelle de votre histoire.",
+      "summary_title": "Résumé émotionnel",
+      "intensity": {
+        "label": "Intensité",
+        "description": "Force du désir, tension charnelle"
+      },
+      "softness": {
+        "label": "Douceur",
+        "description": "Tendresse, vulnérabilité, délicatesse"
+      },
+      "danger": {
+        "label": "Danger",
+        "description": "Risque émotionnel, social, moral ou physique"
+      },
+      "transformation": {
+        "label": "Transformation",
+        "description": "Évolution des personnages, changements majeurs"
+      },
+      "scale_low": "Faible",
+      "scale_high": "Forte",
+      "tip": "💡 <strong>Conseil:</strong> Ces niveaux vont guider nos auteurs pour créer une histoire parfaitement calibrée à vos envies."
+    },
+    "explicit_levels": {
+      "title": "Niveau d'explicité",
+      "romantic": {
+        "label": "Romantique",
+        "description": "Scènes suggérées, focus émotionnel"
+      },
+      "suggestive": {
+        "label": "Suggestif",
+        "description": "Moments évocateurs, descriptions évasives"
+      },
+      "sensual": {
+        "label": "Sensuel",
+        "description": "Descriptions détaillées, langage poétique"
+      },
+      "explicit": {
+        "label": "Explicite",
+        "description": "Descriptions directes et détaillées"
+      },
+      "very_explicit": {
+        "label": "Très explicite",
+        "description": "Descriptions très crues et directes"
+      }
+    }
   }
 }
