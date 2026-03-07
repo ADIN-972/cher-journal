@@ -1295,6 +1295,13 @@
     "button_submitting": "Envoi...",
     "success_message": "Votre demande a été reçue! Merci de votre intérêt.",
     "error_generic": "Une erreur est survenue",
+    "step_1_protagonist": {
+      "title": "La Protagoniste",
+      "description": "Décrivez-nous votre protagoniste. Son nom, son apparence, vos photos...",
+      "name_label": "Nom de la protagoniste *",
+      "name_placeholder": "Ex: Emma, Veronica, Marie...",
+      "tip": "💡 <strong>Conseil:</strong> Choisissez des photos qui capturent l'essence de votre protagoniste - son style, son charisme, son mystère."
+    },
     "emotional_levels": {
       "title": "Niveaux Émotionnels",
       "description": "Décrivez l'intensité, la douceur, le danger et la transformation émotionnelle de votre histoire.",
