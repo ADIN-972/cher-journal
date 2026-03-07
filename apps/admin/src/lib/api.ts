@@ -14,9 +14,10 @@ class ApiClient {
     method: string,
     path: string,
     data?: any,
-    params?: Record<string, any>
+    params?: Record<string, any>,
+    customHeaders?: Record<string, string>
   ): Promise<ApiResponse<T>> {
-    const headers: Record<string, string> = {};
+    const headers: Record<string, string> = { ...customHeaders };
 
     // Build URL with query params
     let url = `${this.baseURL}${path}`;
@@ -33,8 +34,8 @@ class ApiClient {
       }
     }
 
-    // Only set Content-Type if we have data to send
-    if (data) {
+    // Only set Content-Type for JSON data (not FormData)
+    if (data && !(data instanceof FormData)) {
       headers["Content-Type"] = "application/json";
     }
 
@@ -42,7 +43,7 @@ class ApiClient {
       method,
       headers,
       credentials: "include",
-      body: data ? JSON.stringify(data) : undefined,
+      body: data ? (data instanceof FormData ? data : JSON.stringify(data)) : undefined,
     });
 
     let result;
@@ -73,8 +74,12 @@ class ApiClient {
     return this.request("GET", path, undefined, options?.params);
   }
 
-  async post<T = any>(path: string, data?: any): Promise<ApiResponse<T>> {
-    return this.request("POST", path, data);
+  async post<T = any>(
+    path: string,
+    data?: any,
+    options?: { headers?: Record<string, string> }
+  ): Promise<ApiResponse<T>> {
+    return this.request("POST", path, data, undefined, options?.headers);
   }
 
   async put<T = any>(path: string, data?: any): Promise<ApiResponse<T>> {
