@@ -43,7 +43,6 @@ import { readerOrdersRoutes } from "./modules/reader/orders/orders.routes";
 import { readerSubscriptionsRoutes } from "./modules/reader/subscriptions/subscriptions.routes";
 import { readerSupportRoutes } from "./modules/reader/support/support.routes";
 import { stripeRoutes } from "./modules/stripe/stripe.routes";
-import { publicAssetsRoutes } from "./modules/public/assets.routes";
 import { customStoriesRoutes } from "./modules/custom-stories/custom-stories.routes";
 
 export async function createApp(): Promise<FastifyInstance> {
@@ -196,10 +195,8 @@ export async function createApp(): Promise<FastifyInstance> {
     priceSchemaRoutes,
   ];
 
-  // Register public routes (no /api prefix)
-  app.register(publicAssetsRoutes);
-
   // Register other routes without /api prefix
+  // Note: /uploads/* is already handled by fastifyStatic plugin above
   registerRoutes(app, allRoutes);
 
   // Register with /api prefix
