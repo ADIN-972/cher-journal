@@ -7,9 +7,10 @@ interface CustomStory {
   description: string;
   selectedGenres: string[];
   explicitLevel: string;
-  status: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED';
+  status: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'ARCHIVED';
   submittedAt: string;
   rejectionReason?: string;
+  rejectionNotes?: string;
   photoAssetIds: string[];
 }
 

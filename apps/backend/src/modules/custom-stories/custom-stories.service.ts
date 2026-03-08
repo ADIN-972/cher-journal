@@ -110,11 +110,14 @@ export class CustomStoriesService {
   }
 
   /**
-   * List user's stories
+   * List user's stories (excludes archived)
    */
   async listUserStories(userId: string) {
     return prisma.customStoryRequest.findMany({
-      where: { userId },
+      where: {
+        userId,
+        status: { not: 'ARCHIVED' } // Exclude archived stories
+      },
       include: { volumeProposals: true },
       orderBy: { submittedAt: 'desc' },
     });
@@ -132,12 +135,12 @@ export class CustomStoriesService {
   }
 
   /**
-   * Cancel story
+   * Archive story (soft delete for user)
    */
   async cancelStory(storyId: string, userId: string) {
     return prisma.customStoryRequest.update({
       where: { id: storyId },
-      data: { status: 'CANCELLED' },
+      data: { status: 'ARCHIVED' },
     });
   }
 

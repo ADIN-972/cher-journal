@@ -10,10 +10,17 @@ import {
   MdArrowForward,
 } from 'react-icons/md';
 import { useCustomStoryStore } from '../../stores/customStoryStore';
+import { useTranslation } from '../../lib/i18n';
+
+type SortBy = 'date-desc' | 'date-asc' | 'status';
+type FilterStatus = 'ALL' | 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED';
 
 export default function CustomStoryRequests() {
   const { stories, isLoading, error, fetchStories, cancelStory, clearError } = useCustomStoryStore();
+  const { t } = useTranslation();
   const [selectedStory, setSelectedStory] = useState<typeof stories[number] | null>(null);
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>('ALL');
+  const [sortBy, setSortBy] = useState<SortBy>('date-desc');
 
   useEffect(() => {
     fetchStories();
@@ -65,6 +72,12 @@ export default function CustomStoryRequests() {
         icon: MdCancel,
         label: 'Rejeté',
       },
+      ARCHIVED: {
+        bg: 'bg-gray-100',
+        text: 'text-gray-800',
+        icon: MdCancel,
+        label: 'Archivé',
+      },
     };
 
     const config =
@@ -88,6 +101,29 @@ export default function CustomStoryRequests() {
       day: 'numeric',
     });
   };
+
+  // Filter stories based on selected status
+  const filteredStories = filterStatus === 'ALL'
+    ? stories
+    : stories.filter(story => story.status === filterStatus);
+
+  // Sort stories based on selection
+  const sortedStories = [...filteredStories].sort((a, b) => {
+    if (sortBy === 'date-desc') {
+      return new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime();
+    } else if (sortBy === 'date-asc') {
+      return new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime();
+    } else if (sortBy === 'status') {
+      const statusOrder: Record<string, number> = {
+        PENDING: 1,
+        UNDER_REVIEW: 2,
+        APPROVED: 3,
+        REJECTED: 4,
+      };
+      return (statusOrder[a.status] || 0) - (statusOrder[b.status] || 0);
+    }
+    return 0;
+  });
 
   if (isLoading) {
     return (
@@ -118,6 +154,35 @@ export default function CustomStoryRequests() {
     );
   }
 
+  if (sortedStories.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Mes Demandes
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Suivez l'état de vos demandes de création d'histoires personnalisées
+            </p>
+          </div>
+          <a
+            href="/create-story"
+            className="px-4 py-2 bg-rose-600 text-white rounded-lg font-medium hover:bg-rose-700 transition-colors flex items-center gap-2"
+          >
+            <span>+</span>
+            Nouvelle demande
+          </a>
+        </div>
+        <div className="text-center py-8 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+          <p className="text-gray-600 dark:text-gray-400">
+            Aucune demande correspondant aux critères sélectionnés
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -138,8 +203,54 @@ export default function CustomStoryRequests() {
         </a>
       </div>
 
+      {/* Filters and Sorting */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Filter by Status */}
+          <div>
+            <label htmlFor="filter-status" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Filtrer par statut
+            </label>
+            <select
+              id="filter-status"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+            >
+              <option value="ALL">Toutes les demandes</option>
+              <option value="PENDING">En attente</option>
+              <option value="UNDER_REVIEW">En examen</option>
+              <option value="APPROVED">Approuvées</option>
+              <option value="REJECTED">Rejetées</option>
+            </select>
+          </div>
+
+          {/* Sort By */}
+          <div>
+            <label htmlFor="sort-by" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Trier par
+            </label>
+            <select
+              id="sort-by"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortBy)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+            >
+              <option value="date-desc">Plus récentes en premier</option>
+              <option value="date-asc">Plus anciennes en premier</option>
+              <option value="status">Par statut</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Results count */}
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
+          {sortedStories.length} demande{sortedStories.length !== 1 ? 's' : ''} trouvée{sortedStories.length !== 1 ? 's' : ''}
+        </p>
+      </div>
+
       <div className="space-y-4">
-        {stories.map((story) => (
+        {sortedStories.map((story) => (
           <div
             key={story.id}
             className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-rose-300 dark:hover:border-rose-700 transition-colors overflow-hidden"
@@ -210,14 +321,29 @@ export default function CustomStoryRequests() {
                 </div>
               </div>
 
-              {story.status === 'REJECTED' && story.rejectionReason && (
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-4 text-sm">
-                  <p className="font-semibold text-red-800 dark:text-red-300 mb-1">
-                    Raison du rejet
-                  </p>
-                  <p className="text-red-700 dark:text-red-400">
-                    {story.rejectionReason}
-                  </p>
+              {story.status === 'REJECTED' && (
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+                  <div className="space-y-3">
+                    <div>
+                      <p className="font-semibold text-red-800 dark:text-red-300 mb-2 flex items-center gap-2">
+                        <span className="text-lg">❌</span>
+                        Raison du rejet
+                      </p>
+                      <p className="text-red-700 dark:text-red-400 text-sm">
+                        {story.rejectionReason || 'Aucune raison spécifiée'}
+                      </p>
+                    </div>
+                    {story.rejectionNotes && (
+                      <div>
+                        <p className="font-semibold text-red-800 dark:text-red-300 text-sm mb-1">
+                          Notes additionnelles
+                        </p>
+                        <p className="text-red-700 dark:text-red-400 text-sm whitespace-pre-wrap">
+                          {story.rejectionNotes}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
