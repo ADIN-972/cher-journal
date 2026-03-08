@@ -94,6 +94,30 @@ class ApiClient {
     return this.request("DELETE", path);
   }
 
+  /**
+   * Download file as blob (for CSV, PDF, etc.)
+   */
+  async download(path: string, accept?: string): Promise<Blob> {
+    const url = `${this.baseURL}${path}`;
+    const headers: HeadersInit = {};
+
+    if (accept) {
+      headers["Accept"] = accept;
+    }
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers,
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Download failed with status ${response.status}`);
+    }
+
+    return response.blob();
+  }
+
   async upload(path: string, formData: FormData): Promise<ApiResponse<any>> {
     const response = await fetch(`${this.baseURL}${path}`, {
       method: "POST",

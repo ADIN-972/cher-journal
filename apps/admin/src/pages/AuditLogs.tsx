@@ -67,21 +67,10 @@ export default function AuditLogs() {
       if (filters.resource) params.append("resource", filters.resource);
       if (filters.userId) params.append("userId", filters.userId);
 
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/admin/audit-logs/export?${params.toString()}`,
-        {
-          credentials: "include",
-          headers: {
-            Accept: "text/csv",
-          },
-        }
+      const blob = await api.download(
+        `/admin/audit-logs/export?${params.toString()}`,
+        "text/csv"
       );
-
-      if (!response.ok) {
-        throw new Error("Export failed");
-      }
-
-      const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;

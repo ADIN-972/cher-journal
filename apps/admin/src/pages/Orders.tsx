@@ -273,23 +273,11 @@ export default function Orders() {
         params.append("status", statusFilter);
       }
 
-      // Fetch CSV data
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/admin/orders/export?${params.toString()}`,
-        {
-          credentials: "include",
-          headers: {
-            Accept: "text/csv",
-          },
-        }
+      // Download CSV data
+      const blob = await api.download(
+        `/admin/orders/export?${params.toString()}`,
+        "text/csv"
       );
-
-      if (!response.ok) {
-        throw new Error("Export failed");
-      }
-
-      // Get CSV content
-      const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
 
       // Trigger download

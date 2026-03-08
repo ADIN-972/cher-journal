@@ -2,6 +2,7 @@ import { useState, useRef, ChangeEvent } from "react";
 import { MdCloudUpload, MdImage, MdClose } from "react-icons/md";
 import toast from "react-hot-toast";
 import { useI18n } from "../lib/i18n";
+import { api } from "../lib/api";
 
 interface ImageUploadProps {
   onUploadSuccess?: (asset: any | any[]) => void;
@@ -99,22 +100,15 @@ export default function ImageUpload({
           formData.append("label", label);
         }
 
-        const response = await fetch("/api/admin/assets/upload", {
-          method: "POST",
-          credentials: "include",
-          body: formData,
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
+        try {
+          const result = await api.post<{ data: any }>("/admin/assets/upload", formData);
+          uploadedAssets.push(result.data);
+        } catch (error: any) {
           toast.error(
-            `${file.name}: ${errorData.error?.message || t('upload.upload_error')}`
+            `${file.name}: ${error.message || t('upload.upload_error')}`
           );
           continue;
         }
-
-        const result = await response.json();
-        uploadedAssets.push(result.data);
       }
 
       if (uploadedAssets.length > 0) {
