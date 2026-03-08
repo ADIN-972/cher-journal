@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
-import { useI18n } from '../lib/i18n';
-import { api } from '../lib/api';
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useI18n } from "../lib/i18n";
+import { api } from "../lib/api";
 import {
   MdCheck,
   MdClose,
@@ -15,10 +15,13 @@ import {
   MdCategory,
   MdViewList,
   MdViewAgenda,
-} from 'react-icons/md';
-import CustomStoryDetailModal from '../components/CustomStoryDetailModal';
-import { SmartTableGrid, type SmartTableColumn } from '../components/SmartTableGrid';
-import { TableAction } from '../components/TableGrid';
+} from "react-icons/md";
+import CustomStoryDetailModal from "../components/CustomStoryDetailModal";
+import {
+  SmartTableGrid,
+  type SmartTableColumn,
+} from "../components/SmartTableGrid";
+import { TableAction } from "../components/TableGrid";
 
 interface CustomStory {
   id: string;
@@ -28,7 +31,7 @@ interface CustomStory {
   selectedGenres: string[];
   explicitLevel: string;
   email: string;
-  status: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED';
+  status: "PENDING" | "UNDER_REVIEW" | "APPROVED" | "REJECTED" | "ARCHIVED";
   submittedAt: string;
   reviewedAt?: string;
   rejectionReason?: string;
@@ -60,32 +63,38 @@ interface CustomStoryStats {
   underReview: number;
   approved: number;
   rejected: number;
+  archived?: number;
 }
 
 export default function CustomStories() {
   const [stories, setStories] = useState<CustomStory[]>([]);
   const [stats, setStats] = useState<CustomStoryStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED'>('PENDING');
+  const [statusFilter, setStatusFilter] = useState<
+    "ALL" | "PENDING" | "UNDER_REVIEW" | "APPROVED" | "REJECTED" | "ARCHIVED"
+  >("PENDING");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedStory, setSelectedStory] = useState<CustomStory | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [viewMode, setViewModeState] = useState<'list' | 'card'>('list');
+  const [viewMode, setViewModeState] = useState<"list" | "card">("list");
   const { t } = useI18n();
 
   // Initialize viewMode from localStorage on mount
   useEffect(() => {
-    const savedViewMode = localStorage.getItem('customStories_viewMode') as 'list' | 'card' | null;
-    if (savedViewMode && ['list', 'card'].includes(savedViewMode)) {
+    const savedViewMode = localStorage.getItem("customStories_viewMode") as
+      | "list"
+      | "card"
+      | null;
+    if (savedViewMode && ["list", "card"].includes(savedViewMode)) {
       setViewModeState(savedViewMode);
     }
   }, []);
 
   // Save viewMode to localStorage whenever it changes
-  const setViewMode = (mode: 'list' | 'card') => {
+  const setViewMode = (mode: "list" | "card") => {
     setViewModeState(mode);
-    localStorage.setItem('customStories_viewMode', mode);
+    localStorage.setItem("customStories_viewMode", mode);
   };
 
   useEffect(() => {
@@ -98,19 +107,21 @@ export default function CustomStories() {
     try {
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: '20',
+        limit: "20",
       });
 
-      if (statusFilter !== 'ALL') {
-        params.append('status', statusFilter);
+      if (statusFilter !== "ALL") {
+        params.append("status", statusFilter);
       }
 
-      const response = await api.get(`/admin/custom-stories?${params.toString()}`);
+      const response = await api.get(
+        `/admin/custom-stories?${params.toString()}`,
+      );
       const data = response.data || response;
       setStories(data.stories || []);
       setTotalPages(data.pagination?.totalPages || 1);
     } catch (error: any) {
-      toast.error(error.message || 'Erreur lors du chargement des demandes');
+      toast.error(error.message || "Erreur lors du chargement des demandes");
     } finally {
       setLoading(false);
     }
@@ -118,11 +129,11 @@ export default function CustomStories() {
 
   const loadStats = async () => {
     try {
-      const response = await api.get('/admin/custom-stories/stats');
+      const response = await api.get("/admin/custom-stories/stats");
       const stats = response.data || response;
       setStats(stats);
     } catch (error) {
-      console.error('Error loading stats:', error);
+      console.error("Error loading stats:", error);
     }
   };
 
@@ -144,15 +155,43 @@ export default function CustomStories() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      PENDING: { bg: 'bg-yellow-100', text: 'text-yellow-800', icon: MdPending, label: 'En attente' },
-      UNDER_REVIEW: { bg: 'bg-blue-100', text: 'text-blue-800', icon: MdPending, label: 'En examen' },
-      APPROVED: { bg: 'bg-green-100', text: 'text-green-800', icon: MdCheckCircle, label: 'Approuvé' },
-      REJECTED: { bg: 'bg-red-100', text: 'text-red-800', icon: MdCancel, label: 'Rejeté' },
+      PENDING: {
+        bg: "bg-yellow-100",
+        text: "text-yellow-800",
+        icon: MdPending,
+        label: "En attente",
+      },
+      UNDER_REVIEW: {
+        bg: "bg-blue-100",
+        text: "text-blue-800",
+        icon: MdPending,
+        label: "En examen",
+      },
+      APPROVED: {
+        bg: "bg-green-100",
+        text: "text-green-800",
+        icon: MdCheckCircle,
+        label: "Approuvé",
+      },
+      REJECTED: {
+        bg: "bg-red-100",
+        text: "text-red-800",
+        icon: MdCancel,
+        label: "Rejeté",
+      },
+      ARCHIVED: {
+        bg: "bg-gray-100",
+        text: "text-gray-800",
+        icon: MdCancel,
+        label: "Archivé",
+      },
     };
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.PENDING;
+    const config =
+      statusConfig[status as keyof typeof statusConfig] || statusConfig.PENDING;
     const Icon = config.icon;
     return (
-      <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${config.bg} ${config.text}`}>
+      <span
+        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${config.bg} ${config.text}`}>
         <Icon className="w-4 h-4" />
         {config.label}
       </span>
@@ -160,56 +199,68 @@ export default function CustomStories() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleDateString("fr-FR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   // Table columns configuration
   const columns: SmartTableColumn<CustomStory>[] = [
     {
-      id: 'protagoniste',
-      header: 'Protagoniste',
+      id: "protagoniste",
+      header: "Protagoniste",
       defaultVisible: true,
       render: (story) => (
         <div className="flex items-center gap-3">
           <MdPerson className="w-5 h-5 text-gray-400" />
           <div>
-            <p className="font-medium text-gray-900 dark:text-white">{story.protagonistName}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{story.photoAssetIds.length} photos</p>
+            <p className="font-medium text-gray-900 dark:text-white">
+              {story.protagonistName}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {story.photoAssetIds.length} photos
+            </p>
           </div>
         </div>
       ),
     },
     {
-      id: 'utilisateur',
-      header: 'Utilisateur',
+      id: "utilisateur",
+      header: "Utilisateur",
       defaultVisible: true,
       render: (story) => (
         <div className="flex items-center gap-2">
           <MdEmail className="w-4 h-4 text-gray-400" />
           <div className="text-sm">
-            <p className="font-medium text-gray-900 dark:text-white">{story.user.firstName} {story.user.lastName}</p>
+            <p className="font-medium text-gray-900 dark:text-white">
+              {story.user.firstName} {story.user.lastName}
+            </p>
             <p className="text-xs text-gray-500">{story.email}</p>
           </div>
         </div>
       ),
     },
     {
-      id: 'genres',
-      header: 'Genres',
+      id: "genres",
+      header: "Genres",
       defaultVisible: true,
       render: (story) => (
         <div className="flex flex-wrap gap-1">
-          {story.selectedGenres.slice(0, 2).map((genre, idx) => (
-            <span key={idx} className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">
-              {genre}
-            </span>
-          ))}
+          {story.selectedGenres.slice(0, 2).map((genre, idx) => {
+            const genreTrad = t(`genres.${genre}.title`);
+
+            return (
+              <span
+                key={idx}
+                className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">
+                {genreTrad}
+              </span>
+            );
+          })}
           {story.selectedGenres.length > 2 && (
             <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">
               +{story.selectedGenres.length - 2}
@@ -219,20 +270,26 @@ export default function CustomStories() {
       ),
     },
     {
-      id: 'explicite',
-      header: 'Explicité',
+      id: "explicite",
+      header: "Explicité",
       defaultVisible: true,
-      accessor: 'explicitLevel',
+      accessor: "explicitLevel",
+      render: (explicite) => {
+        const explicit_level = t(
+          `createStory.explicit_levels.${explicite.explicitLevel}.label`,
+        );
+        return <span className={``}>{explicit_level}</span>;
+      },
     },
     {
-      id: 'statut',
-      header: 'Statut',
+      id: "statut",
+      header: "Statut",
       defaultVisible: true,
       render: (story) => getStatusBadge(story.status),
     },
     {
-      id: 'date',
-      header: 'Date',
+      id: "date",
+      header: "Date",
       defaultVisible: true,
       render: (story) => (
         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
@@ -246,9 +303,10 @@ export default function CustomStories() {
   // Table actions configuration
   const actions: TableAction<CustomStory>[] = [
     {
-      label: 'Examiner',
+      label: "Examiner",
       onClick: (story) => handleOpenDetail(story),
-      className: 'px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors',
+      className:
+        "px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors",
     },
   ];
 
@@ -266,12 +324,16 @@ export default function CustomStories() {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Total</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Total
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {stats.total}
+                </p>
               </div>
               <div className="text-3xl text-gray-400">📊</div>
             </div>
@@ -280,8 +342,12 @@ export default function CustomStories() {
           <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-yellow-200 dark:border-yellow-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-yellow-600 dark:text-yellow-400">En attente</p>
-                <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+                <p className="text-sm text-yellow-600 dark:text-yellow-400">
+                  En attente
+                </p>
+                <p className="text-2xl font-bold text-yellow-600">
+                  {stats.pending}
+                </p>
               </div>
               <MdPending className="w-8 h-8 text-yellow-400" />
             </div>
@@ -290,8 +356,12 @@ export default function CustomStories() {
           <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-blue-200 dark:border-blue-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-blue-600 dark:text-blue-400">En examen</p>
-                <p className="text-2xl font-bold text-blue-600">{stats.underReview}</p>
+                <p className="text-sm text-blue-600 dark:text-blue-400">
+                  En examen
+                </p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {stats.underReview}
+                </p>
               </div>
               <MdPending className="w-8 h-8 text-blue-400" />
             </div>
@@ -300,8 +370,12 @@ export default function CustomStories() {
           <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-green-200 dark:border-green-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-green-600 dark:text-green-400">Approuvés</p>
-                <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
+                <p className="text-sm text-green-600 dark:text-green-400">
+                  Approuvés
+                </p>
+                <p className="text-2xl font-bold text-green-600">
+                  {stats.approved}
+                </p>
               </div>
               <MdCheckCircle className="w-8 h-8 text-green-400" />
             </div>
@@ -310,10 +384,28 @@ export default function CustomStories() {
           <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-red-200 dark:border-red-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-red-600 dark:text-red-400">Rejetés</p>
-                <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  Rejetés
+                </p>
+                <p className="text-2xl font-bold text-red-600">
+                  {stats.rejected}
+                </p>
               </div>
               <MdCancel className="w-8 h-8 text-red-400" />
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Archivés
+                </p>
+                <p className="text-2xl font-bold text-gray-600">
+                  {stats.archived || 0}
+                </p>
+              </div>
+              <MdCancel className="w-8 h-8 text-gray-400" />
             </div>
           </div>
         </div>
@@ -324,7 +416,16 @@ export default function CustomStories() {
         <div className="flex items-center gap-4">
           <MdFilterList className="w-5 h-5 text-gray-600" />
           <div className="flex gap-2">
-            {(['ALL', 'PENDING', 'UNDER_REVIEW', 'APPROVED', 'REJECTED'] as const).map((status) => (
+            {(
+              [
+                "ALL",
+                "PENDING",
+                "UNDER_REVIEW",
+                "APPROVED",
+                "REJECTED",
+                "ARCHIVED",
+              ] as const
+            ).map((status) => (
               <button
                 key={status}
                 onClick={() => {
@@ -333,11 +434,20 @@ export default function CustomStories() {
                 }}
                 className={`px-4 py-2 rounded-lg font-medium transition-all ${
                   statusFilter === status
-                    ? 'bg-indigo-600 text-white shadow-lg'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300'
-                }`}
-              >
-                {status === 'ALL' ? 'Tous' : status === 'PENDING' ? 'En attente' : status === 'UNDER_REVIEW' ? 'En examen' : status === 'APPROVED' ? 'Approuvés' : 'Rejetés'}
+                    ? "bg-indigo-600 text-white shadow-lg"
+                    : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300"
+                }`}>
+                {status === "ALL"
+                  ? "Tous"
+                  : status === "PENDING"
+                    ? "En attente"
+                    : status === "UNDER_REVIEW"
+                      ? "En examen"
+                      : status === "APPROVED"
+                        ? "Approuvés"
+                        : status === "REJECTED"
+                          ? "Rejetés"
+                          : "Archivés"}
               </button>
             ))}
           </div>
@@ -346,25 +456,23 @@ export default function CustomStories() {
         {/* View Toggle */}
         <div className="flex gap-2 border border-gray-200 dark:border-gray-700 rounded-lg p-1 bg-gray-100 dark:bg-gray-800">
           <button
-            onClick={() => setViewMode('list')}
+            onClick={() => setViewMode("list")}
             className={`p-2 rounded transition-all ${
-              viewMode === 'list'
-                ? 'bg-white dark:bg-gray-700 text-indigo-600 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+              viewMode === "list"
+                ? "bg-white dark:bg-gray-700 text-indigo-600 shadow-sm"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
             }`}
-            title="Vue liste"
-          >
+            title="Vue liste">
             <MdViewList className="w-5 h-5" />
           </button>
           <button
-            onClick={() => setViewMode('card')}
+            onClick={() => setViewMode("card")}
             className={`p-2 rounded transition-all ${
-              viewMode === 'card'
-                ? 'bg-white dark:bg-gray-700 text-indigo-600 shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+              viewMode === "card"
+                ? "bg-white dark:bg-gray-700 text-indigo-600 shadow-sm"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
             }`}
-            title="Vue cartes"
-          >
+            title="Vue cartes">
             <MdViewAgenda className="w-5 h-5" />
           </button>
         </div>
@@ -377,9 +485,11 @@ export default function CustomStories() {
         </div>
       ) : stories.length === 0 ? (
         <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-          <p className="text-gray-600 dark:text-gray-400">Aucune demande trouvée</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            Aucune demande trouvée
+          </p>
         </div>
-      ) : viewMode === 'list' ? (
+      ) : viewMode === "list" ? (
         <div className="">
           <SmartTableGrid
             listName="custom-stories"
@@ -396,14 +506,17 @@ export default function CustomStories() {
           {stories.map((story) => (
             <div
               key={story.id}
-              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all overflow-hidden flex flex-col"
-            >
+              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all overflow-hidden flex flex-col">
               {/* Card Header */}
               <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-lg">{story.protagonistName}</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{story.photoAssetIds.length} photos</p>
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-lg">
+                      {story.protagonistName}
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {story.photoAssetIds.length} photos
+                    </p>
                   </div>
                   {getStatusBadge(story.status)}
                 </div>
@@ -412,16 +525,24 @@ export default function CustomStories() {
               {/* Card Content */}
               <div className="p-4 flex-1 space-y-3">
                 <div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 font-medium mb-1">Utilisateur</p>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">{story.user.firstName} {story.user.lastName}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 font-medium mb-1">
+                    Utilisateur
+                  </p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    {story.user.firstName} {story.user.lastName}
+                  </p>
                   <p className="text-xs text-gray-500">{story.email}</p>
                 </div>
 
                 <div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 font-medium mb-1">Genres</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 font-medium mb-1">
+                    Genres
+                  </p>
                   <div className="flex flex-wrap gap-1">
                     {story.selectedGenres.slice(0, 3).map((genre, idx) => (
-                      <span key={idx} className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs">
+                      <span
+                        key={idx}
+                        className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs">
                         {genre}
                       </span>
                     ))}
@@ -435,19 +556,31 @@ export default function CustomStories() {
 
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <p className="text-gray-600 dark:text-gray-400 font-medium mb-1">Explicité</p>
-                    <p className="text-gray-900 dark:text-white">{story.explicitLevel}</p>
+                    <p className="text-gray-600 dark:text-gray-400 font-medium mb-1">
+                      Explicité
+                    </p>
+                    <p className="text-gray-900 dark:text-white">
+                      {story.explicitLevel}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-gray-600 dark:text-gray-400 font-medium mb-1">Date</p>
-                    <p className="text-gray-900 dark:text-white">{formatDate(story.submittedAt).split(' ')[0]}</p>
+                    <p className="text-gray-600 dark:text-gray-400 font-medium mb-1">
+                      Date
+                    </p>
+                    <p className="text-gray-900 dark:text-white">
+                      {formatDate(story.submittedAt).split(" ")[0]}
+                    </p>
                   </div>
                 </div>
 
                 {story.description && (
                   <div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 font-medium mb-1">Description</p>
-                    <p className="text-xs text-gray-700 dark:text-gray-300 line-clamp-2">{story.description}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 font-medium mb-1">
+                      Description
+                    </p>
+                    <p className="text-xs text-gray-700 dark:text-gray-300 line-clamp-2">
+                      {story.description}
+                    </p>
                   </div>
                 )}
               </div>
@@ -456,8 +589,7 @@ export default function CustomStories() {
               <div className="p-4 border-t border-gray-200 dark:border-gray-700">
                 <button
                   onClick={() => handleOpenDetail(story)}
-                  className="w-full px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
-                >
+                  className="w-full px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
                   Examiner
                 </button>
               </div>
@@ -476,15 +608,13 @@ export default function CustomStories() {
             <button
               onClick={() => setPage(Math.max(1, page - 1))}
               disabled={page === 1}
-              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-            >
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
               Précédent
             </button>
             <button
               onClick={() => setPage(Math.min(totalPages, page + 1))}
               disabled={page === totalPages}
-              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-            >
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
               Suivant
             </button>
           </div>
