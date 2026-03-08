@@ -8,7 +8,12 @@ interface ApiResponse<T = any> {
 }
 
 class ApiClient {
-  private baseURL = "/api";
+  private baseURL: string;
+
+  constructor(baseURL?: string) {
+    // Use VITE_API_URL from environment, fallback to /api
+    this.baseURL = baseURL || import.meta.env.VITE_API_URL || "/api";
+  }
 
   async request<T = any>(
     method: string,
