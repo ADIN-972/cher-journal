@@ -51,28 +51,20 @@ export default function CustomStoryDetailModal({
 
     setLoadingPhotos(true);
     try {
-      // Filter out data URLs - only fetch real asset IDs from the API
-      let assetIds = story.photoAssetIds.filter((id: string) => !id.startsWith('data:'));
+      // photoAssetIds contains full URLs from custom story uploads
+      // Filter out data URLs (from local previews) and keep only real URLs
+      const photoUrls = story.photoAssetIds.filter((url: string) => !url.startsWith('data:'));
 
-      // Extract just the filename if the ID contains a path (defensive for legacy data)
-      assetIds = assetIds.map((id: string) => {
-        if (id.includes('/')) {
-          return id.split('/').pop() || id;
-        }
-        return id;
-      });
-
-      if (assetIds.length === 0) {
+      if (photoUrls.length === 0) {
         setPhotos([]);
         return;
       }
 
-      const photoData = await Promise.all(
-        assetIds.map((assetId: string) =>
-          api.get(`/admin/assets/${assetId}`).then(res => res.data)
-        )
-      );
-      setPhotos(photoData.filter(Boolean));
+      // Map URLs to photo objects for display
+      const photoData = photoUrls.map((url: string) => ({
+        url: url
+      }));
+      setPhotos(photoData);
     } catch (error: any) {
       console.error("Erreur lors du chargement des photos:", error);
       setPhotos([]);

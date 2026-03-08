@@ -107,7 +107,7 @@ export default function PhotoUploadGallery({
       // Filter successful uploads
       const successfulIds = uploadResults
         .filter((result) => result.success)
-        .map((result) => result.id);
+        .map((result) => result.url);
 
       const successfulPreviews = uploadResults
         .filter((result) => result.success)

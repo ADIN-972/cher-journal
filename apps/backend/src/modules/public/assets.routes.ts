@@ -4,13 +4,15 @@ import pathModule from "path";
 import { config } from "@cher-journal/config";
 
 export async function publicAssetsRoutes(app: FastifyInstance) {
-  // Serve thumbnail images (public, no auth required)
+  // Serve files from uploads directory (public, no auth required)
+  // Supports multi-segment paths like /uploads/custom-stories/temp/userId/filename.jpg
   app.get<{ Params: { path: string } }>(
-    "/uploads/:path",
+    "/uploads/*",
     async (request, reply) => {
       try {
-        const { path: objectKey } = request.params;
-        const filePath = pathModule.join(config.uploadDir, objectKey);
+        // Capture full remaining path after /uploads/
+        const fullPath = (request.params as any)['*'] || request.url.slice('/uploads/'.length);
+        const filePath = pathModule.join(config.uploadDir, fullPath);
 
         // Prevent directory traversal
         const realPath = await fs.realpath(filePath);
