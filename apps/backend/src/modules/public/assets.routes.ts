@@ -25,9 +25,24 @@ export async function publicAssetsRoutes(app: FastifyInstance) {
         // Check if file exists
         await fs.access(filePath);
 
+        // Detect content type based on file extension
+        const ext = pathModule.extname(filePath).toLowerCase();
+        let contentType = "application/octet-stream";
+        if (ext === ".jpg" || ext === ".jpeg") {
+          contentType = "image/jpeg";
+        } else if (ext === ".png") {
+          contentType = "image/png";
+        } else if (ext === ".webp") {
+          contentType = "image/webp";
+        } else if (ext === ".gif") {
+          contentType = "image/gif";
+        } else if (ext === ".svg") {
+          contentType = "image/svg+xml";
+        }
+
         // Send file with appropriate cache headers
         reply.header("Cache-Control", "public, max-age=31536000, immutable");
-        reply.header("Content-Type", "image/png");
+        reply.header("Content-Type", contentType);
 
         const fileStream = await fs.readFile(filePath);
         return reply.send(fileStream);
