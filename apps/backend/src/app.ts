@@ -229,5 +229,21 @@ export async function createApp(): Promise<FastifyInstance> {
     }
   });
 
+  // GET /robots.txt - Search engine crawler rules
+  app.get("/robots.txt", async (request, reply) => {
+    try {
+      const robotsPath = path.join(path.dirname(__dirname), "public", "robots.txt");
+      const robotsContent = fs.readFileSync(robotsPath, "utf-8");
+
+      reply.header("Content-Type", "text/plain");
+      reply.header("Cache-Control", "public, max-age=604800"); // Cache for 7 days
+
+      return reply.send(robotsContent);
+    } catch (error) {
+      app.log.error(error);
+      return reply.status(404).send("Not Found");
+    }
+  });
+
   return app;
 }
