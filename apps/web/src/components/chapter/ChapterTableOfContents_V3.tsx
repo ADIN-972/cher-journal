@@ -170,14 +170,17 @@ export default forwardRef<HTMLElement, ChapterTableOfContentsV3Props>(
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    // On mobile: tap to select/show actions, tap again to open
-                    // On desktop: go straight to opening (hover shows actions)
-                    if (selectedVolumeId === volume.id) {
-                      // Already selected, open the volume
+                    // Desktop (hover mode): open directly on first click
+                    // Mobile (no hover): tap to select, tap again to open
+                    if (isHovered) {
+                      // Desktop: hover shows actions, click opens directly
+                      onOpenVolume(volume);
+                    } else if (selectedVolumeId === volume.id) {
+                      // Mobile: Already selected, open the volume
                       setSelectedVolumeId(null);
                       onOpenVolume(volume);
                     } else {
-                      // Select to show actions
+                      // Mobile: Select to show actions
                       setSelectedVolumeId(volume.id);
                     }
                   }}
@@ -212,7 +215,7 @@ export default forwardRef<HTMLElement, ChapterTableOfContentsV3Props>(
                       <div className="grid h-full items-center justify-center col-span-2 md:col-span-1 text-gold font-serif  text-xl p-3 border-r border-gold/50">
                         {toRomanNumeral(volume.volumeNumber)}
                       </div>
-                      <div className="grid col-span-10 md:col-span-11 text-center md:text-left h-full w-full flex items-center px-3 mr-1 border-l-2 border-r-2 border-gold/50 text-boudoir-silk font-serif text-xs md:text-lg tracking-wide line-clamp-2 newsreader">
+                      <div className="grid col-span-9 md:col-span-10 text-center md:text-left h-full w-full flex items-center px-3 mr-1 border-l-2 border-r-2 border-gold/50 text-boudoir-silk font-serif text-xs md:text-lg tracking-wide line-clamp-2 newsreader">
                         {volume.title}
                       </div>
                       {/* <div
