@@ -48,6 +48,16 @@ function AppContent() {
           element={<ResetPassword />}
         />
 
+        {/* Public Routes (continued) */}
+        <Route
+          path="/chapters/:id/preview"
+          element={
+            <LayoutNew>
+              <ChapterPreview />
+            </LayoutNew>
+          }
+        />
+
         {/* Protected Routes */}
         <Route
           path="/"
@@ -65,16 +75,6 @@ function AppContent() {
             <ProtectedRoute>
               <LayoutNew>
                 <Catalogue />
-              </LayoutNew>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/chapters/:id/preview"
-          element={
-            <ProtectedRoute>
-              <LayoutNew>
-                <ChapterPreview />
               </LayoutNew>
             </ProtectedRoute>
           }
