@@ -1,0 +1,23 @@
+# Robots.txt for Cher Journal
+
+Sitemap: https://moncherjournal.com/sitemap.xml
+
+User-agent: *
+Allow: /chapters/*/preview
+Allow: /sitemap.xml
+Disallow: /reader/*
+Disallow: /admin/*
+Disallow: /api/auth/*
+Disallow: /api/user/*
+Disallow: /api/orders/*
+Disallow: /api/subscriptions/*
+
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/*
+Disallow: /api/auth/*
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/*
+Disallow: /api/auth/*
