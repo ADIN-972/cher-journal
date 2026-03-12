@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <!-- Background -->
+  <rect width="192" height="192" fill="#2d1620" rx="32"/>
+
+  <!-- Decorative border -->
+  <rect width="192" height="192" fill="none" stroke="#d4a574" stroke-width="3" rx="32" opacity="0.6"/>
+
+  <!-- CJ text -->
+  <text x="96" y="110" font-family="Georgia, serif" font-size="80" font-weight="bold" fill="#d4a574" text-anchor="middle" letter-spacing="8">CJ</text>
+
+  <!-- Decorative flourish below -->
+  <line x1="50" y1="135" x2="142" y2="135" stroke="#d4a574" stroke-width="2" opacity="0.4"/>
+</svg>
