@@ -44,6 +44,7 @@ import { readerSubscriptionsRoutes } from "./modules/reader/subscriptions/subscr
 import { readerSupportRoutes } from "./modules/reader/support/support.routes";
 import { stripeRoutes } from "./modules/stripe/stripe.routes";
 import { customStoriesRoutes } from "./modules/custom-stories/custom-stories.routes";
+import { registerPublicChaptersRoutes } from "./modules/public/chapters.routes.js";
 
 export async function createApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -206,6 +207,9 @@ export async function createApp(): Promise<FastifyInstance> {
     },
     { prefix: "/api" }
   );
+
+  // Register public routes
+  await registerPublicChaptersRoutes(app);
 
   return app;
 }
