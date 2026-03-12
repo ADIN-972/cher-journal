@@ -405,11 +405,13 @@ export class AccessControlService {
       },
     });
 
-    if (!entitlement || entitlement.source === 'SUBSCRIPTION') {
+    if (!entitlement) {
       return false;
     }
 
-    return true;
+    // PURCHASE, BUNDLE, and SUBSCRIPTION entitlements all grant full access
+    // Only PREORDER does not grant full access (it requires wait-to-read)
+    return entitlement.source !== 'PREORDER';
   }
 
   /**
