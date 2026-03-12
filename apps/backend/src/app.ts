@@ -45,6 +45,7 @@ import { readerSupportRoutes } from "./modules/reader/support/support.routes";
 import { stripeRoutes } from "./modules/stripe/stripe.routes";
 import { customStoriesRoutes } from "./modules/custom-stories/custom-stories.routes";
 import { registerPublicChaptersRoutes } from "./modules/public/chapters.routes.js";
+import { sitemapService } from "./modules/public/sitemap.service.js";
 
 export async function createApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -210,6 +211,23 @@ export async function createApp(): Promise<FastifyInstance> {
 
   // Register public routes
   await registerPublicChaptersRoutes(app);
+
+  // GET /sitemap.xml - Public sitemap for search engines
+  app.get("/sitemap.xml", async (request, reply) => {
+    try {
+      const baseUrl = process.env.PUBLIC_BASE_URL || "https://moncherjournal.com";
+      const sitemap = await sitemapService.generateSitemap(baseUrl);
+
+      // Cache for 24 hours
+      reply.header("Content-Type", "application/xml");
+      reply.header("Cache-Control", "public, max-age=86400");
+
+      return reply.send(sitemap);
+    } catch (error) {
+      app.log.error(error);
+      return reply.status(500).send({ error: "Failed to generate sitemap" });
+    }
+  });
 
   return app;
 }
