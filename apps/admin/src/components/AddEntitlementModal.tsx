@@ -15,6 +15,7 @@ interface Chapter {
   id: string;
   title: string;
   status: string;
+  protagonistName: string;
 }
 
 export default function AddEntitlementModal({
@@ -27,7 +28,7 @@ export default function AddEntitlementModal({
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    chapterId: "",
+    chapterIds: [] as string[],
     volumeFrom: 1,
     volumeTo: 1,
     scopes: ["BASE"] as string[],
@@ -79,7 +80,7 @@ export default function AddEntitlementModal({
       onClose();
       // Reset form
       setFormData({
-        chapterId: "",
+        chapterIds: [],
         volumeFrom: 1,
         volumeTo: 1,
         scopes: ["BASE"],
@@ -134,34 +135,52 @@ export default function AddEntitlementModal({
           className="p-6 space-y-5">
           {/* Chapter Selection */}
           <div className="group">
-            <label
-              htmlFor="chapter-select"
-              className="block text-sm font-semibold text-gray-700 mb-2">
-              {t("add_entitlement_modal.chapter", "Chapitre")}{" "}
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              {t("add_entitlement_modal.chapter", "Chapitres")}{" "}
               <span className="text-red-500">*</span>
             </label>
-            <select
-              id="chapter-select"
-              value={formData.chapterId}
-              onChange={(e) =>
-                setFormData({ ...formData, chapterId: e.target.value })
-              }
-              required
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-200 bg-white/50">
-              <option value="">
-                {t(
-                  "add_entitlement_modal.select_chapter",
-                  "Sélectionner un chapitre"
-                )}
-              </option>
-              {chapters.map((chapter) => (
-                <option
-                  key={chapter.id}
-                  value={chapter.id}>
-                  {chapter.title}
-                </option>
-              ))}
-            </select>
+            <div className="space-y-2 max-h-64 overflow-y-auto border-2 border-gray-200 rounded-xl p-3 bg-white/50">
+              {chapters.length === 0 ? (
+                <p className="text-gray-500 text-sm">
+                  {t("add_entitlement_modal.no_chapters", "Aucun chapitre disponible")}
+                </p>
+              ) : (
+                chapters.map((chapter) => (
+                  <label
+                    key={chapter.id}
+                    className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={formData.chapterIds.includes(chapter.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setFormData({
+                            ...formData,
+                            chapterIds: [...formData.chapterIds, chapter.id],
+                          });
+                        } else {
+                          setFormData({
+                            ...formData,
+                            chapterIds: formData.chapterIds.filter(
+                              (id) => id !== chapter.id
+                            ),
+                          });
+                        }
+                      }}
+                      className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-700 flex-1">
+                      {chapter.protagonistName} : {chapter.title}
+                    </span>
+                  </label>
+                ))
+              )}
+            </div>
+            {formData.chapterIds.length > 0 && (
+              <p className="mt-2 text-sm text-gray-600">
+                {formData.chapterIds.length} {t("add_entitlement_modal.selected", "chapitre(s) sélectionné(s)")}
+              </p>
+            )}
           </div>
 
           {/* Volume Range */}
@@ -306,7 +325,7 @@ export default function AddEntitlementModal({
             </button>
             <button
               type="submit"
-              disabled={loading || !formData.chapterId}
+              disabled={loading || formData.chapterIds.length === 0}
               className="flex-1 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
               {loading
                 ? t("add_entitlement_modal.button_adding", "Ajout...")

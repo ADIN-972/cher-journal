@@ -1338,23 +1338,23 @@
     },
     "explicit_levels": {
       "title": "Niveau d'explicité",
-      "romantic": {
+      "ROMANTIQUE": {
         "label": "Romantique",
         "description": "Scènes suggérées, focus émotionnel"
       },
-      "suggestive": {
+      "SUGGESTIF": {
         "label": "Suggestif",
         "description": "Moments évocateurs, descriptions évasives"
       },
-      "sensual": {
+      "SENSUEL": {
         "label": "Sensuel",
         "description": "Descriptions détaillées, langage poétique"
       },
-      "explicit": {
+      "EXPLICITE": {
         "label": "Explicite",
         "description": "Descriptions directes et détaillées"
       },
-      "very_explicit": {
+      "TRES_EXPLICITE": {
         "label": "Très explicite",
         "description": "Descriptions très crues et directes"
       }

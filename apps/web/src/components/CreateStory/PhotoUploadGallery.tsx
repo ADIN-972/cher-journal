@@ -180,7 +180,7 @@ export default function PhotoUploadGallery({
             </div>
           ))}
           {/* Preview photos (being uploaded) */}
-          {previews.map((preview, idx) => (
+          {/* {previews.map((preview, idx) => (
             <div
               key={`preview-${idx}`}
               className="relative group">
@@ -201,7 +201,7 @@ export default function PhotoUploadGallery({
                 <MdClose size={16} />
               </button>
             </div>
-          ))}
+          ))} */}
         </div>
       )}
 

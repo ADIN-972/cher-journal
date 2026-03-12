@@ -5,6 +5,17 @@ interface CherJournalQuoteProps {
 }
 
 export default function CherJournalQuote({ chapters }: CherJournalQuoteProps) {
+
+
+const quotes = [{
+  text :"La passion n'est pas une émotion qui se vit, c'est une atmosphère qui se respire, un parfum qui s'imprègne sur la peau et dans l'âme."  , 
+  author: ""
+}, 
+{
+  text :"L'érotisme est l'approbation de la vie jusque dans la mort. C'est le moment où la peau devient le seul langage que l'on accepte de parler.", 
+  author : "Éléonore de Valmont"
+}]
+
   return (
     <section className="py-20 md:py-24 bg-white border-slate-200 dark:bg-white/5 dark:border-white/10 border-y">
       <div className="max-w-3xl mx-auto px-6 text-center">

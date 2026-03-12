@@ -358,12 +358,22 @@ export class UsersService {
       throw new Error("USER_NOT_FOUND");
     }
 
-    // Verify chapter exists
-    const chapter = await prisma.chapter.findUnique({
-      where: { id: data.chapterId },
+    // Determine which chapters to add entitlements for
+    const chapterIds = data.chapterIds && data.chapterIds.length > 0
+      ? data.chapterIds
+      : (data.chapterId ? [data.chapterId] : []);
+
+    if (chapterIds.length === 0) {
+      throw new Error("NO_CHAPTERS_PROVIDED");
+    }
+
+    // Verify all chapters exist
+    const chapters = await prisma.chapter.findMany({
+      where: { id: { in: chapterIds } },
     });
-    if (!chapter) {
-      throw new Error("CHAPTER_NOT_FOUND");
+
+    if (chapters.length !== chapterIds.length) {
+      throw new Error("SOME_CHAPTERS_NOT_FOUND");
     }
 
     // Validate volume range
@@ -372,23 +382,29 @@ export class UsersService {
     }
 
     try {
-      const entitlement = await prisma.entitlement.create({
-        data: {
-          userId,
-          chapterId: data.chapterId,
-          volumeFrom: data.volumeFrom,
-          volumeTo: data.volumeTo,
-          scopes: data.scopes,
-          source: data.source,
-        },
-        include: {
-          chapter: true,
-        },
-      });
+      // Create entitlements for all chapters
+      const createdEntitlements = await Promise.all(
+        chapterIds.map((chapterId) =>
+          prisma.entitlement.create({
+            data: {
+              userId,
+              chapterId,
+              volumeFrom: data.volumeFrom,
+              volumeTo: data.volumeTo,
+              scopes: data.scopes,
+              source: data.source,
+            },
+            include: {
+              chapter: true,
+            },
+          })
+        )
+      );
 
-      return entitlement;
+      // Return first entitlement for single chapter, array for multiple
+      return chapterIds.length === 1 ? createdEntitlements[0] : createdEntitlements;
     } catch (error) {
-      console.error("Error creating entitlement:", error);
+      console.error("Error creating entitlements:", error);
       throw new Error("ENTITLEMENT_CREATE_FAILED");
     }
   }

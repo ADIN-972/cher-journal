@@ -89,7 +89,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 space-y-1 overflow-y-auto mt-6 mb-24" style={{ minHeight: 0 }}>
+        <nav className="flex-1 px-1 space-y-1 overflow-y-auto mt-6 mb-24" style={{ minHeight: 0 }}>
           {/* Dashboard */}
           <Link
             to="/"

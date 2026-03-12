@@ -4,11 +4,27 @@
  * Returns absolute URLs pointing to the API domain for cross-domain access
  */
 export function getImageUrl(asset: any): string {
-  const apiUrl = import.meta.env.VITE_API_URL || 'https://api.moncherjournal.com';
-
+  const apiUrl =
+    import.meta.env.VITE_API_URL || "https://api.moncherjournal.com";
+  // console.log(
+  //   "getImageUrl called with asset:",
+  //   asset,
+  //   "using API URL:",
+  //   apiUrl,
+  // );
   // If asset already has a full URL (e.g., from custom story uploads), return it directly
-  if (asset?.url && typeof asset.url === 'string' && (asset.url.startsWith('http') || asset.url.startsWith('/uploads'))) {
+  if (
+    asset?.url &&
+    typeof asset.url === "string" &&
+    asset.url.startsWith("http")
+  ) {
     return asset.url;
+  } else if (
+    asset?.url &&
+    typeof asset.url === "string" &&
+    !asset.url.startsWith("http")
+  ) {
+    return `${apiUrl}${asset.url}`;
   }
 
   if (asset?.thumbnailObjectKey) {

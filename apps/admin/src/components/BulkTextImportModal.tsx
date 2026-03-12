@@ -13,6 +13,7 @@ interface ParsedVolume {
   title: string;
   narratorText: string;
   protagonistText: string;
+  isFree: boolean;
 }
 
 interface BulkTextImportModalProps {
@@ -59,11 +60,13 @@ export default function BulkTextImportModal({
 
         // Start new volume
         const match = trimmed.match(/^Vol\.?\s*(\d+)\s*:\s*(.+)/i);
+        const volumeNumber = parseInt(match![1]);
         currentVolume = {
-          volumeNumber: parseInt(match![1]),
+          volumeNumber,
           title: match![2].trim(),
           narratorText: "",
           protagonistText: "",
+          isFree: volumeNumber === 1 || volumeNumber === 2,
         };
         currentSection = null;
         textBuffer = [];
@@ -143,6 +146,7 @@ export default function BulkTextImportModal({
             title: volume.title,
             narratorText: volume.narratorText,
             protagonistText: volume.protagonistText,
+            isFree: volume.isFree,
           });
           successCount++;
         } catch (error: any) {
@@ -272,7 +276,7 @@ export default function BulkTextImportModal({
               </div>
 
               <div className="space-y-3 max-h-[500px] overflow-y-auto">
-                {parsedVolumes.map((volume) => (
+                {parsedVolumes.map((volume, index) => (
                   <div
                     key={volume.volumeNumber}
                     className="bg-gray-50 border border-gray-200 rounded-xl p-4">
@@ -285,6 +289,20 @@ export default function BulkTextImportModal({
                           {volume.title}
                         </h3>
                       </div>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={volume.isFree}
+                          onChange={(e) => {
+                            parsedVolumes[index].isFree = e.target.checked;
+                            setParsedVolumes([...parsedVolumes]);
+                          }}
+                          className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                        />
+                        <span className="text-sm font-medium text-gray-700">
+                          Gratuit
+                        </span>
+                      </label>
                     </div>
                     <div className="grid grid-cols-2 gap-3 text-xs">
                       <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">

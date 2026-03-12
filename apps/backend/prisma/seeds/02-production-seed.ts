@@ -55,12 +55,41 @@ export async function seedProductionData() {
       return;
     }
 
-    // CRITICAL ORDER: Restore assets FIRST (before chapters/volumes that reference them)
-    // Separate base assets from versions to respect self-referencing foreign keys
-    console.log(`🖼️  Restoring chapter assets...`);
+    // CRITICAL ORDER: Chapters FIRST (without coverAssetId to avoid circular FK),
+    // then assets, then update chapters with coverAssetId
+    console.log(`📝 Restoring ${data.chapters.length} chapters...`);
+    const chaptersWithCover: { id: string; coverAssetId: string }[] = [];
+    for (const chapter of data.chapters) {
+      const existing = await prisma.chapter.findUnique({
+        where: { id: chapter.id },
+      });
+
+      if (!existing) {
+        const { coverAssetId, ...chapterData } = chapter;
+        if (coverAssetId) {
+          chaptersWithCover.push({ id: chapter.id, coverAssetId });
+        }
+        await prisma.chapter.create({
+          data: chapterData,
+        });
+      }
+    }
+
+    // Now restore chapter assets (they reference chapters via chapterId FK)
+    // Build set of valid chapter IDs to skip orphaned assets
+    const existingChapterIds = new Set(
+      (await prisma.chapter.findMany({ select: { id: true } })).map(c => c.id)
+    );
+
+    const validAssets = data.chapterAssets.filter(a => existingChapterIds.has(a.chapterId));
+    const skippedAssets = data.chapterAssets.length - validAssets.length;
+    if (skippedAssets > 0) {
+      console.log(`⚠️  Skipping ${skippedAssets} assets with missing chapters`);
+    }
+    console.log(`🖼️  Restoring ${validAssets.length} chapter assets...`);
 
     // Step 1: Restore base assets (originalAssetId = null)
-    const baseAssets = data.chapterAssets.filter(a => !a.originalAssetId);
+    const baseAssets = validAssets.filter(a => !a.originalAssetId);
     for (const asset of baseAssets) {
       const existing = await prisma.chapterAsset.findUnique({
         where: { id: asset.id },
@@ -74,7 +103,7 @@ export async function seedProductionData() {
     }
 
     // Step 2: Restore asset versions (originalAssetId != null)
-    const assetVersions = data.chapterAssets.filter(a => a.originalAssetId);
+    const assetVersions = validAssets.filter(a => a.originalAssetId);
     for (const asset of assetVersions) {
       const existing = await prisma.chapterAsset.findUnique({
         where: { id: asset.id },
@@ -101,16 +130,13 @@ export async function seedProductionData() {
       }
     }
 
-    // NOW restore chapters with asset references
-    console.log(`📝 Restoring ${data.chapters.length} chapters...`);
-    for (const chapter of data.chapters) {
-      const existing = await prisma.chapter.findUnique({
-        where: { id: chapter.id },
-      });
-
-      if (!existing) {
-        await prisma.chapter.create({
-          data: chapter,
+    // Update chapters with coverAssetId now that assets exist
+    if (chaptersWithCover.length > 0) {
+      console.log(`🔗 Linking ${chaptersWithCover.length} chapter cover(s)...`);
+      for (const { id, coverAssetId } of chaptersWithCover) {
+        await prisma.chapter.update({
+          where: { id },
+          data: { coverAssetId },
         });
       }
     }

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Drawer from "./Drawer";
 import { useI18n } from "../lib/i18n";
+import { api } from "../lib/api";
 
 interface BulkEditChapterModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface BulkEditChapterModalProps {
 export interface BulkChapterUpdates {
   status?: "DRAFT" | "IN_PROGRESS" | "PUBLISHED";
   publishedAt?: string | null;
+  volumeWaitDurationHours?: number;
 }
 
 export default function BulkEditChapterModal({
@@ -21,19 +23,41 @@ export default function BulkEditChapterModal({
   selectedCount,
 }: BulkEditChapterModalProps) {
   const { t } = useI18n();
+  const [defaultWaitDuration, setDefaultWaitDuration] = useState<number>(24);
   const [formData, setFormData] = useState<{
     updateStatus: boolean;
     status: "DRAFT" | "IN_PROGRESS" | "PUBLISHED";
     updatePublishedAt: boolean;
     publishedAt: string;
+    updateVolumeWaitDuration: boolean;
+    volumeWaitDurationHours: number;
   }>({
     updateStatus: false,
     status: "DRAFT",
     updatePublishedAt: false,
     publishedAt: "",
+    updateVolumeWaitDuration: false,
+    volumeWaitDurationHours: 24,
   });
 
   const [loading, setLoading] = useState(false);
+
+  // Load default wait duration from config
+  useEffect(() => {
+    const loadWaitConfig = async () => {
+      try {
+        const response = await api.get("/config/wait");
+        if (response.success && response.data?.defaultDurationHours) {
+          const hours = response.data.defaultDurationHours;
+          setDefaultWaitDuration(hours);
+          setFormData((prev) => ({ ...prev, volumeWaitDurationHours: hours }));
+        }
+      } catch (error) {
+        console.error("Failed to load wait config:", error);
+      }
+    };
+    loadWaitConfig();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +76,10 @@ export default function BulkEditChapterModal({
           : null;
       }
 
+      if (formData.updateVolumeWaitDuration) {
+        updates.volumeWaitDurationHours = formData.volumeWaitDurationHours;
+      }
+
       await onSubmit(updates);
       handleClose();
     } catch (error) {
@@ -67,6 +95,8 @@ export default function BulkEditChapterModal({
       status: "DRAFT",
       updatePublishedAt: false,
       publishedAt: "",
+      updateVolumeWaitDuration: false,
+      volumeWaitDurationHours: defaultWaitDuration,
     });
     onClose();
   };
@@ -172,6 +202,50 @@ export default function BulkEditChapterModal({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 title={t("chapter_form.publish_date", "Date de publication")}
               />
+            )}
+          </div>
+
+          {/* Volume Wait Duration */}
+          <div className="border border-gray-200 rounded-md p-3">
+            <label className="flex items-center space-x-2 mb-2">
+              <input
+                type="checkbox"
+                checked={formData.updateVolumeWaitDuration}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    updateVolumeWaitDuration: e.target.checked,
+                  })
+                }
+                className="h-4 w-4 text-blue-600 rounded"
+              />
+              <span className="text-sm font-medium text-gray-700">
+                Modifier le temps d'attente pour tous les volumes
+              </span>
+            </label>
+            {formData.updateVolumeWaitDuration && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.volumeWaitDurationHours}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        volumeWaitDurationHours: parseInt(e.target.value) || 0,
+                      })
+                    }
+                    title="Temps d'attente en heures"
+                    placeholder="Heures"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-600">heures</span>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Valeur par défaut : {defaultWaitDuration} heure(s)
+                </p>
+              </div>
             )}
           </div>
         </div>

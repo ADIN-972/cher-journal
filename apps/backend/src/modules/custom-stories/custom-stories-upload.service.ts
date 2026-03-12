@@ -12,7 +12,7 @@ interface UploadValidationResult {
 }
 
 export class CustomStoriesUploadService {
-  private readonly uploadDir = process.env.UPLOAD_DIR || './uploads/custom-stories';
+  private readonly uploadDir = process.env.UPLOAD_DIR || './uploads';
   private readonly publicUrl = process.env.PUBLIC_URL || 'http://localhost:5000';
   private readonly maxFileSize = 5 * 1024 * 1024; // 5MB
   private readonly allowedMimeTypes = ['image/jpeg', 'image/png'];
@@ -159,9 +159,12 @@ export class CustomStoriesUploadService {
     });
 
     // Return file info with appropriate path structure
+    // const relativePath = storyId
+    //   ? `/uploads/custom-stories/${storyId}/${uniqueFilename}`
+    //   : `/uploads/custom-stories/temp/${userId}/${uniqueFilename}`;
     const relativePath = storyId
-      ? `/uploads/custom-stories/${storyId}/${uniqueFilename}`
-      : `/uploads/custom-stories/temp/${userId}/${uniqueFilename}`;
+      ? `/uploads/${storyId}/${uniqueFilename}`
+      : `/uploads/temp/${userId}/${uniqueFilename}`;
 
     const fullUrl = `${this.publicUrl}${relativePath}`;
 

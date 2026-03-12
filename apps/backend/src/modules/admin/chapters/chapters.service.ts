@@ -244,94 +244,6 @@ export class ChaptersService {
       return newChapter;
     });
 
-    // Automatically create 10 volumes with both perspectives
-    // Wrapped in a transaction to ensure all-or-nothing atomicity
-    await prisma.$transaction(async (tx) => {
-      for (let i = 1; i <= 10; i++) {
-        const volume = await tx.volume.create({
-          data: {
-            chapterId: chapter.id,
-            volumeNumber: i,
-            title: `Volume ${i}`,
-            isFinalPaywall: i > 8, // Last 2 volumes are paywall
-          },
-        });
-
-        // Generate volume text with "Cher journal" header and Lorem ipsum
-        const narratorText = generateVolumeText(5);
-        const protagonistText = generateVolumeText(5);
-
-        if ((config as any).encryptionEnabled) {
-          // PRODUCTION MODE: Encrypt texts and store in EncryptedBlob
-          const narratorEncrypted = encrypt(narratorText);
-          const protagonistEncrypted = encrypt(protagonistText);
-
-          // Create encrypted blobs
-          const narratorBlob = await tx.encryptedBlob.create({
-            data: {
-              ownerId: volume.id,
-              purpose: "volume_text",
-              cipherText: narratorEncrypted.cipherText,
-              iv: narratorEncrypted.iv,
-              tag: narratorEncrypted.tag,
-              wrappedDek: narratorEncrypted.wrappedDek,
-              alg: narratorEncrypted.alg,
-              version: narratorEncrypted.version,
-            },
-          });
-
-          const protagonistBlob = await tx.encryptedBlob.create({
-            data: {
-              ownerId: volume.id,
-              purpose: "volume_text",
-              cipherText: protagonistEncrypted.cipherText,
-              iv: protagonistEncrypted.iv,
-              tag: protagonistEncrypted.tag,
-              wrappedDek: protagonistEncrypted.wrappedDek,
-              alg: protagonistEncrypted.alg,
-              version: protagonistEncrypted.version,
-            },
-          });
-
-          // Create versions with textBlobId references
-          await Promise.all([
-            tx.volumeVersion.create({
-              data: {
-                volumeId: volume.id,
-                perspective: Perspective.NARRATOR,
-                textBlobId: narratorBlob.id,
-              },
-            }),
-            tx.volumeVersion.create({
-              data: {
-                volumeId: volume.id,
-                perspective: Perspective.PROTAGONIST,
-                textBlobId: protagonistBlob.id,
-              },
-            }),
-          ]);
-        } else {
-          // DEVELOPMENT MODE: Store plaintext directly (no encryption)
-          await Promise.all([
-            tx.volumeVersion.create({
-              data: {
-                volumeId: volume.id,
-                perspective: Perspective.NARRATOR,
-                text: narratorText, // Plaintext for dev/demo
-              },
-            }),
-            tx.volumeVersion.create({
-              data: {
-                volumeId: volume.id,
-                perspective: Perspective.PROTAGONIST,
-                text: protagonistText, // Plaintext for dev/demo
-              },
-            }),
-          ]);
-        }
-      }
-    });
-
     return chapter;
   }
 
@@ -601,6 +513,21 @@ export class ChaptersService {
       },
       data: updateData,
     });
+
+    // Update all volumes' wait duration if specified
+    if (updates.volumeWaitDurationHours !== undefined) {
+      const waitDurationMs = updates.volumeWaitDurationHours * 60 * 60 * 1000;
+      await prisma.volume.updateMany({
+        where: {
+          chapter: {
+            id: { in: chapterIds },
+          },
+        },
+        data: {
+          waitDuration: waitDurationMs,
+        },
+      });
+    }
 
     // Return updated chapters
     const chapters = await prisma.chapter.findMany({

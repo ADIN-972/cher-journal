@@ -5,7 +5,7 @@ import { config } from "@cher-journal/config";
 
 export async function publicAssetsRoutes(app: FastifyInstance) {
   // Serve files from uploads directory (public, no auth required)
-  // Supports multi-segment paths like /uploads/custom-stories/temp/userId/filename.jpg
+  // Supports multi-segment paths like /uploads/temp/userId/filename.jpg
   app.get<{ Params: { path: string } }>(
     "/uploads/*",
     async (request, reply) => {

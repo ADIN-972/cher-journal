@@ -11,23 +11,23 @@ interface StoryStep2PropsProps {
 const EXPLICIT_LEVELS = [
   {
     value: "ROMANTIQUE",
-    translationKey: "createStory.explicit_levels.romantic",
+    translationKey: "createStory.explicit_levels.ROMANTIQUE",
   },
   {
     value: "SUGGESTIF",
-    translationKey: "createStory.explicit_levels.suggestive",
+    translationKey: "createStory.explicit_levels.SUGGESTIF",
   },
   {
     value: "SENSUEL",
-    translationKey: "createStory.explicit_levels.sensual",
+    translationKey: "createStory.explicit_levels.SENSUEL",
   },
   {
     value: "EXPLICITE",
-    translationKey: "createStory.explicit_levels.explicit",
+    translationKey: "createStory.explicit_levels.EXPLICITE",
   },
   {
     value: "TRES_EXPLICITE",
-    translationKey: "createStory.explicit_levels.very_explicit",
+    translationKey: "createStory.explicit_levels.TRES_EXPLICITE",
   },
 ];
 

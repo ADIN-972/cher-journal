@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+﻿import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useI18n } from "../lib/i18n";
@@ -33,6 +33,7 @@ import FloatingActionButton from "../components/FloatingActionButton";
 import ContextMenu from "../components/ContextMenu";
 import { useContextMenu } from "../hooks/useContextMenu";
 import ChapterSummary from "../components/ChapterSummary";
+import ChaptersNavigation from "../components/ChaptersNavigation";
 
 export default function ChapterDetail() {
   const { id } = useParams<{ id: string }>();
@@ -40,8 +41,10 @@ export default function ChapterDetail() {
   const { t } = useI18n();
   const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu();
   const [chapter, setChapter] = useState<Chapter | null>(null);
+  const [chapters, setChapters] = useState<Chapter[]>([]);
   const [volumes, setVolumes] = useState<Volume[]>([]);
   const [loading, setLoading] = useState(true);
+  const chaptersScrollRef = useRef<HTMLDivElement>(null);
   const [showBootstrapModal, setShowBootstrapModal] = useState(false);
   const [bootstrapCount, setBootstrapCount] = useState(10);
   const [deletingVolume, setDeletingVolume] = useState<Volume | null>(null);
@@ -73,11 +76,38 @@ export default function ChapterDetail() {
 
   useEffect(() => {
     loadChapterDetail();
+    loadChaptersList();
   }, [id]);
 
   useEffect(() => {
     localStorage.setItem("volumeViewMode", viewMode);
   }, [viewMode]);
+
+  // Scroll to current chapter in the navigation
+  useEffect(() => {
+    if (chaptersScrollRef.current && id) {
+      // Find the current chapter button and scroll it into view
+      const currentButton = chaptersScrollRef.current.querySelector(
+        `button[data-chapter-id="${id}"]`
+      );
+      if (currentButton) {
+        currentButton.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "center",
+        });
+      }
+    }
+  }, [id, chapters.length]);
+
+  const loadChaptersList = async () => {
+    try {
+      const response = await api.get("/admin/chapters");
+      setChapters(response.data || []);
+    } catch (error) {
+      console.error("Failed to load chapters list:", error);
+    }
+  };
 
   const loadChapterDetail = async () => {
     try {
@@ -392,12 +422,23 @@ export default function ChapterDetail() {
       }}
       className="p-6">
       {/* Header */}
-      <div className="mb-6">
+      <div className="flex items-start gap-4 mb-6">
         <button
           onClick={() => navigate("/chapters")}
-          className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 transition mb-4">
+          className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 transition flex-shrink-0 mt-0">
           <MdArrowBack className="text-xl text-gray-600" />
         </button>
+        <div
+          ref={chaptersScrollRef}
+          className="flex-1 overflow-x-auto pb-2">
+          {/* Chapters Navigation */}
+          {chapters.length > 0 && (
+            <ChaptersNavigation
+              chapters={chapters}
+              currentChapterId={id || ""}
+            />
+          )}
+        </div>
       </div>
       <ChapterSummary
         chapter={chapter}
@@ -418,7 +459,9 @@ export default function ChapterDetail() {
                 </span>
                 Marketing Accroches
               </h3>
-              <button type="button" className="text-xs font-bold text-primary hover:underline">
+              <button
+                type="button"
+                className="text-xs font-bold text-primary hover:underline">
                 Edit Variations
               </button>
             </div>
@@ -429,7 +472,9 @@ export default function ChapterDetail() {
                   Classic
                 </p>
                 <p className="text-sm italic text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  {chapter.accroche_classic ? `"${chapter.accroche_classic}"` : "—"}
+                  {chapter.accroche_classic
+                    ? `"${chapter.accroche_classic}"`
+                    : "—"}
                 </p>
               </div>
 
@@ -459,7 +504,9 @@ export default function ChapterDetail() {
                   Marketing / Hook
                 </p>
                 <p className="text-sm italic text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  {chapter.accroche_marketing ? `"${chapter.accroche_marketing}"` : "—"}
+                  {chapter.accroche_marketing
+                    ? `"${chapter.accroche_marketing}"`
+                    : "—"}
                 </p>
               </div>
 
@@ -469,7 +516,9 @@ export default function ChapterDetail() {
                   Dark Collection
                 </p>
                 <p className="text-sm italic text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  {chapter.accroche_dark_collection ? `"${chapter.accroche_dark_collection}"` : "—"}
+                  {chapter.accroche_dark_collection
+                    ? `"${chapter.accroche_dark_collection}"`
+                    : "—"}
                 </p>
               </div>
             </div>

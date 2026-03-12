@@ -484,7 +484,7 @@ export class VolumesService {
             title: data.title,
             waitDuration: defaultWaitDurationMs,
             isFinalPaywall: false,
-            isFree: false,
+            isFree: data.isFree || false,
             versions: {
               create: [
                 { perspective: Perspective.NARRATOR },
@@ -497,10 +497,13 @@ export class VolumesService {
           },
         });
       } else {
-        // Update existing volume title
+        // Update existing volume title and isFree status
         await prisma.volume.update({
           where: { id: volume.id },
-          data: { title: data.title },
+          data: {
+            title: data.title,
+            isFree: data.isFree || false,
+          },
         });
       }
 

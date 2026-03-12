@@ -41,6 +41,7 @@ export const bulkImportVolumeSchema = z.object({
   title: z.string().min(1),
   narratorText: z.string(),
   protagonistText: z.string().optional(),
+  isFree: z.boolean().optional().default(false),
 });
 
 export type CreateVolumeInput = z.infer<typeof createVolumeSchema>;

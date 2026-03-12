@@ -29,8 +29,12 @@ export default function MostPassionateSection({
       {/* Section Header */}
       <div className="mb-10">
         <h3 className="text-3xl md:text-4xl font-display italic text-stone-700 dark:text-stone-100 newsreader">
-          Les plus passionnants
+          Les Passions Charnelles
         </h3>
+        <p className="handwriting text-xl md:text-2xl text-primary-caramel !-mt-1">
+          Chaque volume est une invitation à l'abandon. Une exploration
+          sensorielle des limites du plaisir.
+        </p>
       </div>
 
       {/* Popular Grid */}

@@ -50,6 +50,7 @@ export const bulkUpdateChaptersSchema = z.object({
   updates: z.object({
     status: z.nativeEnum(ChapterStatus).optional(),
     publishedAt: z.string().datetime().optional().nullable(),
+    volumeWaitDurationHours: z.number().int().min(0).optional(),
   }),
 });
 
