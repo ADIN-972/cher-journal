@@ -19,6 +19,14 @@ export async function registerPublicChaptersRoutes(app: FastifyInstance) {
 
         // Cache for 24 hours
         reply.header("Cache-Control", "public, max-age=86400");
+
+        // SEO headers for search engines and metadata crawlers
+        reply.header("X-Chapter-Title", preview.title);
+        reply.header("X-Chapter-Description", preview.description || "");
+        reply.header("X-Chapter-Protagonist", preview.protagonistName || "");
+        reply.header("X-Chapter-Genres", Array.isArray(preview.genres) ? preview.genres.join(", ") : "");
+        reply.header("X-Chapter-Volume-Count", String(preview.volumeCount || 0));
+
         return preview;
       } catch (error) {
         app.log.error(error);
