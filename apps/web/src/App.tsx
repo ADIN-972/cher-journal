@@ -10,6 +10,7 @@ import ResetPassword from "./pages/Auth/ResetPassword";
 import HomeNew from "./pages/HomeNew";
 import Catalogue from "./pages/Catalogue";
 import Chapter from "./pages/Chapter";
+import ChapterPreview from "./pages/ChapterPreview";
 import Library from "./pages/Library";
 import Profile from "./pages/Profile";
 import ActiveTimers from "./pages/ActiveTimers";
@@ -64,6 +65,16 @@ function AppContent() {
             <ProtectedRoute>
               <LayoutNew>
                 <Catalogue />
+              </LayoutNew>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/chapters/:id/preview"
+          element={
+            <ProtectedRoute>
+              <LayoutNew>
+                <ChapterPreview />
               </LayoutNew>
             </ProtectedRoute>
           }
