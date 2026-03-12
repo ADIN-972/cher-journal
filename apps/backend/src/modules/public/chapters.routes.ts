@@ -1,17 +1,13 @@
 // apps/backend/src/modules/public/chapters.routes.ts
 import { FastifyInstance } from "fastify";
-import { catalogService } from "../catalogue/catalogue.service.js";
+import { CatalogService } from "../reader/catalog/catalog.service.js";
+
+const catalogService = new CatalogService();
 
 export async function registerPublicChaptersRoutes(app: FastifyInstance) {
   // GET /api/chapters/:id/preview - Public endpoint, no auth required
   app.get<{ Params: { id: string } }>(
     "/api/chapters/:id/preview",
-    {
-      schema: {
-        description: "Get public chapter preview for SEO indexing",
-        tags: ["public"],
-      },
-    },
     async (request, reply) => {
       try {
         const { id } = request.params;
