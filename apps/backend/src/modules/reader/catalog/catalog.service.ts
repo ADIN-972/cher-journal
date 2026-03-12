@@ -391,6 +391,54 @@ export class CatalogService {
     return convertBigIntToNumber(responseWithFavoriteFlag);
   }
 
+  async getChapterPreview(chapterId: string) {
+    const chapter = await prisma.chapter.findUnique({
+      where: { id: chapterId },
+      include: {
+        coverAsset: true,
+        genres: {
+          select: {
+            genre: true,
+          },
+        },
+        volumes: {
+          select: {
+            volumeNumber: true,
+            title: true,
+          },
+          orderBy: { volumeNumber: "asc" },
+        },
+      },
+    });
+
+    if (!chapter) {
+      return null;
+    }
+
+    // Resolve chapter cover asset URL (use thumbnail if it exists)
+    const coverAssetUrl = await resolveAssetUrl(chapter.coverAsset);
+
+    // Transform to response format
+    return convertBigIntToNumber({
+      id: chapter.id,
+      title: chapter.title,
+      description: chapter.description,
+      protagonistName: chapter.protagonistName,
+      coverAsset: chapter.coverAsset ? {
+        id: chapter.coverAsset.id,
+        url: coverAssetUrl,
+        mimeType: chapter.coverAsset.mimeType,
+      } : null,
+      volumeCount: chapter.volumes.length,
+      volumes: chapter.volumes,
+      genres: chapter.genres.map((g: any) => g.genre.name),
+      metadata: {
+        createdAt: chapter.createdAt,
+        publishedAt: chapter.publishedAt,
+      },
+    });
+  }
+
   // ============= HELPER METHODS FOR PRICING =============
 
   /**
