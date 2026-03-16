@@ -22,15 +22,19 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: jest.fn(() => ({})),
 }));
 
-// Mock Expo SQLite
-jest.mock('expo-sqlite', () => ({
-  openDatabaseSync: jest.fn(() => ({
-    execSync: jest.fn(),
-    runSync: jest.fn(),
-    getFirstSync: jest.fn(),
-    withTransactionSync: jest.fn((fn) => fn()),
-  })),
-}));
+// Mock Expo SQLite (async API for SDK 54)
+jest.mock('expo-sqlite', () => {
+  const createMockDB = () => ({
+    execAsync: jest.fn(() => Promise.resolve()),
+    runAsync: jest.fn(() => Promise.resolve()),
+    getFirstAsync: jest.fn(() => Promise.resolve(null)),
+    getAllAsync: jest.fn(() => Promise.resolve([])),
+    closeAsync: jest.fn(() => Promise.resolve()),
+  });
+  return {
+    openDatabaseAsync: jest.fn(() => Promise.resolve(createMockDB())),
+  };
+});
 
 // Mock File System
 jest.mock('expo-file-system', () => ({

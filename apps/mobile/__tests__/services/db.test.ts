@@ -11,18 +11,17 @@ describe('Database Services', () => {
 
   beforeEach(() => {
     mockDB = {
-      execSync: jest.fn(),
-      runSync: jest.fn(),
-      getFirstSync: jest.fn(),
-      getAllSync: jest.fn(),
-      withTransactionSync: jest.fn((fn) => fn()),
+      execAsync: jest.fn().mockResolvedValue(undefined),
+      runAsync: jest.fn().mockResolvedValue(undefined),
+      getFirstAsync: jest.fn().mockResolvedValue(null),
+      getAllAsync: jest.fn().mockResolvedValue([]),
     };
-    (getDatabase as jest.Mock).mockReturnValue(mockDB);
+    (getDatabase as jest.Mock).mockResolvedValue(mockDB);
     jest.clearAllMocks();
   });
 
   describe('chaptersDB', () => {
-    it('should get all chapters', () => {
+    it('should get all chapters', async () => {
       const mockChapters = [
         {
           id: 'ch-1',
@@ -30,85 +29,86 @@ describe('Database Services', () => {
           status: 'PUBLISHED',
         },
       ];
-      mockDB.getAllSync.mockReturnValueOnce(mockChapters);
+      mockDB.getAllAsync.mockResolvedValueOnce(mockChapters);
 
-      chaptersDB.getAllChapters();
+      await chaptersDB.getAllChapters();
 
-      expect(mockDB.getAllSync).toHaveBeenCalled();
+      expect(mockDB.getAllAsync).toHaveBeenCalled();
     });
 
-    it('should get chapter by id', () => {
-      mockDB.getFirstSync.mockReturnValueOnce({ id: 'ch-1', title: 'Chapter 1' });
+    it('should get chapter by id', async () => {
+      mockDB.getFirstAsync.mockResolvedValueOnce({ id: 'ch-1', title: 'Chapter 1' });
 
-      chaptersDB.getChapterById('ch-1');
+      await chaptersDB.getChapterById('ch-1');
 
-      expect(mockDB.getFirstSync).toHaveBeenCalled();
+      expect(mockDB.getFirstAsync).toHaveBeenCalled();
     });
 
-    it('should save chapter', () => {
+    it('should save chapter', async () => {
       const chapter = { id: 'ch-1', title: 'Chapter 1', status: 'PUBLISHED' } as any;
 
-      chaptersDB.saveChapter(chapter);
+      await chaptersDB.saveChapter(chapter);
 
-      expect(mockDB.runSync).toHaveBeenCalled();
+      expect(mockDB.runAsync).toHaveBeenCalled();
     });
 
-    it('should save multiple chapters in transaction', () => {
+    it('should save multiple chapters in transaction', async () => {
       const chapters = [
         { id: 'ch-1', title: 'Chapter 1', status: 'PUBLISHED' },
         { id: 'ch-2', title: 'Chapter 2', status: 'PUBLISHED' },
       ] as any;
 
-      chaptersDB.saveChapters(chapters);
+      await chaptersDB.saveChapters(chapters);
 
-      expect(mockDB.withTransactionSync).toHaveBeenCalled();
+      expect(mockDB.execAsync).toHaveBeenCalledWith('BEGIN TRANSACTION');
+      expect(mockDB.execAsync).toHaveBeenCalledWith('COMMIT');
     });
 
-    it('should delete chapter', () => {
-      chaptersDB.deleteChapter('ch-1');
+    it('should delete chapter', async () => {
+      await chaptersDB.deleteChapter('ch-1');
 
-      expect(mockDB.runSync).toHaveBeenCalled();
+      expect(mockDB.runAsync).toHaveBeenCalled();
     });
   });
 
   describe('volumesDB', () => {
-    it('should get volumes by chapter', () => {
-      mockDB.getAllSync.mockReturnValueOnce([
+    it('should get volumes by chapter', async () => {
+      mockDB.getAllAsync.mockResolvedValueOnce([
         { id: 'vol-1', chapterId: 'ch-1', volumeNumber: 1 },
       ]);
 
-      volumesDB.getVolumesByChapter('ch-1');
+      await volumesDB.getVolumesByChapter('ch-1');
 
-      expect(mockDB.getAllSync).toHaveBeenCalled();
+      expect(mockDB.getAllAsync).toHaveBeenCalled();
     });
 
-    it('should get volume by id', () => {
-      mockDB.getFirstSync.mockReturnValueOnce({ id: 'vol-1', chapterId: 'ch-1' });
+    it('should get volume by id', async () => {
+      mockDB.getFirstAsync.mockResolvedValueOnce({ id: 'vol-1', chapterId: 'ch-1' });
 
-      volumesDB.getVolumeById('vol-1');
+      await volumesDB.getVolumeById('vol-1');
 
-      expect(mockDB.getFirstSync).toHaveBeenCalled();
+      expect(mockDB.getFirstAsync).toHaveBeenCalled();
     });
 
-    it('should save volume', () => {
+    it('should save volume', async () => {
       const volume = { id: 'vol-1', chapterId: 'ch-1', volumeNumber: 1 } as any;
 
-      volumesDB.saveVolume(volume);
+      await volumesDB.saveVolume(volume);
 
-      expect(mockDB.runSync).toHaveBeenCalled();
+      expect(mockDB.runAsync).toHaveBeenCalled();
     });
 
-    it('should get volume versions', () => {
-      mockDB.getAllSync.mockReturnValueOnce([
+    it('should get volume versions', async () => {
+      mockDB.getAllAsync.mockResolvedValueOnce([
         { id: 'ver-1', volumeId: 'vol-1', perspective: 'NARRATOR' },
       ]);
 
-      volumesDB.getVolumeVersions('vol-1');
+      await volumesDB.getVolumeVersions('vol-1');
 
-      expect(mockDB.getAllSync).toHaveBeenCalled();
+      expect(mockDB.getAllAsync).toHaveBeenCalled();
     });
 
-    it('should save volume version', () => {
+    it('should save volume version', async () => {
       const version = {
         id: 'ver-1',
         volumeId: 'vol-1',
@@ -119,22 +119,22 @@ describe('Database Services', () => {
         createdAt: '2026-01-01T00:00:00Z',
       };
 
-      volumesDB.saveVolumeVersion(version);
+      await volumesDB.saveVolumeVersion(version);
 
-      expect(mockDB.runSync).toHaveBeenCalled();
+      expect(mockDB.runAsync).toHaveBeenCalled();
     });
   });
 
   describe('progressDB', () => {
-    it('should get progress', () => {
-      mockDB.getFirstSync.mockReturnValueOnce({ id: 'p-1', chapterId: 'ch-1', progress: 50 });
+    it('should get progress', async () => {
+      mockDB.getFirstAsync.mockResolvedValueOnce({ id: 'p-1', chapterId: 'ch-1', progress: 50 });
 
-      progressDB.getProgress('ch-1', 1, 'NARRATOR');
+      await progressDB.getProgress('ch-1', 1, 'NARRATOR');
 
-      expect(mockDB.getFirstSync).toHaveBeenCalled();
+      expect(mockDB.getFirstAsync).toHaveBeenCalled();
     });
 
-    it('should save progress', () => {
+    it('should save progress', async () => {
       const progress = {
         id: 'p-1',
         chapterId: 'ch-1',
@@ -143,63 +143,63 @@ describe('Database Services', () => {
         progress: 50,
       };
 
-      progressDB.saveProgress(progress);
+      await progressDB.saveProgress(progress);
 
-      expect(mockDB.runSync).toHaveBeenCalled();
+      expect(mockDB.runAsync).toHaveBeenCalled();
     });
 
-    it('should get bookmarks', () => {
-      mockDB.getAllSync.mockReturnValueOnce([
+    it('should get bookmarks', async () => {
+      mockDB.getAllAsync.mockResolvedValueOnce([
         { chapterId: 'ch-1' },
         { chapterId: 'ch-2' },
       ]);
 
-      progressDB.getBookmarks();
+      await progressDB.getBookmarks();
 
-      expect(mockDB.getAllSync).toHaveBeenCalled();
+      expect(mockDB.getAllAsync).toHaveBeenCalled();
     });
 
-    it('should add bookmark', () => {
-      progressDB.addBookmark('ch-1');
+    it('should add bookmark', async () => {
+      await progressDB.addBookmark('ch-1');
 
-      expect(mockDB.runSync).toHaveBeenCalled();
+      expect(mockDB.runAsync).toHaveBeenCalled();
     });
 
-    it('should remove bookmark', () => {
-      progressDB.removeBookmark('ch-1');
+    it('should remove bookmark', async () => {
+      await progressDB.removeBookmark('ch-1');
 
-      expect(mockDB.runSync).toHaveBeenCalled();
+      expect(mockDB.runAsync).toHaveBeenCalled();
     });
 
-    it('should check if bookmarked', () => {
-      mockDB.getFirstSync.mockReturnValueOnce({ chapterId: 'ch-1' });
+    it('should check if bookmarked', async () => {
+      mockDB.getFirstAsync.mockResolvedValueOnce({ chapterId: 'ch-1' });
 
-      const result = progressDB.isBookmarked('ch-1');
+      const result = await progressDB.isBookmarked('ch-1');
 
       expect(result).toBe(true);
     });
   });
 
   describe('syncDB', () => {
-    it('should add to sync queue and return id', () => {
-      const result = syncDB.addToQueue('updateProgress', { volumeId: '123', progress: 50 });
+    it('should add to sync queue and return id', async () => {
+      const result = await syncDB.addToQueue('updateProgress', { volumeId: '123', progress: 50 });
 
       expect(typeof result).toBe('string');
-      expect(mockDB.runSync).toHaveBeenCalled();
+      expect(mockDB.runAsync).toHaveBeenCalled();
     });
 
-    it('should get pending items', () => {
+    it('should get pending items', async () => {
       const mockPending = [
         { id: 'sync-1', action: 'updateProgress', status: 'pending', payload: '{}', createdAt: '2026-01-01' },
       ];
-      mockDB.getAllSync.mockReturnValueOnce(mockPending);
+      mockDB.getAllAsync.mockResolvedValueOnce(mockPending);
 
-      syncDB.getPendingItems();
+      await syncDB.getPendingItems();
 
-      expect(mockDB.getAllSync).toHaveBeenCalled();
+      expect(mockDB.getAllAsync).toHaveBeenCalled();
     });
 
-    it('should get item by id', () => {
+    it('should get item by id', async () => {
       const mockItem = {
         id: 'sync-1',
         action: 'updateProgress',
@@ -207,41 +207,41 @@ describe('Database Services', () => {
         payload: '{}',
         createdAt: '2026-01-01',
       };
-      mockDB.getFirstSync.mockReturnValueOnce(mockItem);
+      mockDB.getFirstAsync.mockResolvedValueOnce(mockItem);
 
-      const result = syncDB.getItem('sync-1');
+      const result = await syncDB.getItem('sync-1');
 
       expect(result).toBeDefined();
     });
 
-    it('should mark as synced', () => {
-      syncDB.markAsSynced('sync-1');
+    it('should mark as synced', async () => {
+      await syncDB.markAsSynced('sync-1');
 
-      expect(mockDB.runSync).toHaveBeenCalled();
+      expect(mockDB.runAsync).toHaveBeenCalled();
     });
 
-    it('should mark as failed', () => {
-      syncDB.markAsFailed('sync-1');
+    it('should mark as failed', async () => {
+      await syncDB.markAsFailed('sync-1');
 
-      expect(mockDB.runSync).toHaveBeenCalled();
+      expect(mockDB.runAsync).toHaveBeenCalled();
     });
 
-    it('should clear synced items', () => {
-      syncDB.clearSyncedItems();
+    it('should clear synced items', async () => {
+      await syncDB.clearSyncedItems();
 
-      expect(mockDB.runSync).toHaveBeenCalled();
+      expect(mockDB.runAsync).toHaveBeenCalled();
     });
 
-    it('should get stats', () => {
+    it('should get stats', async () => {
       const mockStats = {
         pending: 1,
         synced: 2,
         failed: 0,
         total: 3,
       };
-      mockDB.getFirstSync.mockReturnValueOnce(mockStats);
+      mockDB.getFirstAsync.mockResolvedValueOnce(mockStats);
 
-      const result = syncDB.getStats();
+      const result = await syncDB.getStats();
 
       expect(result).toBeDefined();
       expect(typeof result.total).toBe('number');
