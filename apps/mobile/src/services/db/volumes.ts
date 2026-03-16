@@ -52,9 +52,9 @@ export const volumesDB = {
   /**
    * Get all volumes for a chapter
    */
-  getVolumesByChapter: (chapterId: string): Volume[] => {
-    const db = getDatabase();
-    const rows = db.getAllSync<any>(
+  getVolumesByChapter: async (chapterId: string): Promise<Volume[]> => {
+    const db = await getDatabase();
+    const rows = await db.getAllAsync<any>(
       'SELECT * FROM volumes WHERE chapterId = ? ORDER BY volumeNumber ASC',
       [chapterId]
     );
@@ -64,18 +64,18 @@ export const volumesDB = {
   /**
    * Get a specific volume by ID
    */
-  getVolumeById: (id: string): Volume | null => {
-    const db = getDatabase();
-    const row = db.getFirstSync<any>('SELECT * FROM volumes WHERE id = ?', [id]);
+  getVolumeById: async (id: string): Promise<Volume | null> => {
+    const db = await getDatabase();
+    const row = await db.getFirstAsync<any>('SELECT * FROM volumes WHERE id = ?', [id]);
     return row ? mapRowToVolume(row) : null;
   },
 
   /**
    * Save a single volume (insert or replace)
    */
-  saveVolume: (volume: Volume): void => {
-    const db = getDatabase();
-    db.runSync(
+  saveVolume: async (volume: Volume): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync(
       `INSERT OR REPLACE INTO volumes (
         id, chapterId, volumeNumber, title, isFinalPaywall, illustrationAssetId,
         createdAt, publishedAt, isFree, status, charme, danger, douceur, intensite,
@@ -109,37 +109,42 @@ export const volumesDB = {
   /**
    * Save multiple volumes in a transaction
    */
-  saveVolumes: (volumes: Volume[]): void => {
-    const db = getDatabase();
-    db.withTransactionSync(() => {
+  saveVolumes: async (volumes: Volume[]): Promise<void> => {
+    const db = await getDatabase();
+    try {
+      await db.execAsync('BEGIN TRANSACTION');
       for (const volume of volumes) {
-        volumesDB.saveVolume(volume);
+        await volumesDB.saveVolume(volume);
       }
-    });
+      await db.execAsync('COMMIT');
+    } catch (error) {
+      await db.execAsync('ROLLBACK');
+      throw error;
+    }
   },
 
   /**
    * Delete a volume by ID
    */
-  deleteVolume: (id: string): void => {
-    const db = getDatabase();
-    db.runSync('DELETE FROM volumes WHERE id = ?', [id]);
+  deleteVolume: async (id: string): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync('DELETE FROM volumes WHERE id = ?', [id]);
   },
 
   /**
    * Delete all volumes for a chapter
    */
-  deleteVolumesByChapter: (chapterId: string): void => {
-    const db = getDatabase();
-    db.runSync('DELETE FROM volumes WHERE chapterId = ?', [chapterId]);
+  deleteVolumesByChapter: async (chapterId: string): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync('DELETE FROM volumes WHERE chapterId = ?', [chapterId]);
   },
 
   /**
    * Get all volume versions for a volume
    */
-  getVolumeVersions: (volumeId: string): VolumeVersion[] => {
-    const db = getDatabase();
-    const rows = db.getAllSync<any>(
+  getVolumeVersions: async (volumeId: string): Promise<VolumeVersion[]> => {
+    const db = await getDatabase();
+    const rows = await db.getAllAsync<any>(
       'SELECT * FROM volume_versions WHERE volumeId = ? ORDER BY createdAt ASC',
       [volumeId]
     );
@@ -149,9 +154,9 @@ export const volumesDB = {
   /**
    * Get a specific volume version by ID
    */
-  getVolumeVersionById: (id: string): VolumeVersion | null => {
-    const db = getDatabase();
-    const row = db.getFirstSync<any>(
+  getVolumeVersionById: async (id: string): Promise<VolumeVersion | null> => {
+    const db = await getDatabase();
+    const row = await db.getFirstAsync<any>(
       'SELECT * FROM volume_versions WHERE id = ?',
       [id]
     );
@@ -161,9 +166,9 @@ export const volumesDB = {
   /**
    * Save a volume version (insert or replace)
    */
-  saveVolumeVersion: (version: VolumeVersion): void => {
-    const db = getDatabase();
-    db.runSync(
+  saveVolumeVersion: async (version: VolumeVersion): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync(
       `INSERT OR REPLACE INTO volume_versions (
         id, volumeId, perspective, text, textBlobId, isAutoText, characterCount, createdAt
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -183,20 +188,25 @@ export const volumesDB = {
   /**
    * Save multiple volume versions in a transaction
    */
-  saveVolumeVersions: (versions: VolumeVersion[]): void => {
-    const db = getDatabase();
-    db.withTransactionSync(() => {
+  saveVolumeVersions: async (versions: VolumeVersion[]): Promise<void> => {
+    const db = await getDatabase();
+    try {
+      await db.execAsync('BEGIN TRANSACTION');
       for (const version of versions) {
-        volumesDB.saveVolumeVersion(version);
+        await volumesDB.saveVolumeVersion(version);
       }
-    });
+      await db.execAsync('COMMIT');
+    } catch (error) {
+      await db.execAsync('ROLLBACK');
+      throw error;
+    }
   },
 
   /**
    * Delete a volume version by ID
    */
-  deleteVolumeVersion: (id: string): void => {
-    const db = getDatabase();
-    db.runSync('DELETE FROM volume_versions WHERE id = ?', [id]);
+  deleteVolumeVersion: async (id: string): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync('DELETE FROM volume_versions WHERE id = ?', [id]);
   },
 };

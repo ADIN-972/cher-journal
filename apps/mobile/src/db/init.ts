@@ -13,8 +13,8 @@ import { runMigrations } from './migrations';
  * - Runs all pending migrations
  * - Returns the initialized database
  */
-export const initDatabase = (): SQLite.SQLiteDatabase => {
-  const db = getDatabase();
-  runMigrations(db);
+export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
+  const db = await getDatabase();
+  await runMigrations(db);
   return db;
 };

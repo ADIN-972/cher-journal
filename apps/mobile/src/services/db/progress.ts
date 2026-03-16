@@ -29,13 +29,13 @@ export const progressDB = {
   /**
    * Get progress for a specific chapter/volume/perspective
    */
-  getProgress: (
+  getProgress: async (
     chapterId: string,
     volumeNumber: number,
     perspective: Perspective
-  ): UserProgress | null => {
-    const db = getDatabase();
-    const row = db.getFirstSync<any>(
+  ): Promise<UserProgress | null> => {
+    const db = await getDatabase();
+    const row = await db.getFirstAsync<any>(
       'SELECT * FROM user_progress WHERE chapterId = ? AND volumeNumber = ? AND perspective = ?',
       [chapterId, volumeNumber, perspective]
     );
@@ -45,9 +45,9 @@ export const progressDB = {
   /**
    * Get all progress entries for a chapter
    */
-  getProgressByChapter: (chapterId: string): UserProgress[] => {
-    const db = getDatabase();
-    const rows = db.getAllSync<any>(
+  getProgressByChapter: async (chapterId: string): Promise<UserProgress[]> => {
+    const db = await getDatabase();
+    const rows = await db.getAllAsync<any>(
       'SELECT * FROM user_progress WHERE chapterId = ? ORDER BY volumeNumber ASC',
       [chapterId]
     );
@@ -57,10 +57,10 @@ export const progressDB = {
   /**
    * Save or update progress (upsert)
    */
-  saveProgress: (progress: UserProgress): void => {
-    const db = getDatabase();
+  saveProgress: async (progress: UserProgress): Promise<void> => {
+    const db = await getDatabase();
     const id = `${progress.chapterId}:${progress.volumeNumber}:${progress.perspective}`;
-    db.runSync(
+    await db.runAsync(
       `INSERT OR REPLACE INTO user_progress (
         id, chapterId, volumeNumber, perspective, progress, completedAt
       ) VALUES (?, ?, ?, ?, ?, ?)`,
@@ -78,25 +78,30 @@ export const progressDB = {
   /**
    * Save multiple progress entries in a transaction
    */
-  saveProgressBatch: (progressList: UserProgress[]): void => {
-    const db = getDatabase();
-    db.withTransactionSync(() => {
+  saveProgressBatch: async (progressList: UserProgress[]): Promise<void> => {
+    const db = await getDatabase();
+    try {
+      await db.execAsync('BEGIN TRANSACTION');
       for (const progress of progressList) {
-        progressDB.saveProgress(progress);
+        await progressDB.saveProgress(progress);
       }
-    });
+      await db.execAsync('COMMIT');
+    } catch (error) {
+      await db.execAsync('ROLLBACK');
+      throw error;
+    }
   },
 
   /**
    * Delete progress for a specific chapter/volume/perspective
    */
-  deleteProgress: (
+  deleteProgress: async (
     chapterId: string,
     volumeNumber: number,
     perspective: Perspective
-  ): void => {
-    const db = getDatabase();
-    db.runSync(
+  ): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync(
       'DELETE FROM user_progress WHERE chapterId = ? AND volumeNumber = ? AND perspective = ?',
       [chapterId, volumeNumber, perspective]
     );
@@ -105,28 +110,28 @@ export const progressDB = {
   /**
    * Clear all progress for a chapter
    */
-  clearChapterProgress: (chapterId: string): void => {
-    const db = getDatabase();
-    db.runSync('DELETE FROM user_progress WHERE chapterId = ?', [chapterId]);
+  clearChapterProgress: async (chapterId: string): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync('DELETE FROM user_progress WHERE chapterId = ?', [chapterId]);
   },
 
   /**
    * Get all bookmarked chapter IDs
    */
-  getBookmarks: (): string[] => {
-    const db = getDatabase();
-    const rows = db.getAllSync<any>(
+  getBookmarks: async (): Promise<string[]> => {
+    const db = await getDatabase();
+    const rows = await db.getAllAsync<any>(
       'SELECT chapterId FROM bookmarks ORDER BY chapterId ASC'
     );
-    return rows.map((row) => row.chapterId);
+    return rows.map((row: any) => row.chapterId);
   },
 
   /**
    * Check if a chapter is bookmarked
    */
-  isBookmarked: (chapterId: string): boolean => {
-    const db = getDatabase();
-    const row = db.getFirstSync<any>(
+  isBookmarked: async (chapterId: string): Promise<boolean> => {
+    const db = await getDatabase();
+    const row = await db.getFirstAsync<any>(
       'SELECT 1 FROM bookmarks WHERE chapterId = ?',
       [chapterId]
     );
@@ -136,9 +141,9 @@ export const progressDB = {
   /**
    * Add a bookmark
    */
-  addBookmark: (chapterId: string): void => {
-    const db = getDatabase();
-    db.runSync(
+  addBookmark: async (chapterId: string): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync(
       'INSERT OR IGNORE INTO bookmarks (chapterId) VALUES (?)',
       [chapterId]
     );
@@ -147,20 +152,20 @@ export const progressDB = {
   /**
    * Remove a bookmark
    */
-  removeBookmark: (chapterId: string): void => {
-    const db = getDatabase();
-    db.runSync('DELETE FROM bookmarks WHERE chapterId = ?', [chapterId]);
+  removeBookmark: async (chapterId: string): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync('DELETE FROM bookmarks WHERE chapterId = ?', [chapterId]);
   },
 
   /**
    * Toggle bookmark for a chapter
    */
-  toggleBookmark: (chapterId: string): boolean => {
-    if (progressDB.isBookmarked(chapterId)) {
-      progressDB.removeBookmark(chapterId);
+  toggleBookmark: async (chapterId: string): Promise<boolean> => {
+    if (await progressDB.isBookmarked(chapterId)) {
+      await progressDB.removeBookmark(chapterId);
       return false;
     } else {
-      progressDB.addBookmark(chapterId);
+      await progressDB.addBookmark(chapterId);
       return true;
     }
   },
@@ -168,9 +173,9 @@ export const progressDB = {
   /**
    * Clear all bookmarks
    */
-  clearAllBookmarks: (): void => {
-    const db = getDatabase();
-    db.runSync('DELETE FROM bookmarks');
+  clearAllBookmarks: async (): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync('DELETE FROM bookmarks');
   },
 };
 

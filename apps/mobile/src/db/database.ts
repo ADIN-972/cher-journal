@@ -6,16 +6,28 @@
 import * as SQLite from 'expo-sqlite';
 
 let db: SQLite.SQLiteDatabase | null = null;
+let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
 /**
  * Get or create the SQLite database instance
  * Uses singleton pattern to ensure only one connection exists
  */
-export const getDatabase = (): SQLite.SQLiteDatabase => {
-  if (!db) {
-    db = SQLite.openDatabaseSync('cher-journal.db');
+export const getDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
+  if (db) {
+    return db;
   }
-  return db;
+
+  if (dbPromise) {
+    return dbPromise;
+  }
+
+  dbPromise = SQLite.openDatabaseAsync('cher-journal.db').then((database) => {
+    db = database;
+    dbPromise = null;
+    return database;
+  });
+
+  return dbPromise;
 };
 
 /**
