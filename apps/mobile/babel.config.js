@@ -1,5 +1,5 @@
 module.exports = {
-  presets: [],
+  presets: ['babel-preset-expo'],
   env: {
     test: {
       presets: [
