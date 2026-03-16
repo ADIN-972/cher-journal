@@ -8,7 +8,6 @@
     "packages/*"
   ],
   "scripts": {
-    "install": "npm install",
     "predev": "npm run sync:translations",
     "dev": "npm run dev --workspaces --if-present --host",
     "dev:backend": "npm run dev -w apps/backend",
