@@ -9,14 +9,17 @@ export default function RootLayout() {
 
   // Initialize database, cache, and restore token on app start
   useEffect(() => {
-    try {
-      initDatabase();
-      initImageCache();
-    } catch (error) {
-      console.error('Failed to initialize app:', error);
-    }
-    restoreToken();
-  }, []);
+    const initApp = async () => {
+      try {
+        await initDatabase();
+        await initImageCache();
+        await restoreToken();
+      } catch (error) {
+        console.error('Failed to initialize app:', error);
+      }
+    };
+    initApp();
+  }, [restoreToken]);
 
   if (loading) {
     // TODO: Create SplashScreen component
