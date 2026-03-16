@@ -29,11 +29,11 @@ export const fetchChaptersWithCache = async (
   if (forceRefresh) {
     try {
       const chapters = await chaptersAPI.getChapters();
-      chaptersDB.saveChapters(chapters);
+      await chaptersDB.saveChapters(chapters);
       return chapters;
     } catch (error) {
       // If API fails on force refresh, return cached data if available
-      const cached = chaptersDB.getAllChapters();
+      const cached = await chaptersDB.getAllChapters();
       if (cached.length > 0) {
         return cached;
       }
@@ -42,7 +42,7 @@ export const fetchChaptersWithCache = async (
   }
 
   // Check if we have cached chapters
-  const cached = chaptersDB.getAllChapters();
+  const cached = await chaptersDB.getAllChapters();
   if (cached.length > 0) {
     return cached;
   }
@@ -50,7 +50,7 @@ export const fetchChaptersWithCache = async (
   // No cache, fetch from API
   try {
     const chapters = await chaptersAPI.getChapters();
-    chaptersDB.saveChapters(chapters);
+    await chaptersDB.saveChapters(chapters);
     return chapters;
   } catch (error) {
     // API failed and no cache available

@@ -29,12 +29,12 @@ export const syncDB = {
   /**
    * Add an action to the sync queue
    */
-  addToQueue: (action: string, payload: any): string => {
-    const db = getDatabase();
+  addToQueue: async (action: string, payload: any): Promise<string> => {
+    const db = await getDatabase();
     const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const createdAt = new Date().toISOString();
 
-    db.runSync(
+    await db.runAsync(
       `INSERT INTO sync_queue (id, action, payload, createdAt, status)
        VALUES (?, ?, ?, ?, ?)`,
       [id, action, JSON.stringify(payload), createdAt, 'pending']
@@ -46,9 +46,9 @@ export const syncDB = {
   /**
    * Get all pending items (not yet synced)
    */
-  getPendingItems: (): SyncQueueItem[] => {
-    const db = getDatabase();
-    const rows = db.getAllSync<any>(
+  getPendingItems: async (): Promise<SyncQueueItem[]> => {
+    const db = await getDatabase();
+    const rows = await db.getAllAsync<any>(
       "SELECT * FROM sync_queue WHERE status = 'pending' ORDER BY createdAt ASC"
     );
     return rows.map(mapRowToSyncItem);
@@ -57,9 +57,9 @@ export const syncDB = {
   /**
    * Get item by ID
    */
-  getItem: (id: string): SyncQueueItem | null => {
-    const db = getDatabase();
-    const row = db.getFirstSync<any>('SELECT * FROM sync_queue WHERE id = ?', [
+  getItem: async (id: string): Promise<SyncQueueItem | null> => {
+    const db = await getDatabase();
+    const row = await db.getFirstAsync<any>('SELECT * FROM sync_queue WHERE id = ?', [
       id,
     ]);
     return row ? mapRowToSyncItem(row) : null;
@@ -68,9 +68,9 @@ export const syncDB = {
   /**
    * Get all items (any status)
    */
-  getAllItems: (): SyncQueueItem[] => {
-    const db = getDatabase();
-    const rows = db.getAllSync<any>(
+  getAllItems: async (): Promise<SyncQueueItem[]> => {
+    const db = await getDatabase();
+    const rows = await db.getAllAsync<any>(
       'SELECT * FROM sync_queue ORDER BY createdAt ASC'
     );
     return rows.map(mapRowToSyncItem);
@@ -79,62 +79,62 @@ export const syncDB = {
   /**
    * Mark an item as synced
    */
-  markAsSynced: (id: string): void => {
-    const db = getDatabase();
-    db.runSync("UPDATE sync_queue SET status = 'synced' WHERE id = ?", [id]);
+  markAsSynced: async (id: string): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync("UPDATE sync_queue SET status = 'synced' WHERE id = ?", [id]);
   },
 
   /**
    * Mark an item as failed
    */
-  markAsFailed: (id: string): void => {
-    const db = getDatabase();
-    db.runSync("UPDATE sync_queue SET status = 'failed' WHERE id = ?", [id]);
+  markAsFailed: async (id: string): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync("UPDATE sync_queue SET status = 'failed' WHERE id = ?", [id]);
   },
 
   /**
    * Clear all synced items from queue
    */
-  clearSyncedItems: (): void => {
-    const db = getDatabase();
-    db.runSync("DELETE FROM sync_queue WHERE status = 'synced'");
+  clearSyncedItems: async (): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync("DELETE FROM sync_queue WHERE status = 'synced'");
   },
 
   /**
    * Clear all failed items from queue
    */
-  clearFailedItems: (): void => {
-    const db = getDatabase();
-    db.runSync("DELETE FROM sync_queue WHERE status = 'failed'");
+  clearFailedItems: async (): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync("DELETE FROM sync_queue WHERE status = 'failed'");
   },
 
   /**
    * Delete an item from queue
    */
-  deleteItem: (id: string): void => {
-    const db = getDatabase();
-    db.runSync('DELETE FROM sync_queue WHERE id = ?', [id]);
+  deleteItem: async (id: string): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync('DELETE FROM sync_queue WHERE id = ?', [id]);
   },
 
   /**
    * Clear entire sync queue
    */
-  clearQueue: (): void => {
-    const db = getDatabase();
-    db.runSync('DELETE FROM sync_queue');
+  clearQueue: async (): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync('DELETE FROM sync_queue');
   },
 
   /**
    * Get queue statistics
    */
-  getStats: (): {
+  getStats: async (): Promise<{
     pending: number;
     synced: number;
     failed: number;
     total: number;
-  } => {
-    const db = getDatabase();
-    const result = db.getFirstSync<any>(
+  }> => {
+    const db = await getDatabase();
+    const result = await db.getFirstAsync<any>(
       `SELECT
         COUNT(*) as total,
         SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,

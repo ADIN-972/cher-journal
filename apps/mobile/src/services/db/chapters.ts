@@ -36,27 +36,27 @@ export const chaptersDB = {
   /**
    * Get all chapters from database
    */
-  getAllChapters: (): Chapter[] => {
-    const db = getDatabase();
-    const rows = db.getAllSync<any>('SELECT * FROM chapters ORDER BY createdAt ASC');
+  getAllChapters: async (): Promise<Chapter[]> => {
+    const db = await getDatabase();
+    const rows = await db.getAllAsync<any>('SELECT * FROM chapters ORDER BY createdAt ASC');
     return rows.map(mapRowToChapter);
   },
 
   /**
    * Get a specific chapter by ID
    */
-  getChapterById: (id: string): Chapter | null => {
-    const db = getDatabase();
-    const row = db.getFirstSync<any>('SELECT * FROM chapters WHERE id = ?', [id]);
+  getChapterById: async (id: string): Promise<Chapter | null> => {
+    const db = await getDatabase();
+    const row = await db.getFirstAsync<any>('SELECT * FROM chapters WHERE id = ?', [id]);
     return row ? mapRowToChapter(row) : null;
   },
 
   /**
    * Save a single chapter (insert or replace)
    */
-  saveChapter: (chapter: Chapter): void => {
-    const db = getDatabase();
-    db.runSync(
+  saveChapter: async (chapter: Chapter): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync(
       `INSERT OR REPLACE INTO chapters (
         id, title, protagonistName, status, coverAssetId, createdAt, publishedAt,
         isArchived, scheduledFor, description, accroche_classic, accroche_dark,
@@ -90,28 +90,33 @@ export const chaptersDB = {
   /**
    * Save multiple chapters in a single transaction
    */
-  saveChapters: (chapters: Chapter[]): void => {
-    const db = getDatabase();
-    db.withTransactionSync(() => {
+  saveChapters: async (chapters: Chapter[]): Promise<void> => {
+    const db = await getDatabase();
+    try {
+      await db.execAsync('BEGIN TRANSACTION');
       for (const chapter of chapters) {
-        chaptersDB.saveChapter(chapter);
+        await chaptersDB.saveChapter(chapter);
       }
-    });
+      await db.execAsync('COMMIT');
+    } catch (error) {
+      await db.execAsync('ROLLBACK');
+      throw error;
+    }
   },
 
   /**
    * Delete a chapter by ID
    */
-  deleteChapter: (id: string): void => {
-    const db = getDatabase();
-    db.runSync('DELETE FROM chapters WHERE id = ?', [id]);
+  deleteChapter: async (id: string): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync('DELETE FROM chapters WHERE id = ?', [id]);
   },
 
   /**
    * Delete all chapters (useful for resetting)
    */
-  deleteAllChapters: (): void => {
-    const db = getDatabase();
-    db.runSync('DELETE FROM chapters');
+  deleteAllChapters: async (): Promise<void> => {
+    const db = await getDatabase();
+    await db.runAsync('DELETE FROM chapters');
   },
 };

@@ -1,6 +1,8 @@
 import * as FileSystem from 'expo-file-system';
 
-const CACHE_DIR = `${FileSystem.cacheDirectory}chapter-images`;
+// Use the cache directory from FileSystem
+// cacheDirectory should be available in SDK 54's expo-file-system
+const CACHE_DIR = `${(FileSystem as any).cacheDirectory || (FileSystem as any).libraryDirectory || '/tmp'}chapter-images`;
 const MAX_CACHE_SIZE = 100 * 1024 * 1024; // 100MB
 
 interface CacheEntry {

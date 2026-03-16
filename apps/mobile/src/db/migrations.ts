@@ -49,12 +49,12 @@ const MIGRATIONS: Migration[] = [
  * Run pending migrations on the database
  * Uses version tracking to ensure migrations run only once
  */
-export const runMigrations = (db: SQLite.SQLiteDatabase): void => {
+export const runMigrations = async (db: SQLite.SQLiteDatabase): Promise<void> => {
   // Create migrations table if it doesn't exist
-  db.execSync(CREATE_MIGRATIONS_TABLE);
+  await db.execAsync(CREATE_MIGRATIONS_TABLE);
 
   // Get current migration version
-  const result = db.getFirstSync<{ version: number }>(
+  const result = await db.getFirstAsync<{ version: number }>(
     'SELECT MAX(version) as version FROM migrations'
   );
   const currentVersion = result?.version ?? 0;
@@ -63,16 +63,21 @@ export const runMigrations = (db: SQLite.SQLiteDatabase): void => {
   const pendingMigrations = MIGRATIONS.filter((m) => m.version > currentVersion);
 
   for (const migration of pendingMigrations) {
-    db.withTransactionSync(() => {
+    try {
+      await db.execAsync('BEGIN TRANSACTION');
       // Execute all SQL statements in the migration
       for (const sql of migration.sql) {
-        db.execSync(sql);
+        await db.execAsync(sql);
       }
 
       // Record migration completion
-      db.runSync('INSERT INTO migrations (version) VALUES (?)', [
+      await db.runAsync('INSERT INTO migrations (version) VALUES (?)', [
         migration.version,
       ]);
-    });
+      await db.execAsync('COMMIT');
+    } catch (error) {
+      await db.execAsync('ROLLBACK');
+      throw error;
+    }
   }
 };
