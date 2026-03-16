@@ -1,5 +1,3 @@
-import '@testing-library/jest-native/extend-expect';
-
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => ({
   setItem: jest.fn(() => Promise.resolve()),
@@ -22,4 +20,25 @@ jest.mock('expo-router', () => ({
     replace: jest.fn(),
   })),
   useLocalSearchParams: jest.fn(() => ({})),
+}));
+
+// Mock Expo SQLite
+jest.mock('expo-sqlite', () => ({
+  openDatabaseSync: jest.fn(() => ({
+    execSync: jest.fn(),
+    runSync: jest.fn(),
+    getFirstSync: jest.fn(),
+    withTransactionSync: jest.fn((fn) => fn()),
+  })),
+}));
+
+// Mock File System
+jest.mock('expo-file-system', () => ({
+  cacheDirectory: '/mock/cache/',
+  documentDirectory: '/mock/documents/',
+  getInfoAsync: jest.fn(() => Promise.resolve({ exists: false })),
+  makeDirectoryAsync: jest.fn(() => Promise.resolve()),
+  deleteAsync: jest.fn(() => Promise.resolve()),
+  listAsync: jest.fn(() => Promise.resolve([])),
+  downloadAsync: jest.fn(() => Promise.resolve({ uri: '/mock/file' })),
 }));
