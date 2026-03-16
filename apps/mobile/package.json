@@ -1,7 +1,7 @@
 {
   "name": "@cher-journal/mobile",
   "version": "1.0.0",
-  "main": "expo/AppEntry.js",
+  "main": "index.js",
   "scripts": {
     "dev": "expo start",
     "android": "expo start --android",
