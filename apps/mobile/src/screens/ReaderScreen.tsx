@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,10 +7,13 @@ import {
   ActivityIndicator,
   SafeAreaView,
   StatusBar,
+  type NativeSyntheticEvent,
+  type NativeScrollEvent,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useVolumeStore } from '@/stores/volumeStore';
 import { useVersionsStore } from '@/stores/volumeVersionsStore';
+import { useProgressStore } from '@/stores/progressStore';
 
 const ReaderScreen: React.FC = () => {
   const router = useRouter();
@@ -30,6 +33,28 @@ const ReaderScreen: React.FC = () => {
   const [fontSize, setFontSize] = useState(16);
   const [showControls, setShowControls] = useState(true);
   const lineHeight = 1.6;
+  const lastSavedProgress = useRef(0);
+
+  const handleScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (!currentVolume) return;
+      const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
+      const maxScroll = contentSize.height - layoutMeasurement.height;
+      if (maxScroll <= 0) return;
+      const percentage = Math.min(100, Math.max(0, (contentOffset.y / maxScroll) * 100));
+      // Only save if progress changed by at least 2%
+      if (Math.abs(percentage - lastSavedProgress.current) >= 2) {
+        lastSavedProgress.current = percentage;
+        useProgressStore.getState().updateProgress(
+          currentVolume.chapterId,
+          currentVolume.volumeNumber,
+          selectedPerspective as 'NARRATOR' | 'PROTAGONIST',
+          Math.round(percentage)
+        );
+      }
+    },
+    [currentVolume, selectedPerspective]
+  );
 
   useEffect(() => {
     if (currentVolume) {
@@ -232,7 +257,11 @@ const ReaderScreen: React.FC = () => {
       )}
 
       {/* Reader Content */}
-      <ScrollView style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 20 }}>
+      <ScrollView
+        style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 20 }}
+        onScroll={handleScroll}
+        scrollEventThrottle={1000}
+      >
         {currentVersion && (currentVersion as any).text && (
           <Text
             style={{
