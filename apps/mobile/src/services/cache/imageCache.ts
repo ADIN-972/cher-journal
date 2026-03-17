@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 
 // Use the cache directory from FileSystem
 // cacheDirectory should be available in SDK 54's expo-file-system
