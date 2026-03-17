@@ -13,13 +13,14 @@ const api: AxiosInstance = axios.create({
   },
 });
 
-// Add token to requests
+// Add token to requests (both as Bearer and as Cookie for session-based auth)
 api.interceptors.request.use(
   async (config) => {
     try {
       const token = await AsyncStorage.getItem('authToken');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+        config.headers.Cookie = `sessionToken=${token}`;
       }
     } catch (error) {
       console.error('Failed to get auth token:', error);
