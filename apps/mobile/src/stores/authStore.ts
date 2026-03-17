@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { User, SignupData } from '@/types';
-
+import { authAPI } from '@/services/api/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface AuthState {
@@ -46,40 +46,48 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  login: async (_email: string, _password: string) => {
+  login: async (email: string, password: string) => {
     set({ loading: true, error: null });
     try {
-      // TODO: Replace with actual API call
-      // const response = await chaptersAPI.login(_email, _password);
-      // const { token, user } = response.data;
+      const { token, user } = await authAPI.login(email, password);
 
-      // await AsyncStorage.setItem('authToken', token);
-      // await AsyncStorage.setItem('authUser', JSON.stringify(user));
+      await AsyncStorage.setItem('authToken', token);
+      await AsyncStorage.setItem('authUser', JSON.stringify(user));
 
-      // set({
-      //   token,
-      //   user,
-      //   isAuthenticated: true,
-      //   loading: false,
-      // });
-      throw new Error('Not implemented');
-    } catch (error: any) {
       set({
-        error: error.message,
+        token,
+        user,
+        isAuthenticated: true,
+        loading: false,
+      });
+    } catch (error: any) {
+      const message = error.response?.data?.message || error.message || 'Erreur de connexion';
+      set({
+        error: message,
         loading: false,
       });
       throw error;
     }
   },
 
-  signup: async (_data: SignupData) => {
+  signup: async (data: SignupData) => {
     set({ loading: true, error: null });
     try {
-      // TODO: Replace with actual API call
-      throw new Error('Not implemented');
-    } catch (error: any) {
+      const { token, user } = await authAPI.signup(data);
+
+      await AsyncStorage.setItem('authToken', token);
+      await AsyncStorage.setItem('authUser', JSON.stringify(user));
+
       set({
-        error: error.message,
+        token,
+        user,
+        isAuthenticated: true,
+        loading: false,
+      });
+    } catch (error: any) {
+      const message = error.response?.data?.message || error.message || 'Erreur d\'inscription';
+      set({
+        error: message,
         loading: false,
       });
       throw error;
