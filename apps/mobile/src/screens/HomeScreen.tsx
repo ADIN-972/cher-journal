@@ -18,7 +18,7 @@ import type { Chapter } from '@/types';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = SCREEN_WIDTH * 0.42;
 const CARD_HEIGHT = CARD_WIDTH * (4 / 3);
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://api.moncherjournal.com';
 
 const HomeScreen: React.FC = () => {
   const router = useRouter();

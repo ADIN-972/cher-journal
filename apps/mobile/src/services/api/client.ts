@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuthStore } from '@stores/authStore';
 import { handleApiError } from './errorHandler';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5003/api';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://api.moncherjournal.com/api';
 
 const api: AxiosInstance = axios.create({
   baseURL: API_URL,
