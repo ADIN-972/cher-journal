@@ -10,7 +10,7 @@ export default function SplashScreen() {
     if (!loading) {
       // Redirect based on auth state
       if (isAuthenticated) {
-        router.replace('/(main)/chapters');
+        router.replace('/(main)');
       } else {
         router.replace('/(auth)/login');
       }
