@@ -19,7 +19,7 @@ export class ChapterMuseService {
         customStoryId: data.customStoryId,
       },
       include: {
-        user: { select: { id: true, email: true, name: true } },
+        user: { select: { id: true, email: true, firstName: true, lastName: true } },
         customStory: true,
         promotion: true,
       },
@@ -44,7 +44,7 @@ export class ChapterMuseService {
     const muse = await prisma.chapterMuse.findUnique({
       where: { chapterId },
       include: {
-        user: { select: { id: true, email: true, name: true } },
+        user: { select: { id: true, email: true, firstName: true, lastName: true } },
         customStory: true,
         promotion: true,
       },
@@ -84,7 +84,7 @@ export class ChapterMuseService {
         promotionId: data.promotionId,
       },
       include: {
-        user: { select: { id: true, email: true, name: true } },
+        user: { select: { id: true, email: true, firstName: true, lastName: true } },
         customStory: true,
         promotion: true,
       },

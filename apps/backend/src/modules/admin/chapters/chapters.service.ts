@@ -113,7 +113,7 @@ export class ChaptersService {
         genres: true,
         muse: {
           include: {
-            user: { select: { id: true, email: true, name: true } },
+            user: { select: { id: true, email: true, firstName: true, lastName: true } },
           },
         },
         volumes: {
@@ -191,7 +191,7 @@ export class ChaptersService {
         genres: true,
         muse: {
           include: {
-            user: { select: { id: true, email: true, name: true } },
+            user: { select: { id: true, email: true, firstName: true, lastName: true } },
           },
         },
         volumes: {
