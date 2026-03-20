@@ -7,7 +7,8 @@ import { useI18n } from "../lib/i18n";
 interface MuseUser {
   id: string;
   email: string;
-  name: string | null;
+  firstName: string | null;
+  lastName: string | null;
 }
 
 interface MuseData {
@@ -17,14 +18,15 @@ interface MuseData {
   customStoryId: string | null;
   promotionId: string | null;
   user: MuseUser;
-  customStory: { id: string; title: string } | null;
+  customStory: { id: string; protagonistName: string } | null;
   promotion: { id: string; name: string } | null;
 }
 
 interface SearchedUser {
   id: string;
   email: string;
-  name: string | null;
+  firstName: string | null;
+  lastName: string | null;
 }
 
 interface ChapterMuseSectionProps {
@@ -180,7 +182,7 @@ export default function ChapterMuseSection({ chapterId }: ChapterMuseSectionProp
             </div>
             <div className="flex-1">
               <p className="font-semibold text-zinc-900 dark:text-white text-sm">
-                {muse.user.name || "Sans nom"}
+                {[muse.user.firstName, muse.user.lastName].filter(Boolean).join(" ") || "Sans nom"}
               </p>
               <p className="text-xs text-zinc-500">{muse.user.email}</p>
             </div>
@@ -198,7 +200,7 @@ export default function ChapterMuseSection({ chapterId }: ChapterMuseSectionProp
               <span className="material-symbols-outlined text-zinc-400 text-base">auto_stories</span>
               <span className="text-zinc-600 dark:text-zinc-400">Histoire custom :</span>
               <span className="font-medium text-zinc-900 dark:text-white">
-                {muse.customStory.title || muse.customStoryId}
+                {muse.customStory.protagonistName || muse.customStoryId}
               </span>
             </div>
           )}
@@ -292,7 +294,7 @@ export default function ChapterMuseSection({ chapterId }: ChapterMuseSectionProp
             </div>
             <div className="flex-1">
               <p className="font-semibold text-zinc-900 dark:text-white text-sm">
-                {searchResult.name || "Sans nom"}
+                {[searchResult.firstName, searchResult.lastName].filter(Boolean).join(" ") || "Sans nom"}
               </p>
               <p className="text-xs text-zinc-500">{searchResult.email}</p>
             </div>
