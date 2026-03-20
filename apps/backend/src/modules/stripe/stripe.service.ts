@@ -3,7 +3,7 @@ import { config } from '@cher-journal/config';
 import Stripe from 'stripe';
 import { OrderType, OrderStatus, EntitlementSource, UnlockTriggeredBy, SubscriptionStatus } from '@prisma/client';
 import { priceSchemaService } from '../admin/price-schemas/price-schemas.service';
-import { AccessControlService } from '../../lib/accessControl';
+import { AccessControlService, SUBSCRIBER_PROTAGONIST_DISCOUNT } from '../../lib/accessControl';
 
 const stripe = new Stripe(config.stripe.secretKey, {
   apiVersion: '2023-10-16' as any,
@@ -134,7 +134,14 @@ export class StripeService {
       }
 
       // Get protagonist unlock price
-      const protagonistPrice = prices.priceProtagonistUnlock || 99;
+      let protagonistPrice = prices.priceProtagonistUnlock || 99;
+
+      // Club Privé subscribers get 30% discount on protagonist purchases
+      const isSubscriber = await this.accessControl.hasActiveSubscription(options.userId);
+      if (isSubscriber) {
+        protagonistPrice = Math.round(protagonistPrice * (1 - SUBSCRIBER_PROTAGONIST_DISCOUNT));
+        console.log(`[Stripe] Subscriber discount applied: -${SUBSCRIBER_PROTAGONIST_DISCOUNT * 100}% → ${protagonistPrice} cents`);
+      }
 
       if (protagonistPrice < 50) {
         throw new Error('INVALID_AMOUNT: Le montant calculé est inférieur à 0.50€');
@@ -144,8 +151,8 @@ export class StripeService {
         price_data: {
           currency: 'eur',
           product_data: {
-            name: `${chapter.title} - Volume ${options.volumeNumber} - Protagonist Perspective`,
-            description: `Unlock protagonist perspective for volume ${options.volumeNumber}`,
+            name: `${chapter.title} - Volume ${options.volumeNumber} - Perspective Protagoniste${isSubscriber ? ' (Club -30%)' : ''}`,
+            description: `Unlock protagonist perspective for volume ${options.volumeNumber}${isSubscriber ? ' — Club Privé discount applied' : ''}`,
           },
           unit_amount: protagonistPrice,
         },
@@ -218,6 +225,17 @@ export class StripeService {
       const remainingPrice = bundleOriginalPrice - alreadyAccessiblePrice;
       let discountedPrice = remainingPrice;
 
+      // Club Privé subscribers get 30% discount on protagonist bundle purchases
+      let subscriberDiscountApplied = false;
+      if (isProtagonistBundle) {
+        const isSubscriber = await this.accessControl.hasActiveSubscription(options.userId);
+        if (isSubscriber) {
+          discountedPrice = Math.round(discountedPrice * (1 - SUBSCRIBER_PROTAGONIST_DISCOUNT));
+          subscriberDiscountApplied = true;
+          console.log(`[Stripe] Subscriber discount on protagonist bundle: -${SUBSCRIBER_PROTAGONIST_DISCOUNT * 100}% → ${discountedPrice} cents`);
+        }
+      }
+
       // Ensure minimum price of 50 cents
       if (discountedPrice < 50) {
         discountedPrice = 50;
@@ -235,9 +253,9 @@ export class StripeService {
         price_data: {
           currency: 'eur',
           product_data: {
-            name: `${chapter.title} - Full Chapter`,
+            name: `${chapter.title} - Full Chapter${subscriberDiscountApplied ? ' (Club -30%)' : ''}`,
             description: options.scopes?.includes('POV')
-              ? 'Narrator + Protagonist perspectives'
+              ? `Protagonist perspective${subscriberDiscountApplied ? ' — Club Privé discount applied' : ''}`
               : 'Narrator perspective only',
           },
           unit_amount: discountedPrice,
@@ -334,7 +352,7 @@ export class StripeService {
       }
 
       // PROTAGONIST volumes always cost priceProtagonistUnlock (ignore isFree)
-      const volumePrice = prices.priceProtagonistUnlock || 99;
+      let volumePrice = prices.priceProtagonistUnlock || 99;
 
       // Check if user already has PROTAGONIST access to this volume
       const protagonistAccess = await this.accessControl.getVolumeAccessInfo(
@@ -348,6 +366,13 @@ export class StripeService {
         throw new Error('USER_ALREADY_HAS_ACCESS');
       }
 
+      // Club Privé subscribers get 30% discount on protagonist purchases
+      const isSubscriber = await this.accessControl.hasActiveSubscription(options.userId);
+      if (isSubscriber) {
+        volumePrice = Math.round(volumePrice * (1 - SUBSCRIBER_PROTAGONIST_DISCOUNT));
+        console.log(`[Stripe] Subscriber discount on protagonist volume: -${SUBSCRIBER_PROTAGONIST_DISCOUNT * 100}% → ${volumePrice} cents`);
+      }
+
       if (volumePrice < 50) {
         throw new Error(`INVALID_AMOUNT: Le montant calculé est inférieur à 0.50€ (${volumePrice})`);
       }
@@ -356,8 +381,8 @@ export class StripeService {
         price_data: {
           currency: 'eur',
           product_data: {
-            name: `${chapter.title} - Volume ${options.volumeNumber} (Protagoniste)`,
-            description: `Unlock PROTAGONIST perspective for volume ${options.volumeNumber} from "${chapter.title}"`,
+            name: `${chapter.title} - Volume ${options.volumeNumber} (Protagoniste)${isSubscriber ? ' (Club -30%)' : ''}`,
+            description: `Unlock PROTAGONIST perspective for volume ${options.volumeNumber}${isSubscriber ? ' — Club Privé discount applied' : ''}`,
           },
           unit_amount: volumePrice,
         },
@@ -393,6 +418,13 @@ export class StripeService {
       const remainingPrice = bundleOriginalPrice - alreadyAccessiblePrice;
       let discountedPrice = remainingPrice;
 
+      // Club Privé subscribers get 30% discount on protagonist bundle
+      const isSubscriber = await this.accessControl.hasActiveSubscription(options.userId);
+      if (isSubscriber) {
+        discountedPrice = Math.round(discountedPrice * (1 - SUBSCRIBER_PROTAGONIST_DISCOUNT));
+        console.log(`[Stripe] Subscriber discount on protagonist chapter bundle: -${SUBSCRIBER_PROTAGONIST_DISCOUNT * 100}% → ${discountedPrice} cents`);
+      }
+
       // Ensure minimum price of 50 cents
       if (discountedPrice < 50) {
         discountedPrice = 50;
@@ -402,8 +434,8 @@ export class StripeService {
         price_data: {
           currency: 'eur',
           product_data: {
-            name: `${chapter.title} - Full Chapter (Protagoniste)`,
-            description: 'PROTAGONIST perspective for all volumes',
+            name: `${chapter.title} - Full Chapter (Protagoniste)${isSubscriber ? ' (Club -30%)' : ''}`,
+            description: `PROTAGONIST perspective for all volumes${isSubscriber ? ' — Club Privé discount applied' : ''}`,
           },
           unit_amount: discountedPrice,
         },

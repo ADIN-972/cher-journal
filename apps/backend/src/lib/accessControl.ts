@@ -1,5 +1,8 @@
 import prisma from './prisma';
-import { Perspective, OrderStatus } from '@prisma/client';
+import { Perspective, OrderStatus, SubscriptionStatus } from '@prisma/client';
+
+/** Discount rate for Club Privé subscribers on Protagoniste purchases */
+export const SUBSCRIBER_PROTAGONIST_DISCOUNT = 0.30; // 30%
 
 export interface AccessCheckResult {
   hasAccess: boolean;
@@ -73,6 +76,16 @@ export class AccessControlService {
       return { hasAccess: true };
     }
 
+    // Club Privé subscribers get immediate NARRATOR access to all volumes (no wait timer)
+    // but NOT PROTAGONIST access — that remains a separate purchase (with -30% discount)
+    if (perspective === Perspective.NARRATOR) {
+      const isSubscriber = await this.hasActiveSubscription(userId);
+      if (isSubscriber) {
+        console.log(`[AccessControlService] Active subscriber — NARRATOR access GRANTED for volume ${volumeNumber}`);
+        return { hasAccess: true };
+      }
+    }
+
     // For non-free volumes, check entitlement.
     // For PROTAGONIST we query specifically for ALL versionScope so that a BASE
     // entitlement (narrator) never shadows an existing ALL entitlement (protagonist).
@@ -120,11 +133,11 @@ export class AccessControlService {
       return { hasAccess: false, reason: 'FINAL_PAYWALL' };
     }
 
-    // PURCHASE entitlements bypass wait-to-read timers completely
-    // If user paid for this volume, any old wait-to-read unlock timers don't apply
-    if (entitlement.source === 'PURCHASE') {
+    // PURCHASE, BUNDLE, and SUBSCRIPTION entitlements bypass wait-to-read timers completely
+    // Only PREORDER requires the wait-to-read timer
+    if (entitlement.source !== 'PREORDER') {
       console.log(
-        `[AccessControlService] User has PURCHASE entitlement, ignoring any wait-to-read timers`
+        `[AccessControlService] User has ${entitlement.source} entitlement, bypassing wait-to-read timers`
       );
       console.log(
         `[AccessControlService] Access GRANTED for userId=${userId}, volume=${volumeNumber}`
@@ -208,7 +221,7 @@ export class AccessControlService {
       };
     }
 
-    // Check full access (PURCHASE or BUNDLE entitlement, excluding SUBSCRIPTION)
+    // Check full access (PURCHASE or BUNDLE entitlement)
     const hasFullAccess = await this.checkFullAccess(userId, chapterId, volumeNumber, perspective);
     if (hasFullAccess) {
       return {
@@ -217,6 +230,19 @@ export class AccessControlService {
         blockageInfo: null,
         canStartWait: false,
       };
+    }
+
+    // Club Privé subscribers get immediate NARRATOR access (but not PROTAGONIST)
+    if (perspective === Perspective.NARRATOR) {
+      const isSubscriber = await this.hasActiveSubscription(userId);
+      if (isSubscriber) {
+        return {
+          isAccessible: true,
+          blockageType: null,
+          blockageInfo: null,
+          canStartWait: false,
+        };
+      }
     }
 
     // Volume 1 is always accessible for NARRATOR, but PROTAGONIST needs entitlement
@@ -384,6 +410,39 @@ export class AccessControlService {
         chapterId,
       },
     });
+  }
+
+  /**
+   * Check if user has an active Club Privé subscription.
+   */
+  async hasActiveSubscription(userId: string): Promise<boolean> {
+    const subscription = await prisma.subscription.findUnique({
+      where: { userId },
+    });
+
+    if (!subscription) return false;
+
+    return (
+      subscription.status === SubscriptionStatus.ACTIVE &&
+      subscription.currentPeriodEnd > new Date()
+    );
+  }
+
+  /**
+   * Check if user can access a private chapter.
+   * Private chapters are accessible to: the Muse, Club subscribers.
+   * They are VISIBLE to everyone (with filigrane cover + padlock).
+   */
+  async canAccessPrivateChapter(
+    userId: string,
+    chapterId: string
+  ): Promise<boolean> {
+    const muse = await prisma.chapterMuse.findUnique({
+      where: { chapterId },
+    });
+    if (muse && muse.userId === userId) return true;
+
+    return this.hasActiveSubscription(userId);
   }
 
   // --- Private Helper Methods ---

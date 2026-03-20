@@ -181,7 +181,23 @@ export default function Subscription() {
                   check_circle
                 </span>
                 <span className="text-charcoal dark:text-white/70">
-                  Accès à tous les chapitres
+                  Tous les chapitres Narrateur en accès immédiat
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-green-500 text-lg">
+                  check_circle
+                </span>
+                <span className="text-charcoal dark:text-white/70">
+                  Plus de timer d'attente
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[#A855F7] text-lg">
+                  loyalty
+                </span>
+                <span className="text-charcoal dark:text-white/70">
+                  -30% sur la perspective Protagoniste
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -197,7 +213,7 @@ export default function Subscription() {
                   check_circle
                 </span>
                 <span className="text-charcoal dark:text-white/70">
-                  Sans publicité
+                  Galerie de coloriage exclusive
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -205,7 +221,7 @@ export default function Subscription() {
                   check_circle
                 </span>
                 <span className="text-charcoal dark:text-white/70">
-                  Téléchargement pour lecture hors-ligne
+                  Sans publicité
                 </span>
               </div>
             </div>
