@@ -33,6 +33,7 @@ model User {
   rewardUnlocks         UserRewardUnlock[]
   reads                 VolumeRead[]
   customStoryRequests   CustomStoryRequest[]
+  musedChapters         ChapterMuse[]
 
   @@map("users")
 }
@@ -60,6 +61,7 @@ model Chapter {
   createdAt                DateTime               @default(now())
   publishedAt              DateTime?
   isArchived               Boolean                @default(false)
+  isPrivate                Boolean                @default(false)
   scheduledFor             DateTime?
   description              String?
   accroche_classic         String?
@@ -83,9 +85,27 @@ model Chapter {
   unlocks                  Unlock[]
   reads                    VolumeRead[]
   volumes                  Volume[]
+  muse                     ChapterMuse?
 
   @@index([scheduledFor])
   @@map("chapters")
+}
+
+model ChapterMuse {
+  id              String              @id @default(uuid())
+  chapterId       String              @unique
+  userId          String
+  customStoryId   String?             @unique
+  promotionId     String?             @unique
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  chapter         Chapter             @relation(fields: [chapterId], references: [id])
+  user            User                @relation(fields: [userId], references: [id])
+  customStory     CustomStoryRequest? @relation(fields: [customStoryId], references: [id])
+  promotion       Promotion?          @relation(fields: [promotionId], references: [id])
+
+  @@map("chapter_muses")
 }
 
 model Volume {
@@ -422,6 +442,7 @@ model Promotion {
   applied        AppliedPromotion[]
   orders         Order[]
   price          Price?              @relation(fields: [priceId], references: [id])
+  museGrant      ChapterMuse?
 
   @@index([scope, refId])
   @@index([priceId])
@@ -951,6 +972,7 @@ model CustomStoryRequest {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  musedChapter ChapterMuse?
 
   @@index([userId])
   @@index([status])

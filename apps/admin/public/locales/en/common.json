@@ -578,7 +578,7 @@
   },
   "add_entitlement_modal": {
     "title": "Add Entitlement",
-    "chapter": "Chapters",
+    "chapter": "Chapter",
     "from": "From",
     "to": "To",
     "scope": "Scope",
@@ -588,8 +588,6 @@
     "source_pack": "Pack",
     "source_subscription": "Subscription",
     "select_chapter": "Select Chapter",
-    "no_chapters": "No chapters available",
-    "selected": "chapter(s) selected",
     "close_aria": "Close modal",
     "button_add": "Add Entitlement",
     "button_adding": "Adding...",
@@ -1286,6 +1284,24 @@
       "targeting_users_targeted": "Targeted Users:",
       "targeting_no_users": "-"
     }
+  },
+  "muse": {
+    "isPrivate": "Private chapter",
+    "isPrivate_description": "Visible to all, accessible only by the Muse and Club members",
+    "muse": "Muse",
+    "muse_section_title": "Chapter Muse",
+    "assign_muse": "Assign Muse",
+    "remove_muse": "Remove Muse",
+    "remove_muse_confirm": "Are you sure you want to remove the Muse from this chapter?",
+    "create_muse_promotion": "Create promotion for Muse",
+    "no_muse_assigned": "No Muse assigned to this chapter",
+    "linked_custom_story": "Linked custom story",
+    "linked_promotion": "Linked promotion",
+    "muse_assigned_success": "Muse assigned successfully",
+    "muse_removed_success": "Muse removed successfully",
+    "search_user_email": "Search user by email",
+    "chapter_private": "Private chapter",
+    "chapter_private_locked": "Reserved for Club Prive members"
   },
   "createStory": {
     "title": "Create Your Story",

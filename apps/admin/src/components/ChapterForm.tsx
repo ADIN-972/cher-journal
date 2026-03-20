@@ -14,6 +14,7 @@ interface ChapterFormData {
   status: "DRAFT" | "IN_PROGRESS" | "PUBLISHED";
   publishedAt: string | null;
   coverAssetId: string | null;
+  isPrivate: boolean;
   accroche_classic: string | null;
   accroche_dark: string | null;
   accroche_love: string | null;
@@ -50,6 +51,7 @@ export default function ChapterForm({
       ? new Date(initialData.publishedAt as any).toISOString().slice(0, 16)
       : null,
     coverAssetId: (initialData?.coverAssetId as string | null) || null,
+    isPrivate: (initialData as any)?.isPrivate ?? false,
     accroche_classic: (initialData as any)?.accroche_classic || null,
     accroche_dark: (initialData as any)?.accroche_dark || null,
     accroche_love: (initialData as any)?.accroche_love || null,
@@ -81,6 +83,7 @@ export default function ChapterForm({
           ? new Date(initialData.publishedAt as any).toISOString().slice(0, 16)
           : null,
         coverAssetId: (initialData?.coverAssetId as string | null) || null,
+        isPrivate: (initialData as any)?.isPrivate ?? false,
         accroche_classic: (initialData as any)?.accroche_classic || null,
         accroche_dark: (initialData as any)?.accroche_dark || null,
         accroche_love: (initialData as any)?.accroche_love || null,
@@ -357,6 +360,32 @@ export default function ChapterForm({
           {t(
             "chapter_form.publish_date_desc",
             "Si définie, les volumes de ce chapitre ne pourront pas démarrer leur décompte avant cette date",
+          )}
+        </p>
+      </div>
+
+      {/* isPrivate Toggle */}
+      <div className=" p-6">
+        <label className="flex items-center space-x-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={formData.isPrivate}
+            onChange={(e) =>
+              setFormData({ ...formData, isPrivate: e.target.checked })
+            }
+            className="h-5 w-5 text-purple-600 rounded focus:ring-purple-500"
+          />
+          <span className="text-sm font-medium text-gray-700">
+            {t(
+              "chapter_form.is_private",
+              "Chapitre prive (Muse + Club uniquement)",
+            )}
+          </span>
+        </label>
+        <p className="text-xs text-gray-500 mt-1 ml-8">
+          {t(
+            "chapter_form.is_private_desc",
+            "Visible par tous, accessible uniquement par la Muse et les membres du Club",
           )}
         </p>
       </div>

@@ -111,6 +111,11 @@ export class ChaptersService {
       include: {
         coverAsset: true,
         genres: true,
+        muse: {
+          include: {
+            user: { select: { id: true, email: true, name: true } },
+          },
+        },
         volumes: {
           include: {
             illustrationAsset: true,
@@ -184,6 +189,11 @@ export class ChaptersService {
       include: {
         coverAsset: true,
         genres: true,
+        muse: {
+          include: {
+            user: { select: { id: true, email: true, name: true } },
+          },
+        },
         volumes: {
           include: {
             illustrationAsset: true,
@@ -504,6 +514,10 @@ export class ChaptersService {
       updateData.publishedAt = updates.publishedAt
         ? new Date(updates.publishedAt)
         : null;
+    }
+
+    if (updates.isPrivate !== undefined) {
+      updateData.isPrivate = updates.isPrivate;
     }
 
     // Update all chapters

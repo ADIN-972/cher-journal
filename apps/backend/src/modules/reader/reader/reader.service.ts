@@ -15,13 +15,13 @@ export class ReaderService {
     userId: string,
     chapterId: string,
     volumeNumber: number,
-    perspective: Perspective
+    perspective: Perspective,
   ): Promise<boolean> {
     const result = await this.accessControl.canAccessVolume(
       userId,
       chapterId,
       volumeNumber,
-      perspective
+      perspective,
     );
     return result.hasAccess;
   }
@@ -33,7 +33,7 @@ export class ReaderService {
       fontFamily?: string;
       width?: number;
       lineHeight?: number;
-    } = {}
+    } = {},
   ): Promise<Buffer> {
     // Fetch version with textBlob relation
     const version = await prisma.volumeVersion.findUnique({
@@ -98,7 +98,7 @@ export class ReaderService {
 
     // TODO: Implement canvas rendering when canvas is installed
     throw new Error(
-      "Canvas rendering not available on Windows yet. Please install GTK dependencies or use Docker."
+      "Canvas rendering not available on Windows yet. Please install GTK dependencies or use Docker.",
     );
 
     /* 
@@ -132,19 +132,16 @@ export class ReaderService {
   async getVolumeVersion(
     chapterId: string,
     volumeNumber: number,
-    perspective: Perspective
+    perspective: Perspective,
   ) {
     const volume = await prisma.volume.findFirst({
       where: {
         chapterId,
         volumeNumber,
         // Volume must be published
-        status: 'PUBLISHED',
+        status: "PUBLISHED",
         // AND either no scheduled date OR scheduled date has passed
-        OR: [
-          { scheduledFor: null },
-          { scheduledFor: { lte: new Date() } }
-        ]
+        OR: [{ scheduledFor: null }, { scheduledFor: { lte: new Date() } }],
       },
       include: {
         versions: {
@@ -193,7 +190,7 @@ export class ReaderService {
   async getVolumeTextByVolumeId(
     volumeId: string,
     userId: string,
-    perspective: Perspective = Perspective.NARRATOR
+    perspective: Perspective = Perspective.NARRATOR,
   ): Promise<{
     id: string;
     volumeId: string;
@@ -236,7 +233,7 @@ export class ReaderService {
    */
   async getVolumeText(
     versionId: string,
-    userId: string
+    userId: string,
   ): Promise<{
     id: string;
     volumeId: string;
@@ -272,11 +269,29 @@ export class ReaderService {
       userId,
       version.volume.chapterId,
       version.volume.volumeNumber,
-      version.perspective
+      version.perspective,
     );
 
     if (!hasAccess) {
-      throw new Error("NO_ACCESS");
+      // Include volume metadata so the client can display details even on 403
+      const illustrationAsset =
+        version.illustrationAsset || version.volume.illustrationAsset;
+      const illustrationUrl = illustrationAsset
+        ? `/uploads/${illustrationAsset.objectKey}`
+        : null;
+
+      const err: any = new Error("NO_ACCESS");
+      err.volumeMetadata = {
+        id: version.id,
+        volumeId: version.volumeId,
+        title: version.volume.title,
+        chapterId: version.volume.chapterId,
+        chapterTitle: version.volume.chapter.title,
+        volumeNumber: version.volume.volumeNumber,
+        perspective: version.perspective,
+        illustrationUrl,
+      };
+      throw err;
     }
 
     // Track that user is reading this volume (create VolumeRead if first time)
@@ -293,7 +308,7 @@ export class ReaderService {
       });
     } catch (error: any) {
       // If unique constraint violation (record already exists), that's fine - ignore it
-      if (error.code !== 'P2002') {
+      if (error.code !== "P2002") {
         throw error;
       }
     }
@@ -319,7 +334,8 @@ export class ReaderService {
     }
 
     // Get illustration URL (prioritize version illustration, fallback to volume illustration)
-    const illustrationAsset = version.illustrationAsset || version.volume.illustrationAsset;
+    const illustrationAsset =
+      version.illustrationAsset || version.volume.illustrationAsset;
     const illustrationUrl = illustrationAsset
       ? `/uploads/${illustrationAsset.objectKey}`
       : null;
@@ -346,7 +362,7 @@ export class ReaderService {
     userId: string,
     chapterId: string,
     volumeNumber: number,
-    perspective: 'NARRATOR' | 'PROTAGONIST' = 'NARRATOR'
+    perspective: "NARRATOR" | "PROTAGONIST" = "NARRATOR",
   ): Promise<{
     success: boolean;
     error?: string;
@@ -387,7 +403,7 @@ export class ReaderService {
     userId: string,
     chapterId: string,
     volumeNumber: number,
-    perspective: 'NARRATOR' | 'PROTAGONIST' = 'NARRATOR'
+    perspective: "NARRATOR" | "PROTAGONIST" = "NARRATOR",
   ): Promise<void> {
     // Sécurité : Vérifier que l'utilisateur a bien lu le volume
     const volumeRead = await prisma.volumeRead.findUnique({
@@ -397,12 +413,12 @@ export class ReaderService {
           chapterId,
           volumeNumber,
           perspective: perspective as any,
-        }
-      }
+        },
+      },
     });
 
     if (!volumeRead) {
-      throw new Error('VOLUME_NOT_READ');
+      throw new Error("VOLUME_NOT_READ");
     }
 
     // Sécurité : Vérifier timing (au moins 2 minutes de lecture)
@@ -410,12 +426,12 @@ export class ReaderService {
     const MIN_READ_TIME = 2 * 60 * 1000; // 2 minutes
 
     if (timeSinceOpen < MIN_READ_TIME) {
-      throw new Error('READ_TOO_FAST');
+      throw new Error("READ_TOO_FAST");
     }
 
     // Sécurité : Volumes 1-7 uniquement (pour débloquer 2-8)
     if (volumeNumber < 1 || volumeNumber > 7) {
-      throw new Error('INVALID_VOLUME_FOR_WAIT');
+      throw new Error("INVALID_VOLUME_FOR_WAIT");
     }
 
     // Marquer canStartWaitFrom sur le volume SUIVANT
@@ -428,18 +444,18 @@ export class ReaderService {
           chapterId,
           volumeNumber: nextVolumeNumber,
           perspective: perspective as any,
-        }
+        },
       },
       create: {
         userId,
         chapterId,
         volumeNumber: nextVolumeNumber,
         perspective: perspective as any,
-        canStartWaitFrom: new Date()
+        canStartWaitFrom: new Date(),
       },
       update: {
-        canStartWaitFrom: new Date()
-      }
+        canStartWaitFrom: new Date(),
+      },
     });
   }
 
@@ -452,11 +468,11 @@ export class ReaderService {
     chapterId: string,
     volumeNumber: number,
     progress: number,
-    perspective: 'NARRATOR' | 'PROTAGONIST' = 'NARRATOR'
+    perspective: "NARRATOR" | "PROTAGONIST" = "NARRATOR",
   ): Promise<{ success: boolean; progress: number }> {
     // Validate progress is between 0 and 100
     if (progress < 0 || progress > 100) {
-      throw new Error('INVALID_PROGRESS');
+      throw new Error("INVALID_PROGRESS");
     }
 
     // Upsert: atomically create if missing, or no-op on update (handles race conditions)
@@ -465,13 +481,19 @@ export class ReaderService {
         userId,
         chapterId,
         volumeNumber,
-        perspective: perspective as any
-      }
+        perspective: perspective as any,
+      },
     };
 
     const volumeRead = await prisma.volumeRead.upsert({
       where: uniqueKey,
-      create: { userId, chapterId, volumeNumber, perspective: perspective as any, progress },
+      create: {
+        userId,
+        chapterId,
+        volumeNumber,
+        perspective: perspective as any,
+        progress,
+      },
       update: {}, // preserve existing record on conflict — handled below
     });
 
@@ -479,12 +501,61 @@ export class ReaderService {
     if (progress > volumeRead.progress) {
       const updated = await prisma.volumeRead.update({
         where: uniqueKey,
-        data: { progress }
+        data: { progress },
       });
       return { success: true, progress: updated.progress };
     }
 
     return { success: true, progress: volumeRead.progress };
+  }
+
+  /**
+   * Get chapters where the current user is the Muse
+   */
+  async getMyMuseChapters(userId: string) {
+    const museEntries = await prisma.chapterMuse.findMany({
+      where: { userId },
+      include: {
+        chapter: {
+          include: {
+            coverAsset: true,
+          },
+        },
+        customStory: {
+          select: {
+            id: true,
+            protagonistName: true,
+            status: true,
+            submittedAt: true,
+          },
+        },
+        promotion: {
+          select: {
+            id: true,
+            name: true,
+            type: true,
+            value: true,
+            scope: true,
+            isActive: true,
+          },
+        },
+      },
+    });
+
+    return museEntries.map((entry) => ({
+      id: entry.id,
+      chapter: {
+        id: entry.chapter.id,
+        title: entry.chapter.title,
+        protagonistName: entry.chapter.protagonistName,
+        coverAsset: entry.chapter.coverAsset,
+        status: entry.chapter.status,
+        publishedAt: entry.chapter.publishedAt,
+      },
+      customStory: entry.customStory,
+      promotion: entry.promotion,
+      createdAt: entry.createdAt,
+    }));
   }
 
   /**
@@ -501,34 +572,36 @@ export class ReaderService {
               tag: {
                 name: {
                   equals: tag,
-                  mode: 'insensitive'
-                }
-              }
-            }
-          }
-        })
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+        }),
       },
       include: {
         tags: {
           include: {
-            tag: true
-          }
-        }
+            tag: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'asc'
-      }
+        createdAt: "asc",
+      },
     });
-
+    
     return assets.map((asset, index) => ({
       id: asset.id,
       label: asset.label || `Illustration ${index + 1}`,
       url: `/assets/${asset.objectKey}`, // Adjust based on your asset serving path
-      thumbnailUrl: asset.thumbnailObjectKey ? `/assets/${asset.thumbnailObjectKey}` : null,
-      tags: asset.tags.map(t => t.tag.name),
+      thumbnailUrl: asset.thumbnailObjectKey
+        ? `/assets/${asset.thumbnailObjectKey}`
+        : null,
+      tags: asset.tags.map((t) => t.tag.name),
       mimeType: asset.mimeType,
       width: asset.width,
-      height: asset.height
+      height: asset.height,
     }));
   }
 }

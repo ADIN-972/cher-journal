@@ -41,6 +41,11 @@ export class CatalogService {
             genre: true,
           },
         },
+        muse: {
+          select: {
+            userId: true,
+          },
+        },
         _count: {
           select: {
             volumes: {
@@ -109,10 +114,22 @@ export class CatalogService {
         // Check if user has started reading this chapter (has any volume with progress > 0)
         const hasStartedReading = userVolumeReadsMap.has(chapter.id);
 
+        // Compute isPrivateLocked: private chapters are visible but only accessible to Muse + Club subscribers
+        let isPrivateLocked = false;
+        if (chapter.isPrivate) {
+          if (userId) {
+            const canAccess = await this.accessControl.canAccessPrivateChapter(userId, chapter.id);
+            isPrivateLocked = !canAccess;
+          } else {
+            isPrivateLocked = true;
+          }
+        }
+
         return {
           ...chapter,
           totalCharacterCount: result._sum.characterCount || 0,
           hasStartedReading,
+          isPrivateLocked,
           // Replace coverAsset with serialized version containing the resolved URL
           coverAsset: chapter.coverAsset ? {
             id: chapter.coverAsset.id,
@@ -140,6 +157,11 @@ export class CatalogService {
             genre: true,
           },
         },
+        muse: {
+          select: {
+            userId: true,
+          },
+        },
         // Return ALL volumes so users can see what's coming
         volumes: {
           include: {
@@ -159,6 +181,43 @@ export class CatalogService {
 
     if (!chapter) {
       throw new Error('CHAPTER_NOT_FOUND');
+    }
+
+    // Compute isPrivateLocked: private chapters are visible but only accessible to Muse + Club subscribers
+    let isPrivateLocked = false;
+    if (chapter.isPrivate) {
+      if (userId) {
+        const canAccess = await this.accessControl.canAccessPrivateChapter(userId, chapter.id);
+        isPrivateLocked = !canAccess;
+      } else {
+        isPrivateLocked = true;
+      }
+    }
+
+    // If private and locked: return chapter metadata but NO volumes
+    if (isPrivateLocked) {
+      const coverAssetUrl = await resolveAssetUrl(chapter.coverAsset);
+      return convertBigIntToNumber({
+        id: chapter.id,
+        title: chapter.title,
+        description: chapter.description,
+        protagonistName: chapter.protagonistName,
+        isPrivate: chapter.isPrivate,
+        isPrivateLocked: true,
+        muse: chapter.muse,
+        coverAsset: chapter.coverAsset ? {
+          id: chapter.coverAsset.id,
+          url: coverAssetUrl,
+          mimeType: chapter.coverAsset.mimeType,
+        } : null,
+        genres: chapter.genres,
+        volumes: [],
+        hasAccess: false,
+        scopes: null,
+        hasStartedReading: false,
+        pricing: null,
+        totalCharacterCount: 0,
+      });
     }
 
     // If user authenticated, check entitlements, unlocks, and volume reads
@@ -374,6 +433,7 @@ export class CatalogService {
       hasAccess,
       scopes,
       hasStartedReading,
+      isPrivateLocked,
       pricing,
       totalCharacterCount,
       // Replace coverAsset with serialized version containing the resolved URL

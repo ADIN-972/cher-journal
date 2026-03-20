@@ -15,6 +15,7 @@ interface ChapterCardProps {
   publishedAt?: string;
   volumeCount?: number;
   featured?: boolean;
+  isPrivateLocked?: boolean;
 }
 
 export default function ChapterCard({
@@ -25,6 +26,7 @@ export default function ChapterCard({
   publishedAt,
   volumeCount,
   featured = false,
+  isPrivateLocked = false,
 }: ChapterCardProps) {
   const coverImage = coverAsset?.objectKey
     ? `${import.meta.env.VITE_API_URL ?? ""}/uploads/${coverAsset.thumbnailObjectKey || coverAsset.objectKey}`
@@ -46,10 +48,10 @@ export default function ChapterCard({
             <img
               src={coverImage}
               alt={title}
-              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+              className={`h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 ${isPrivateLocked ? 'grayscale opacity-50' : ''}`}
             />
           ) : (
-            <div className="h-full w-full bg-gradient-to-br from-rose-900/80 via-purple-900/80 to-gray-900 flex items-center justify-center">
+            <div className={`h-full w-full bg-gradient-to-br from-rose-900/80 via-purple-900/80 to-gray-900 flex items-center justify-center ${isPrivateLocked ? 'grayscale opacity-50' : ''}`}>
               <div className="text-center p-6">
                 <div className="text-6xl mb-4 opacity-50">📖</div>
                 <p className="text-rose-200/80 font-serif italic text-lg">{title}</p>
@@ -57,11 +59,29 @@ export default function ChapterCard({
             </div>
           )}
 
+          {/* Lock Overlay for Private Chapters */}
+          {isPrivateLocked && (
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <span className="material-symbols-outlined text-white text-6xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)]">
+                lock
+              </span>
+            </div>
+          )}
+
           {/* Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500" />
 
+          {/* Club Prive Badge */}
+          {isPrivateLocked && (
+            <div className="absolute top-3 right-3 z-20">
+              <span className="bg-purple-600/90 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg">
+                Club Privé
+              </span>
+            </div>
+          )}
+
           {/* Top Badge */}
-          {volumeCount !== undefined && volumeCount > 0 && (
+          {!isPrivateLocked && volumeCount !== undefined && volumeCount > 0 && (
             <div className="absolute top-3 right-3">
               <span className="bg-rose-500/90 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg">
                 {volumeCount} tome{volumeCount > 1 ? 's' : ''}

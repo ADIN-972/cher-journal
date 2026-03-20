@@ -14,6 +14,7 @@ export interface BulkChapterUpdates {
   status?: "DRAFT" | "IN_PROGRESS" | "PUBLISHED";
   publishedAt?: string | null;
   volumeWaitDurationHours?: number;
+  isPrivate?: boolean;
 }
 
 export default function BulkEditChapterModal({
@@ -31,6 +32,8 @@ export default function BulkEditChapterModal({
     publishedAt: string;
     updateVolumeWaitDuration: boolean;
     volumeWaitDurationHours: number;
+    updateIsPrivate: boolean;
+    isPrivate: boolean;
   }>({
     updateStatus: false,
     status: "DRAFT",
@@ -38,6 +41,8 @@ export default function BulkEditChapterModal({
     publishedAt: "",
     updateVolumeWaitDuration: false,
     volumeWaitDurationHours: 24,
+    updateIsPrivate: false,
+    isPrivate: false,
   });
 
   const [loading, setLoading] = useState(false);
@@ -80,6 +85,10 @@ export default function BulkEditChapterModal({
         updates.volumeWaitDurationHours = formData.volumeWaitDurationHours;
       }
 
+      if (formData.updateIsPrivate) {
+        updates.isPrivate = formData.isPrivate;
+      }
+
       await onSubmit(updates);
       handleClose();
     } catch (error) {
@@ -97,6 +106,8 @@ export default function BulkEditChapterModal({
       publishedAt: "",
       updateVolumeWaitDuration: false,
       volumeWaitDurationHours: defaultWaitDuration,
+      updateIsPrivate: false,
+      isPrivate: false,
     });
     onClose();
   };
@@ -245,6 +256,54 @@ export default function BulkEditChapterModal({
                 <p className="text-xs text-gray-500">
                   Valeur par défaut : {defaultWaitDuration} heure(s)
                 </p>
+              </div>
+            )}
+          </div>
+
+          {/* Chapitres privés */}
+          <div className="border border-gray-200 rounded-md p-3">
+            <label className="flex items-center space-x-2 mb-2">
+              <input
+                type="checkbox"
+                checked={formData.updateIsPrivate}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    updateIsPrivate: e.target.checked,
+                  })
+                }
+                className="h-4 w-4 text-blue-600 rounded"
+              />
+              <span className="text-sm font-medium text-gray-700">
+                Chapitres prives
+              </span>
+            </label>
+            {formData.updateIsPrivate && (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData({ ...formData, isPrivate: false })
+                  }
+                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                    !formData.isPrivate
+                      ? "bg-green-500 text-white shadow-md"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}>
+                  Public
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData({ ...formData, isPrivate: true })
+                  }
+                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                    formData.isPrivate
+                      ? "bg-purple-500 text-white shadow-md"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}>
+                  Prive (Muse + Club)
+                </button>
               </div>
             )}
           </div>

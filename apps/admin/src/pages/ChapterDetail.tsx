@@ -34,6 +34,7 @@ import ContextMenu from "../components/ContextMenu";
 import { useContextMenu } from "../hooks/useContextMenu";
 import ChapterSummary from "../components/ChapterSummary";
 import ChaptersNavigation from "../components/ChaptersNavigation";
+import ChapterMuseSection from "../components/ChapterMuseSection";
 
 export default function ChapterDetail() {
   const { id } = useParams<{ id: string }>();
@@ -525,6 +526,9 @@ export default function ChapterDetail() {
           </div>
         </section>
       )}
+
+      {/* Muse Section */}
+      {id && <ChapterMuseSection chapterId={id} />}
 
       {/* Volumes Section */}
       <div className="border bg-white dark:bg-white/5  border-slate-200 dark:border-white/10 rounded-lg shadow">

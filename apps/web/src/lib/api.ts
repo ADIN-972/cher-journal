@@ -38,8 +38,9 @@ class ApiClient {
    * Build headers with optional authentication
    */
   private buildHeaders(includeAuth: boolean = true): HeadersInit {
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'X-App': 'web',
     };
 
     if (includeAuth) {
@@ -531,6 +532,14 @@ class ApiClient {
       '/stripe/create-subscription-checkout',
       { successUrl, cancelUrl }
     );
+    return response.data;
+  }
+
+  /**
+   * Get chapters where the current user is a Muse
+   */
+  async getMyMuseChapters(): Promise<any[]> {
+    const response = await this.get<{ success: boolean; data: any[] }>('/reader/my-muse-chapters');
     return response.data;
   }
 

@@ -65,6 +65,7 @@ export class ReaderController {
         return reply.status(403).send({
           success: false,
           error: { code: 'NO_ACCESS', message: 'No access to this volume' },
+          data: error.volumeMetadata || null,
         });
       }
       if (error.message === 'NO_TEXT') {
@@ -101,6 +102,7 @@ export class ReaderController {
         return reply.status(403).send({
           success: false,
           error: { code: 'NO_ACCESS', message: 'No access to this volume' },
+          data: error.volumeMetadata || null,
         });
       }
       if (error.message === 'NO_TEXT') {
@@ -311,6 +313,17 @@ export class ReaderController {
       }
       throw error;
     }
+  }
+
+  /**
+   * Get chapters where the current user is the Muse
+   */
+  async getMyMuseChapters(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ) {
+    const museChapters = await service.getMyMuseChapters(request.user!.id);
+    return reply.send({ success: true, data: museChapters });
   }
 
   /**

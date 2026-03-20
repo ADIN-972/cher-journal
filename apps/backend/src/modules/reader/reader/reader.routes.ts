@@ -38,6 +38,12 @@ export async function readerRoutes(app: FastifyInstance) {
     handler: controller.updateProgress.bind(controller),
   });
 
+  // Get chapters where the current user is the Muse
+  app.get('/reader/my-muse-chapters', {
+    preHandler: requireAuth,
+    handler: controller.getMyMuseChapters.bind(controller),
+  });
+
   // Get coloring assets for a chapter (with optional tag filter)
   app.get('/chapters/:chapterId/assets', {
     preHandler: requireAuth,

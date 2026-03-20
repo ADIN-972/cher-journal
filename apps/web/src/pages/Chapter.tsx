@@ -170,7 +170,7 @@ export default function Chapter() {
     } else {
       // Open purchase drawer for locked volumes based on perspective
       // Enrich volume with blockage info from the current perspective
-      const perspectiveKey = selectedPerspective === "protagonist" ? "protagonist" : "narrator";
+      const perspectiveKey = selectedPerspective === "protagonist" ? "PROTAGONIST" : "NARRATOR";
       const accessInfo = volume.accessByPerspective?.[perspectiveKey];
       const enrichedVolume = {
         ...volume,
@@ -528,7 +528,7 @@ export default function Chapter() {
   const reviewCount = 124;
 
   return (
-    <main className="max-w-7xl mx-auto px-6 py-10 text-charcoal dark:text-white/70 dark:text-white overflow-hidden">
+    <main className="max-w-7xl mx-auto px-6 py-10 text-charcoal dark:text-white/70 dark:text-white">
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-8">
         <Link
@@ -572,8 +572,56 @@ export default function Chapter() {
         protagonistName={currentChapter.protagonistName}
       />
 
-      {/* Chapters List or Coloring Gallery */}
-      {selectedPerspective === "coloriage" ? (
+      {/* Chapters List, Coloring Gallery, or Private Lock Block */}
+      {currentChapter.isPrivateLocked ? (
+        <section className="py-16 flex justify-center">
+          <div className="relative max-w-xl w-full rounded-3xl overflow-hidden shadow-2xl">
+            {/* Gradient Background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-950 via-gray-900 to-amber-950 opacity-95" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+
+            {/* Content */}
+            <div className="relative z-10 px-8 py-14 sm:px-12 sm:py-16 text-center">
+              {/* Lock Icon */}
+              <div className="mb-6">
+                <span className="material-symbols-outlined text-7xl bg-gradient-to-br from-purple-400 to-amber-400 bg-clip-text text-transparent drop-shadow-lg">
+                  lock
+                </span>
+              </div>
+
+              {/* Title */}
+              <h2 className="font-display italic text-2xl sm:text-3xl text-white mb-4 tracking-wide">
+                Chapitre réservé au Club Privé
+              </h2>
+
+              {/* Decorative Separator */}
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <div className="h-px w-12 bg-gradient-to-r from-transparent to-purple-400/60" />
+                <span className="material-symbols-outlined text-purple-400/60 text-sm">diamond</span>
+                <div className="h-px w-12 bg-gradient-to-l from-transparent to-purple-400/60" />
+              </div>
+
+              {/* Description */}
+              <p className="text-gray-300 font-light leading-relaxed max-w-md mx-auto mb-10 text-base sm:text-lg">
+                Ce chapitre exclusif est accessible uniquement aux membres du Club Privé.
+                Rejoignez le Club pour débloquer ce contenu et bien plus encore.
+              </p>
+
+              {/* CTA Button */}
+              <Link
+                to="/account"
+                className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold px-8 py-3.5 rounded-full shadow-lg shadow-purple-600/30 hover:shadow-purple-500/40 transition-all duration-300 hover:scale-105 text-base"
+              >
+                <span className="material-symbols-outlined text-xl">star</span>
+                Rejoindre le Club
+              </Link>
+            </div>
+
+            {/* Decorative Border */}
+            <div className="absolute inset-0 rounded-3xl border border-purple-500/20" />
+          </div>
+        </section>
+      ) : selectedPerspective === "coloriage" ? (
         <ColoringGallery
           // chapterId={id!}
           chapter={currentChapter}
@@ -595,8 +643,8 @@ export default function Chapter() {
         />
       )}
 
-      {/* Pricing Section - Only show if user hasn't purchased everything */}
-      {currentChapter.pricing && (
+      {/* Pricing Section - Only show if user hasn't purchased everything and chapter is not private-locked */}
+      {currentChapter.pricing && !currentChapter.isPrivateLocked && (
         <PricingSection
           chapterTitle={currentChapter.title}
           pricing={currentChapter.pricing}

@@ -32,6 +32,7 @@ import assetTagsRoutes from "./modules/admin/asset-tags/asset-tags.routes";
 import { bundlesRoutes } from "./modules/admin/bundles/bundles.routes";
 import { adminReviewsRoutes } from "./modules/admin/reviews/reviews.routes";
 import { adminSupportRoutes } from "./modules/admin/support/support.routes";
+import { adminChapterMuseRoutes } from "./modules/admin/chapter-muse/chapter-muse.routes";
 import { libraryRoutes } from "./modules/reader/library/library.routes";
 import { catalogRoutes } from "./modules/reader/catalog/catalog.routes";
 import { waitRoutes } from "./modules/reader/wait/wait.routes";
@@ -71,6 +72,7 @@ export async function createApp(): Promise<FastifyInstance> {
   await app.register(fastifyCors, {
     origin: config.isDev ? true : config.corsOrigins,
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-App'],
   });
 
   await app.register(fastifyCookie, {
@@ -195,6 +197,7 @@ export async function createApp(): Promise<FastifyInstance> {
     promotionsRoutes,
     priceHistoryRoutes,
     priceSchemaRoutes,
+    adminChapterMuseRoutes,
   ];
 
   // Register other routes without /api prefix

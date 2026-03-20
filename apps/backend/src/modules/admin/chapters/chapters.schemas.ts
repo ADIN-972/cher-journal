@@ -18,6 +18,7 @@ export const createChapterSchema = z.object({
   publishedAt: z.string().datetime().optional().nullable(),
   coverAssetId: z.string().nullable().optional(),
   genres: z.array(z.nativeEnum(ChapterGenre)).optional(),
+  isPrivate: z.boolean().optional(),
 });
 
 export const updateChapterSchema = z.object({
@@ -38,6 +39,7 @@ export const updateChapterSchema = z.object({
   coverAssetId: z.string().nullable().optional(),
   isArchived: z.boolean().optional(),
   genres: z.array(z.nativeEnum(ChapterGenre)).optional(),
+  isPrivate: z.boolean().optional(),
 });
 
 export const bootstrapVolumesSchema = z.object({
@@ -51,6 +53,7 @@ export const bulkUpdateChaptersSchema = z.object({
     status: z.nativeEnum(ChapterStatus).optional(),
     publishedAt: z.string().datetime().optional().nullable(),
     volumeWaitDurationHours: z.number().int().min(0).optional(),
+    isPrivate: z.boolean().optional(),
   }),
 });
 

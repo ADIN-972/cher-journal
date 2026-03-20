@@ -578,7 +578,7 @@
   },
   "add_entitlement_modal": {
     "title": "Ajouter un Droit d'Accès",
-    "chapter": "Chapitres",
+    "chapter": "Chapitre",
     "from": "De",
     "to": "À",
     "scope": "Portée",
@@ -588,8 +588,6 @@
     "source_pack": "Pack",
     "source_subscription": "Abonnement",
     "select_chapter": "Sélectionner un Chapitre",
-    "no_chapters": "Aucun chapitre disponible",
-    "selected": "chapitre(s) sélectionné(s)",
     "close_aria": "Fermer la modale",
     "button_add": "Ajouter un Droit",
     "button_adding": "Ajout en cours...",
@@ -1286,6 +1284,24 @@
       "targeting_users_targeted": "Utilisateurs ciblés:",
       "targeting_no_users": "-"
     }
+  },
+  "muse": {
+    "isPrivate": "Chapitre prive",
+    "isPrivate_description": "Visible par tous, accessible uniquement par la Muse et les membres du Club",
+    "muse": "Muse",
+    "muse_section_title": "Muse du chapitre",
+    "assign_muse": "Assigner la Muse",
+    "remove_muse": "Retirer la Muse",
+    "remove_muse_confirm": "Etes-vous sur de vouloir retirer la Muse de ce chapitre ?",
+    "create_muse_promotion": "Creer une promotion pour la Muse",
+    "no_muse_assigned": "Aucune Muse assignee a ce chapitre",
+    "linked_custom_story": "Histoire personnalisee liee",
+    "linked_promotion": "Promotion liee",
+    "muse_assigned_success": "Muse assignee avec succes",
+    "muse_removed_success": "Muse retiree avec succes",
+    "search_user_email": "Rechercher un utilisateur par email",
+    "chapter_private": "Chapitre prive",
+    "chapter_private_locked": "Reserve aux membres du Club Prive"
   },
   "createStory": {
     "title": "Créez votre histoire",

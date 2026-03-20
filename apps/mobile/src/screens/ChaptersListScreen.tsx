@@ -8,18 +8,25 @@ import {
   RefreshControl,
   StyleSheet,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useChapterStore } from '@/stores/chapterStore';
-import CachedImage from '@/components/CachedImage';
+import Icon from '@/components/Icon';
 import { colors, spacing, fontSize, borderRadius } from '@/utils/theme';
 import type { Chapter } from '@/types';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://api.moncherjournal.com';
 
+const getCoverUrl = (chapter: Chapter): string | null => {
+  if (chapter.coverAsset?.url) {
+    return `${API_BASE_URL}${chapter.coverAsset.url}`;
+  }
+  return null;
+};
+
 const ChaptersListScreen: React.FC = () => {
   const router = useRouter();
-  const { chapters, loading, error, fetchChapters, setSelectedChapter } =
-    useChapterStore();
+  const { chapters, loading, error, fetchChapters, setSelectedChapter } = useChapterStore();
   const [refreshing, setRefreshing] = React.useState(false);
 
   useEffect(() => {
@@ -84,39 +91,55 @@ const ChaptersListScreen: React.FC = () => {
               style={styles.chapterRow}
               activeOpacity={0.7}
             >
-              {item.coverAssetId ? (
-                <CachedImage
-                  assetId={item.coverAssetId}
-                  imageUrl={`${API_BASE_URL}/assets/${item.coverAssetId}`}
-                  width={70}
-                  height={100}
-                  style={styles.coverImage}
-                />
-              ) : (
-                <View style={[styles.coverImage, styles.coverPlaceholder]}>
-                  <Text style={styles.coverPlaceholderText}>
-                    {item.title.charAt(0)}
-                  </Text>
+              <View style={styles.coverContainer}>
+                {getCoverUrl(item) ? (
+                  <Image
+                    source={{ uri: getCoverUrl(item)! }}
+                    style={[
+                      styles.coverImage,
+                      { width: 70, height: 100 },
+                      item.isPrivateLocked && { opacity: 0.4 },
+                    ]}
+                    contentFit="cover"
+                    cachePolicy="memory-disk"
+                    transition={200}
+                  />
+                ) : (
+                  <View style={[
+                    styles.coverImage,
+                    styles.coverPlaceholder,
+                    item.isPrivateLocked && { opacity: 0.4 },
+                  ]}>
+                    <Text style={styles.coverPlaceholderText}>{item.title.charAt(0)}</Text>
+                  </View>
+                )}
+                {item.isPrivateLocked && (
+                  <View style={styles.lockOverlay}>
+                    <Icon name="lock" size={28} color={colors.white} />
+                  </View>
+                )}
+              </View>
+              {item.isPrivateLocked && (
+                <View style={styles.clubBadge}>
+                  <Text style={styles.clubBadgeText}>Club</Text>
                 </View>
               )}
               <View style={styles.chapterInfo}>
-                <Text style={styles.chapterTitle} numberOfLines={1}>
-                  {item.title}
-                </Text>
-                <Text style={styles.chapterProtagonist}>
-                  {item.protagonistName}
-                </Text>
+              
+                  <Text style={styles.chapterProtagonist}>{item.protagonistName}</Text>
+                  <Text style={styles.chapterTitle} numberOfLines={1}>
+                    {item.title}
+                  </Text>
+               
                 {item.description && (
                   <Text style={styles.chapterDescription} numberOfLines={2}>
                     {item.description}
                   </Text>
                 )}
                 <View style={styles.intensityRow}>
-                  {Array.from({ length: Math.min(item.niveau_intensite, 5) }).map(
-                    (_, i) => (
-                      <View key={i} style={styles.intensityDot} />
-                    )
-                  )}
+                  {Array.from({ length: Math.min(item.niveau_intensite, 5) }).map((_, i) => (
+                    <View key={i} style={styles.intensityDot} />
+                  ))}
                 </View>
               </View>
             </TouchableOpacity>
@@ -163,10 +186,39 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
+  coverContainer: {
+    position: 'relative' as const,
+    width: 70,
+    height: 100,
+  },
   coverImage: {
     width: 70,
     height: 100,
     borderRadius: borderRadius.md,
+  },
+  lockOverlay: {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+  },
+  clubBadge: {
+    position: 'absolute' as const,
+    top: -4,
+    left: 56,
+    backgroundColor: '#A855F7',
+    borderRadius: borderRadius.sm,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+  },
+  clubBadgeText: {
+    color: colors.white,
+    fontSize: 9,
+    fontWeight: '700' as const,
+    letterSpacing: 0.5,
   },
   coverPlaceholder: {
     backgroundColor: colors.boudoir[800],
@@ -185,16 +237,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   chapterTitle: {
-    fontSize: fontSize.lg,
-    fontWeight: '600',
+    fontFamily: 'Newsreader_400Regular',
+    fontSize: fontSize['2xl'],
     color: colors.charcoal,
-    marginBottom: 2,
   },
   chapterProtagonist: {
-    fontSize: fontSize.sm,
-    color: colors.rose,
-    fontWeight: '500',
-    marginBottom: spacing.xs,
+    fontFamily: 'GreatVibes_400Regular',
+    fontSize: fontSize['4xl'],
+    marginBottom: -spacing.md,
+    color: colors.gold,
   },
   chapterDescription: {
     fontSize: fontSize.xs,
