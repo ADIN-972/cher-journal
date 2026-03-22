@@ -42,6 +42,12 @@ export class AdminReviewsService {
               id: true,
               title: true,
               protagonistName: true,
+              coverAsset: {
+                select: {
+                  id: true,
+                  objectKey: true,
+                },
+              },
             },
           },
         },
