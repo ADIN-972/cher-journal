@@ -37,11 +37,13 @@ import { libraryRoutes } from "./modules/reader/library/library.routes";
 import { catalogRoutes } from "./modules/reader/catalog/catalog.routes";
 import { waitRoutes } from "./modules/reader/wait/wait.routes";
 import { readerRoutes } from "./modules/reader/reader/reader.routes";
+import { activityRoutes } from "./modules/reader/activity/activity.routes";
 import { pricingRoutes } from "./modules/reader/pricing/pricing.routes";
 import { reviewsRoutes } from "./modules/reader/reviews/reviews.routes";
 import { promotionsRoutes as userPromotionsRoutes } from "./modules/reader/promotions/promotions.routes";
 import { readerOrdersRoutes } from "./modules/reader/orders/orders.routes";
 import { readerSubscriptionsRoutes } from "./modules/reader/subscriptions/subscriptions.routes";
+import { readerNotificationRoutes } from "./modules/reader/notifications/notifications.routes";
 import { readerSupportRoutes } from "./modules/reader/support/support.routes";
 import { stripeRoutes } from "./modules/stripe/stripe.routes";
 import { customStoriesRoutes } from "./modules/custom-stories/custom-stories.routes";
@@ -169,11 +171,13 @@ export async function createApp(): Promise<FastifyInstance> {
     catalogRoutes,
     waitRoutes,
     readerRoutes,
+    activityRoutes,
     pricingRoutes,
     reviewsRoutes,
     userPromotionsRoutes,
     readerOrdersRoutes,
     readerSubscriptionsRoutes,
+    readerNotificationRoutes,
     readerSupportRoutes,
     customStoriesRoutes,
     stripeRoutes,

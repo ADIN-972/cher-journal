@@ -5,6 +5,11 @@ import { SubscriptionsController } from './subscriptions.controller';
 const controller = new SubscriptionsController();
 
 export async function readerSubscriptionsRoutes(app: FastifyInstance) {
+  // Public endpoint (no auth required)
+  app.get('/club-info', {
+    handler: controller.getClubInfo.bind(controller),
+  });
+
   app.get('/me/subscription', {
     preHandler: requireAuth,
     handler: controller.getUserSubscription.bind(controller),

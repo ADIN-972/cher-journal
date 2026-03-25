@@ -29,6 +29,35 @@ export async function authRoutes(app: FastifyInstance) {
     handler: controller.me.bind(controller),
   });
 
+  // Profile update
+  app.patch("/me/profile", {
+    preHandler: requireAuth,
+    handler: controller.updateProfile.bind(controller),
+  });
+
+  // Change password
+  app.post("/me/change-password", {
+    preHandler: requireAuth,
+    handler: controller.changePassword.bind(controller),
+  });
+
+  // Delete account
+  app.post("/me/delete-account", {
+    preHandler: requireAuth,
+    handler: controller.deleteAccount.bind(controller),
+  });
+
+  // Email verification
+  app.post("/auth/send-verification", {
+    preHandler: requireAuth,
+    handler: controller.sendVerification.bind(controller),
+  });
+
+  app.post("/auth/verify-email", {
+    preHandler: requireAuth,
+    handler: controller.verifyEmail.bind(controller),
+  });
+
   // Password reset routes
   app.post("/auth/forgot-password", {
     handler: controller.forgotPassword.bind(controller),

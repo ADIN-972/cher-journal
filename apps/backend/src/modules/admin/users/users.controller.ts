@@ -44,6 +44,24 @@ export class UsersController {
     }
   }
 
+  async getUserChapters(
+    request: FastifyRequest<{ Params: { id: string } }>,
+    reply: FastifyReply
+  ) {
+    try {
+      const data = await service.getUserChapters(request.params.id);
+      return reply.send({ success: true, data });
+    } catch (error: any) {
+      if (error.message === "USER_NOT_FOUND") {
+        return reply.status(404).send({
+          success: false,
+          error: { code: "USER_NOT_FOUND", message: "User not found" },
+        });
+      }
+      throw error;
+    }
+  }
+
   async update(
     request: FastifyRequest<{ Params: { id: string }; Body: UpdateUserInput }>,
     reply: FastifyReply
@@ -168,6 +186,56 @@ export class UsersController {
     }
   }
 
+  async grantClubMembership(
+    request: FastifyRequest<{
+      Params: { id: string };
+      Body: { startDate: string; endDate: string | null; reason?: string };
+    }>,
+    reply: FastifyReply
+  ) {
+    try {
+      const { startDate, endDate, reason } = request.body;
+      if (!startDate) {
+        return reply.status(400).send({
+          success: false,
+          error: { code: "VALIDATION_ERROR", message: "startDate is required" },
+        });
+      }
+      const subscription = await service.grantClubMembership(request.params.id, {
+        startDate,
+        endDate,
+        reason,
+      });
+      return reply.send({ success: true, data: subscription });
+    } catch (error: any) {
+      if (error.message === "USER_NOT_FOUND") {
+        return reply.status(404).send({
+          success: false,
+          error: { code: "USER_NOT_FOUND", message: "User not found" },
+        });
+      }
+      throw error;
+    }
+  }
+
+  async revokeClubMembership(
+    request: FastifyRequest<{ Params: { id: string } }>,
+    reply: FastifyReply
+  ) {
+    try {
+      const subscription = await service.revokeClubMembership(request.params.id);
+      return reply.send({ success: true, data: subscription });
+    } catch (error: any) {
+      if (error.message === "NO_SUBSCRIPTION") {
+        return reply.status(404).send({
+          success: false,
+          error: { code: "NO_SUBSCRIPTION", message: "No subscription found" },
+        });
+      }
+      throw error;
+    }
+  }
+
   async revokeSession(
     request: FastifyRequest<{ Params: { id: string; sessionId: string } }>,
     reply: FastifyReply
@@ -279,6 +347,22 @@ export class UsersController {
       return reply.status(500).send({
         success: false,
         error: { code: "BULK_ACTION_FAILED", message: error.message || "Bulk demote failed" },
+      });
+    }
+  }
+
+  async getConnectionStats(
+    request: FastifyRequest<{ Querystring: { days?: string } }>,
+    reply: FastifyReply
+  ) {
+    try {
+      const days = request.query.days ? parseInt(request.query.days, 10) : 15;
+      const stats = await service.getConnectionStats(days);
+      return reply.send({ success: true, data: stats });
+    } catch (error: any) {
+      return reply.status(500).send({
+        success: false,
+        error: { code: "STATS_ERROR", message: error.message },
       });
     }
   }

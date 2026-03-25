@@ -60,27 +60,27 @@ export class WaitService {
       throw new Error("ALREADY_HAS_ACCESS");
     }
 
-    // Check if user already has any entitlement (purchased or free)
+    // Check if user already has an entitlement covering this specific volume
     let entitlement = await prisma.entitlement.findFirst({
       where: {
         userId,
         chapterId: data.chapterId,
+        volumeFrom: { lte: volumeNumber },
+        volumeTo: { gte: volumeNumber },
       },
     });
 
-    // If no entitlement, create a FREE one via wait-to-read
+    // If no entitlement covers this volume, create one for ONLY this volume
+    // (not the entire chapter — that would bypass wait-to-read for all volumes)
     if (!entitlement) {
-      const minVolume = Math.min(...chapter.volumes.map((v) => v.volumeNumber));
-      const maxVolume = Math.max(...chapter.volumes.map((v) => v.volumeNumber));
-
       entitlement = await prisma.entitlement.create({
         data: {
           userId,
           chapterId: data.chapterId,
-          volumeFrom: minVolume,
-          volumeTo: maxVolume,
-          scopes: ["BASE"], // Free users get only narrator perspective
-          source: "SUBSCRIPTION", // Using SUBSCRIPTION as a proxy for "free wait-to-read"
+          volumeFrom: volumeNumber,
+          volumeTo: volumeNumber,
+          scopes: ["BASE"],
+          source: "PREORDER", // PREORDER requires wait-to-read timer check
         },
       });
     }

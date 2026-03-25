@@ -14,4 +14,14 @@ export async function readerSupportRoutes(app: FastifyInstance) {
     preHandler: requireAuth,
     handler: controller.getUserClaims.bind(controller),
   });
+
+  app.get('/support/claims/:claimId/messages', {
+    preHandler: requireAuth,
+    handler: controller.getClaimMessages.bind(controller),
+  });
+
+  app.post('/support/claims/:claimId/messages', {
+    preHandler: requireAuth,
+    handler: controller.addMessage.bind(controller),
+  });
 }

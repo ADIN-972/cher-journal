@@ -1,8 +1,21 @@
 import prisma from './prisma';
 import { Perspective, OrderStatus, SubscriptionStatus } from '@prisma/client';
 
-/** Discount rate for Club Privé subscribers on Protagoniste purchases */
-export const SUBSCRIBER_PROTAGONIST_DISCOUNT = 0.30; // 30%
+/** Default discount rate for Club Privé subscribers on Protagoniste purchases */
+export const SUBSCRIBER_PROTAGONIST_DISCOUNT = 0; // 0% fallback
+
+/** Get discount rate from system config (async), falls back to constant */
+export async function getSubscriberDiscount(): Promise<number> {
+  try {
+    const config = await prisma.systemConfig.findUnique({
+      where: { key: 'subscription.protagonist_discount_percent' },
+    });
+    if (config?.value) {
+      return parseInt(config.value, 10) / 100; // e.g. 30 → 0.30
+    }
+  } catch { /* fallback */ }
+  return SUBSCRIBER_PROTAGONIST_DISCOUNT;
+}
 
 export interface AccessCheckResult {
   hasAccess: boolean;

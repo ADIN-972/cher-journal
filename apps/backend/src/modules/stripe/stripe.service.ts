@@ -3,11 +3,26 @@ import { config } from '@cher-journal/config';
 import Stripe from 'stripe';
 import { OrderType, OrderStatus, EntitlementSource, UnlockTriggeredBy, SubscriptionStatus } from '@prisma/client';
 import { priceSchemaService } from '../admin/price-schemas/price-schemas.service';
-import { AccessControlService, SUBSCRIBER_PROTAGONIST_DISCOUNT } from '../../lib/accessControl';
+import { AccessControlService, getSubscriberDiscount } from '../../lib/accessControl';
 
 const stripe = new Stripe(config.stripe.secretKey, {
   apiVersion: '2023-10-16' as any,
 });
+
+/** Get bundle discount from system config (as a ratio 0-1) */
+async function getBundleDiscountPercent(): Promise<number> {
+  const cfg = await prisma.systemConfig.findUnique({
+    where: { key: 'pricing.chapter_bundle_discount_percent' },
+  });
+  return cfg?.value ? parseInt(cfg.value, 10) : 0;
+}
+
+/** For club members: best discount = max(subscriberDiscount, bundleDiscount). Returns ratio 0-1. */
+async function getBestDiscountForSubscriber(): Promise<number> {
+  const subscriberDiscount = await getSubscriberDiscount();
+  const bundlePercent = await getBundleDiscountPercent();
+  return Math.max(subscriberDiscount, bundlePercent / 100);
+}
 
 interface CreateCheckoutOptions {
   userId: string;
@@ -136,11 +151,12 @@ export class StripeService {
       // Get protagonist unlock price
       let protagonistPrice = prices.priceProtagonistUnlock || 99;
 
-      // Club Privé subscribers get 30% discount on protagonist purchases
+      // Club Privé subscribers get best discount: max(subscriber, bundle)
       const isSubscriber = await this.accessControl.hasActiveSubscription(options.userId);
       if (isSubscriber) {
-        protagonistPrice = Math.round(protagonistPrice * (1 - SUBSCRIBER_PROTAGONIST_DISCOUNT));
-        console.log(`[Stripe] Subscriber discount applied: -${SUBSCRIBER_PROTAGONIST_DISCOUNT * 100}% → ${protagonistPrice} cents`);
+        const bestDiscount = await getBestDiscountForSubscriber();
+        protagonistPrice = Math.round(protagonistPrice * (1 - bestDiscount));
+        console.log(`[Stripe] Club best discount applied: -${bestDiscount * 100}% → ${protagonistPrice} cents`);
       }
 
       if (protagonistPrice < 50) {
@@ -151,7 +167,7 @@ export class StripeService {
         price_data: {
           currency: 'eur',
           product_data: {
-            name: `${chapter.title} - Volume ${options.volumeNumber} - Perspective Protagoniste${isSubscriber ? ' (Club -30%)' : ''}`,
+            name: `${chapter.title} - Volume ${options.volumeNumber} - Perspective Protagoniste${isSubscriber ? ' (Club Privé)' : ''}`,
             description: `Unlock protagonist perspective for volume ${options.volumeNumber}${isSubscriber ? ' — Club Privé discount applied' : ''}`,
           },
           unit_amount: protagonistPrice,
@@ -221,18 +237,32 @@ export class StripeService {
         }
       }
 
-      // Subtract already owned volumes (no discount applied)
+      // Subtract already owned volumes
       const remainingPrice = bundleOriginalPrice - alreadyAccessiblePrice;
       let discountedPrice = remainingPrice;
 
-      // Club Privé subscribers get 30% discount on protagonist bundle purchases
+      // Determine the best discount to apply (no cumulation)
+      const bundlePercent = await getBundleDiscountPercent();
       let subscriberDiscountApplied = false;
+
       if (isProtagonistBundle) {
         const isSubscriber = await this.accessControl.hasActiveSubscription(options.userId);
         if (isSubscriber) {
-          discountedPrice = Math.round(discountedPrice * (1 - SUBSCRIBER_PROTAGONIST_DISCOUNT));
+          // Club members get the best of bundle vs subscriber discount
+          const bestDiscount = await getBestDiscountForSubscriber();
+          discountedPrice = Math.round(discountedPrice * (1 - bestDiscount));
           subscriberDiscountApplied = true;
-          console.log(`[Stripe] Subscriber discount on protagonist bundle: -${SUBSCRIBER_PROTAGONIST_DISCOUNT * 100}% → ${discountedPrice} cents`);
+          console.log(`[Stripe] Club best discount on protagonist bundle: -${bestDiscount * 100}% → ${discountedPrice} cents`);
+        } else if (bundlePercent > 0) {
+          // Non-club: apply bundle discount
+          discountedPrice = Math.round(discountedPrice * (1 - bundlePercent / 100));
+          console.log(`[Stripe] Bundle discount applied: -${bundlePercent}% → ${discountedPrice} cents`);
+        }
+      } else {
+        // Narrator bundle: apply bundle discount for everyone
+        if (bundlePercent > 0) {
+          discountedPrice = Math.round(discountedPrice * (1 - bundlePercent / 100));
+          console.log(`[Stripe] Bundle discount applied: -${bundlePercent}% → ${discountedPrice} cents`);
         }
       }
 
@@ -253,7 +283,7 @@ export class StripeService {
         price_data: {
           currency: 'eur',
           product_data: {
-            name: `${chapter.title} - Full Chapter${subscriberDiscountApplied ? ' (Club -30%)' : ''}`,
+            name: `${chapter.title} - Full Chapter${subscriberDiscountApplied ? ' (Club Prive)' : ''}`,
             description: options.scopes?.includes('POV')
               ? `Protagonist perspective${subscriberDiscountApplied ? ' — Club Privé discount applied' : ''}`
               : 'Narrator perspective only',
@@ -366,11 +396,12 @@ export class StripeService {
         throw new Error('USER_ALREADY_HAS_ACCESS');
       }
 
-      // Club Privé subscribers get 30% discount on protagonist purchases
+      // Club Privé subscribers get best discount: max(subscriber, bundle)
       const isSubscriber = await this.accessControl.hasActiveSubscription(options.userId);
       if (isSubscriber) {
-        volumePrice = Math.round(volumePrice * (1 - SUBSCRIBER_PROTAGONIST_DISCOUNT));
-        console.log(`[Stripe] Subscriber discount on protagonist volume: -${SUBSCRIBER_PROTAGONIST_DISCOUNT * 100}% → ${volumePrice} cents`);
+        const bestDiscount = await getBestDiscountForSubscriber();
+        volumePrice = Math.round(volumePrice * (1 - bestDiscount));
+        console.log(`[Stripe] Club best discount on protagonist volume: -${bestDiscount * 100}% → ${volumePrice} cents`);
       }
 
       if (volumePrice < 50) {
@@ -381,7 +412,7 @@ export class StripeService {
         price_data: {
           currency: 'eur',
           product_data: {
-            name: `${chapter.title} - Volume ${options.volumeNumber} (Protagoniste)${isSubscriber ? ' (Club -30%)' : ''}`,
+            name: `${chapter.title} - Volume ${options.volumeNumber} (Protagoniste)${isSubscriber ? ' (Club Prive)' : ''}`,
             description: `Unlock PROTAGONIST perspective for volume ${options.volumeNumber}${isSubscriber ? ' — Club Privé discount applied' : ''}`,
           },
           unit_amount: volumePrice,
@@ -414,15 +445,22 @@ export class StripeService {
         }
       }
 
-      // Subtract already owned volumes (no discount applied)
+      // Subtract already owned volumes
       const remainingPrice = bundleOriginalPrice - alreadyAccessiblePrice;
       let discountedPrice = remainingPrice;
 
-      // Club Privé subscribers get 30% discount on protagonist bundle
+      // Apply best discount: club members get max(subscriber, bundle), others get bundle only
       const isSubscriber = await this.accessControl.hasActiveSubscription(options.userId);
       if (isSubscriber) {
-        discountedPrice = Math.round(discountedPrice * (1 - SUBSCRIBER_PROTAGONIST_DISCOUNT));
-        console.log(`[Stripe] Subscriber discount on protagonist chapter bundle: -${SUBSCRIBER_PROTAGONIST_DISCOUNT * 100}% → ${discountedPrice} cents`);
+        const bestDiscount = await getBestDiscountForSubscriber();
+        discountedPrice = Math.round(discountedPrice * (1 - bestDiscount));
+        console.log(`[Stripe] Club best discount on protagonist chapter bundle: -${bestDiscount * 100}% → ${discountedPrice} cents`);
+      } else {
+        const bundlePercent = await getBundleDiscountPercent();
+        if (bundlePercent > 0) {
+          discountedPrice = Math.round(discountedPrice * (1 - bundlePercent / 100));
+          console.log(`[Stripe] Bundle discount on protagonist chapter bundle: -${bundlePercent}% → ${discountedPrice} cents`);
+        }
       }
 
       // Ensure minimum price of 50 cents
@@ -434,7 +472,7 @@ export class StripeService {
         price_data: {
           currency: 'eur',
           product_data: {
-            name: `${chapter.title} - Full Chapter (Protagoniste)${isSubscriber ? ' (Club -30%)' : ''}`,
+            name: `${chapter.title} - Full Chapter (Protagoniste)${isSubscriber ? ' (Club Prive)' : ''}`,
             description: `PROTAGONIST perspective for all volumes${isSubscriber ? ' — Club Privé discount applied' : ''}`,
           },
           unit_amount: discountedPrice,

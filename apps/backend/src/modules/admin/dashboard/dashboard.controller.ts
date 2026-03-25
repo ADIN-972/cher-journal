@@ -29,4 +29,16 @@ export class DashboardController {
       });
     }
   }
+
+  async getInsights(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const insights = await service.getInsights();
+      return reply.send({ success: true, data: insights });
+    } catch (error: any) {
+      return reply.status(500).send({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: error.message || 'Failed to fetch insights' },
+      });
+    }
+  }
 }

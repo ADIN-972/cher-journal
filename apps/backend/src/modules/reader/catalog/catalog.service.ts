@@ -1,21 +1,24 @@
-import prisma from '../../../lib/prisma';
-import { ChapterStatus, VolumeStatus, OrderStatus } from '@prisma/client';
-import { priceSchemaService } from '../../admin/price-schemas/price-schemas.service';
-import { resolveAssetUrl } from '../../../lib/assetUtils';
-import { AccessControlService } from '../../../lib/accessControl';
-import momentSelectionService from './moment-selection.service';
+import prisma from "../../../lib/prisma";
+import { ChapterStatus, VolumeStatus, OrderStatus } from "@prisma/client";
+import { priceSchemaService } from "../../admin/price-schemas/price-schemas.service";
+import { resolveAssetUrl } from "../../../lib/assetUtils";
+import { AccessControlService } from "../../../lib/accessControl";
+import momentSelectionService from "./moment-selection.service";
 
 // Helper to convert BigInt to number for JSON serialization
 const convertBigIntToNumber = (obj: any): any => {
-  if (typeof obj === 'bigint') {
+  if (typeof obj === "bigint") {
     return Number(obj);
   }
   if (Array.isArray(obj)) {
     return obj.map(convertBigIntToNumber);
   }
-  if (obj !== null && typeof obj === 'object') {
+  if (obj !== null && typeof obj === "object") {
     return Object.fromEntries(
-      Object.entries(obj).map(([key, value]) => [key, convertBigIntToNumber(value)])
+      Object.entries(obj).map(([key, value]) => [
+        key,
+        convertBigIntToNumber(value),
+      ]),
     );
   }
   return obj;
@@ -29,10 +32,7 @@ export class CatalogService {
       where: {
         status: ChapterStatus.PUBLISHED,
         // Chapter must be either without scheduledFor OR scheduled date has passed
-        OR: [
-          { scheduledFor: null },
-          { scheduledFor: { lte: new Date() } }
-        ]
+        OR: [{ scheduledFor: null }, { scheduledFor: { lte: new Date() } }],
       },
       include: {
         coverAsset: true,
@@ -54,14 +54,14 @@ export class CatalogService {
                 status: VolumeStatus.PUBLISHED,
                 OR: [
                   { scheduledFor: null },
-                  { scheduledFor: { lte: new Date() } }
-                ]
-              }
+                  { scheduledFor: { lte: new Date() } },
+                ],
+              },
             },
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
 
     // If user authenticated, fetch all their volume reads in one query for efficiency
@@ -70,7 +70,7 @@ export class CatalogService {
       const userReads = await prisma.volumeRead.findMany({
         where: {
           userId,
-          progress: { gt: 0 } // Only get volumes with progress > 0
+          progress: { gt: 0 }, // Only get volumes with progress > 0
         },
         select: {
           chapterId: true,
@@ -98,14 +98,14 @@ export class CatalogService {
               status: VolumeStatus.PUBLISHED,
               OR: [
                 { scheduledFor: null },
-                { scheduledFor: { lte: new Date() } }
-              ]
+                { scheduledFor: { lte: new Date() } },
+              ],
             },
-            perspective: 'NARRATOR'
+            perspective: "NARRATOR",
           },
           _sum: {
-            characterCount: true
-          }
+            characterCount: true,
+          },
         });
 
         // Resolve cover asset URL (use thumbnail if it exists)
@@ -118,7 +118,10 @@ export class CatalogService {
         let isPrivateLocked = false;
         if (chapter.isPrivate) {
           if (userId) {
-            const canAccess = await this.accessControl.canAccessPrivateChapter(userId, chapter.id);
+            const canAccess = await this.accessControl.canAccessPrivateChapter(
+              userId,
+              chapter.id,
+            );
             isPrivateLocked = !canAccess;
           } else {
             isPrivateLocked = true;
@@ -131,17 +134,22 @@ export class CatalogService {
           hasStartedReading,
           isPrivateLocked,
           // Replace coverAsset with serialized version containing the resolved URL
-          coverAsset: chapter.coverAsset ? {
-            id: chapter.coverAsset.id,
-            url: coverAssetUrl,
-            mimeType: chapter.coverAsset.mimeType,
-          } : null,
+          coverAsset: chapter.coverAsset
+            ? {
+                id: chapter.coverAsset.id,
+                url: coverAssetUrl,
+                mimeType: chapter.coverAsset.mimeType,
+              }
+            : null,
         };
-      })
+      }),
     );
 
     // Add isFavorite flag based on moment selection configuration
-    const chaptersWithFavoriteFlag = await momentSelectionService.enrichChaptersWithFavoriteFlag(chaptersWithCharacterCount);
+    const chaptersWithFavoriteFlag =
+      await momentSelectionService.enrichChaptersWithFavoriteFlag(
+        chaptersWithCharacterCount,
+      );
 
     // Convert BigInt fields to numbers for JSON serialization
     return convertBigIntToNumber(chaptersWithFavoriteFlag);
@@ -174,20 +182,23 @@ export class CatalogService {
               },
             },
           },
-          orderBy: { volumeNumber: 'asc' },
+          orderBy: { volumeNumber: "asc" },
         },
       },
     });
 
     if (!chapter) {
-      throw new Error('CHAPTER_NOT_FOUND');
+      throw new Error("CHAPTER_NOT_FOUND");
     }
 
     // Compute isPrivateLocked: private chapters are visible but only accessible to Muse + Club subscribers
     let isPrivateLocked = false;
     if (chapter.isPrivate) {
       if (userId) {
-        const canAccess = await this.accessControl.canAccessPrivateChapter(userId, chapter.id);
+        const canAccess = await this.accessControl.canAccessPrivateChapter(
+          userId,
+          chapter.id,
+        );
         isPrivateLocked = !canAccess;
       } else {
         isPrivateLocked = true;
@@ -205,11 +216,13 @@ export class CatalogService {
         isPrivate: chapter.isPrivate,
         isPrivateLocked: true,
         muse: chapter.muse,
-        coverAsset: chapter.coverAsset ? {
-          id: chapter.coverAsset.id,
-          url: coverAssetUrl,
-          mimeType: chapter.coverAsset.mimeType,
-        } : null,
+        coverAsset: chapter.coverAsset
+          ? {
+              id: chapter.coverAsset.id,
+              url: coverAssetUrl,
+              mimeType: chapter.coverAsset.mimeType,
+            }
+          : null,
         genres: chapter.genres,
         volumes: [],
         hasAccess: false,
@@ -217,6 +230,16 @@ export class CatalogService {
         hasStartedReading: false,
         pricing: null,
         totalCharacterCount: 0,
+
+        accroche_classic: chapter.accroche_classic,
+        accroche_dark: chapter.accroche_dark,
+        accroche_dark_collection: chapter.accroche_dark_collection,
+        accroche_love: chapter.accroche_love,
+        accroche_marketing: chapter.accroche_marketing,
+        niveau_danger: chapter.niveau_danger,
+        niveau_douceur: chapter.niveau_douceur,
+        niveau_intensite: chapter.niveau_intensite,
+        niveau_transformation: chapter.niveau_transformation,
       });
     }
 
@@ -224,7 +247,13 @@ export class CatalogService {
     let hasAccess = false;
     let scopes: string[] | null = null;
     let unlocks: { volumeNumber: number; unlocksAt: Date }[] = [];
-    let volumeReads: { volumeNumber: number; perspective: string; firstReadAt: Date; progress: number; canStartWaitFrom: Date | null }[] = [];
+    let volumeReads: {
+      volumeNumber: number;
+      perspective: string;
+      firstReadAt: Date;
+      progress: number;
+      canStartWaitFrom: Date | null;
+    }[] = [];
 
     if (userId) {
       // Aggregate all entitlements' scopes so the frontend gets a complete picture.
@@ -250,7 +279,7 @@ export class CatalogService {
           },
         });
 
-        unlocks = userUnlocks.map(u => ({
+        unlocks = userUnlocks.map((u) => ({
           volumeNumber: u.volumeNumber,
           unlocksAt: u.unlocksAt,
         }));
@@ -273,7 +302,7 @@ export class CatalogService {
         },
       });
 
-      volumeReads = userReads.map(r => ({
+      volumeReads = userReads.map((r) => ({
         volumeNumber: r.volumeNumber,
         perspective: r.perspective,
         firstReadAt: r.firstOpenedAt,
@@ -283,72 +312,92 @@ export class CatalogService {
     }
 
     // Find last read volume number (highest volume that was read)
-    const lastReadVolumeNumber = volumeReads.length > 0
-      ? Math.max(...volumeReads.map(r => r.volumeNumber))
-      : 0;
+    const lastReadVolumeNumber =
+      volumeReads.length > 0
+        ? Math.max(...volumeReads.map((r) => r.volumeNumber))
+        : 0;
 
     // Mark each volume with detailed unlock status
     // Implementing VOLUME-ACCESSIBILITY-RULES.md
     const now = new Date();
-    const volumesWithAccessibility = (await Promise.all(chapter.volumes.map(async volume => {
-      // RULE 0: Unpublished volumes don't exist for clients
-      const isPublished = volume.status === VolumeStatus.PUBLISHED &&
-        (volume.scheduledFor === null || volume.scheduledFor <= now);
+    const volumesWithAccessibility = (
+      await Promise.all(
+        chapter.volumes.map(async (volume) => {
+          // RULE 0: Unpublished volumes don't exist for clients
+          const isPublished =
+            volume.status === VolumeStatus.PUBLISHED &&
+            (volume.scheduledFor === null || volume.scheduledFor <= now);
 
-      if (!isPublished) {
-        return null; // Exclude unpublished volumes
-      }
+          if (!isPublished) {
+            return null; // Exclude unpublished volumes
+          }
 
-      // Get access info for both perspectives
-      const narratorAccessInfo = await this.accessControl.getVolumeAccessInfo(
-        userId,
-        id,
-        volume.volumeNumber,
-        'NARRATOR' as any
-      );
+          // Get access info for both perspectives
+          const narratorAccessInfo =
+            await this.accessControl.getVolumeAccessInfo(
+              userId,
+              id,
+              volume.volumeNumber,
+              "NARRATOR" as any,
+            );
 
-      const protagonistAccessInfo = await this.accessControl.getVolumeAccessInfo(
-        userId,
-        id,
-        volume.volumeNumber,
-        'PROTAGONIST' as any
-      );
+          const protagonistAccessInfo =
+            await this.accessControl.getVolumeAccessInfo(
+              userId,
+              id,
+              volume.volumeNumber,
+              "PROTAGONIST" as any,
+            );
 
-      // For backward compatibility, use NARRATOR access as default
-      const { isAccessible, blockageType, blockageInfo, canStartWait } = narratorAccessInfo;
+          // For backward compatibility, use NARRATOR access as default
+          const { isAccessible, blockageType, blockageInfo, canStartWait } =
+            narratorAccessInfo;
 
-      // Store access by perspective
-      const accessByPerspective = {
-        NARRATOR: narratorAccessInfo,
-        PROTAGONIST: protagonistAccessInfo,
-      };
+          // Store access by perspective
+          const accessByPerspective = {
+            NARRATOR: narratorAccessInfo,
+            PROTAGONIST: protagonistAccessInfo,
+          };
 
-      // Get reading progress for this volume per perspective
-      const volumeReadsForVolume = volumeReads.filter(r => r.volumeNumber === volume.volumeNumber);
-      const progressByPerspective: { NARRATOR?: number; PROTAGONIST?: number } = {};
+          // Get reading progress for this volume per perspective
+          const volumeReadsForVolume = volumeReads.filter(
+            (r) => r.volumeNumber === volume.volumeNumber,
+          );
+          const progressByPerspective: {
+            NARRATOR?: number;
+            PROTAGONIST?: number;
+          } = {};
 
-      for (const read of volumeReadsForVolume) {
-        progressByPerspective[read.perspective as 'NARRATOR' | 'PROTAGONIST'] = read.progress;
-      }
+          for (const read of volumeReadsForVolume) {
+            progressByPerspective[
+              read.perspective as "NARRATOR" | "PROTAGONIST"
+            ] = read.progress;
+          }
 
-      // Default to 0 for perspectives that haven't been read
-      const progress = progressByPerspective.NARRATOR ?? 0;
+          // Default to 0 for perspectives that haven't been read
+          const progress = progressByPerspective.NARRATOR ?? 0;
 
-      // Resolve illustration asset URL (use thumbnail if it exists)
-      const illustrationAssetUrl = await resolveAssetUrl(volume.illustrationAsset);
+          // Resolve illustration asset URL (use thumbnail if it exists)
+          const illustrationAssetUrl = await resolveAssetUrl(
+            volume.illustrationAsset,
+          );
 
-      return {
-        ...volume,
-        progressByPerspective,
-        accessByPerspective,
-        // Replace illustrationAsset with serialized version containing the resolved URL
-        illustrationAsset: volume.illustrationAsset ? {
-          id: volume.illustrationAsset.id,
-          url: illustrationAssetUrl,
-          mimeType: volume.illustrationAsset.mimeType,
-        } : null,
-      };
-    }))).filter(v => v !== null); // Remove unpublished volumes
+          return {
+            ...volume,
+            progressByPerspective,
+            accessByPerspective,
+            // Replace illustrationAsset with serialized version containing the resolved URL
+            illustrationAsset: volume.illustrationAsset
+              ? {
+                  id: volume.illustrationAsset.id,
+                  url: illustrationAssetUrl,
+                  mimeType: volume.illustrationAsset.mimeType,
+                }
+              : null,
+          };
+        }),
+      )
+    ).filter((v) => v !== null); // Remove unpublished volumes
 
     // Get pricing information for the chapter
     const priceFreeToRead = await this.getPriceFreeToRead(id);
@@ -398,23 +447,62 @@ export class CatalogService {
       }
     });
 
-    // Subtract already accessible volumes (no discount applied)
-    const bundleDiscountedPrice = bundleOriginalPrice - alreadyAccessiblePrice;
+    // Subtract already accessible volumes
+    let bundleDiscountedPrice = bundleOriginalPrice - alreadyAccessiblePrice;
+
+    // Determine best discount to apply
+    const bundleDiscountConfig = await prisma.systemConfig.findUnique({
+      where: { key: 'pricing.chapter_bundle_discount_percent' },
+    });
+    const bundleDiscountPercent = bundleDiscountConfig?.value ? parseInt(bundleDiscountConfig.value, 10) : 0;
+
+    let appliedDiscountPercent = bundleDiscountPercent;
+    let isSubscriber = false;
+
+    if (userId) {
+      const accessControl = new AccessControlService();
+      isSubscriber = await accessControl.hasActiveSubscription(userId);
+      if (isSubscriber) {
+        // Club members get the best discount: max(bundle, subscriber)
+        const subscriberDiscountConfig = await prisma.systemConfig.findUnique({
+          where: { key: 'subscription.protagonist_discount_percent' },
+        });
+        const subscriberDiscountPercent = subscriberDiscountConfig?.value
+          ? parseInt(subscriberDiscountConfig.value, 10)
+          : 30;
+        appliedDiscountPercent = Math.max(bundleDiscountPercent, subscriberDiscountPercent);
+      }
+    }
+
+    if (appliedDiscountPercent > 0) {
+      bundleDiscountedPrice = Math.round(bundleDiscountedPrice * (1 - appliedDiscountPercent / 100));
+    }
+
+    // For subscribers, also discount the protagonist unlock price for display
+    let priceProtagonistUnlockDisplay = priceProtagonistUnlock;
+    if (isSubscriber && appliedDiscountPercent > 0) {
+      priceProtagonistUnlockDisplay = Math.round(priceProtagonistUnlock * (1 - appliedDiscountPercent / 100));
+    }
 
     const pricing = {
       priceFreeToRead,
       pricePaywall,
       priceEpilogue,
-      priceProtagonistUnlock,
+      priceProtagonistUnlock: priceProtagonistUnlockDisplay,
+      priceProtagonistUnlockOriginal: isSubscriber ? priceProtagonistUnlock : undefined,
       totalVolumes: volumesWithAccessibility.length,
       bundleOriginalPrice,
       bundleDiscountedPrice,
       nextVolumePrice,
+      isSubscriber,
+      appliedDiscountPercent: appliedDiscountPercent > 0 ? appliedDiscountPercent : undefined,
     };
 
     // Calculate total character count (sum of NARRATOR versions)
     const totalCharacterCount = chapter.volumes.reduce((total, volume) => {
-      const narratorVersion = volume.versions?.find(v => v.perspective === 'NARRATOR');
+      const narratorVersion = volume.versions?.find(
+        (v) => v.perspective === "NARRATOR",
+      );
       return total + (narratorVersion?.characterCount || 0);
     }, 0);
 
@@ -422,9 +510,11 @@ export class CatalogService {
     const coverAssetUrl = await resolveAssetUrl(chapter.coverAsset);
 
     // Check if user has started reading any volume (progress > 0 for at least one perspective)
-    const hasStartedReading = volumesWithAccessibility.some(vol => {
+    const hasStartedReading = volumesWithAccessibility.some((vol) => {
       const progressByPerspective = vol.progressByPerspective || {};
-      return Object.values(progressByPerspective).some((p: any) => (p ?? 0) > 0);
+      return Object.values(progressByPerspective).some(
+        (p: any) => (p ?? 0) > 0,
+      );
     });
 
     const response = {
@@ -437,15 +527,18 @@ export class CatalogService {
       pricing,
       totalCharacterCount,
       // Replace coverAsset with serialized version containing the resolved URL
-      coverAsset: chapter.coverAsset ? {
-        id: chapter.coverAsset.id,
-        url: coverAssetUrl,
-        mimeType: chapter.coverAsset.mimeType,
-      } : null,
+      coverAsset: chapter.coverAsset
+        ? {
+            id: chapter.coverAsset.id,
+            url: coverAssetUrl,
+            mimeType: chapter.coverAsset.mimeType,
+          }
+        : null,
     };
 
     // Add isFavorite flag based on moment selection configuration
-    const responseWithFavoriteFlag = await momentSelectionService.enrichChapterWithFavoriteFlag(response);
+    const responseWithFavoriteFlag =
+      await momentSelectionService.enrichChapterWithFavoriteFlag(response);
 
     // Convert BigInt fields (like Volume.waitDuration) to numbers for JSON serialization
     return convertBigIntToNumber(responseWithFavoriteFlag);
@@ -484,11 +577,13 @@ export class CatalogService {
       title: chapter.title,
       description: chapter.description,
       protagonistName: chapter.protagonistName,
-      coverAsset: chapter.coverAsset ? {
-        id: chapter.coverAsset.id,
-        url: coverAssetUrl,
-        mimeType: chapter.coverAsset.mimeType,
-      } : null,
+      coverAsset: chapter.coverAsset
+        ? {
+            id: chapter.coverAsset.id,
+            url: coverAssetUrl,
+            mimeType: chapter.coverAsset.mimeType,
+          }
+        : null,
       volumeCount: chapter.volumes.length,
       volumes: chapter.volumes,
       genres: chapter.genres.map((g: any) => g.genre.name),

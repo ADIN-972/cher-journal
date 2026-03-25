@@ -3,12 +3,57 @@ import { config } from '@cher-journal/config';
 import Stripe from 'stripe';
 import { SubscriptionStatus } from '@prisma/client';
 import { SubscriptionData } from '@cher-journal/types';
+import { SUBSCRIBER_PROTAGONIST_DISCOUNT } from '../../../lib/accessControl';
+import { ConfigService } from '../../admin/config/config.service';
 
 const stripe = new Stripe(config.stripe.secretKey, {
   apiVersion: '2023-10-16' as any,
 });
 
+const configService = new ConfigService();
+
 export class SubscriptionsService {
+  /**
+   * Get public club info (price from system config, fallback to Stripe, then hardcoded)
+   */
+  async getClubInfo(): Promise<{ priceCents: number; currency: string; discountPercent: number }> {
+    // Read discount from system config (fallback to constant)
+    const configDiscount = await configService.getByKey('subscription.protagonist_discount_percent');
+    const discountPercent = configDiscount?.value
+      ? parseInt(configDiscount.value, 10)
+      : Math.round(SUBSCRIBER_PROTAGONIST_DISCOUNT * 100);
+
+    // 1. Try system config for price
+    const configPrice = await configService.getByKey('subscription.price_cents');
+    const configCurrency = await configService.getByKey('subscription.currency');
+
+    if (configPrice?.value) {
+      return {
+        priceCents: parseInt(configPrice.value, 10),
+        currency: configCurrency?.value || 'eur',
+        discountPercent,
+      };
+    }
+
+    // 2. Fallback to Stripe price
+    let priceCents = 999;
+    let currency = 'eur';
+
+    if (config.stripe.subscriptionPriceId) {
+      try {
+        const price = await stripe.prices.retrieve(config.stripe.subscriptionPriceId);
+        priceCents = price.unit_amount ?? 999;
+        currency = price.currency ?? 'eur';
+      } catch { /* use fallback */ }
+    }
+
+    return {
+      priceCents,
+      currency,
+      discountPercent,
+    };
+  }
+
   /**
    * Get current user's subscription status
    */

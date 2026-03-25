@@ -35,6 +35,29 @@ export async function adminUsersRoutes(app: FastifyInstance) {
     handler: controller.revokeSession.bind(controller),
   });
 
+  // User chapters with access details
+  app.get("/admin/users/:id/chapters", {
+    preHandler: requireAdmin,
+    handler: controller.getUserChapters.bind(controller),
+  });
+
+  // Club membership
+  app.post("/admin/users/:id/club", {
+    preHandler: requireAdmin,
+    handler: controller.grantClubMembership.bind(controller),
+  });
+
+  app.delete("/admin/users/:id/club", {
+    preHandler: requireAdmin,
+    handler: controller.revokeClubMembership.bind(controller),
+  });
+
+  // Connection stats (last 15 days)
+  app.get("/admin/users/connection-stats", {
+    preHandler: requireAdmin,
+    handler: controller.getConnectionStats.bind(controller),
+  });
+
   // Bulk actions
   app.post("/admin/users/bulk/suspend", {
     preHandler: requireAdmin,

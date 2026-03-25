@@ -1,9 +1,12 @@
 import prisma from "../../../lib/prisma";
 import { decryptBlob } from "../../../lib/crypto";
 import { AccessControlService } from "../../../lib/accessControl";
+import { ActivityService } from "../activity/activity.service";
 // TODO: Install canvas dependencies for Windows
 // import { createCanvas, registerFont } from 'canvas';
 import { Perspective } from "@prisma/client";
+
+const activityService = new ActivityService();
 
 export class ReaderService {
   private accessControl = new AccessControlService();
@@ -294,24 +297,25 @@ export class ReaderService {
       throw err;
     }
 
-    // Track that user is reading this volume (create VolumeRead if first time)
-    // Use try-catch to handle race condition where another request creates the record concurrently
-    try {
-      await prisma.volumeRead.create({
-        data: {
+    // Track that user is reading this volume (create VolumeRead if first time, ignore if exists)
+    await prisma.volumeRead.upsert({
+      where: {
+        userId_chapterId_volumeNumber_perspective: {
           userId,
           chapterId: version.volume.chapterId,
           volumeNumber: version.volume.volumeNumber,
           perspective: version.perspective,
-          firstOpenedAt: new Date(),
         },
-      });
-    } catch (error: any) {
-      // If unique constraint violation (record already exists), that's fine - ignore it
-      if (error.code !== "P2002") {
-        throw error;
-      }
-    }
+      },
+      create: {
+        userId,
+        chapterId: version.volume.chapterId,
+        volumeNumber: version.volume.volumeNumber,
+        perspective: version.perspective,
+        firstOpenedAt: new Date(),
+      },
+      update: {}, // Don't update anything if already exists
+    });
 
     // Get plaintext from encrypted blob
     let plaintext: string;
@@ -498,15 +502,30 @@ export class ReaderService {
     });
 
     // Only update if new progress is higher than what's stored
+    let finalProgress = volumeRead.progress;
     if (progress > volumeRead.progress) {
       const updated = await prisma.volumeRead.update({
         where: uniqueKey,
         data: { progress },
       });
-      return { success: true, progress: updated.progress };
+      finalProgress = updated.progress;
     }
 
-    return { success: true, progress: volumeRead.progress };
+    // Auto-track reading time: start/resume session and send heartbeat
+    try {
+      const sessionId = await activityService.startReadingSession(
+        userId,
+        chapterId,
+        volumeNumber,
+        perspective as any,
+      );
+      // Each progress update counts as ~30s of reading (typical interval between calls)
+      await activityService.heartbeat(sessionId, userId, 30, progress);
+    } catch {
+      // Non-blocking: don't fail progress update if session tracking fails
+    }
+
+    return { success: true, progress: finalProgress };
   }
 
   /**

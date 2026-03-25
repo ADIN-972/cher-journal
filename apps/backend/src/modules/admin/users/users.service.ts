@@ -1,5 +1,8 @@
 import prisma from "../../../lib/prisma";
+import { VolumeStatus } from "@prisma/client";
 import type { CreateEntitlementInput } from "./users.schemas";
+import { AccessControlService } from "../../../lib/accessControl";
+import { resolveAssetUrl } from "../../../lib/assetUtils";
 
 interface UserFilterQuery {
   role?: "ALL" | "ADMIN" | "USER";
@@ -53,14 +56,32 @@ export class UsersService {
         id: true,
         publicId: true,
         email: true,
+        firstName: true,
+        lastName: true,
+        username: true,
         status: true,
         role: true,
         createdAt: true,
+        subscription: {
+          select: {
+            status: true,
+          },
+        },
         _count: {
           select: {
             orders: true,
             entitlements: true,
           },
+        },
+        entitlements: {
+          select: {
+            chapterId: true,
+          },
+        },
+        sessions: {
+          select: { createdAt: true },
+          orderBy: { createdAt: "desc" as const },
+          take: 1,
         },
         orders: {
           where: {
@@ -121,8 +142,12 @@ export class UsersService {
       });
     }
 
-    // Remove orders from response (only needed for filtering)
-    return users.map(({ orders, ...user }) => user);
+    // Remove orders/entitlements/sessions from response, add computed fields
+    return users.map(({ orders, entitlements, sessions, ...user }) => ({
+      ...user,
+      chaptersCount: new Set(entitlements.map((e) => e.chapterId)).size,
+      lastActivity: sessions[0]?.createdAt || null,
+    }));
   }
 
   async getById(id: string) {
@@ -132,6 +157,9 @@ export class UsersService {
         id: true,
         publicId: true,
         email: true,
+        firstName: true,
+        lastName: true,
+        username: true,
         status: true,
         role: true,
         createdAt: true,
@@ -173,6 +201,7 @@ export class UsersService {
             },
           },
         },
+        subscription: true,
         sessions: {
           orderBy: { createdAt: "desc" },
         },
@@ -269,7 +298,7 @@ export class UsersService {
     };
   }
 
-  async update(id: string, data: { status?: string; role?: string }) {
+  async update(id: string, data: { status?: string; role?: string; firstName?: string; lastName?: string; username?: string; email?: string }) {
     const user = await prisma.user.findUnique({ where: { id } });
     if (!user) {
       throw new Error("USER_NOT_FOUND");
@@ -281,11 +310,17 @@ export class UsersService {
         data: {
           ...(data.status && { status: data.status as any }),
           ...(data.role && { role: data.role as any }),
+          ...(data.firstName !== undefined && { firstName: data.firstName }),
+          ...(data.lastName !== undefined && { lastName: data.lastName }),
+          ...(data.username !== undefined && { username: data.username || null }),
         },
         select: {
           id: true,
           publicId: true,
           email: true,
+          firstName: true,
+          lastName: true,
+          username: true,
           status: true,
           role: true,
           createdAt: true,
@@ -349,6 +384,63 @@ export class UsersService {
     });
 
     return { count: result.count };
+  }
+
+  /**
+   * Get daily connection stats for the last N days.
+   */
+  async getConnectionStats(days: number = 15) {
+    const since = new Date();
+    since.setDate(since.getDate() - days);
+    since.setHours(0, 0, 0, 0);
+
+    // LOGIN events from activity logs
+    const loginEvents = await prisma.userActivityLog.findMany({
+      where: { eventType: 'LOGIN', createdAt: { gte: since } },
+      select: { createdAt: true, userId: true },
+    });
+
+    // Active sessions
+    const activeSessions = await prisma.session.findMany({
+      where: { lastActiveAt: { gte: since } },
+      select: { lastActiveAt: true, userId: true },
+    });
+
+    // Build map: date → unique user IDs
+    const dailyUsers: Record<string, Set<string>> = {};
+    for (let i = 0; i < days; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      dailyUsers[d.toISOString().split('T')[0]] = new Set();
+    }
+
+    for (const e of loginEvents) {
+      const key = e.createdAt.toISOString().split('T')[0];
+      if (dailyUsers[key]) dailyUsers[key].add(e.userId);
+    }
+
+    for (const s of activeSessions) {
+      if (s.lastActiveAt) {
+        const key = s.lastActiveAt.toISOString().split('T')[0];
+        if (dailyUsers[key]) dailyUsers[key].add(s.userId);
+      }
+    }
+
+    const result = Object.entries(dailyUsers)
+      .map(([date, users]) => ({
+        date,
+        count: users.size,
+        label: new Date(date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }),
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    const total = result.reduce((sum, d) => sum + d.count, 0);
+
+    return {
+      days: result,
+      average: days > 0 ? Math.round((total / days) * 10) / 10 : 0,
+      total,
+    };
   }
 
   async addEntitlement(userId: string, data: CreateEntitlementInput) {
@@ -432,6 +524,61 @@ export class UsersService {
     }
   }
 
+  async grantClubMembership(
+    userId: string,
+    data: { startDate: string; endDate: string | null; reason?: string }
+  ) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new Error("USER_NOT_FOUND");
+
+    const startDate = new Date(data.startDate);
+    // null endDate = infinite → set to year 2099
+    const endDate = data.endDate ? new Date(data.endDate) : new Date('2099-12-31T23:59:59Z');
+
+    const subscription = await prisma.subscription.upsert({
+      where: { userId },
+      create: {
+        userId,
+        status: 'ACTIVE',
+        planName: data.reason || 'Club Prive (manuel)',
+        priceAmountCents: 0,
+        currency: 'EUR',
+        currentPeriodStart: startDate,
+        currentPeriodEnd: endDate,
+        cancelAtPeriodEnd: false,
+      },
+      update: {
+        status: 'ACTIVE',
+        planName: data.reason || 'Club Prive (manuel)',
+        priceAmountCents: 0,
+        currentPeriodStart: startDate,
+        currentPeriodEnd: endDate,
+        cancelAtPeriodEnd: false,
+        cancelledAt: null,
+      },
+    });
+
+    return subscription;
+  }
+
+  async revokeClubMembership(userId: string) {
+    const subscription = await prisma.subscription.findUnique({
+      where: { userId },
+    });
+
+    if (!subscription) throw new Error("NO_SUBSCRIPTION");
+
+    const updated = await prisma.subscription.update({
+      where: { userId },
+      data: {
+        status: 'CANCELLED',
+        cancelledAt: new Date(),
+      },
+    });
+
+    return updated;
+  }
+
   async revokeSession(userId: string, sessionId: string) {
     const session = await prisma.session.findUnique({
       where: { id: sessionId },
@@ -453,5 +600,138 @@ export class UsersService {
       console.error("Error revoking session:", error);
       throw new Error("SESSION_REVOKE_FAILED");
     }
+  }
+
+  /**
+   * Get all chapters with volume-level access details for a specific user.
+   * Admin-only endpoint that shows what the user can access.
+   */
+  async getUserChapters(userId: string) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new Error("USER_NOT_FOUND");
+
+    const accessControl = new AccessControlService();
+    const now = new Date();
+
+    const chapters = await prisma.chapter.findMany({
+      where: { isArchived: false },
+      include: {
+        coverAsset: true,
+        volumes: {
+          include: {
+            illustrationAsset: true,
+          },
+          orderBy: { volumeNumber: "asc" },
+        },
+        _count: { select: { volumes: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    // Get user reads for progress info
+    const [userReads, readingSessions] = await Promise.all([
+      prisma.volumeRead.findMany({
+        where: { userId },
+        select: {
+          chapterId: true,
+          volumeNumber: true,
+          perspective: true,
+          progress: true,
+          firstOpenedAt: true,
+          completedAt: true,
+        },
+      }),
+      prisma.readingSession.groupBy({
+        by: ['chapterId', 'volumeNumber', 'perspective'],
+        where: { userId },
+        _sum: { totalSeconds: true },
+      }),
+    ]);
+
+    // Build a lookup: chapterId-volumeNumber-perspective -> totalSeconds
+    const timeSpentLookup = new Map<string, number>();
+    readingSessions.forEach((s) => {
+      const key = `${s.chapterId}-${s.volumeNumber}-${s.perspective}`;
+      timeSpentLookup.set(key, s._sum.totalSeconds || 0);
+    });
+
+    const result = await Promise.all(
+      chapters.map(async (chapter) => {
+        const coverUrl = await resolveAssetUrl(chapter.coverAsset);
+
+        // Process each published volume with access info
+        const volumesWithAccess = await Promise.all(
+          chapter.volumes
+            .filter(
+              (v) =>
+                v.status === VolumeStatus.PUBLISHED &&
+                (v.scheduledFor === null || v.scheduledFor <= now)
+            )
+            .map(async (volume) => {
+              const narratorAccess = await accessControl.getVolumeAccessInfo(
+                userId,
+                chapter.id,
+                volume.volumeNumber,
+                "NARRATOR" as any
+              );
+              const protagonistAccess = await accessControl.getVolumeAccessInfo(
+                userId,
+                chapter.id,
+                volume.volumeNumber,
+                "PROTAGONIST" as any
+              );
+
+              // Reading progress
+              const reads = userReads.filter(
+                (r) =>
+                  r.chapterId === chapter.id &&
+                  r.volumeNumber === volume.volumeNumber
+              );
+              const progressByPerspective: Record<string, number> = {};
+              const timeSpentByPerspective: Record<string, number> = {};
+              reads.forEach((r) => {
+                progressByPerspective[r.perspective] = r.progress;
+                const key = `${chapter.id}-${volume.volumeNumber}-${r.perspective}`;
+                timeSpentByPerspective[r.perspective] = timeSpentLookup.get(key) || 0;
+              });
+
+              const illustrationUrl = await resolveAssetUrl(
+                volume.illustrationAsset
+              );
+
+              return {
+                id: volume.id,
+                volumeNumber: volume.volumeNumber,
+                title: volume.title,
+                isFree: volume.isFree,
+                illustrationAsset: volume.illustrationAsset
+                  ? { id: volume.illustrationAsset.id, url: illustrationUrl }
+                  : null,
+                accessByPerspective: {
+                  NARRATOR: narratorAccess,
+                  PROTAGONIST: protagonistAccess,
+                },
+                progressByPerspective,
+                timeSpentByPerspective,
+                completedAt: reads.find((r) => r.completedAt)?.completedAt || null,
+              };
+            })
+        );
+
+        return {
+          id: chapter.id,
+          title: chapter.title,
+          protagonistName: chapter.protagonistName,
+          status: chapter.status,
+          coverAsset: chapter.coverAsset
+            ? { id: chapter.coverAsset.id, url: coverUrl }
+            : null,
+          totalVolumes: volumesWithAccess.length,
+          volumes: volumesWithAccess,
+        };
+      })
+    );
+
+    return JSON.parse(JSON.stringify(result, (_, v) => typeof v === 'bigint' ? Number(v) : v));
   }
 }

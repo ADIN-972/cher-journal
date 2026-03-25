@@ -15,6 +15,7 @@ export interface ApplicablePromotion {
   content: {
     chapterId: string;
     chapterTitle: string;
+    protagonistName: string | null;
     chapterCoverUrl: string | null;
     volumeNumber?: number;
     volumeTitle?: string;
@@ -509,6 +510,7 @@ export class PromotionsService {
   ): Promise<{
     chapterId: string;
     chapterTitle: string;
+    protagonistName: string | null;
     chapterCoverUrl: string | null;
     volumeNumber?: number;
     volumeTitle?: string;
@@ -531,6 +533,7 @@ export class PromotionsService {
           select: {
             id: true,
             title: true,
+            protagonistName: true,
             coverAsset: {
               select: {
                 thumbnailObjectKey: true,
@@ -552,6 +555,7 @@ export class PromotionsService {
         return {
           chapterId,
           chapterTitle: fetchedChapter.title,
+          protagonistName: fetchedChapter.protagonistName,
           chapterCoverUrl: this.getAssetUrl(fetchedChapter.coverAsset),
           volumeNumber,
           volumeTitle: volume?.title || undefined,
@@ -566,6 +570,7 @@ export class PromotionsService {
       return {
         chapterId,
         chapterTitle: chapter.title,
+        protagonistName: chapter.protagonistName || null,
         chapterCoverUrl: this.getAssetUrl(chapter.coverAsset),
         volumeNumber,
         volumeTitle: volume?.title || undefined,
@@ -575,12 +580,12 @@ export class PromotionsService {
     if (promo.scope === 'CHAPTER') {
       const chapter = entitlements.find((ent) => ent.chapterId === promo.refId)?.chapter;
       if (!chapter) {
-        // Fetch chapter if not in entitlements
         const fetchedChapter = await prisma.chapter.findUnique({
           where: { id: promo.refId },
           select: {
             id: true,
             title: true,
+            protagonistName: true,
             coverAsset: {
               select: {
                 thumbnailObjectKey: true,
@@ -597,6 +602,7 @@ export class PromotionsService {
         return {
           chapterId: fetchedChapter.id,
           chapterTitle: fetchedChapter.title,
+          protagonistName: fetchedChapter.protagonistName,
           chapterCoverUrl: this.getAssetUrl(fetchedChapter.coverAsset),
         };
       }
@@ -604,6 +610,7 @@ export class PromotionsService {
       return {
         chapterId: chapter.id,
         chapterTitle: chapter.title,
+        protagonistName: chapter.protagonistName || null,
         chapterCoverUrl: this.getAssetUrl(chapter.coverAsset),
       };
     }

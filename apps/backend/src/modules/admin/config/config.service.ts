@@ -250,6 +250,40 @@ export class ConfigService {
         isEncrypted: false,
       },
 
+      // Subscription Settings
+      {
+        key: 'subscription.price_cents',
+        value: '999',
+        category: 'PAYMENT',
+        type: 'NUMBER',
+        description: 'Prix mensuel de l\'abonnement Club Privé (en centimes). Ex: 999 = 9,99 €',
+        isEncrypted: false,
+      },
+      {
+        key: 'subscription.currency',
+        value: 'eur',
+        category: 'PAYMENT',
+        type: 'STRING',
+        description: 'Devise de l\'abonnement Club Privé (eur, usd, etc.)',
+        isEncrypted: false,
+      },
+      {
+        key: 'subscription.protagonist_discount_percent',
+        value: '30',
+        category: 'PAYMENT',
+        type: 'NUMBER',
+        description: 'Réduction Club Privé sur la perspective Protagoniste (en %). Ex: 30 = -30%',
+        isEncrypted: false,
+      },
+      {
+        key: 'pricing.chapter_bundle_discount_percent',
+        value: '0',
+        category: 'PAYMENT',
+        type: 'NUMBER',
+        description: 'Réduction appliquée au bundle chapitre entier (en %). 0 = pas de réduction. Ex: 25 = -25% sur la somme des volumes.',
+        isEncrypted: false,
+      },
+
       // Content Settings
       {
         key: 'content.moment_selection_chapter_id',

@@ -1,6 +1,20 @@
-import prisma from '../../../lib/prisma';
-import { ReviewStatus } from '@prisma/client';
-import { AccessControlService } from '../../../lib/accessControl';
+import prisma from "../../../lib/prisma";
+import { ReviewStatus } from "@prisma/client";
+import { AccessControlService } from "../../../lib/accessControl";
+
+// Shared chapter select used in all review responses
+const chapterSelect = {
+  id: true,
+  title: true,
+  protagonistName: true,
+  coverAsset: {
+    select: {
+      id: true,
+      objectKey: true,
+      mimeType: true,
+    },
+  },
+} as const;
 
 export class ReviewsService {
   private accessControl = new AccessControlService();
@@ -11,22 +25,25 @@ export class ReviewsService {
     userId: string,
     chapterId: string,
     rating: number,
-    reviewText: string
+    reviewText: string,
   ) {
     // Validate rating
     if (rating < 1 || rating > 5) {
-      throw new Error('Rating must be between 1 and 5');
+      throw new Error("Rating must be between 1 and 5");
     }
 
     // Validate review text
     if (!reviewText || reviewText.trim().length < 10) {
-      throw new Error('Review text must be at least 10 characters');
+      throw new Error("Review text must be at least 10 characters");
     }
 
     // Check if user has access to this chapter
-    const hasAccess = await this.accessControl.canAccessChapter(userId, chapterId);
+    const hasAccess = await this.accessControl.canAccessChapter(
+      userId,
+      chapterId,
+    );
     if (!hasAccess) {
-      throw new Error('You must have access to this chapter to review it');
+      throw new Error("You must have access to this chapter to review it");
     }
 
     // Check if review already exists
@@ -57,19 +74,9 @@ export class ReviewsService {
         },
         include: {
           user: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              username: true,
-            },
+            select: { id: true, firstName: true, lastName: true, username: true },
           },
-          chapter: {
-            select: {
-              id: true,
-              title: true,
-            },
-          },
+          chapter: { select: chapterSelect },
         },
       });
 
@@ -87,19 +94,9 @@ export class ReviewsService {
       },
       include: {
         user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            username: true,
-          },
+          select: { id: true, firstName: true, lastName: true, username: true },
         },
-        chapter: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
+        chapter: { select: chapterSelect },
       },
     });
 
@@ -113,15 +110,10 @@ export class ReviewsService {
     const reviews = await prisma.chapterReview.findMany({
       where: { userId },
       include: {
-        chapter: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
+        chapter: { select: chapterSelect },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
@@ -140,12 +132,7 @@ export class ReviewsService {
         },
       },
       include: {
-        chapter: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
+        chapter: { select: chapterSelect },
       },
     });
 
@@ -164,16 +151,12 @@ export class ReviewsService {
       where,
       include: {
         user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            username: true,
-          },
+          select: { id: true, firstName: true, lastName: true, username: true },
         },
+        chapter: { select: chapterSelect },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
@@ -241,7 +224,7 @@ export class ReviewsService {
     });
 
     if (!review) {
-      throw new Error('Review not found');
+      throw new Error("Review not found");
     }
 
     await prisma.chapterReview.delete({

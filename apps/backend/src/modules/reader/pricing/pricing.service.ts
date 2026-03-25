@@ -41,16 +41,14 @@ export const pricingService = {
       throw new Error("VOLUME_NOT_FOUND");
     }
 
-    // Check if user already has access via entitlement
+    // Check if user already has access via centralized access control
     let hasAccess = false;
     let canWait = true;
 
     if (userId) {
-      const entitlement = await accessControl.getUserEntitlement(userId, chapterId);
-
-      if (entitlement && entitlement.volumeFrom <= volumeNumber && entitlement.volumeTo >= volumeNumber) {
-        hasAccess = true;
-      }
+      // Use canAccessVolume which properly checks all entitlements, isFree, subscriptions, etc.
+      const accessResult = await accessControl.canAccessVolume(userId, chapterId, volumeNumber);
+      hasAccess = accessResult.hasAccess;
 
       // Check if wait unlock exists
       const unlock = await prisma.unlock.findUnique({

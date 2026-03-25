@@ -15,6 +15,8 @@ model User {
   status                UserStatus                  @default(ACTIVE)
   role                  UserRole                    @default(USER)
   createdAt             DateTime                    @default(now())
+  deletedAt             DateTime?
+  deletedAccountEmail   String?
   firstName             String
   lastName              String
   username              String?                     @unique
@@ -32,10 +34,57 @@ model User {
   progress              UserProgress?
   rewardUnlocks         UserRewardUnlock[]
   reads                 VolumeRead[]
-  customStoryRequests   CustomStoryRequest[]
-  musedChapters         ChapterMuse[]
+  customStoryRequests       CustomStoryRequest[]
+  emailVerified             Boolean                     @default(false)
+  musedChapters             ChapterMuse[]
+  notificationPreferences   NotificationPreference[]
+  pushTokens                PushToken[]
+  emailVerificationCodes    EmailVerificationCode[]
 
   @@map("users")
+}
+
+model EmailVerificationCode {
+  id        String   @id @default(uuid())
+  userId    String
+  codeHash  String   // SHA256 hash of the 6-digit code
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("email_verification_codes")
+}
+
+model PushToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String
+  platform  String?  // "ios", "android", "web"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, token])
+  @@index([userId])
+  @@map("push_tokens")
+}
+
+model NotificationPreference {
+  id        String   @id @default(uuid())
+  userId    String
+  category  String   // e.g. "new-chapters", "promotions", "reviews", "newsletter"
+  email     Boolean  @default(true)
+  push      Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, category])
+  @@index([userId])
+  @@map("notification_preferences")
 }
 
 model Session {
@@ -46,6 +95,10 @@ model Session {
   expiresAt     DateTime
   ipHash        String?
   userAgentHash String?
+  deviceType    String?  // "web", "mobile", "admin"
+  userAgent     String?  // Full user-agent string
+  origin        String?  // Origin URL (moncherjournal.com, mobile.moncherjournal.com)
+  lastActiveAt  DateTime? // Updated on each authenticated request
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -84,6 +137,7 @@ model Chapter {
   rewards                  RewardUnlock[]
   unlocks                  Unlock[]
   reads                    VolumeRead[]
+  readingSessions          ReadingSession[]
   volumes                  Volume[]
   muse                     ChapterMuse?
 
@@ -306,6 +360,41 @@ model VolumeRead {
   @@unique([userId, chapterId, volumeNumber, perspective])
   @@index([userId, chapterId])
   @@map("volume_reads")
+}
+
+model ReadingSession {
+  id              String      @id @default(uuid())
+  userId          String
+  chapterId       String
+  volumeNumber    Int
+  perspective     Perspective @default(NARRATOR)
+  deviceType      String?     // "web", "mobile", "admin"
+  startedAt       DateTime    @default(now())
+  lastHeartbeatAt DateTime    @default(now())
+  totalSeconds    Int         @default(0)
+  progress        Int         @default(0)   // 0-100 scroll progress
+  isCompleted     Boolean     @default(false)
+  chapter         Chapter     @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, chapterId])
+  @@map("reading_sessions")
+}
+
+model UserActivityLog {
+  id         String   @id @default(uuid())
+  userId     String
+  eventType  String   // LOGIN, VOLUME_OPEN, VOLUME_READ_COMPLETE, PURCHASE, TIMER_START
+  deviceType String?  // "web", "mobile", "admin"
+  origin     String?  // Origin URL
+  ipHash     String?
+  metadata   Json?    // Additional event-specific data
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, eventType])
+  @@index([createdAt])
+  @@map("user_activity_logs")
 }
 
 model ChapterReview {
@@ -775,18 +864,38 @@ model SupportClaim {
   subject     String
   message     String
   status      SupportClaimStatus   @default(OPEN)
-  adminNote   String?
+  adminNote   String?              // Legacy field, kept for backward compat
   respondedBy String?
   respondedAt DateTime?
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
   user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  messages    SupportMessage[]
 
   @@index([userId])
   @@index([status])
   @@index([category])
   @@index([createdAt])
   @@map("support_claims")
+}
+
+model SupportMessage {
+  id        String       @id @default(uuid())
+  claimId   String
+  authorId  String       // userId of sender (user or admin)
+  role      SupportMessageRole // USER or ADMIN
+  content   String
+  createdAt DateTime     @default(now())
+  claim     SupportClaim @relation(fields: [claimId], references: [id], onDelete: Cascade)
+
+  @@index([claimId])
+  @@index([claimId, createdAt])
+  @@map("support_messages")
+}
+
+enum SupportMessageRole {
+  USER
+  ADMIN
 }
 
 enum UserStatus {

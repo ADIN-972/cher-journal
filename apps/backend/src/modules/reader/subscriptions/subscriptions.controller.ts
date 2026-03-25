@@ -4,6 +4,16 @@ import { SubscriptionsService } from './subscriptions.service';
 const service = new SubscriptionsService();
 
 export class SubscriptionsController {
+  async getClubInfo(_request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const info = await service.getClubInfo();
+      return reply.send({ success: true, data: info });
+    } catch (error: any) {
+      console.error('Error fetching club info:', error);
+      throw error;
+    }
+  }
+
   async getUserSubscription(request: FastifyRequest, reply: FastifyReply) {
     try {
       const userId = request.user!.id;
