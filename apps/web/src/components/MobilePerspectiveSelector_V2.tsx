@@ -42,7 +42,7 @@ export default function MobilePerspectiveSelectorV2({
   protagonistName,
 }: MobilePerspectiveSelectorV2Props) {
   return (
-    <section className=" px-4 py-8 mb-8">
+    <section className=" px-4 ">
       <div className="max-w-sm md:max-w-full mx-auto space-y-3">
         {/* Header */}
         <div className="text-center mb-6">

@@ -79,6 +79,7 @@ export default function HomeNew() {
           : undefined,
         id: featuredChapter.id,
         hasStartedReading: featuredChapter.hasStartedReading,
+        isPrivate: featuredChapter.isPrivate,
       }
     : undefined;
 
@@ -105,6 +106,7 @@ export default function HomeNew() {
     niveau_douceur: chapter.niveau_douceur,
     niveau_intensite: chapter.niveau_intensite,
     niveau_transformation: chapter.niveau_transformation,
+    isPrivate: chapter.isPrivate,
   }));
 
   // Get popular items from filtered chapters
@@ -126,6 +128,7 @@ export default function HomeNew() {
     hasStartedReading: chapter.hasStartedReading,
     isFavorite: chapter.isFavorite,
     protagonistName: chapter.protagonistName,
+    isPrivate: chapter.isPrivate,
   }));
 
   // Calculate intensity scores for each chapter and get top 3
@@ -161,6 +164,7 @@ export default function HomeNew() {
         hasStartedReading: chapter.hasStartedReading,
         isFavorite: chapter.isFavorite,
         protagonistName: chapter.protagonistName,
+        isPrivate: chapter.isPrivate,
       }));
   }, [chapters]);
 
@@ -187,7 +191,7 @@ export default function HomeNew() {
         chapters={filteredChapters}
         items={carouselItems}
       />
-    
+
       <CherJournalQuote chapters={chapters} />
       <MostPassionateSection
         chapters={filteredChapters}

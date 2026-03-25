@@ -13,9 +13,11 @@ import {
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '@stores/authStore';
 import { colors, spacing, fontSize, borderRadius } from '@/utils/theme';
+import { useThemeColors } from '@/theme/ThemeContext';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const tc = useThemeColors();
   const { login, loading, error, clearError } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,7 +34,7 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: tc.boudoir950 }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
@@ -42,36 +44,36 @@ export default function LoginScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.brand}>Cher Journal</Text>
-          <Text style={styles.subtitle}>L'Ecrin des Desirs</Text>
-          <View style={styles.separator} />
+          <Text style={[styles.subtitle, { color: tc.softGold }]}>L'Ecrin des Desirs</Text>
+          <View style={[styles.separator, { backgroundColor: tc.gold }]} />
         </View>
 
         {/* Form */}
-        <View style={styles.form}>
-          <Text style={styles.title}>Connexion</Text>
-          <Text style={styles.description}>
+        <View style={[styles.form, { backgroundColor: tc.card }]}>
+          <Text style={[styles.title, { color: tc.text }]}>Connexion</Text>
+          <Text style={[styles.description, { color: tc.textSecondary }]}>
             Retrouvez vos histoires et votre progression
           </Text>
 
           {/* Error */}
           {error && (
             <View style={styles.errorBanner}>
-              <Text style={styles.errorText}>{error}</Text>
+              <Text style={[styles.errorText, { color: tc.error }]}>{error}</Text>
               <TouchableOpacity onPress={clearError}>
-                <Text style={styles.errorDismiss}>x</Text>
+                <Text style={[styles.errorDismiss, { color: tc.error }]}>x</Text>
               </TouchableOpacity>
             </View>
           )}
 
           {/* Email */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={[styles.label, { color: tc.text }]}>Email</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: tc.inputBg, borderColor: tc.inputBorder, color: tc.text }]}
               value={email}
               onChangeText={setEmail}
               placeholder="votre@email.com"
-              placeholderTextColor={colors.gray[400]}
+              placeholderTextColor={tc.placeholder}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
@@ -81,14 +83,14 @@ export default function LoginScreen() {
 
           {/* Password */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Mot de passe</Text>
-            <View style={styles.passwordContainer}>
+            <Text style={[styles.label, { color: tc.text }]}>Mot de passe</Text>
+            <View style={[styles.passwordContainer, { backgroundColor: tc.inputBg, borderColor: tc.inputBorder }]}>
               <TextInput
-                style={styles.passwordInput}
+                style={[styles.passwordInput, { color: tc.text }]}
                 value={password}
                 onChangeText={setPassword}
                 placeholder="Votre mot de passe"
-                placeholderTextColor={colors.gray[400]}
+                placeholderTextColor={tc.placeholder}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 editable={!loading}
@@ -97,7 +99,7 @@ export default function LoginScreen() {
                 style={styles.showPasswordBtn}
                 onPress={() => setShowPassword(!showPassword)}
               >
-                <Text style={styles.showPasswordText}>
+                <Text style={[styles.showPasswordText, { color: tc.rose }]}>
                   {showPassword ? 'Masquer' : 'Afficher'}
                 </Text>
               </TouchableOpacity>
@@ -109,18 +111,18 @@ export default function LoginScreen() {
             style={styles.forgotLink}
             onPress={() => router.push('/reset-password')}
           >
-            <Text style={styles.forgotText}>Mot de passe oublie ?</Text>
+            <Text style={[styles.forgotText, { color: tc.rose }]}>Mot de passe oublie ?</Text>
           </TouchableOpacity>
 
           {/* Login button */}
           <TouchableOpacity
-            style={[styles.loginButton, loading && styles.loginButtonDisabled]}
+            style={[styles.loginButton, { backgroundColor: tc.rose }, loading && styles.loginButtonDisabled]}
             onPress={handleLogin}
             disabled={loading || !email.trim() || !password.trim()}
             activeOpacity={0.8}
           >
             {loading ? (
-              <ActivityIndicator color={colors.white} size="small" />
+              <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
               <Text style={styles.loginButtonText}>Se connecter</Text>
             )}
@@ -128,22 +130,22 @@ export default function LoginScreen() {
 
           {/* Divider */}
           <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>ou</Text>
-            <View style={styles.dividerLine} />
+            <View style={[styles.dividerLine, { backgroundColor: tc.separator }]} />
+            <Text style={[styles.dividerText, { color: tc.textTertiary }]}>ou</Text>
+            <View style={[styles.dividerLine, { backgroundColor: tc.separator }]} />
           </View>
 
           {/* Signup link */}
           <TouchableOpacity
-            style={styles.signupButton}
+            style={[styles.signupButton, { borderColor: tc.boudoir800 }]}
             onPress={() => router.push('/signup')}
           >
-            <Text style={styles.signupButtonText}>Creer un compte</Text>
+            <Text style={[styles.signupButtonText, { color: tc.boudoir800 }]}>Creer un compte</Text>
           </TouchableOpacity>
         </View>
 
         {/* Footer */}
-        <Text style={styles.footer}>
+        <Text style={[styles.footer, { color: tc.textTertiary }]}>
           En vous connectant, vous acceptez nos conditions d'utilisation
         </Text>
       </ScrollView>

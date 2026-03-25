@@ -37,6 +37,6 @@
       "@db/*": ["src/db/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "src/app/(root)/(tabs)/_layout.tsx"],
   "exclude": ["node_modules", "dist", ".next", "__tests__"]
 }

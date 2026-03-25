@@ -3,6 +3,7 @@
  */
 
 import { ApplicablePromotion, SubscriptionData } from '@cher-journal/types';
+import { storage, STORAGE_KEYS } from './storage';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? '';
 
@@ -17,21 +18,15 @@ class ApiClient {
    * Get JWT token from localStorage
    */
   private getToken(): string | null {
-    return localStorage.getItem('token');
+    return storage.getString(STORAGE_KEYS.TOKEN) || null;
   }
 
-  /**
-   * Set JWT token in localStorage
-   */
   setToken(token: string): void {
-    localStorage.setItem('token', token);
+    storage.set(STORAGE_KEYS.TOKEN, token);
   }
 
-  /**
-   * Remove JWT token from localStorage
-   */
   clearToken(): void {
-    localStorage.removeItem('token');
+    storage.remove(STORAGE_KEYS.TOKEN);
   }
 
   /**
@@ -253,6 +248,22 @@ class ApiClient {
       '/auth/reset-password',
       { token, password },
       false
+    );
+    return response.data;
+  }
+
+  async sendVerificationCode(): Promise<{ message: string }> {
+    const response = await this.post<{ success: boolean; data: { message: string } }>(
+      '/auth/send-verification',
+      {}
+    );
+    return response.data;
+  }
+
+  async verifyEmail(code: string): Promise<{ message: string }> {
+    const response = await this.post<{ success: boolean; data: { message: string } }>(
+      '/auth/verify-email',
+      { code }
     );
     return response.data;
   }
@@ -510,6 +521,14 @@ class ApiClient {
    */
   async getUserReviews(): Promise<any[]> {
     const response = await this.get<{ success: boolean; data: any[] }>('/reviews/my-reviews');
+    return response.data;
+  }
+
+  /**
+   * Get public club info (price, discount percentage)
+   */
+  async getClubInfo(): Promise<{ priceCents: number; currency: string; discountPercent: number }> {
+    const response = await this.get<{ success: boolean; data: { priceCents: number; currency: string; discountPercent: number } }>('/club-info');
     return response.data;
   }
 

@@ -40,6 +40,11 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/login" replace />;
   }
 
+  // Redirect to email verification if not verified
+  if (user && user.emailVerified === false) {
+    return <Navigate to="/verify-email" replace />;
+  }
+
   // Render protected content
   return <>{children}</>;
 }

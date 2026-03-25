@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 
+interface SupportMessage {
+  id: string;
+  role: 'USER' | 'ADMIN';
+  content: string;
+  createdAt: string;
+}
+
 interface SupportClaim {
   id: string;
   category: 'TECHNICAL' | 'BILLING' | 'CONTENT' | 'OTHER';
@@ -10,24 +17,29 @@ interface SupportClaim {
   adminNote?: string;
   respondedAt?: string;
   createdAt: string;
+  messages?: SupportMessage[];
 }
 
 export default function MySupportClaims() {
   const [claims, setClaims] = useState<SupportClaim[]>([]);
   const [selectedClaim, setSelectedClaim] = useState<SupportClaim | null>(null);
   const [loading, setLoading] = useState(true);
+  const [replyText, setReplyText] = useState('');
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     loadClaims();
   }, []);
 
-  const loadClaims = async () => {
+  const loadClaims = async (preserveSelection = false) => {
     try {
       setLoading(true);
       const data = await api.getUserSupportClaims();
       setClaims(data);
-      if (data.length > 0) {
-        setSelectedClaim(data[0]);
+      if (!preserveSelection) {
+        if (data.length > 0) {
+          loadClaimMessages(data[0]);
+        }
       }
     } catch (error) {
       console.error('Failed to load support claims:', error);
@@ -36,35 +48,68 @@ export default function MySupportClaims() {
     }
   };
 
+  const loadClaimMessages = async (claim: SupportClaim) => {
+    try {
+      const response = await api.request(`/support/claims/${claim.id}/messages`) as any;
+      const full = response.data || response;
+      setSelectedClaim({ ...claim, messages: full.messages || [] });
+    } catch {
+      // Fallback: use claim without messages
+      setSelectedClaim(claim);
+    }
+  };
+
+  const handleSelectClaim = (claim: SupportClaim) => {
+    setReplyText('');
+    loadClaimMessages(claim);
+  };
+
+  const handleSendReply = async () => {
+    if (!selectedClaim || !replyText.trim()) return;
+    setSending(true);
+    try {
+      await api.request(`/support/claims/${selectedClaim.id}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({ content: replyText.trim() }),
+      });
+      setReplyText('');
+      // Reload messages for this claim, refresh list but keep selection
+      loadClaimMessages(selectedClaim);
+      loadClaims(true);
+    } catch (error) {
+      console.error('Failed to send reply:', error);
+    } finally {
+      setSending(false);
+    }
+  };
+
   const getCategoryLabel = (category: string) => {
     const labels: Record<string, string> = {
-      TECHNICAL: '🔧 Technique',
-      BILLING: '💳 Facturation',
-      CONTENT: '📚 Contenu',
-      OTHER: '❓ Autre',
+      TECHNICAL: 'Technique',
+      BILLING: 'Facturation',
+      CONTENT: 'Contenu',
+      OTHER: 'Autre',
     };
     return labels[category] || category;
   };
 
   const getStatusBadge = (status: string) => {
-    const styles: Record<string, string> = {
-      OPEN: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300',
-      IN_PROGRESS: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300',
-      RESOLVED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300',
-      CLOSED: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300',
+    const config: Record<string, { label: string; class: string }> = {
+      OPEN: { label: 'Ouvert', class: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' },
+      IN_PROGRESS: { label: 'En cours', class: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300' },
+      RESOLVED: { label: 'Résolu', class: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300' },
+      CLOSED: { label: 'Fermé', class: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' },
     };
-    const labels: Record<string, string> = {
-      OPEN: 'Ouvert',
-      IN_PROGRESS: 'En cours',
-      RESOLVED: 'Résolu',
-      CLOSED: 'Fermé',
-    };
+    const c = config[status] || config.OPEN;
     return (
-      <span className={`px-3 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
-        {labels[status]}
+      <span className={`px-3 py-1 rounded-full text-xs font-medium ${c.class}`}>
+        {c.label}
       </span>
     );
   };
+
+  const formatTime = (date: string) =>
+    new Date(date).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
   if (loading) {
     return (
@@ -74,10 +119,13 @@ export default function MySupportClaims() {
     );
   }
 
+  const messages = selectedClaim?.messages || [];
+  const isClosed = selectedClaim?.status === 'CLOSED';
+
   return (
     <div>
       <h2 className="text-3xl font-display italic text-[#c5a059] mb-6">
-        Mes Réclamations Support
+        Mes Réclamations
       </h2>
       <p className="text-charcoal dark:text-white/70 mb-8">
         Suivi de vos demandes de support
@@ -94,7 +142,7 @@ export default function MySupportClaims() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Liste des réclamations */}
+          {/* Claims List */}
           <div className="lg:col-span-1">
             <div className="bg-white dark:bg-[#2d1620]/60 rounded-2xl border border-boudoir-300 dark:border-[#c5a059]/30 overflow-hidden">
               <div className="p-4 border-b border-boudoir-300 dark:border-[#c5a059]/30">
@@ -102,11 +150,12 @@ export default function MySupportClaims() {
                   Vos réclamations ({claims.length})
                 </h3>
               </div>
-              <div className="divide-y divide-boudoir-300 dark:divide-[#c5a059]/30 max-h-96 overflow-y-auto">
+              <div className="divide-y divide-boudoir-300 dark:divide-[#c5a059]/30 max-h-[500px] overflow-y-auto">
                 {claims.map((claim) => (
                   <button
                     key={claim.id}
-                    onClick={() => setSelectedClaim(claim)}
+                    type="button"
+                    onClick={() => handleSelectClaim(claim)}
                     className={`w-full text-left p-4 transition-all hover:bg-[#c5a059]/5 dark:hover:bg-[#c5a059]/10 ${
                       selectedClaim?.id === claim.id
                         ? 'bg-[#c5a059]/10 dark:bg-[#c5a059]/20 border-l-4 border-[#c5a059]'
@@ -120,9 +169,7 @@ export default function MySupportClaims() {
                       <span className="text-xs text-charcoal/70 dark:text-white/70">
                         {getCategoryLabel(claim.category)}
                       </span>
-                      <div className="text-xs">
-                        {getStatusBadge(claim.status)}
-                      </div>
+                      {getStatusBadge(claim.status)}
                     </div>
                     <div className="text-xs text-charcoal/50 dark:text-white/50 mt-2">
                       {new Date(claim.createdAt).toLocaleDateString('fr-FR')}
@@ -133,14 +180,14 @@ export default function MySupportClaims() {
             </div>
           </div>
 
-          {/* Détail de la réclamation */}
+          {/* Conversation */}
           <div className="lg:col-span-2">
             {selectedClaim ? (
-              <div className="bg-white dark:bg-[#2d1620]/60 rounded-2xl border border-boudoir-300 dark:border-[#c5a059]/30 p-6">
+              <div className="bg-white dark:bg-[#2d1620]/60 rounded-2xl border border-boudoir-300 dark:border-[#c5a059]/30 flex flex-col h-[600px]">
                 {/* Header */}
-                <div className="mb-6 pb-6 border-b border-boudoir-300 dark:border-[#c5a059]/30">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
+                <div className="p-6 border-b border-boudoir-300 dark:border-[#c5a059]/30">
+                  <div className="flex items-start justify-between">
+                    <div>
                       <h3 className="text-2xl font-display italic text-[#c5a059] mb-2">
                         {selectedClaim.subject}
                       </h3>
@@ -154,59 +201,93 @@ export default function MySupportClaims() {
                   </div>
                 </div>
 
-                {/* Message */}
-                <div className="mb-6">
-                  <h4 className="text-sm font-semibold text-charcoal dark:text-white mb-3">
-                    Votre message
-                  </h4>
-                  <div className="bg-boudoir-50 dark:bg-[#2d1620]/40 rounded-xl p-4 text-charcoal dark:text-white/70 text-sm whitespace-pre-wrap">
-                    {selectedClaim.message}
-                  </div>
-                  <div className="text-xs text-charcoal/50 dark:text-white/50 mt-2">
-                    Envoyé le {new Date(selectedClaim.createdAt).toLocaleDateString('fr-FR')} à{' '}
-                    {new Date(selectedClaim.createdAt).toLocaleTimeString('fr-FR', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </div>
+                {/* Messages */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                  {messages.length > 0 ? (
+                    messages.map((msg) => (
+                      <div
+                        key={msg.id}
+                        className={`flex ${msg.role === 'ADMIN' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div className={`max-w-[80%] ${
+                          msg.role === 'ADMIN'
+                            ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-2xl rounded-tr-none'
+                            : 'bg-boudoir-50 dark:bg-[#2d1620]/40 border border-boudoir-200 dark:border-boudoir-800 rounded-2xl rounded-tl-none'
+                        } p-4`}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                              msg.role === 'ADMIN' ? 'text-blue-600 dark:text-blue-400' : 'text-[#c5a059]'
+                            }`}>
+                              {msg.role === 'ADMIN' ? 'Support' : 'Vous'}
+                            </span>
+                            <span className="text-[10px] text-charcoal/40 dark:text-white/30">
+                              {formatTime(msg.createdAt)}
+                            </span>
+                          </div>
+                          <p className="text-sm text-charcoal dark:text-white/70 whitespace-pre-wrap">
+                            {msg.content}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    /* Legacy fallback */
+                    <>
+                      <div className="flex justify-start">
+                        <div className="max-w-[80%] bg-boudoir-50 dark:bg-[#2d1620]/40 rounded-2xl rounded-tl-none p-4">
+                          <div className="text-[10px] font-bold uppercase tracking-wider text-[#c5a059] mb-2">Vous</div>
+                          <p className="text-sm text-charcoal dark:text-white/70 whitespace-pre-wrap">{selectedClaim.message}</p>
+                        </div>
+                      </div>
+                      {selectedClaim.adminNote && (
+                        <div className="flex justify-end">
+                          <div className="max-w-[80%] bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-2xl rounded-tr-none p-4">
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-2">Support</div>
+                            <p className="text-sm text-charcoal dark:text-white/70 whitespace-pre-wrap">{selectedClaim.adminNote}</p>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
 
-                {/* Admin Response */}
-                {selectedClaim.adminNote && (
-                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-900/50">
-                    <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-3">
-                      📬 Réponse de notre équipe support
-                    </h4>
-                    <p className="text-charcoal dark:text-white/70 text-sm whitespace-pre-wrap">
-                      {selectedClaim.adminNote}
-                    </p>
-                    {selectedClaim.respondedAt && (
-                      <div className="text-xs text-blue-600 dark:text-blue-400 mt-3">
-                        Répondu le {new Date(selectedClaim.respondedAt).toLocaleDateString('fr-FR')} à{' '}
-                        {new Date(selectedClaim.respondedAt).toLocaleTimeString('fr-FR', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </div>
+                {/* Reply input */}
+                {!isClosed && (
+                  <div className="p-4 border-t border-boudoir-300 dark:border-[#c5a059]/30">
+                    <div className="flex gap-3">
+                      <input
+                        type="text"
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendReply()}
+                        placeholder="Écrire un message..."
+                        className="flex-1 px-4 py-3 rounded-xl border border-boudoir-300 dark:border-boudoir-800 bg-white dark:bg-boudoir-900/30 text-charcoal dark:text-white/70 focus:outline-none focus:ring-2 focus:ring-[#c5a059] transition-all text-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleSendReply}
+                        disabled={sending || !replyText.trim()}
+                        className="px-6 py-3 bg-[#c5a059] hover:bg-[#b8935a] disabled:bg-boudoir-500 text-white rounded-xl font-bold transition-all disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        <span className="material-symbols-outlined text-sm">send</span>
+                        {sending ? '...' : 'Envoyer'}
+                      </button>
+                    </div>
+                    {selectedClaim.status === 'RESOLVED' && (
+                      <p className="text-xs text-charcoal/50 dark:text-white/40 mt-2 italic">
+                        Ce ticket est résolu. Envoyer un message le réouvrira automatiquement.
+                      </p>
                     )}
                   </div>
                 )}
 
-                {/* Status Info */}
-                <div className="mt-6 pt-6 border-t border-boudoir-300 dark:border-[#c5a059]/30">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-charcoal/70 dark:text-white/70">Statut</span>
-                      <div className="mt-1">{getStatusBadge(selectedClaim.status)}</div>
-                    </div>
-                    <div>
-                      <span className="text-charcoal/70 dark:text-white/70">Catégorie</span>
-                      <div className="mt-1 font-medium text-charcoal dark:text-white">
-                        {getCategoryLabel(selectedClaim.category)}
-                      </div>
-                    </div>
+                {isClosed && (
+                  <div className="p-4 border-t border-boudoir-300 dark:border-[#c5a059]/30 text-center">
+                    <p className="text-xs text-charcoal/50 dark:text-white/40 italic">
+                      Ce ticket est fermé. Créez un nouveau ticket si besoin.
+                    </p>
                   </div>
-                </div>
+                )}
               </div>
             ) : null}
           </div>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="#1A0F0A"/>
+
+  <!-- C forms the left lobe of the heart -->
+  <text
+    x="390"
+    y="620"
+    font-family="'Great Vibes', cursive"
+    font-size="520"
+    fill="#C5A059"
+    text-anchor="middle"
+    transform="rotate(-12 390 520)"
+  >C</text>
+
+  <!-- J forms the right lobe, mirrored and overlapping -->
+  <text
+    x="634"
+    y="620"
+    font-family="'Great Vibes', cursive"
+    font-size="520"
+    fill="rgba(197,160,89,0.6)"
+    text-anchor="middle"
+    transform="rotate(12 634 520)"
+  >J</text>
+</svg>

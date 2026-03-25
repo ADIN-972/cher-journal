@@ -4,9 +4,12 @@
  * Strategy: Check local cache first, fetch from API if needed or on force refresh
  */
 
+import { Platform } from 'react-native';
 import { chaptersAPI } from '@/services/api';
 import { chaptersDB } from '@/services/db';
 import type { Chapter } from '@/types';
+
+const isNative = Platform.OS !== 'web';
 
 interface FetchOptions {
   forceRefresh?: boolean;
@@ -25,37 +28,31 @@ export const fetchChaptersWithCache = async (
 ): Promise<Chapter[]> => {
   const { forceRefresh = false } = options;
 
-  // If force refresh, skip cache and fetch from API
-  if (forceRefresh) {
+  // On native, try to read from cache first (unless force refresh)
+  if (isNative && !forceRefresh) {
     try {
-      const chapters = await chaptersAPI.getChapters();
-      await chaptersDB.saveChapters(chapters);
-      return chapters;
-    } catch (error) {
-      // If API fails on force refresh, return cached data if available
       const cached = await chaptersDB.getAllChapters();
       if (cached.length > 0) {
         return cached;
       }
-      throw error;
+    } catch (e) {
+      console.warn('Cache read failed, fetching from API:', e);
     }
   }
 
-  // Check if we have cached chapters
-  const cached = await chaptersDB.getAllChapters();
-  if (cached.length > 0) {
-    return cached;
+  // Fetch from API
+  const chapters = await chaptersAPI.getChapters();
+
+  // On native, try to cache
+  if (isNative) {
+    try {
+      await chaptersDB.saveChapters(chapters);
+    } catch (e) {
+      console.warn('Cache write failed:', e);
+    }
   }
 
-  // No cache, fetch from API
-  try {
-    const chapters = await chaptersAPI.getChapters();
-    await chaptersDB.saveChapters(chapters);
-    return chapters;
-  } catch (error) {
-    // API failed and no cache available
-    throw error;
-  }
+  return chapters;
 };
 
 /**

@@ -8,19 +8,20 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://api.moncherjournal.c
 const api: AxiosInstance = axios.create({
   baseURL: API_URL,
   timeout: 10000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
+    'X-App': 'mobile',
   },
 });
 
-// Add token to requests (both as Bearer and as Cookie for session-based auth)
+// Add Bearer token to all requests
 api.interceptors.request.use(
   async (config) => {
     try {
       const token = await AsyncStorage.getItem('authToken');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-        config.headers.Cookie = `sessionToken=${token}`;
       }
     } catch (error) {
       console.error('Failed to get auth token:', error);
@@ -38,10 +39,14 @@ api.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
-    // Handle 401 - logout user
+    // Handle 401 - logout user (only for auth endpoints, not content access)
     if (error.response?.status === 401) {
-      const authStore = useAuthStore.getState();
-      await authStore.logout();
+      const url = error.config?.url || '';
+      const isContentRequest = url.includes('/reader/') || url.includes('/volumes/');
+      if (!isContentRequest) {
+        const authStore = useAuthStore.getState();
+        await authStore.logout();
+      }
     }
 
     const appError = handleApiError(error);

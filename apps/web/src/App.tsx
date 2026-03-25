@@ -7,6 +7,7 @@ import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
+import VerifyEmail from "./pages/Auth/VerifyEmail";
 import HomeNew from "./pages/HomeNew";
 import Catalogue from "./pages/Catalogue";
 import Chapter from "./pages/Chapter";
@@ -46,6 +47,10 @@ function AppContent() {
         <Route
           path="/reset-password"
           element={<ResetPassword />}
+        />
+        <Route
+          path="/verify-email"
+          element={<VerifyEmail />}
         />
 
         {/* Public Routes (continued) */}

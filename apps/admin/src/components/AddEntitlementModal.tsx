@@ -268,50 +268,53 @@ export default function AddEntitlementModal({
               {t("add_entitlement_modal.source", "Source")}{" "}
               <span className="text-red-500">*</span>
             </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, source: "PURCHASE" })}
-                className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  formData.source === "PURCHASE"
-                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg"
-                    : "bg-white/50 border-2 border-gray-200 text-gray-700 hover:border-indigo-300"
-                }`}>
-                🛒 {t("add_entitlement_modal.source_purchase", "Achat")}
-              </button>
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, source: "PREORDER" })}
-                className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  formData.source === "PREORDER"
-                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg"
-                    : "bg-white/50 border-2 border-gray-200 text-gray-700 hover:border-indigo-300"
-                }`}>
-                📅 {t("add_entitlement_modal.source_preorder", "Précommande")}
-              </button>
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, source: "PACK" })}
-                className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  formData.source === "PACK"
-                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg"
-                    : "bg-white/50 border-2 border-gray-200 text-gray-700 hover:border-indigo-300"
-                }`}>
-                📦 {t("add_entitlement_modal.source_pack", "Pack")}
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  setFormData({ ...formData, source: "SUBSCRIPTION" })
-                }
-                className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  formData.source === "SUBSCRIPTION"
-                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg"
-                    : "bg-white/50 border-2 border-gray-200 text-gray-700 hover:border-indigo-300"
-                }`}>
-                ♾️{" "}
-                {t("add_entitlement_modal.source_subscription", "Abonnement")}
-              </button>
+            <div className="grid grid-cols-1 gap-2">
+              {([
+                {
+                  value: "PURCHASE" as const,
+                  icon: "🛒",
+                  label: "Achat",
+                  desc: "Achat direct d'un volume ou chapitre via Stripe. Acces immediat et permanent.",
+                },
+                {
+                  value: "PREORDER" as const,
+                  icon: "📅",
+                  label: "Precommande",
+                  desc: "Acces differe — necessite un timer wait-to-read avant deblocage. Utilise par le systeme de lecture gratuite.",
+                },
+                {
+                  value: "PACK" as const,
+                  icon: "📦",
+                  label: "Pack",
+                  desc: "Attribution manuelle par l'admin. Acces immediat et permanent a la plage de volumes definie.",
+                },
+                {
+                  value: "SUBSCRIPTION" as const,
+                  icon: "♾️",
+                  label: "Abonnement",
+                  desc: "Acces via abonnement Club Prive. Acces immediat tant que l'abonnement est actif.",
+                },
+              ]).map((src) => (
+                <button
+                  key={src.value}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, source: src.value })}
+                  className={`px-4 py-3 rounded-xl text-sm font-medium transition-all text-left ${
+                    formData.source === src.value
+                      ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg"
+                      : "bg-white/50 border-2 border-gray-200 text-gray-700 hover:border-indigo-300"
+                  }`}>
+                  <div className="flex items-center gap-2">
+                    <span>{src.icon}</span>
+                    <span className="font-semibold">{src.label}</span>
+                  </div>
+                  <p className={`text-xs mt-1 leading-relaxed ${
+                    formData.source === src.value ? "text-white/70" : "text-gray-400"
+                  }`}>
+                    {src.desc}
+                  </p>
+                </button>
+              ))}
             </div>
           </div>
 

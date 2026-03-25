@@ -45,7 +45,12 @@ export default function Register() {
 
     try {
       await register(formData.email, formData.password, formData.firstName, formData.lastName);
-      navigate('/');
+      const { user } = useAuthStore.getState();
+      if (user && user.emailVerified === false) {
+        navigate('/verify-email');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       console.error('Register error:', err);
     }

@@ -1,14 +1,18 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { storage, STORAGE_KEYS } from "../lib/storage";
 import { useI18n } from "../lib/i18n";
 import { api } from "../lib/api";
 import type { User } from "@cher-journal/types";
+import ConnectionStatsChart from "../components/ConnectionStatsChart";
 import FloatingActionButton from "../components/FloatingActionButton";
 import SmartTableGrid, { SmartTableColumn } from "../components/SmartTableGrid";
 import { TableAction } from "../components/TableGrid";
 import ToggleButton from "../components/ToggleButton";
 import UserCard from "../components/UserCard";
+import ContextMenu from "../components/ContextMenu";
+import { useContextMenu } from "../hooks/useContextMenu";
 import PurchaseTimelineChart from "../components/PurchaseTimelineChart";
 import PurchaseDistributionChart from "../components/PurchaseDistributionChart";
 import {
@@ -40,9 +44,16 @@ interface Order {
   createdAt: string;
 }
 
+type UserWithSub = User & {
+  subscription?: { status: string } | null;
+  _count?: { orders: number; entitlements: number };
+  chaptersCount?: number;
+  lastActivity?: string | null;
+};
+
 export default function Users() {
   const navigate = useNavigate();
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserWithSub[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<UserFilterCriteria>({
@@ -50,8 +61,7 @@ export default function Users() {
     status: "ALL",
   });
   const [viewMode, setViewMode] = useState<"list" | "card" | "calendar">(() => {
-    const saved = localStorage.getItem("userViewMode");
-    return (saved as "list" | "card" | "calendar") || "card";
+    return storage.getString(STORAGE_KEYS.USER_VIEW_MODE, "card") as "list" | "card" | "calendar";
   });
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
   const [showBulkConfirm, setShowBulkConfirm] = useState(false);
@@ -59,6 +69,8 @@ export default function Users() {
     type: "suspend" | "activate" | "promote" | "demote";
     label: string;
   } | null>(null);
+
+  const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu();
 
   const { t } = useI18n();
 
@@ -68,7 +80,7 @@ export default function Users() {
   }, [filters]);
 
   useEffect(() => {
-    localStorage.setItem("userViewMode", viewMode);
+    storage.set(STORAGE_KEYS.USER_VIEW_MODE, viewMode);
   }, [viewMode]);
 
   const loadUsers = async () => {
@@ -184,6 +196,85 @@ export default function Users() {
     }
   };
 
+  const getUserContextSections = (user: UserWithSub) => [
+    {
+      title: `${user.firstName || user.email.split("@")[0]}`,
+      items: [
+        {
+          label: "Voir le profil",
+          icon: <span className="material-symbols-outlined text-sm">visibility</span>,
+          onClick: () => navigate(`/users/${user.id}`),
+        },
+        {
+          label: selectedUserIds.has(user.id) ? "Desélectionner" : "Sélectionner",
+          icon: <span className="material-symbols-outlined text-sm">{selectedUserIds.has(user.id) ? "check_box" : "check_box_outline_blank"}</span>,
+          onClick: () => handleToggleSelection(user.id),
+        },
+        { label: "", onClick: () => {}, divider: true },
+        {
+          label: user.status === "ACTIVE" ? "Suspendre" : "Activer",
+          icon: <span className="material-symbols-outlined text-sm">{user.status === "ACTIVE" ? "block" : "check_circle"}</span>,
+          onClick: () => handleToggleStatus(user.id, user.status),
+          danger: user.status === "ACTIVE",
+        },
+        {
+          label: user.role === "ADMIN" ? "Rétrograder (User)" : "Promouvoir (Admin)",
+          icon: <span className="material-symbols-outlined text-sm">{user.role === "ADMIN" ? "arrow_downward" : "arrow_upward"}</span>,
+          onClick: () => handleBulkAction(user.role === "ADMIN" ? "demote" : "promote"),
+        },
+      ],
+    },
+  ];
+
+  const getGlobalContextSections = () => [
+    {
+      title: "Actions globales",
+      items: [
+        {
+          label: selectedUserIds.size === users.length ? "Tout désélectionner" : "Tout sélectionner",
+          icon: <span className="material-symbols-outlined text-sm">{selectedUserIds.size === users.length ? "deselect" : "select_all"}</span>,
+          onClick: handleSelectAll,
+        },
+        ...(selectedUserIds.size > 0
+          ? [
+              { label: "", onClick: () => {}, divider: true as const },
+              {
+                label: `Activer (${selectedUserIds.size})`,
+                icon: <span className="material-symbols-outlined text-sm">check_circle</span>,
+                onClick: () => handleBulkAction("activate"),
+              },
+              {
+                label: `Suspendre (${selectedUserIds.size})`,
+                icon: <span className="material-symbols-outlined text-sm">block</span>,
+                onClick: () => handleBulkAction("suspend"),
+                danger: true as const,
+              },
+              {
+                label: `Promouvoir (${selectedUserIds.size})`,
+                icon: <span className="material-symbols-outlined text-sm">arrow_upward</span>,
+                onClick: () => handleBulkAction("promote"),
+              },
+              {
+                label: `Rétrograder (${selectedUserIds.size})`,
+                icon: <span className="material-symbols-outlined text-sm">arrow_downward</span>,
+                onClick: () => handleBulkAction("demote"),
+              },
+            ]
+          : []),
+      ],
+    },
+  ];
+
+  const handleCardContextMenu = (e: React.MouseEvent, user: UserWithSub) => {
+    openContextMenu(e, getUserContextSections(user));
+  };
+
+  const handleGlobalContextMenu = (e: React.MouseEvent) => {
+    // Only trigger on the container itself, not on cards
+    if ((e.target as HTMLElement).closest('[data-user-card]')) return;
+    openContextMenu(e, getGlobalContextSections());
+  };
+
   const handleClearFilters = () => {
     setFilters({
       role: "ALL",
@@ -215,41 +306,22 @@ export default function Users() {
     );
   };
 
-  const columns: SmartTableColumn<User>[] = useMemo(
+  const columns: SmartTableColumn<UserWithSub>[] = useMemo(
     () => [
       {
-        id: "select",
-        header: () => (
-          <input
-            type="checkbox"
-            checked={users.length > 0 && selectedUserIds.size === users.length}
-            onChange={handleSelectAll}
-            className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer"
-          />
-        ),
-        render: (user) => (
-          <input
-            type="checkbox"
-            checked={selectedUserIds.has(user.id)}
-            onChange={() => handleToggleSelection(user.id)}
-            className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer"
-          />
-        ),
-        width: "50px",
-        align: "center",
-        defaultVisible: true,
-      },
-      {
         id: "email",
-        header: "Email",
+        header: "Utilisateur",
         render: (user) => (
           <div className="flex items-center">
             <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold mr-3">
-              {user.email[0].toUpperCase()}
+              {(user.firstName?.[0] || user.email[0]).toUpperCase()}
             </div>
             <div>
-              <div className="font-medium">{user.email}</div>
-              <div className="text-xs text-gray-500">{user.id}</div>
+              <div className="font-medium">
+                {user.firstName} {user.lastName}
+                {user.username && <span className="text-xs text-gray-400 ml-1">@{user.username}</span>}
+              </div>
+              <div className="text-xs text-gray-500">{user.email}</div>
             </div>
           </div>
         ),
@@ -270,6 +342,19 @@ export default function Users() {
         defaultVisible: true,
       },
       {
+        id: "club",
+        header: "Club",
+        render: (user: UserWithSub) =>
+          user.subscription?.status === "ACTIVE" ? (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+              <span className="material-symbols-outlined text-sm">workspace_premium</span>
+              Membre Club
+            </span>
+          ) : null,
+        align: "center",
+        defaultVisible: true,
+      },
+      {
         id: "createdAt",
         header: "Date d'inscription",
         render: (user) => new Date(user.createdAt).toLocaleDateString("fr-FR"),
@@ -279,7 +364,7 @@ export default function Users() {
     [t]
   );
 
-  const actions: TableAction<User>[] = useMemo(
+  const actions: TableAction<UserWithSub>[] = useMemo(
     () => [
       {
         onClick: (user) => navigate(`/users/${user.id}`),
@@ -323,10 +408,32 @@ export default function Users() {
     );
   }
 
+  const activeCount = users.filter((u) => u.status === "ACTIVE").length;
+  const clubCount = users.filter((u) => u.subscription?.status === "ACTIVE").length;
+
   return (
     <div className="p-6">
+
+      {/* Header */}
+      <header className="mb-10 flex items-end justify-between">
+        <div>
+          <p className="uppercase tracking-widest text-[10px] text-[#e9c176] font-bold mb-2">Workspace / Management</p>
+          <h2 className="text-5xl italic text-[#2A1720]">Lecteurs & Membres</h2>
+        </div>
+        <div className="flex gap-4 mb-1">
+          <div className="bg-[#F2EDE9] rounded-2xl p-4 flex flex-col items-center min-w-[120px] shadow-sm border border-[#e9c176]/10">
+            <span className="text-[#e9c176] text-2xl font-bold">{activeCount}</span>
+            <span className="uppercase text-[9px] tracking-tight text-[#2A1720]/60 font-bold">Lecteurs actifs</span>
+          </div>
+          <div className="bg-[#F2EDE9] rounded-2xl p-4 flex flex-col items-center min-w-[120px] shadow-sm border border-[#e9c176]/10">
+            <span className="text-[#7a5763] text-2xl font-bold">{clubCount}</span>
+            <span className="uppercase text-[9px] tracking-tight text-[#2A1720]/60 font-bold">Club Prive</span>
+          </div>
+        </div>
+      </header>
+
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">{t("navigation.users")}</h1>
+       <div className=""></div>
         <div className="bg-gray-100 rounded-lg p-1 flex space-x-1">
           <button
             onClick={() => setViewMode("card")}
@@ -441,21 +548,30 @@ export default function Users() {
           getItemId={(user) => user.id}
           loading={loading}
           emptyMessage="Aucun utilisateur trouvé"
-        
+          selectedIds={selectedUserIds}
+          onToggleSelection={handleToggleSelection}
+          onToggleSelectAll={handleSelectAll}
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          onContextMenu={handleGlobalContextMenu}
+        >
           {users.length === 0 ? (
             <div className="col-span-full text-center text-gray-500">
               Aucun utilisateur trouvé
             </div>
           ) : (
             users.map((user) => (
-              <UserCard
-                key={user.id}
-                user={user}
-                onClick={() => navigate(`/users/${user.id}`)}
-              />
+              <div key={user.id} data-user-card>
+                <UserCard
+                  user={user}
+                  selected={selectedUserIds.has(user.id)}
+                  onClick={() => navigate(`/users/${user.id}`)}
+                  onSelect={() => handleToggleSelection(user.id)}
+                  onContextMenu={(e) => handleCardContextMenu(e, user)}
+                />
+              </div>
             ))
           )}
         </div>
@@ -472,7 +588,71 @@ export default function Users() {
         </div>
       </div>
 
+      {/* Connection Stats Chart */}
+      <div className="mt-8">
+        <ConnectionStatsChart />
+      </div>
+
       {/* Floating Action Button */}
+      <FloatingActionButton
+        sections={[
+          {
+            title: "Actions",
+            actions: [
+              {
+                label: selectedUserIds.size === users.length ? "Tout desélectionner" : "Tout sélectionner",
+                icon: <span className="material-symbols-outlined text-lg">{selectedUserIds.size === users.length ? "deselect" : "select_all"}</span>,
+                onClick: handleSelectAll,
+                variant: "secondary",
+              },
+              ...(selectedUserIds.size > 0
+                ? [
+                    {
+                      label: `Activer (${selectedUserIds.size})`,
+                      icon: <span className="material-symbols-outlined text-lg">check_circle</span>,
+                      onClick: () => handleBulkAction("activate"),
+                      variant: "primary" as const,
+                    },
+                    {
+                      label: `Suspendre (${selectedUserIds.size})`,
+                      icon: <span className="material-symbols-outlined text-lg">block</span>,
+                      onClick: () => handleBulkAction("suspend"),
+                      variant: "danger" as const,
+                    },
+                    {
+                      label: `Promouvoir Admin (${selectedUserIds.size})`,
+                      icon: <span className="material-symbols-outlined text-lg">arrow_upward</span>,
+                      onClick: () => handleBulkAction("promote"),
+                      variant: "secondary" as const,
+                    },
+                    {
+                      label: `Rétrograder User (${selectedUserIds.size})`,
+                      icon: <span className="material-symbols-outlined text-lg">arrow_downward</span>,
+                      onClick: () => handleBulkAction("demote"),
+                      variant: "secondary" as const,
+                    },
+                    {
+                      label: "Annuler la sélection",
+                      icon: <span className="material-symbols-outlined text-lg">close</span>,
+                      onClick: () => setSelectedUserIds(new Set()),
+                      variant: "secondary" as const,
+                    },
+                  ]
+                : []),
+            ],
+          },
+        ]}
+      />
+
+      {/* Context Menu */}
+      {contextMenu.isOpen && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          sections={contextMenu.sections}
+          onClose={closeContextMenu}
+        />
+      )}
     </div>
   );
 }

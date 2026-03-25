@@ -94,6 +94,9 @@ export interface User {
   id: string;
   publicId: string;
   email: string;
+  firstName: string;
+  lastName: string;
+  username?: string | null;
   status: UserStatus;
   role: UserRole;
   createdAt: Date;

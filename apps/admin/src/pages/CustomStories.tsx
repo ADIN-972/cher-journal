@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useI18n } from "../lib/i18n";
+import { storage, STORAGE_KEYS } from "../lib/storage";
 import { api } from "../lib/api";
 import {
   MdCheck,
@@ -82,19 +83,16 @@ export default function CustomStories() {
 
   // Initialize viewMode from localStorage on mount
   useEffect(() => {
-    const savedViewMode = localStorage.getItem("customStories_viewMode") as
-      | "list"
-      | "card"
-      | null;
-    if (savedViewMode && ["list", "card"].includes(savedViewMode)) {
-      setViewModeState(savedViewMode);
+    const saved = storage.getString(STORAGE_KEYS.CUSTOM_STORIES_VIEW, "list");
+    if (["list", "card"].includes(saved)) {
+      setViewModeState(saved as "list" | "card");
     }
   }, []);
 
   // Save viewMode to localStorage whenever it changes
   const setViewMode = (mode: "list" | "card") => {
     setViewModeState(mode);
-    localStorage.setItem("customStories_viewMode", mode);
+    storage.set(STORAGE_KEYS.CUSTOM_STORIES_VIEW, mode);
   };
 
   useEffect(() => {
@@ -354,7 +352,7 @@ export default function CustomStories() {
           Gérez et modérez les demandes de création d'histoires personnalisées
         </p>
       </div>
-
+{/* Stats Cards */}
       <div className="flex gap-2">
         {stats &&
           results.map((result, idx) => (
@@ -373,89 +371,6 @@ export default function CustomStories() {
           ))}
       </div>
 
-      {/* Stats Cards */}
-      {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-          <div className="bg-white dark:bg-gray-800 rounded-full p-4 border border-gray-200 dark:border-gray-700">
-            <div className="flex flex-col items-center justify-between">
-              <div className="text-3xl text-gray-400">📊</div>
-
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {stats.total}
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-yellow-200 dark:border-yellow-700">
-            <div className="flex items-center justify-between">
-              <MdPending className="w-8 h-8 text-yellow-400" />
-              <p className="text-sm text-yellow-600 dark:text-yellow-400">
-                En attente
-              </p>
-              <p className="text-2xl font-bold text-yellow-600">
-                {stats.pending}
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-blue-200 dark:border-blue-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-blue-600 dark:text-blue-400">
-                  En examen
-                </p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {stats.underReview}
-                </p>
-              </div>
-              <MdPending className="w-8 h-8 text-blue-400" />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-green-200 dark:border-green-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-green-600 dark:text-green-400">
-                  Approuvés
-                </p>
-                <p className="text-2xl font-bold text-green-600">
-                  {stats.approved}
-                </p>
-              </div>
-              <MdCheckCircle className="w-8 h-8 text-green-400" />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-red-200 dark:border-red-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-red-600 dark:text-red-400">
-                  Rejetés
-                </p>
-                <p className="text-2xl font-bold text-red-600">
-                  {stats.rejected}
-                </p>
-              </div>
-              <MdCancel className="w-8 h-8 text-red-400" />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Archivés
-                </p>
-                <p className="text-2xl font-bold text-gray-600">
-                  {stats.archived || 0}
-                </p>
-              </div>
-              <MdCancel className="w-8 h-8 text-gray-400" />
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Filter & View Toggle */}
       <div className="flex items-center justify-between">

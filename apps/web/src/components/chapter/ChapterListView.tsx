@@ -84,6 +84,7 @@ export default function ChapterListView({
               textSize="md"
               showTitleOverlay={true}
               hasGrayscaleEffect={!isTop3 && top3}
+              isAccesClub={chapter.isPrivate}
               // showPremiumBadge={true}
               // showLimitedEditionBadge={true}
             />

@@ -22,6 +22,7 @@ interface CarouselItem {
   niveau_douceur?: number;
   niveau_intensite?: number;
   niveau_transformation?: number;
+  isPrivate?: boolean;
 }
 
 interface NouveautesSectionV2Props {
@@ -245,6 +246,7 @@ export default function NouveautesSectionV2({
                             bordered={true}
                             // hasGrayscaleEffect={true}
                             textSize="auto"
+                            isAccesClub={item.isPrivate}  
                           /> /* reads --cover-img */
                         ) : (
                           <div className="bsv2-cover-fallback" />

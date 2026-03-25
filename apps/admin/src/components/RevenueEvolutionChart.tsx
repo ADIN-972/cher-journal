@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { MdShowChart } from "react-icons/md";
+import { storage, STORAGE_KEYS } from "../lib/storage";
 import {
   AreaChart,
   Area,
@@ -37,8 +38,7 @@ export default function RevenueEvolutionChart({
 }: RevenueEvolutionChartProps) {
   // Load period from localStorage or default to "30days" (only if not controlled)
   const [internalPeriod, setInternalPeriod] = useState<Period>(() => {
-    const saved = localStorage.getItem("revenueEvolutionPeriod");
-    return (saved as Period) || "30days";
+    return storage.getString(STORAGE_KEYS.REVENUE_PERIOD, "30days") as Period;
   });
 
   // Use external period if provided, otherwise use internal state
@@ -51,7 +51,7 @@ export default function RevenueEvolutionChart({
       onPeriodChange(period);
     } else {
       setInternalPeriod(period);
-      localStorage.setItem("revenueEvolutionPeriod", period);
+      storage.set(STORAGE_KEYS.REVENUE_PERIOD, period);
     }
   };
 

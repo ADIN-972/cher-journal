@@ -4,9 +4,15 @@ export interface Chapter {
   protagonistName: string;
   status: 'DRAFT' | 'IN_PROGRESS' | 'PUBLISHED';
   coverAssetId?: string;
+  coverAsset?: {
+    url?: string;
+    objectKey?: string;
+    mimeType?: string;
+  };
   createdAt: string;
   publishedAt?: string;
   isArchived: boolean;
+  isPrivateLocked?: boolean;
   scheduledFor?: string;
   description?: string;
   accroche_classic?: string;
@@ -18,4 +24,5 @@ export interface Chapter {
   niveau_douceur: number;
   niveau_intensite: number;
   niveau_transformation: number;
+  genres?: Array<{ genre: string }>;
 }

@@ -5,30 +5,62 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#1A0F0A"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cherjournal.mobile",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Utilisee pour prendre des photos pour vos histoires personnalisees.",
+        "NSPhotoLibraryUsageDescription": "Utilisee pour choisir des photos pour vos histoires personnalisees."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#1A0F0A"
       },
-      "package": "com.cherjournal.mobile"
+      "package": "com.cherjournal.mobile",
+      "permissions": [
+        "NOTIFICATIONS",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "scheme": "cherjournal",
     "plugins": [
-      "expo-router"
-    ]
+      [
+        "expo-router",
+        {
+          "root": "./src/app"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#C5A059"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f49dfa87-e75f-41ad-a321-6712c477784e"
+      },
+      "router": {
+        "root": "./src/app"
+      }
+    },
+    "owner": "adins"
   }
 }

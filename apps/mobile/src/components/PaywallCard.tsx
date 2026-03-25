@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,8 +6,11 @@ import {
   ActivityIndicator,
   StyleSheet,
   Linking,
+  Alert,
 } from 'react-native';
+import api from '@/services/api/client';
 import Icon from './Icon';
+import { useThemeColors } from '@/theme/ThemeContext';
 import { colors, spacing, fontSize as fs, borderRadius } from '@/utils/theme';
 
 interface PricingInfo {
@@ -52,11 +55,38 @@ const PaywallCard: React.FC<PaywallCardProps> = ({
   onPurchaseChapter,
   onStartWait,
 }) => {
+  const tc = useThemeColors();
+  const [clubInfo, setClubInfo] = useState<{ priceCents: number; discountPercent: number } | null>(
+    null
+  );
+  const [isSubscribing, setIsSubscribing] = useState(false);
+
+  useEffect(() => {
+    api
+      .get('/club-info')
+      .then((res) => setClubInfo(res.data?.data ?? null))
+      .catch(() => {});
+  }, []);
+
+  const handleSubscribe = async () => {
+    setIsSubscribing(true);
+    try {
+      const res = await api.post('/stripe/create-subscription-checkout', {
+        successUrl: 'https://moncherjournal.com/subscription-success',
+        cancelUrl: 'https://moncherjournal.com/subscription-cancel',
+      });
+      const url = res.data?.data?.url || res.data?.url;
+      if (url) await Linking.openURL(url);
+    } catch {
+      Alert.alert('Erreur', 'Impossible de creer la session de paiement.');
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
+
   const isProta = perspective === 'PROTAGONIST';
-  const accent = isProta ? colors.rose : colors.gold;
-  const volNum = pricingInfo?.volumeNumber
-    ? String(pricingInfo.volumeNumber).padStart(2, '0')
-    : '';
+  const accent = isProta ? tc.rose : tc.gold;
+  const volNum = pricingInfo?.volumeNumber ? String(pricingInfo.volumeNumber).padStart(2, '0') : '';
 
   return (
     <View style={styles.container}>
@@ -70,12 +100,12 @@ const PaywallCard: React.FC<PaywallCardProps> = ({
                   <Icon name="timer" size={24} color="#059669" />
                 </View>
                 <View style={styles.waitHeaderText}>
-                  <Text style={styles.waitTitle}>Attendre pour lire</Text>
+                  <Text style={[styles.waitTitle, { color: tc.text }]}>Attendre pour lire</Text>
                   <Text style={styles.waitFreeLabel}>100% Gratuit</Text>
                 </View>
               </View>
 
-              <Text style={styles.waitDescription}>
+              <Text style={[styles.waitDescription, { color: tc.textSecondary }]}>
                 Activez un compte a rebours de 24h et accedez gratuitement a ce volume.
               </Text>
 
@@ -86,7 +116,8 @@ const PaywallCard: React.FC<PaywallCardProps> = ({
                   <View style={styles.waitLimitTextWrap}>
                     <Text style={styles.waitLimitTitle}>Limite atteinte</Text>
                     <Text style={styles.waitLimitDesc}>
-                      Vous avez {maxWaitsAllowed} comptes a rebours actifs. Veuillez attendre qu'un timer se termine pour en demarrer un nouveau.
+                      Vous avez {maxWaitsAllowed} comptes a rebours actifs. Veuillez attendre qu'un
+                      timer se termine pour en demarrer un nouveau.
                     </Text>
                   </View>
                 </View>
@@ -99,10 +130,10 @@ const PaywallCard: React.FC<PaywallCardProps> = ({
                   activeOpacity={0.7}
                 >
                   {waitLoading ? (
-                    <ActivityIndicator size="small" color={colors.white} />
+                    <ActivityIndicator size="small" color="#FFFFFF" />
                   ) : (
                     <>
-                      <Icon name="timer" size={18} color={colors.white} />
+                      <Icon name="timer" size={18} color="#FFFFFF" />
                       <Text style={styles.waitButtonText}>Demarrer le compte a rebours</Text>
                     </>
                   )}
@@ -113,18 +144,20 @@ const PaywallCard: React.FC<PaywallCardProps> = ({
               <View style={styles.waitCounter}>
                 <View style={styles.waitCounterLeft}>
                   <Icon name="schedule" size={14} color="#059669" />
-                  <Text style={styles.waitCounterLabel}>Timers actifs</Text>
+                  <Text style={[styles.waitCounterLabel, { color: tc.textSecondary }]}>Timers actifs</Text>
                 </View>
-                <Text style={styles.waitCounterValue}>{activeWaitsCount} / {maxWaitsAllowed}</Text>
+                <Text style={styles.waitCounterValue}>
+                  {activeWaitsCount} / {maxWaitsAllowed}
+                </Text>
               </View>
             </View>
           )}
 
           {/* --- Option 1 : Volume Unique --- */}
-          <View style={[styles.card, styles.cardVolume]}>
+          <View style={[styles.card, styles.cardVolume, { backgroundColor: tc.surface, borderColor: tc.cardBorder }]}>
             {/* Background icon */}
             <View style={styles.cardBgIcon}>
-              <Icon name="auto_stories" size={48} color={colors.gray[300]} />
+              <Icon name="auto_stories" size={48} color={tc.textTertiary} />
             </View>
 
             <Text style={[styles.optionLabel, { color: accent }]}>
@@ -133,13 +166,12 @@ const PaywallCard: React.FC<PaywallCardProps> = ({
 
             <View style={styles.cardRow}>
               <View style={styles.cardRowLeft}>
-                <Text style={styles.cardTitle}>
-                  {volNum}. {pricingInfo.volumeTitle || (isProta ? 'Perspective intime' : 'Ce volume')}
+                <Text style={[styles.cardTitle, { color: tc.text }]}>
+                  {volNum}.{' '}
+                  {pricingInfo.volumeTitle || (isProta ? 'Perspective intime' : 'Ce volume')}
                 </Text>
-                <Text style={styles.cardSubtitle}>
-                  {isProta
-                    ? 'Debloquer la version protagoniste'
-                    : 'Deblocage immediat du recit'}
+                <Text style={[styles.cardSubtitle, { color: tc.textTertiary }]}>
+                  {isProta ? 'Debloquer la version protagoniste' : 'Deblocage immediat du recit'}
                 </Text>
               </View>
               <Text style={[styles.cardPrice, { color: accent }]}>
@@ -148,17 +180,17 @@ const PaywallCard: React.FC<PaywallCardProps> = ({
             </View>
 
             <TouchableOpacity
-              style={styles.cardButtonLight}
+              style={[styles.cardButtonLight, { borderColor: tc.cardBorder }]}
               onPress={onPurchaseVolume}
               disabled={purchaseLoading}
               activeOpacity={0.7}
             >
               {purchaseLoading ? (
-                <ActivityIndicator size="small" color={colors.charcoal} />
+                <ActivityIndicator size="small" color={tc.text} />
               ) : (
                 <>
-                  <Icon name="shopping_cart" size={18} color={colors.charcoal} />
-                  <Text style={styles.cardButtonLightText}>
+                  <Icon name="shopping_cart" size={18} color={tc.text} />
+                  <Text style={[styles.cardButtonLightText, { color: tc.text }]}>
                     {isProta ? 'Debloquer cette perspective' : 'Acheter ce volume'}
                   </Text>
                 </>
@@ -176,16 +208,16 @@ const PaywallCard: React.FC<PaywallCardProps> = ({
 
               <View style={styles.cardRow}>
                 <View style={styles.cardRowLeft}>
-                  <Text style={styles.cardTitleLarge}>
+                  <Text style={[styles.cardTitleLarge, { color: tc.text }]}>
                     {isProta ? 'Toutes les Perspectives' : "L'Integrale du Chapitre"}
                   </Text>
-                  <Text style={styles.cardSubtitleItalic}>
+                  <Text style={[styles.cardSubtitleItalic, { color: tc.textSecondary }]}>
                     {isProta
-                      ? 'Tous les volumes en version intime (-25%)'
+                      ? `Tous les volumes en version intime (-${clubInfo?.discountPercent ?? 25}%)`
                       : 'Tous les volumes accessibles'}
                   </Text>
                 </View>
-                <Text style={[styles.cardPriceLarge, { color: colors.charcoal }]}>
+                <Text style={[styles.cardPriceLarge, { color: tc.text }]}>
                   {formatPrice(pricingInfo.chapterBundlePrice)}
                 </Text>
               </View>
@@ -197,12 +229,14 @@ const PaywallCard: React.FC<PaywallCardProps> = ({
                 activeOpacity={0.7}
               >
                 {purchaseLoading ? (
-                  <ActivityIndicator size="small" color={colors.white} />
+                  <ActivityIndicator size="small" color="#FFFFFF" />
                 ) : (
                   <>
-                    <Icon name="auto_awesome" size={18} color={colors.white} />
+                    <Icon name="auto_awesome" size={18} color="#FFFFFF" />
                     <Text style={styles.cardButtonPrimaryText}>
-                      {isProta ? 'Debloquer toutes les perspectives' : 'Debloquer le chapitre entier'}
+                      {isProta
+                        ? 'Debloquer toutes les perspectives'
+                        : 'Debloquer le chapitre entier'}
                     </Text>
                   </>
                 )}
@@ -210,49 +244,64 @@ const PaywallCard: React.FC<PaywallCardProps> = ({
             </View>
           )}
 
-          {/* --- Option 3 : Le Club Prive (Coming Soon) --- */}
+          {/* --- Option 3 : Le Club Prive --- */}
           <View style={styles.cardClub}>
             <View style={styles.clubHeader}>
               <Icon name="workspace_premium" size={28} color="#A855F7" />
-              <View style={styles.clubBadge}>
-                <Text style={styles.clubBadgeText}>Bientot</Text>
-              </View>
+              <Text style={[styles.clubTitle, { color: tc.text }]}>Le Club Prive</Text>
             </View>
 
-            <Text style={styles.clubTitle}>Le Club Prive</Text>
-            <Text style={styles.clubDescription}>
-              Acces illimite a tous les chapitres Narrateur. Acces immediat, sans attente. -30% sur la perspective Protagoniste.
+            <Text style={[styles.clubDescription, { color: tc.textSecondary }]}>
+              Acces illimite a tous les chapitres en perspective Narrateur. Acces immediat, sans
+              attente. -{clubInfo?.discountPercent ?? 0}% sur la perspective Protagoniste.
             </Text>
 
             <View style={styles.clubFeatures}>
               {[
-                'Tous les chapitres Narrateur sans attente',
-                'Acces anticipe aux nouveaux chapitres',
-                '-30% sur la perspective Protagoniste',
-                'Sans engagement, resiliable a tout moment',
+                'Tous les chapitres Narrateur en acces immediat',
+                "Plus de timer d'attente",
+                `-${clubInfo?.discountPercent ?? 0}% sur la perspective Protagoniste`,
+                'Nouveautes en avant-premiere',
+                'Galerie de coloriage exclusive',
+                'Telechargement pour lecture hors-ligne',
+                'Sans publicite',
               ].map((feature, idx) => (
                 <View key={idx} style={styles.clubFeatureRow}>
                   <Icon name="check_circle" size={16} color="#A855F7" />
-                  <Text style={styles.clubFeatureText}>{feature}</Text>
+                  <Text style={[styles.clubFeatureText, { color: tc.textSecondary }]}>{feature}</Text>
                 </View>
               ))}
             </View>
 
-            <TouchableOpacity style={styles.clubButton} disabled activeOpacity={1}>
-              <Icon name="notifications_active" size={18} color={colors.white} />
-              <Text style={styles.clubButtonText}>Me prevenir du lancement</Text>
-            </TouchableOpacity>
+            {clubInfo && (
+              <View style={styles.clubPrice}>
+                <Text style={styles.clubPriceAmount}>{(clubInfo.priceCents / 100).toFixed(2)}</Text>
+                <Text style={[styles.clubPriceCurrency, { color: tc.textSecondary }]}> EUR/mois</Text>
+              </View>
+            )}
 
-            <Text style={styles.clubFooter}>
-              En preparation - Lancement prevu prochainement
-            </Text>
+            <TouchableOpacity
+              style={[styles.clubButton, isSubscribing && { opacity: 0.6 }]}
+              activeOpacity={0.8}
+              onPress={handleSubscribe}
+              disabled={isSubscribing}
+            >
+              {isSubscribing ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Icon name="workspace_premium" size={18} color="#FFFFFF" />
+              )}
+              <Text style={styles.clubButtonText}>
+                {isSubscribing ? 'Redirection...' : "S'abonner au Club Prive"}
+              </Text>
+            </TouchableOpacity>
           </View>
 
           {/* Wait info hint (when no onStartWait handler provided) */}
           {pricingInfo.blockageType === 'WAIT_OR_PAY' && !isProta && !onStartWait && (
             <View style={styles.waitInfo}>
-              <Icon name="schedule" size={16} color={colors.gray[500]} />
-              <Text style={styles.waitInfoText}>
+              <Icon name="schedule" size={16} color={tc.textSecondary} />
+              <Text style={[styles.waitInfoText, { color: tc.textSecondary }]}>
                 Vous pouvez aussi attendre 24h pour lire ce volume gratuitement
               </Text>
             </View>
@@ -260,12 +309,15 @@ const PaywallCard: React.FC<PaywallCardProps> = ({
         </>
       ) : (
         /* Generic paywall without pricing */
-        <View style={[styles.card, styles.cardVolume]}>
-          <Icon name="lock" size={36} color={accent} style={{ alignSelf: 'center', marginBottom: spacing.lg }} />
-          <Text style={[styles.cardTitle, { textAlign: 'center' }]}>
-            Contenu verrouille
-          </Text>
-          <Text style={[styles.cardSubtitle, { textAlign: 'center', marginBottom: spacing.lg }]}>
+        <View style={[styles.card, styles.cardVolume, { backgroundColor: tc.surface, borderColor: tc.cardBorder }]}>
+          <Icon
+            name="lock"
+            size={36}
+            color={accent}
+            style={{ alignSelf: 'center', marginBottom: spacing.lg }}
+          />
+          <Text style={[styles.cardTitle, { textAlign: 'center', color: tc.text }]}>Contenu verrouille</Text>
+          <Text style={[styles.cardSubtitle, { textAlign: 'center', marginBottom: spacing.lg, color: tc.textTertiary }]}>
             Ce contenu est disponible a l'achat sur le site web
           </Text>
           <TouchableOpacity
@@ -356,7 +408,7 @@ const styles = StyleSheet.create({
     fontSize: fs['2xl'],
   },
   cardPriceLarge: {
-   //fontFamily: 'Cinzel_700Bold',
+    //fontFamily: 'Cinzel_700Bold',
     fontSize: fs['3xl'],
   },
 
@@ -472,6 +524,21 @@ const styles = StyleSheet.create({
     color: colors.gray[500],
     lineHeight: 18,
   },
+  clubPrice: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'center',
+    marginBottom: spacing.lg,
+  },
+  clubPriceAmount: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#7C3AED',
+  },
+  clubPriceCurrency: {
+    fontSize: fs.sm,
+    color: colors.gray[500],
+  },
   clubButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -480,20 +547,12 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     borderRadius: borderRadius.lg,
     backgroundColor: '#A855F7',
-    opacity: 0.5,
     height: 46,
   },
   clubButtonText: {
     fontSize: fs.sm,
     fontWeight: '700',
     color: colors.white,
-  },
-  clubFooter: {
-    fontSize: fs.xs,
-    color: colors.gray[400],
-    fontStyle: 'italic',
-    textAlign: 'center',
-    marginTop: spacing.md,
   },
 
   // --- Wait limit banner ---

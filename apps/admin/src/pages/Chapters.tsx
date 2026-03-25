@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { storage, STORAGE_KEYS } from "../lib/storage";
 import { useI18n } from "../lib/i18n";
 import {
   MdViewList,
@@ -60,26 +61,17 @@ export default function Chapters() {
   );
   const [showBulkEditModal, setShowBulkEditModal] = useState(false);
   const [viewMode, setViewMode] = useState<ChapterViewMode>(() => {
-    const saved = localStorage.getItem("chapterViewMode");
-    return (saved as ChapterViewMode) || "grid";
+    return storage.getString(STORAGE_KEYS.CHAPTER_VIEW_MODE, "grid") as ChapterViewMode;
   });
   const [sortBy, setSortBy] = useState<
     "title-asc" | "title-desc" | "date-asc" | "date-desc"
   >(() => {
-    const saved = localStorage.getItem("chapterSortBy");
-    return (
-      (saved as "title-asc" | "title-desc" | "date-asc" | "date-desc") ||
-      "title-asc"
-    );
+    return storage.getString(STORAGE_KEYS.CHAPTER_SORT_BY, "title-asc") as "title-asc" | "title-desc" | "date-asc" | "date-desc";
   });
   const [statusFilter, setStatusFilter] = useState<
     "ALL" | "DRAFT" | "IN_PROGRESS" | "PUBLISHED" | "ARCHIVED"
   >(() => {
-    const saved = localStorage.getItem("chapterStatusFilter");
-    return (
-      (saved as "ALL" | "DRAFT" | "IN_PROGRESS" | "PUBLISHED" | "ARCHIVED") ||
-      "ALL"
-    );
+    return storage.getString(STORAGE_KEYS.CHAPTER_STATUS_FILTER, "ALL") as "ALL" | "DRAFT" | "IN_PROGRESS" | "PUBLISHED" | "ARCHIVED";
   });
   // Temporary override toggle: include archived items in the list
   const [showArchived, setShowArchived] = useState<boolean>(false);
@@ -90,15 +82,15 @@ export default function Chapters() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("chapterViewMode", viewMode);
+    storage.set(STORAGE_KEYS.CHAPTER_VIEW_MODE, viewMode);
   }, [viewMode]);
 
   useEffect(() => {
-    localStorage.setItem("chapterSortBy", sortBy);
+    storage.set(STORAGE_KEYS.CHAPTER_SORT_BY, sortBy);
   }, [sortBy]);
 
   useEffect(() => {
-    localStorage.setItem("chapterStatusFilter", statusFilter);
+    storage.set(STORAGE_KEYS.CHAPTER_STATUS_FILTER, statusFilter);
   }, [statusFilter]);
 
   const loadStats = async () => {

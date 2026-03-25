@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import WaitTimer from "./WaitTimer";
 import PromotionBadge from "./PromotionBadge";
+import ClubPriveTeaser from "./ClubPriveTeaser";
 import { Chapter } from "../stores/catalogStore";
 
 interface PromotionInfo {
@@ -55,6 +56,7 @@ export default function PurchaseDrawer({
   maxWaitsAllowed = 2,
 }: PurchaseDrawerProps) {
   const [isStartingWait, setIsStartingWait] = useState(false);
+
   // Close drawer on ESC key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -365,81 +367,12 @@ export default function PurchaseDrawer({
             </div>
           )}
 
-          {/* Le Club Privé - Coming Soon */}
-          <div className="p-6 rounded-xl bg-gradient-to-br from-purple-900/20 to-purple-800/10 border border-purple-500/30 dark:border-purple-400/30 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 dark:bg-purple-400/10 blur-3xl rounded-full"></div>
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-rose-500/10 dark:bg-rose-400/5 blur-3xl rounded-full"></div>
-
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-3xl text-purple-500 dark:text-purple-400">
-                    workspace_premium
-                  </span>
-                  <span className="px-3 py-1 bg-purple-500/20 dark:bg-purple-400/20 text-purple-700 dark:text-purple-300 text-[9px] font-black rounded-full uppercase tracking-wider border border-purple-500/30">
-                    Bientôt
-                  </span>
-                </div>
-              </div>
-
-              <h3 className="text-2xl font-display italic font-bold text-charcoal dark:text-white mb-2">
-                Le Club Privé
-              </h3>
-              <p className="text-sm text-charcoal/70 dark:text-gray-300 mb-4">
-                Accès illimité à toute la bibliothèque. Tous les chapitres, tous
-                les volumes, toutes les perspectives.
-              </p>
-
-              <div className="space-y-2 mb-4">
-                <div className="flex items-start gap-2">
-                  <span className="material-symbols-outlined text-purple-500 dark:text-purple-400 text-lg mt-0.5">
-                    check_circle
-                  </span>
-                  <p className="text-xs text-charcoal/60 dark:text-gray-400">
-                    Lecture illimitée de tous les contenus
-                  </p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="material-symbols-outlined text-purple-500 dark:text-purple-400 text-lg mt-0.5">
-                    check_circle
-                  </span>
-                  <p className="text-xs text-charcoal/60 dark:text-gray-400">
-                    Accès anticipé aux nouveaux chapitres
-                  </p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="material-symbols-outlined text-purple-500 dark:text-purple-400 text-lg mt-0.5">
-                    check_circle
-                  </span>
-                  <p className="text-xs text-charcoal/60 dark:text-gray-400">
-                    Contenus exclusifs et bonus
-                  </p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="material-symbols-outlined text-purple-500 dark:text-purple-400 text-lg mt-0.5">
-                    check_circle
-                  </span>
-                  <p className="text-xs text-charcoal/60 dark:text-gray-400">
-                    Sans engagement, résiliable à tout moment
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                disabled
-                className="w-full py-3 bg-gradient-to-r from-purple-500 to-purple-600 opacity-60 cursor-not-allowed text-white rounded-lg font-bold transition-all flex items-center justify-center gap-2">
-                <span className="material-symbols-outlined">
-                  notifications_active
-                </span>
-                Me prévenir du lancement
-              </button>
-
-              <p className="text-xs text-charcoal/50 dark:text-gray-500 italic mt-3 text-center">
-                En préparation • Lancement prévu prochainement
-              </p>
-            </div>
-          </div>
+          {/* Le Club Privé */}
+          <ClubPriveTeaser
+            compact
+            showComparison={false}
+            ctaLabel="S'abonner au Club Privé"
+          />
 
           {/* Payment Methods */}
           <div className="pt-6 border-t border-border-warm dark:border-white/5">

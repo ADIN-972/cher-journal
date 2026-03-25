@@ -15,6 +15,7 @@ interface ChapterCardProps {
   hasStartedReading?: boolean;
   isFavorite?: boolean;
   protagonistName?: string;
+  isPrivate?: boolean;
 }
 
 const DEFAULT_FALLBACK_IMAGES = [
@@ -36,6 +37,7 @@ export default function ChapterCard({
   hasStartedReading = false,
   isFavorite = false,
   protagonistName,
+  isPrivate = false
 }: ChapterCardProps) {
   const fallbackImage =
     DEFAULT_FALLBACK_IMAGES[
@@ -56,6 +58,7 @@ export default function ChapterCard({
             showLimitedEditionBadge={false}
             hasGrayscaleEffect={true}
             textSize="auto"
+            isAccesClub={isPrivate}
             //showBookmarkIcon={hasStartedReading}
             // showFavoriteIcon={isFavorite}
           />

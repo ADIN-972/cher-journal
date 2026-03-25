@@ -197,6 +197,7 @@ export default function Library() {
                           title={chapter.protagonistName}
                           showPremiumBadge={false}
                           showLimitedEditionBadge={false}
+                          isAccesClub={chapter.isPrivate}
                           //textSize="md"
                         />
                       ) : (

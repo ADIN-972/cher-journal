@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import api from "../lib/api";
 import PromotionBadge from "./PromotionBadge";
 import { Chapter } from "../stores/catalogStore";
 
@@ -50,6 +51,16 @@ export default function ProtagonistPurchaseDrawer({
     };
   }, [isOpen, onClose]);
 
+  const [clubInfo, setClubInfo] = useState<{ priceCents: number; discountPercent: number } | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      api.getClubInfo().then(setClubInfo).catch(() => {});
+    }
+  }, [isOpen]);
+
+  const bundleDiscountPercent = clubInfo?.discountPercent ?? 0;
+
   if (!isOpen) return null;
 
   // Get PROTAGONIST perspective unlock price
@@ -72,8 +83,8 @@ export default function ProtagonistPurchaseDrawer({
       }
     });
 
-    // Apply 25% discount
-    return Math.round(totalPrice * 0.75);
+    // Apply bundle discount from config
+    return Math.round(totalPrice * (1 - bundleDiscountPercent / 100));
   };
 
   return (
@@ -186,7 +197,7 @@ export default function ProtagonistPurchaseDrawer({
                       Offre Complète
                     </span>
                     <span className="text-xs bg-rose-500/20 text-rose-700 dark:text-rose-300 px-2 py-1 rounded font-semibold">
-                      Économisez 25%
+                      Économisez {bundleDiscountPercent}%
                     </span>
                   </div>
 

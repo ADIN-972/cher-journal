@@ -162,6 +162,13 @@ export interface SupportClaimData {
   message: string;
 }
 
+export interface SupportMessage {
+  id: string;
+  role: 'USER' | 'ADMIN';
+  content: string;
+  createdAt: string;
+}
+
 export const supportAPI = {
   async submitClaim(data: SupportClaimData): Promise<SupportClaim> {
     const response = await api.post<ApiResponse<SupportClaim>>('/support/claim', data);
@@ -170,6 +177,21 @@ export const supportAPI = {
 
   async getMyClaims(): Promise<SupportClaim[]> {
     const response = await api.get<ApiResponse<SupportClaim[]>>('/support/my-claims');
+    return response.data.data;
+  },
+
+  async getClaimMessages(claimId: string): Promise<SupportClaim & { messages: SupportMessage[] }> {
+    const response = await api.get<ApiResponse<SupportClaim & { messages: SupportMessage[] }>>(
+      `/support/claims/${claimId}/messages`
+    );
+    return response.data.data;
+  },
+
+  async addMessage(claimId: string, content: string): Promise<SupportMessage> {
+    const response = await api.post<ApiResponse<SupportMessage>>(
+      `/support/claims/${claimId}/messages`,
+      { content }
+    );
     return response.data.data;
   },
 };
@@ -309,6 +331,85 @@ export const chaptersAPI = {
   ): Promise<VolumeText> {
     const response = await api.get<{ success: boolean; data: VolumeText }>(
       `/reader/volumes/${volumeId}/text?perspective=${perspective}`
+    );
+    return response.data.data;
+  },
+};
+
+// --- Club Info ---
+
+export interface ClubInfo {
+  priceCents: number;
+  currency: string;
+  discountPercent: number;
+}
+
+export const clubInfoAPI = {
+  async get(): Promise<ClubInfo> {
+    const response = await api.get<ApiResponse<ClubInfo>>('/club-info');
+    return response.data.data;
+  },
+};
+
+// --- Pricing ---
+
+export interface VolumePriceInfo {
+  basePrice: number;
+  finalPrice: number;
+  hasAccess: boolean;
+  canWait: boolean;
+  waitDuration: number;
+  volumeType: 'FREE_TO_READ' | 'PAYWALL' | 'EPILOGUE';
+  promotion: {
+    id: string;
+    type: 'PERCENT' | 'FIXED' | 'FREE';
+    value: number;
+    discount: number;
+  } | null;
+}
+
+export const pricingAPI = {
+  async getVolumePrice(chapterId: string, volumeNumber: number): Promise<VolumePriceInfo> {
+    const response = await api.get<ApiResponse<VolumePriceInfo>>(
+      `/volumes/${chapterId}/${volumeNumber}/price`
+    );
+    return response.data.data;
+  },
+};
+
+// --- Stripe Checkout ---
+
+export interface CheckoutSession {
+  sessionId: string;
+  url: string;
+}
+
+export const stripeAPI = {
+  async createCheckoutSession(data: {
+    chapterId: string;
+    type: 'VOLUME' | 'CHAPTER' | 'PERSPECTIVE';
+    volumeNumber?: number;
+    scopes?: string[];
+    successUrl: string;
+    cancelUrl: string;
+  }): Promise<CheckoutSession> {
+    const response = await api.post<ApiResponse<CheckoutSession>>(
+      '/stripe/create-checkout-session',
+      data
+    );
+    return response.data.data;
+  },
+
+  async createProtagonistCheckoutSession(data: {
+    chapterId: string;
+    type: 'VOLUME' | 'CHAPTER';
+    volumeNumber?: number;
+    successUrl: string;
+    cancelUrl: string;
+  }): Promise<CheckoutSession> {
+    const response = await api.post<ApiResponse<CheckoutSession>>(
+      '/stripe/create-protagonist-checkout-session',
+      data
     );
     return response.data.data;
   },

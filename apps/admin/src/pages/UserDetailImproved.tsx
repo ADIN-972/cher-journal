@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useI18n } from "../lib/i18n";
 import { api } from "../lib/api";
+import { storage, STORAGE_KEYS } from "../lib/storage";
 import PurchaseTimeline from "../components/PurchaseTimeline";
 import ChapterAccessSummary from "../components/ChapterAccessSummary";
 import PurchaseStatistics from "../components/PurchaseStatistics";
@@ -51,10 +52,24 @@ interface AssignedPromotion {
   promotion: Promotion;
 }
 
+interface SubscriptionInfo {
+  id: string;
+  status: string;
+  planName: string;
+  priceAmountCents: number;
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  cancelAtPeriodEnd: boolean;
+  stripeSubscriptionId?: string | null;
+}
+
 interface UserDetail {
   id: string;
   publicId: string;
   email: string;
+  firstName: string;
+  lastName: string;
+  username?: string | null;
   status: string;
   role: string;
   createdAt: string;
@@ -62,6 +77,7 @@ interface UserDetail {
   entitlements: Entitlement[];
   reads: VolumeRead[];
   sessions: Session[];
+  subscription?: SubscriptionInfo | null;
   applicablePromotions?: Promotion[];
   appliedPromotions?: AssignedPromotion[];
 }
@@ -143,6 +159,13 @@ export default function UserDetailImproved() {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [showAddEntitlementModal, setShowAddEntitlementModal] = useState(false);
   const [showAssignPromoModal, setShowAssignPromoModal] = useState(false);
+  const [showClubModal, setShowClubModal] = useState(false);
+  const [clubForm, setClubForm] = useState({
+    startDate: new Date().toISOString().split("T")[0],
+    endDate: "",
+    infinite: true,
+    reason: "",
+  });
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   // Auto-detect mobile screen size
@@ -159,14 +182,9 @@ export default function UserDetailImproved() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Initialize from localStorage, default to false (expanded)
+  // Initialize from storage, default to false (expanded)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    try {
-      const stored = localStorage.getItem('userDetailSidebarCollapsed');
-      return stored ? JSON.parse(stored) : false;
-    } catch {
-      return false;
-    }
+    return storage.get<boolean>(STORAGE_KEYS.USER_DETAIL_SIDEBAR, false);
   });
 
   // Load user data
@@ -186,13 +204,9 @@ export default function UserDetailImproved() {
     // eslint-disable-next-line
   }, [id]);
 
-  // Persist collapsed state to localStorage
+  // Persist collapsed state
   useEffect(() => {
-    try {
-      localStorage.setItem('userDetailSidebarCollapsed', JSON.stringify(sidebarCollapsed));
-    } catch {
-      // Silently fail if localStorage unavailable
-    }
+    storage.set(STORAGE_KEYS.USER_DETAIL_SIDEBAR, sidebarCollapsed);
   }, [sidebarCollapsed]);
 
   // Handle Escape key to toggle sidebar (but not when modals are open)
@@ -216,6 +230,36 @@ export default function UserDetailImproved() {
   // Handle status toggle (stub)
   const handleToggleStatus = () => {
     toast("Édition du statut à implémenter");
+  };
+
+  const isClubActive =
+    user?.subscription?.status === "ACTIVE" &&
+    new Date(user.subscription.currentPeriodEnd) > new Date();
+
+  const handleGrantClub = async () => {
+    try {
+      await api.post(`/admin/users/${id}/club`, {
+        startDate: clubForm.startDate,
+        endDate: clubForm.infinite ? null : clubForm.endDate || null,
+        reason: clubForm.reason || undefined,
+      });
+      toast.success("Acces Club Prive accorde");
+      setShowClubModal(false);
+      loadUser();
+    } catch (err: any) {
+      toast.error(err.message || "Erreur lors de l'attribution");
+    }
+  };
+
+  const handleRevokeClub = async () => {
+    if (!confirm("Revoquer l'acces Club Prive de cet utilisateur ?")) return;
+    try {
+      await api.delete(`/admin/users/${id}/club`);
+      toast.success("Acces Club Prive revoque");
+      loadUser();
+    } catch (err: any) {
+      toast.error(err.message || "Erreur lors de la revocation");
+    }
   };
 
   if (loading) {
@@ -360,6 +404,42 @@ export default function UserDetailImproved() {
                       <MdLocalOffer size={16} />
                       <span>+ Promo</span>
                     </button>
+                  </div>
+
+                  {/* Club Prive Section */}
+                  <div className="mt-4 p-3 rounded-xl border border-purple-200 bg-purple-50">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="material-symbols-outlined text-purple-600 text-lg">workspace_premium</span>
+                      <span className="text-sm font-bold text-purple-800">Club Prive</span>
+                    </div>
+                    {isClubActive ? (
+                      <>
+                        <div className="text-xs text-purple-700 mb-1">
+                          <span className="font-semibold">Actif</span> — {user!.subscription!.planName}
+                        </div>
+                        <div className="text-xs text-purple-600 mb-2">
+                          {new Date(user!.subscription!.currentPeriodEnd).getFullYear() >= 2099
+                            ? "Acces illimite"
+                            : `Expire le ${new Date(user!.subscription!.currentPeriodEnd).toLocaleDateString("fr-FR")}`}
+                        </div>
+                        <button
+                          onClick={handleRevokeClub}
+                          className="w-full py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors"
+                        >
+                          Revoquer l'acces
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-xs text-purple-600 mb-2">Aucun abonnement actif</p>
+                        <button
+                          onClick={() => setShowClubModal(true)}
+                          className="w-full py-1.5 text-xs font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
+                        >
+                          Attribuer le Club Prive
+                        </button>
+                      </>
+                    )}
                   </div>
 
                   {/* Quick Stats */}
@@ -1021,6 +1101,85 @@ export default function UserDetailImproved() {
             setShowAssignPromoModal(false);
           }}
         />
+      )}
+
+      {/* Club Prive Grant Modal */}
+      {showClubModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="material-symbols-outlined text-purple-600 text-2xl">workspace_premium</span>
+              <h3 className="text-lg font-bold text-gray-900">Attribuer le Club Prive</h3>
+            </div>
+            <p className="text-sm text-gray-500 mb-4">
+              Attribuer manuellement l'acces Club Prive a <strong>{user.email}</strong>.
+            </p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Date de debut</label>
+                <input
+                  type="date"
+                  value={clubForm.startDate}
+                  onChange={(e) => setClubForm({ ...clubForm, startDate: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
+                  <input
+                    type="checkbox"
+                    checked={clubForm.infinite}
+                    onChange={(e) => setClubForm({ ...clubForm, infinite: e.target.checked })}
+                    className="rounded text-purple-600 focus:ring-purple-500"
+                  />
+                  Acces illimite (sans date d'expiration)
+                </label>
+              </div>
+
+              {!clubForm.infinite && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Date d'expiration</label>
+                  <input
+                    type="date"
+                    value={clubForm.endDate}
+                    onChange={(e) => setClubForm({ ...clubForm, endDate: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Raison (optionnel)</label>
+                <input
+                  type="text"
+                  value={clubForm.reason}
+                  onChange={(e) => setClubForm({ ...clubForm, reason: e.target.value })}
+                  placeholder="Ex: Offert, Partenariat, Test..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => setShowClubModal(false)}
+                className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleGrantClub}
+                className="flex-1 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Attribuer
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Mobile Floating Button */}

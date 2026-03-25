@@ -12,6 +12,7 @@ interface ChapterCoverProps {
   showTitleOverlay?: boolean;
   roundedLeft?: boolean;
   bordered?: boolean;
+  isAccesClub?: boolean;
 }
 
 export default function ChapterCover({
@@ -28,6 +29,7 @@ export default function ChapterCover({
   showTitleOverlay = true,
   roundedLeft = true,
   bordered = true,
+  isAccesClub = false,
 }: ChapterCoverProps) {
   const textSizeClass = {
     sm: "xl:text-sm",
@@ -39,7 +41,19 @@ export default function ChapterCover({
     auto: "xl:text-[calc(10%+3vw)] 4xl:text-[calc(10%+1vw)]",
   }[textSize];
   return (
-    <div className={`relative group h-full ${className}`}>
+    <div
+      className={`relative group h-full ${className} place-self-initial`}
+      style={{ placeSelf: "initial" }}>
+      {isAccesClub && (
+        <div className="ruban z-[12]">
+          <div className="flex  newsreader text-sm lg:text-xl italic text-white text-shadow-lg text-nowrap flex-row items-center justify-center gap-1 lg:gap-3 px-0 lg:px-6 xl:px-12  my-2">
+          <span className="material-symbols-outlined text-sm lg:text-xl block">
+            lock
+          </span>
+          {`Accès Club`}
+          </div>
+        </div>
+      )}
       <div className="absolute -inset-1 opacity-25 group-hover:opacity-40 transition duration-1000"></div>
       <div
         className={`relative bg-background-dark rounded-lg ${roundedLeft ? "rounded-l-md" : ""} overflow-hidden aspect-[3/4] shadow-2xl z-[2] w-[93%] h-full`}>

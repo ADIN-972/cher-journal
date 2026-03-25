@@ -11,6 +11,7 @@ interface HeroSectionProps {
     imageUrl?: string;
     id: string;
     hasStartedReading?: boolean;
+    isPrivate?: boolean;
   };
 }
 
@@ -40,6 +41,7 @@ export default function HeroSection({ chapters, heroData }: HeroSectionProps) {
                     showBookmarkIcon={false}
                     textSize={"2xl"}
                     hasGrayscaleEffect={true}
+                    isAccesClub={heroData.isPrivate}
                   />
                 ) : (
                   <div

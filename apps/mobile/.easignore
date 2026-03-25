@@ -1,0 +1,9 @@
+.trunk
+.git
+.expo
+android
+ios
+node_modules
+__tests__
+*.log
+.env.local

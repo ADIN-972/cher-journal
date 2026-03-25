@@ -30,6 +30,7 @@ export default function ChapterHeader({
         <ChapterCover
           imageUrl={imageUrl}
           title={currentChapter.protagonistName}
+          isAccesClub={currentChapter.isPrivate}
         />
         <div className="absolute top-[5%] -left-[10%] w-[130%] h-auto z-0">
           <BookStore />
@@ -75,40 +76,42 @@ export default function ChapterHeader({
         </div>
 
         {/* Actions and Pricing */}
-        <div className="mt-10 flex flex-wrap gap-4 items-center">
-          <button
-            onClick={onUnlock}
-            disabled={isPurchasing}
-            className="bg-primary hover:bg-primary/90 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-10 py-4 rounded-full font-bold text-lg flex items-center gap-3 transition-transform active:scale-95 shadow-lg shadow-primary/20">
-            <span className="material-symbols-outlined">
+        {!currentChapter.isPrivate && (
+          <div className="mt-10 flex flex-wrap gap-4 items-center">
+            <button
+              onClick={onUnlock}
+              disabled={isPurchasing}
+              className="bg-primary hover:bg-primary/90 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-10 py-4 rounded-full font-bold text-lg flex items-center gap-3 transition-transform active:scale-95 shadow-lg shadow-primary/20">
+              <span className="material-symbols-outlined">
+                {isPurchasing
+                  ? "hourglass_empty"
+                  : currentChapter.hasAccess
+                    ? "auto_stories"
+                    : "shopping_cart"}
+              </span>
               {isPurchasing
-                ? "hourglass_empty"
+                ? "Chargement..."
                 : currentChapter.hasAccess
-                  ? "auto_stories"
-                  : "shopping_cart"}
-            </span>
-            {isPurchasing
-              ? "Chargement..."
-              : currentChapter.hasAccess
-                ? readButtonText
-                : "Débloquer l'aventure"}
-          </button>
+                  ? readButtonText
+                  : "Débloquer l'aventure"}
+            </button>
 
-          {!currentChapter.hasAccess &&
-            currentChapter.pricing?.bundleDiscountedPrice && (
-              <div className="flex flex-col">
-                <span className="text-xs text-gray-500 uppercase tracking-widest font-bold">
-                  Prix de l'œuvre
-                </span>
-                <span className="text-2xl font-display font-bold">
-                  {(currentChapter.pricing.bundleDiscountedPrice / 100).toFixed(
-                    2,
-                  )}{" "}
-                  €
-                </span>
-              </div>
-            )}
-        </div>
+            {!currentChapter.hasAccess &&
+              currentChapter.pricing?.bundleDiscountedPrice ? (
+                <div className="flex flex-col">
+                  <span className="text-xs text-gray-500 uppercase tracking-widest font-bold">
+                    Prix de l'œuvre
+                  </span>
+                  <span className="text-2xl font-display font-bold">
+                    {(
+                      currentChapter.pricing.bundleDiscountedPrice / 100
+                    ).toFixed(2)}{" "}
+                    €
+                  </span>
+                </div>
+              ) : null}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -746,6 +746,7 @@
     "stats_users": "Utilisateurs Totaux",
     "stats_chapters": "Chapitres Totaux",
     "stats_orders": "Commandes Totales",
+    "stats_subscriptions": "Souscriptions",
     "stats_revenue": "Revenu Total",
     "last_month": "Le Mois Dernier",
     "this_month": "Ce Mois",
@@ -823,6 +824,26 @@
       "validation_firstname_required": "Le prénom est requis",
       "validation_lastname_required": "Le nom est requis",
       "validation_fullname_required": "Le nom complet est requis"
+    },
+    "verify_email": {
+      "brand_name": "Cher Journal",
+      "title": "Vérification de votre email",
+      "description": "Un code de vérification a été envoyé à",
+      "digit_label": "Chiffre",
+      "button_verify": "Vérifier",
+      "verifying": "Vérification...",
+      "success": "Email vérifié avec succès !",
+      "redirecting": "Redirection en cours...",
+      "no_code": "Vous n'avez pas reçu de code ?",
+      "resend_button": "Renvoyer le code",
+      "resend_countdown": "Renvoyer le code",
+      "sending": "Envoi en cours...",
+      "error_invalid_code": "Code incorrect. Veuillez réessayer.",
+      "error_code_expired": "Le code a expiré. Veuillez en demander un nouveau.",
+      "error_too_many_attempts": "Trop de tentatives. Veuillez demander un nouveau code.",
+      "error_rate_limited": "Veuillez attendre 60 secondes avant de renvoyer un code.",
+      "error_send_failed": "Échec de l'envoi du code. Veuillez réessayer.",
+      "error_generic": "Une erreur est survenue. Veuillez réessayer."
     }
   },
   "common": {

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useCatalogStore } from "../stores/catalogStore";
 import ErrorMessage from "../components/common/ErrorMessage";
 import ChapterCover from "../components/common/ChapterCover";
+import { storage, STORAGE_KEYS } from "../lib/storage";
 import ReviewStars from "../components/common/ReviewStars";
 import ChapterIntensityIndicators from "../components/common/ChapterIntensityIndicators";
 import ChapterListView from "../components/chapter/ChapterListView";
@@ -84,13 +85,6 @@ export const GENRES: Record<Genre, { translationKey: string; icon: string }> = {
   },
 };
 
-// LocalStorage keys
-const CATALOGUE_STORAGE_KEYS = {
-  VIEW_TYPE: "catalogue_viewType",
-  SORT_METRICS: "catalogue_sortMetrics",
-  VIEW_MODE: "catalogue_viewMode",
-};
-
 // Default sort metrics (all "none")
 const DEFAULT_SORT_METRICS: SortMetrics = {
   intensite: "none",
@@ -99,46 +93,18 @@ const DEFAULT_SORT_METRICS: SortMetrics = {
   transformation: "none",
 };
 
-// Get initial view type from localStorage or default to "catalog"
 const getInitialViewType = (): ViewType => {
-  try {
-    const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.VIEW_TYPE);
-    if (stored === "catalog" || stored === "selection") {
-      return stored as ViewType;
-    }
-  } catch (e) {
-    // localStorage might not be available in SSR
-    console.warn("localStorage not available:", e);
-  }
-  return "catalog";
+  const stored = storage.getString(STORAGE_KEYS.CATALOGUE_VIEW_TYPE, "catalog");
+  return (stored === "catalog" || stored === "selection") ? stored : "catalog";
 };
 
-// Get initial sort metrics from localStorage or default to all "none"
 const getInitialSortMetrics = (): SortMetrics => {
-  try {
-    const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.SORT_METRICS);
-    if (stored) {
-      return JSON.parse(stored) as SortMetrics;
-    }
-  } catch (e) {
-    // localStorage might not be available in SSR
-    console.warn("localStorage not available:", e);
-  }
-  return DEFAULT_SORT_METRICS;
+  return storage.get<SortMetrics>(STORAGE_KEYS.CATALOGUE_SORT_METRICS, DEFAULT_SORT_METRICS);
 };
 
-// Get initial view mode from localStorage or default to "grid"
 const getInitialViewMode = (): ViewMode => {
-  try {
-    const stored = localStorage.getItem(CATALOGUE_STORAGE_KEYS.VIEW_MODE);
-    if (stored === "list" || stored === "grid") {
-      return stored as ViewMode;
-    }
-  } catch (e) {
-    // localStorage might not be available in SSR
-    console.warn("localStorage not available:", e);
-  }
-  return "grid";
+  const stored = storage.getString(STORAGE_KEYS.CATALOGUE_VIEW_MODE, "grid");
+  return (stored === "list" || stored === "grid") ? stored : "grid";
 };
 
 export default function Catalogue() {
@@ -298,35 +264,9 @@ export default function Catalogue() {
         .slice(0, 6),
     },
   ];
-  // Save viewType to localStorage when it changes
-  useEffect(() => {
-    try {
-      localStorage.setItem(CATALOGUE_STORAGE_KEYS.VIEW_TYPE, viewType);
-    } catch (e) {
-      console.warn("Failed to save view type preference:", e);
-    }
-  }, [viewType]);
-
-  // Save sortMetrics to localStorage when it changes
-  useEffect(() => {
-    try {
-      localStorage.setItem(
-        CATALOGUE_STORAGE_KEYS.SORT_METRICS,
-        JSON.stringify(sortMetrics),
-      );
-    } catch (e) {
-      console.warn("Failed to save sort metrics preference:", e);
-    }
-  }, [sortMetrics]);
-
-  // Save viewMode to localStorage when it changes
-  useEffect(() => {
-    try {
-      localStorage.setItem(CATALOGUE_STORAGE_KEYS.VIEW_MODE, viewMode);
-    } catch (e) {
-      console.warn("Failed to save view mode preference:", e);
-    }
-  }, [viewMode]);
+  useEffect(() => { storage.set(STORAGE_KEYS.CATALOGUE_VIEW_TYPE, viewType); }, [viewType]);
+  useEffect(() => { storage.set(STORAGE_KEYS.CATALOGUE_SORT_METRICS, sortMetrics); }, [sortMetrics]);
+  useEffect(() => { storage.set(STORAGE_KEYS.CATALOGUE_VIEW_MODE, viewMode); }, [viewMode]);
 
   useEffect(() => {
     fetchChapters();

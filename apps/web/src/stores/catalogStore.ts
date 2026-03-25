@@ -45,15 +45,18 @@ export interface Chapter {
   totalCharacterCount?: number;
   description?: string | null;
 
-  accroche_classic: string | null;
-  accroche_dark: string | null;
-  accroche_love: string | null;
-  accroche_marketing: string | null;
-  accroche_dark_collection: string | null;
-  niveau_intensite: number;
-  niveau_douceur: number;
-  niveau_danger: number;
-  niveau_transformation: number;
+  accroche_classic?: string;
+  accroche_dark?: string;
+  accroche_love?: string;
+  accroche_marketing?: string;
+  accroche_dark_collection?: string;
+  niveau_intensite?: number;
+  niveau_douceur?: number;
+  niveau_danger?: number;
+  niveau_transformation?: number;
+
+  isPrivate?: boolean;
+  isPrivateLocked?: boolean;
 }
 
 interface Volume {

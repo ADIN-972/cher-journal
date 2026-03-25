@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
+import { storage, STORAGE_KEYS } from "../lib/storage";
 
 type Theme = "light" | "dark";
 
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => {
-    // Check localStorage first
-    const savedTheme = localStorage.getItem("theme") as Theme;
-    const initialTheme = savedTheme || "light";
+    const initialTheme = storage.getString(STORAGE_KEYS.THEME, "light") as Theme;
 
     // Apply theme immediately on init to avoid flash
     const root = window.document.documentElement;
@@ -28,7 +27,7 @@ export function useTheme() {
       root.classList.remove("dark");
     }
 
-    localStorage.setItem("theme", theme);
+    storage.set(STORAGE_KEYS.THEME, theme);
   }, [theme]);
 
   const toggleTheme = () => {

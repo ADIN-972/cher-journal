@@ -10,6 +10,7 @@ interface CarouselItem {
   fallbackTitle: string;
   protagonistName?: string;
   hasStartedReading?: boolean;
+  isPrivate?: boolean;
 }
 
 interface NouveautesSectionProps {
@@ -60,6 +61,7 @@ export default function NouveautesSection({
                   showBookmarkIcon={item.hasStartedReading}
                   hasGrayscaleEffect={true}
                   textSize="auto"
+                  isAccesClub={item.isPrivate}
                 />
               ) : (
                 <div

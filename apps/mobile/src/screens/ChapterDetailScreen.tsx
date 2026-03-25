@@ -16,6 +16,7 @@ import EmotionalLevels from '@/components/EmotionalLevels';
 import GenreBadge from '@/components/GenreBadge';
 import Icon from '@/components/Icon';
 import { colors, spacing, fontSize, borderRadius } from '@/utils/theme';
+import { useThemeColors } from '@/theme/ThemeContext';
 import VolumeBook from '@/components/VolumeBook';
 import ColoringGallery from '@/components/ColoringGallery';
 import type { Volume } from '@/types';
@@ -40,6 +41,7 @@ const getCoverUrl = (chapter: any): string | null => {
 
 const ChapterDetailScreen: React.FC = () => {
   const router = useRouter();
+  const tc = useThemeColors();
   const { id } = useLocalSearchParams();
   const { selectedChapter, chapters, setSelectedChapter } = useChapterStore();
   const [selectedPerspective, setSelectedPerspective] = useState<Perspective>('narrateur');
@@ -89,9 +91,9 @@ const ChapterDetailScreen: React.FC = () => {
 
   if (loading && volumes.length === 0) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.rose} />
-        <Text style={styles.loadingText}>Chargement...</Text>
+      <View style={[styles.loadingContainer, { backgroundColor: tc.background }]}>
+        <ActivityIndicator size="large" color={tc.rose} />
+        <Text style={[styles.loadingText, { color: tc.textSecondary }]}>Chargement...</Text>
       </View>
     );
   }
@@ -99,7 +101,7 @@ const ChapterDetailScreen: React.FC = () => {
   const coverUrl = chapter ? getCoverUrl(chapter) : null;
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: tc.background }]}>
       {/* Hero Header */}
       {chapter && (
         <View style={styles.hero}>
@@ -141,14 +143,14 @@ const ChapterDetailScreen: React.FC = () => {
       {/* Description */}
       {chapter?.accroche_classic && (
         <View style={styles.descriptionSection}>
-          <Text style={styles.descriptionText}>{chapter.accroche_classic}</Text>
+          <Text style={[styles.descriptionText, { color: tc.text }]}>{chapter.accroche_classic}</Text>
         </View>
       )}
 
       {/* Accroche */}
       {chapter?.accroche_love && (
         <View style={styles.accrocheSection}>
-          <Text style={styles.accrocheText}>"{chapter.accroche_love}"</Text>
+          <Text style={[styles.accrocheText, { color: tc.textSecondary }]}>"{chapter.accroche_love}"</Text>
         </View>
       )}
 
@@ -163,9 +165,9 @@ const ChapterDetailScreen: React.FC = () => {
 
       {/* Separator */}
       <View style={styles.separator}>
-        <View style={styles.separatorLine} />
-        <Icon name="auto_stories" size={20} color={colors.gold} />
-        <View style={styles.separatorLine} />
+        <View style={[styles.separatorLine, { backgroundColor: tc.separator }]} />
+        <Icon name="auto_stories" size={20} color={tc.gold} />
+        <View style={[styles.separatorLine, { backgroundColor: tc.separator }]} />
       </View>
 
       {/* Perspective Selector */}
@@ -177,17 +179,18 @@ const ChapterDetailScreen: React.FC = () => {
               key={p.id}
               style={[
                 styles.perspectiveTab,
-                { borderColor: isActive ? p.color : colors.gray[200] },
+                { borderColor: isActive ? p.color : tc.cardBorder },
                 isActive && { backgroundColor: p.color },
               ]}
               onPress={() => setSelectedPerspective(p.id)}
               activeOpacity={0.7}
             >
-              <Icon name={p.icon} size={18} color={isActive ? colors.white : colors.gray[500]} />
+              <Icon name={p.icon} size={18} color={isActive ? '#FFFFFF' : tc.textTertiary} />
               <Text
                 style={[
                   styles.perspectiveLabel,
-                  isActive && { color: colors.white },
+                  { color: tc.textSecondary },
+                  isActive && { color: '#FFFFFF' },
                 ]}
                 numberOfLines={1}
               >
@@ -215,12 +218,12 @@ const ChapterDetailScreen: React.FC = () => {
         <>
           {/* Volumes List */}
           <View style={styles.volumesSection}>
-            <Text style={styles.volumesTitle}>
+            <Text style={[styles.volumesTitle, { color: tc.text }]}>
               {selectedPerspective === 'protagonist'
                 ? `Version ${chapter?.protagonistName || 'Protagoniste'}`
                 : 'Version Narrateur'}
             </Text>
-            <Text style={styles.volumesCount}>
+            <Text style={[styles.volumesCount, { color: tc.textSecondary }]}>
               {volumes.length} volume{volumes.length !== 1 ? 's' : ''}
             </Text>
 

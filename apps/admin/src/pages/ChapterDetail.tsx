@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { storage, STORAGE_KEYS } from "../lib/storage";
 import { useI18n } from "../lib/i18n";
 import {
   MdViewList,
@@ -65,8 +66,7 @@ export default function ChapterDetail() {
     >
   >({});
   const [viewMode, setViewMode] = useState<"grid" | "card" | "calendar">(() => {
-    const saved = localStorage.getItem("volumeViewMode");
-    return (saved as "grid" | "card" | "calendar") || "card";
+    return storage.getString(STORAGE_KEYS.VOLUME_VIEW_MODE, "card") as "grid" | "card" | "calendar";
   });
   const [showDragDropOverlay, setShowDragDropOverlay] = useState(false);
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
@@ -81,7 +81,7 @@ export default function ChapterDetail() {
   }, [id]);
 
   useEffect(() => {
-    localStorage.setItem("volumeViewMode", viewMode);
+    storage.set(STORAGE_KEYS.VOLUME_VIEW_MODE, viewMode);
   }, [viewMode]);
 
   // Scroll to current chapter in the navigation

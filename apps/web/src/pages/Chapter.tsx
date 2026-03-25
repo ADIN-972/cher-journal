@@ -50,6 +50,7 @@ export default function Chapter() {
   const [selectedVolumeForPurchase, setSelectedVolumeForPurchase] =
     useState<any>(null);
   const [activeWaitsCount, setActiveWaitsCount] = useState(0);
+  const [clubInfo, setClubInfo] = useState<{ priceCents: number; discountPercent: number } | null>(null);
   const [maxWaitsAllowed, setMaxWaitsAllowed] = useState(2); // Default fallback
 
   // Initialize selectedPerspective from URL parameter, fallback to "narrateur"
@@ -99,6 +100,7 @@ export default function Chapter() {
       fetchActiveWaitsCount();
       fetchWaitConfig();
     }
+    api.getClubInfo().then(setClubInfo).catch(() => {});
   }, [id, fetchChapter]);
 
   // Update selectedPerspective when URL parameter changes
@@ -107,7 +109,7 @@ export default function Chapter() {
       const validPerspectives = ["narrateur", "protagonist", "coloriage"];
       if (validPerspectives.includes(urlPerspective)) {
         setSelectedPerspective(
-          urlPerspective as "narrateur" | "protagonist" | "coloriage"
+          urlPerspective as "narrateur" | "protagonist" | "coloriage",
         );
       }
     }
@@ -170,12 +172,13 @@ export default function Chapter() {
     } else {
       // Open purchase drawer for locked volumes based on perspective
       // Enrich volume with blockage info from the current perspective
-      const perspectiveKey = selectedPerspective === "protagonist" ? "PROTAGONIST" : "NARRATOR";
+      const perspectiveKey =
+        selectedPerspective === "protagonist" ? "PROTAGONIST" : "NARRATOR";
       const accessInfo = volume.accessByPerspective?.[perspectiveKey];
       const enrichedVolume = {
         ...volume,
         blockageInfo: accessInfo?.blockageInfo,
-        canStartWait: accessInfo?.blockageType === 'WAIT_OR_PAY',
+        canStartWait: accessInfo?.blockageType === "WAIT_OR_PAY",
       };
       setSelectedVolumeForPurchase(enrichedVolume);
       if (selectedPerspective === "protagonist") {
@@ -345,7 +348,10 @@ export default function Chapter() {
       });
       window.location.href = result.url;
     } catch (err: any) {
-      console.error("Failed to create complete experience checkout session:", err);
+      console.error(
+        "Failed to create complete experience checkout session:",
+        err,
+      );
       showErrorToast(toast, "CHECKOUT_SESSION_FAILED");
       setIsPurchasing(false);
     }
@@ -396,8 +402,7 @@ export default function Chapter() {
     // If user already has access, open last accessible volume in drawer
     if (currentChapter?.hasAccess) {
       const accessibleVolumes =
-        currentChapter.volumes?.filter((v) => isVolumeAccessible(v)) ||
-        [];
+        currentChapter.volumes?.filter((v) => isVolumeAccessible(v)) || [];
 
       // Find the last accessible volume
       const lastAccessibleVolume =
@@ -471,8 +476,7 @@ export default function Chapter() {
 
   // Determine button text based on accessible volumes
   const accessibleVolumes =
-    currentChapter?.volumes?.filter((v) => isVolumeAccessible(v)) ||
-    [];
+    currentChapter?.volumes?.filter((v) => isVolumeAccessible(v)) || [];
   const onlyFirstVolumeAccessible =
     accessibleVolumes.length === 1 && accessibleVolumes[0]?.volumeNumber === 1;
   const readButtonText = onlyFirstVolumeAccessible
@@ -566,59 +570,112 @@ export default function Chapter() {
         onSelectPerspective={handleSelectPerspective}
         protagonistName={currentChapter.protagonistName}
       /> */}
-      <MobilePerspectiveSelectorV2
-        selectedPerspective={selectedPerspective}
-        onSelectPerspective={handleSelectPerspective}
-        protagonistName={currentChapter.protagonistName}
-      />
-
+      {!currentChapter.isPrivateLocked && (
+        <MobilePerspectiveSelectorV2
+          selectedPerspective={selectedPerspective}
+          onSelectPerspective={handleSelectPerspective}
+          protagonistName={currentChapter.protagonistName}
+        />
+      )}
       {/* Chapters List, Coloring Gallery, or Private Lock Block */}
       {currentChapter.isPrivateLocked ? (
-        <section className="py-16 flex justify-center">
-          <div className="relative max-w-xl w-full rounded-3xl overflow-hidden shadow-2xl">
-            {/* Gradient Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-950 via-gray-900 to-amber-950 opacity-95" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-
-            {/* Content */}
-            <div className="relative z-10 px-8 py-14 sm:px-12 sm:py-16 text-center">
-              {/* Lock Icon */}
-              <div className="mb-6">
-                <span className="material-symbols-outlined text-7xl bg-gradient-to-br from-purple-400 to-amber-400 bg-clip-text text-transparent drop-shadow-lg">
-                  lock
+        <section className="flex justify-center">
+          <div className=" inset-0 flex flex-col items-center justify-start px-6">
+            {/* <!-- Ceremonial Seal/Icon --> */}
+            <div className="relative mb-12 group">
+              
+              <div className="relative w-32 h-32 md:w-28 md:h-28 flex items-center justify-center border-2 border-accent-gold/40 rounded-full bg-white dark:bg-background-dark shadow-[0_0_60px_rgba(212,175,55,0.15)] ring-8 ring-white dark:ring-background-dark">
+                <span className="material-symbols-outlined text-6xl md:text-5xl text-accent-gold gold-fill animate-pulse">
+                  key
                 </span>
               </div>
-
-              {/* Title */}
-              <h2 className="font-display italic text-2xl sm:text-3xl text-white mb-4 tracking-wide">
-                Chapitre réservé au Club Privé
-              </h2>
-
-              {/* Decorative Separator */}
-              <div className="flex items-center justify-center gap-3 mb-6">
-                <div className="h-px w-12 bg-gradient-to-r from-transparent to-purple-400/60" />
-                <span className="material-symbols-outlined text-purple-400/60 text-sm">diamond</span>
-                <div className="h-px w-12 bg-gradient-to-l from-transparent to-purple-400/60" />
-              </div>
-
-              {/* Description */}
-              <p className="text-gray-300 font-light leading-relaxed max-w-md mx-auto mb-10 text-base sm:text-lg">
-                Ce chapitre exclusif est accessible uniquement aux membres du Club Privé.
-                Rejoignez le Club pour débloquer ce contenu et bien plus encore.
-              </p>
-
-              {/* CTA Button */}
-              <Link
-                to="/account"
-                className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold px-8 py-3.5 rounded-full shadow-lg shadow-purple-600/30 hover:shadow-purple-500/40 transition-all duration-300 hover:scale-105 text-base"
-              >
-                <span className="material-symbols-outlined text-xl">star</span>
-                Rejoindre le Club
-              </Link>
             </div>
-
-            {/* Decorative Border */}
-            <div className="absolute inset-0 rounded-3xl border border-purple-500/20" />
+            {/* <!-- Invitation Message --> */}
+            <div className="max-w-3xl w-full text-center space-y-8 bg-white/60 dark:bg-background-dark/40 backdrop-blur-sm p-8 md:p-12 rounded-[2rem] border border-white/5 gold-glow">
+              <div className="space-y-4">
+                <h2 className="text-2xl md:text-4xl font-display italic text-off-white leading-tight newsreader">
+                  Certains secrets ne se partagent qu'entre initiés
+                </h2>
+                <div className="h-px w-24 bg-accent-gold/40 mx-auto"></div>
+              </div>
+              <p className="text-xl md:text-2xl text-off-white/70 font-light leading-relaxed max-w-2xl mx-auto italic  newsreader">
+                L'accès à l'intégralité de ce récit, aux scènes les plus
+                charnelles et aux confidences manuscrites de{" "}
+                <span className="text-accent-gold font-medium">
+                {currentChapter.protagonistName ? currentChapter.protagonistName : "l'héroïne"}
+                </span>{" "}
+                est réservé aux membres de notre Club Privé.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-8">
+                <div className="flex flex-row gap-2 items-center justify-center text-center text-nowrap">
+                  <span className="material-symbols-outlined text-accent-gold block">
+                    history_edu
+                  </span>
+                  <p className="text-[11px] uppercase tracking-widest text-off-white/40">
+                    Manuscrits Inédits
+                  </p>
+                </div>
+                <div className="flex flex-row gap-2 items-center justify-center text-center text-nowrap">
+                  <span className="material-symbols-outlined text-accent-gold block">
+                    all_inclusive
+                  </span>
+                  <p className="text-[11px] uppercase tracking-widest text-off-white/40">
+                    Contenu Non-Censuré
+                  </p>
+                </div>
+                <div className="flex flex-row gap-2 items-center justify-center text-center text-nowrap">
+                  <span className="material-symbols-outlined text-accent-gold block">
+                    workspace_premium
+                  </span>
+                  <p className="text-[11px] uppercase tracking-widest text-off-white/40">
+                    Échanges Privés
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col items-center gap-8">
+                <button
+                  onClick={async () => {
+                    try {
+                      const session = await api.createSubscriptionCheckout(
+                        `${window.location.origin}/account/subscription?success=true`,
+                        `${window.location.origin}/chapters/${id}`
+                      );
+                      if (session.url) {
+                        window.location.href = session.url;
+                      }
+                    } catch (err) {
+                      console.error('Failed to create subscription checkout:', err);
+                    }
+                  }}
+                  className="premium-shimmer text-white px-16 py-6 rounded-full font-bold text-2xl flex items-center gap-4 transition-all hover:scale-105 active:scale-95 shadow-[0_0_50px_rgba(128,0,32,0.4)] border border-white/10 group">
+                  <span className="material-symbols-outlined text-3xl group-hover:rotate-12 transition-transform">
+                    stars
+                  </span>
+                  <span className="tracking-wide">Rejoindre le Club Privé</span>
+                </button>
+                <div className="flex flex-col items-center">
+                  <span className="text-[10px] text-accent-gold uppercase tracking-[0.4em] font-black mb-1">
+                    Abonnement Prestige
+                  </span>
+                  <span className="text-4xl font-display font-bold text-off-white">
+                    {clubInfo ? `${(clubInfo.priceCents / 100).toFixed(2).replace('.', ',')} €` : '...'}{" "}
+                    <small className="text-sm font-light text-off-white/40">
+                      / mois
+                    </small>
+                  </span>
+                </div>
+                <a
+                  href="/account/subscription"
+                  className="text-accent-gold/60 hover:text-accent-gold text-xs underline underline-offset-4 transition-colors mt-2"
+                >
+                  Découvrir tous les avantages du Club Privé
+                </a>
+              </div>
+              <p className="text-off-white/30 text-xs italic mt-12">
+                "Une immersion sans compromis dans l'érotisme littéraire
+                d'exception."
+              </p>
+            </div>
           </div>
         </section>
       ) : selectedPerspective === "coloriage" ? (

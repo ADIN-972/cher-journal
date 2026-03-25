@@ -55,6 +55,7 @@ export default function MostPassionateSection({
               fallbackImageIndex={index}
               hasStartedReading={item.hasStartedReading}
               isFavorite={item.isFavorite}
+              isPrivate={item.isPrivate}
             />
           </Link>
         ))}

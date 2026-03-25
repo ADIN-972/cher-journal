@@ -119,6 +119,38 @@ export default function Reader({
     addToLoaded(currentVolume as unknown as PreloadedVolume, currentVolume.illustrationUrl ?? null);
   }, [currentVolume, addToLoaded]);
 
+  // ── Reading session heartbeat ──────────────────────────────────────────────
+  const readingSessionIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!currentVolume) return;
+
+    // Start reading session
+    api.post('/reader/reading-session/start', {
+      chapterId: currentVolume.chapterId,
+      volumeNumber: currentVolume.volumeNumber,
+      perspective: perspective === 'PROTAGONIST' ? 'PROTAGONIST' : 'NARRATOR',
+    }).then((res: any) => {
+      readingSessionIdRef.current = res.data?.sessionId || null;
+    }).catch(() => {});
+
+    // Send heartbeat every 30 seconds
+    const interval = setInterval(() => {
+      if (readingSessionIdRef.current) {
+        api.post('/reader/reading-session/heartbeat', {
+          sessionId: readingSessionIdRef.current,
+          elapsedSeconds: 10,
+          progress: 0,
+        }).catch(() => {});
+      }
+    }, 10000);
+
+    return () => {
+      clearInterval(interval);
+      readingSessionIdRef.current = null;
+    };
+  }, [currentVolume?.volumeId, perspective]);
+
   // ── Load all volumes in the chapter progressively ─────────────────────────
   useEffect(() => {
     if (!allVolumeIds?.length) return;

@@ -36,13 +36,14 @@ export const handleApiError = (error: any): AppError => {
     };
   }
 
-  // 403 - Entitlement denied
-  if (status === 403 && data?.code === 'ENTITLEMENT_DENIED') {
+  // 403 - Access denied / Entitlement denied
+  if (status === 403) {
     return {
       code: ErrorCode.ENTITLEMENT_DENIED,
-      message: 'Access denied',
-      userMessage: 'You don\'t have access to this content. Please purchase or subscribe.',
+      message: data?.error?.message || 'Access denied',
+      userMessage: 'Vous n\'avez pas acces a ce contenu.',
       statusCode: status,
+      context: data?.data, // Volume info returned by the API on 403
     };
   }
 

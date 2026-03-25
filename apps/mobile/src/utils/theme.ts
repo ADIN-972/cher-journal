@@ -13,6 +13,7 @@ export const colors = {
   gold: '#D4AF37',
   softGold: '#C5A059',
   goldLight: '#E8D5A3',
+  goldDark: '#69520e',
 
   // Boudoir browns
   boudoir: {
@@ -47,7 +48,7 @@ export const colors = {
   warning: '#D97706',
 
   // Background
-  background: '#FFFFFF',
+  background: '#f5f3f0',
   backgroundDark: '#1A0F0A',
   surface: '#F9FAFB',
   surfaceDark: '#2D1620',

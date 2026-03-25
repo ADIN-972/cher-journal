@@ -22,7 +22,7 @@ class ApiClient {
     params?: Record<string, any>,
     customHeaders?: Record<string, string>
   ): Promise<ApiResponse<T>> {
-    const headers: Record<string, string> = { ...customHeaders };
+    const headers: Record<string, string> = { 'X-App': 'admin', ...customHeaders };
 
     // Build URL with query params
     let url = `${this.baseURL}${path}`;
@@ -104,7 +104,7 @@ class ApiClient {
    */
   async download(path: string, accept?: string): Promise<Blob> {
     const url = `${this.baseURL}${path}`;
-    const headers: HeadersInit = {};
+    const headers: Record<string, string> = { 'X-App': 'admin' };
 
     if (accept) {
       headers["Accept"] = accept;
@@ -126,6 +126,7 @@ class ApiClient {
   async upload(path: string, formData: FormData): Promise<ApiResponse<any>> {
     const response = await fetch(`${this.baseURL}${path}`, {
       method: "POST",
+      headers: { 'X-App': 'admin' },
       credentials: "include",
       body: formData,
     });

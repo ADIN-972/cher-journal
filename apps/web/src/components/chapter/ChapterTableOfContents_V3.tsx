@@ -119,7 +119,7 @@ export default forwardRef<HTMLElement, ChapterTableOfContentsV3Props>(
     return (
       <section
         ref={ref}
-        className=" py-12"
+        className=" pb-12"
         onClick={() => {
           // Close selected volume actions when clicking outside
           setSelectedVolumeId(null);

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { storage, STORAGE_KEYS } from './storage';
 
 export type Language = 'en' | 'fr';
 
@@ -81,12 +82,7 @@ interface I18nProviderProps {
 
 export function I18nProvider({ children, defaultLanguage = 'en' }: I18nProviderProps) {
   const [language, setLanguage] = useState<Language>(() => {
-    // Try to get from localStorage first
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('language') as Language | null;
-      return saved || defaultLanguage;
-    }
-    return defaultLanguage;
+    return storage.getString(STORAGE_KEYS.LANGUAGE, defaultLanguage) as Language || defaultLanguage;
   });
 
   const [translations, setTranslations] = useState<Record<string, any>>({});
@@ -112,9 +108,7 @@ export function I18nProvider({ children, defaultLanguage = 'en' }: I18nProviderP
   // Change language handler
   const changeLanguage = useCallback((newLanguage: Language) => {
     setLanguage(newLanguage);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('language', newLanguage);
-    }
+    storage.set(STORAGE_KEYS.LANGUAGE, newLanguage);
   }, []);
 
   const value: I18nContextType = {

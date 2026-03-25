@@ -26,7 +26,11 @@ export default {
         'text-boudoir-600', 'text-boudoir-700', 'text-boudoir-900',
         'hover:bg-boudoir-300', 'hover:bg-boudoir-700',
         'dark:bg-card-dark',
-        'dark:border-[#4d252f]'
+        'dark:border-[#4d252f]',
+        // Heatmap opacity variants
+        'bg-opacity-[10%]', 'bg-opacity-[20%]', 'bg-opacity-[30%]', 'bg-opacity-[40%]',
+        'bg-opacity-[50%]', 'bg-opacity-[60%]', 'bg-opacity-[70%]', 'bg-opacity-[80%]',
+        'bg-opacity-[90%]', 'bg-opacity-[100%]',
     ],
     darkMode: 'class',
     theme: {

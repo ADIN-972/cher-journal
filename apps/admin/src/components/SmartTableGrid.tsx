@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import TableGrid, { TableAction, TableColumn } from "./TableGrid";
 import { MdViewColumn } from "react-icons/md";
+import { storage, STORAGE_KEYS } from "../lib/storage";
 import SegmentedToggle from "./SegmentedToggle";
 
 type VisibleColumnsState = Record<string, boolean>;
@@ -70,7 +71,7 @@ export function SmartTableGrid<T>({
   isActiveField,
   isActive,
 }: SmartTableGridProps<T>) {
-  const storageKey = `table-columns-${listName}`;
+  const storageKey = STORAGE_KEYS.TABLE_COLUMNS(listName);
   const [visibleColumns, setVisibleColumns] = useState<VisibleColumnsState>({});
   const [hydrated, setHydrated] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -78,15 +79,11 @@ export function SmartTableGrid<T>({
 
   // Load persisted visibility (or defaults) before we allow persistence
   useEffect(() => {
-    const stored = localStorage.getItem(storageKey);
+    const stored = storage.get<VisibleColumnsState | null>(storageKey, null);
     if (stored) {
-      try {
-        setVisibleColumns(JSON.parse(stored));
-        setHydrated(true);
-        return;
-      } catch (err) {
-        console.warn("Failed to parse column visibility, resetting", err);
-      }
+      setVisibleColumns(stored);
+      setHydrated(true);
+      return;
     }
     const initial: VisibleColumnsState = {};
     columns.forEach((col) => {
@@ -99,7 +96,7 @@ export function SmartTableGrid<T>({
   // Persist when changes (only after hydration)
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(storageKey, JSON.stringify(visibleColumns));
+    storage.set(storageKey, visibleColumns);
   }, [storageKey, visibleColumns, hydrated]);
 
   // Close picker on outside click

@@ -45,13 +45,16 @@ export default function ChapterGridView({
     <Link
       to={`/chapters/${chapter.id}`}
       className={`${
-        isTop3 ? `border-4 ${getRankingStyles(index).border}` : "border dark:border-white/30"
+        isTop3
+          ? `border-4 ${getRankingStyles(index).border}`
+          : "border dark:border-white/30"
       }  dark:bg-white/5 p-3 rounded-2xl group`}>
       <div className="aspect-[3/4] !text-md overflow-hidden rounded-lg mb-3 relative ">
         {isTop3 && getRankingStyles(index) && (
           <div
             className={`absolute top-2 left-2 z-20 flex items-center justify-center w-8 h-8 rounded-full border-2 shadow-lg bg-gradient-to-br ${getRankingStyles(index)?.border} ${getRankingStyles(index)?.gradient}`}>
-            <span className={`${getRankingStyles(index)?.text} font-display font-bold text-sm`}>
+            <span
+              className={`${getRankingStyles(index)?.text} font-display font-bold text-sm`}>
               {index + 1}
             </span>
           </div>
@@ -65,6 +68,7 @@ export default function ChapterGridView({
             textSize="auto"
             showTitleOverlay={true}
             hasGrayscaleEffect={!isTop3 && top3}
+            isAccesClub={chapter.isPrivate}
           />
         ) : (
           <div

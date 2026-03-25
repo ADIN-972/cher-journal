@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { storage, STORAGE_KEYS } from "../lib/storage";
 
 interface DebugState {
   debugMode: boolean;
@@ -7,18 +8,18 @@ interface DebugState {
 }
 
 export const useDebugStore = create<DebugState>((set) => ({
-  debugMode: localStorage.getItem("debug-mode") === "true",
+  debugMode: storage.get<boolean>(STORAGE_KEYS.DEBUG_MODE, false),
 
   toggleDebugMode: () => {
     set((state) => {
       const newValue = !state.debugMode;
-      localStorage.setItem("debug-mode", String(newValue));
+      storage.set(STORAGE_KEYS.DEBUG_MODE, newValue);
       return { debugMode: newValue };
     });
   },
 
   setDebugMode: (enabled: boolean) => {
-    localStorage.setItem("debug-mode", String(enabled));
+    storage.set(STORAGE_KEYS.DEBUG_MODE, enabled);
     set({ debugMode: enabled });
   },
 }));

@@ -5,6 +5,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
+import { storage, STORAGE_KEYS } from "./storage";
 
 type Language = "en" | "fr";
 
@@ -29,8 +30,7 @@ const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
-    const saved = localStorage.getItem("language") as Language;
-    return saved || "fr";
+    return storage.getString(STORAGE_KEYS.LANGUAGE, "fr") as Language;
   });
 
   const [translations, setTranslations] = useState<Translations>({});
@@ -59,7 +59,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem("language", lang);
+    storage.set(STORAGE_KEYS.LANGUAGE, lang);
   };
 
   // Helper function to get nested translation

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import toast from "react-hot-toast";
 import { api } from "../lib/api";
+import { storage, STORAGE_KEYS } from "../lib/storage";
 import type { User } from "@cher-journal/types";
 
 interface AuthState {
@@ -23,7 +24,7 @@ const authMessages = {
 } as const;
 
 const getAuthMessage = (key: keyof typeof authMessages.fr) => {
-  const lang = (localStorage.getItem("language") as "fr" | "en") || "fr";
+  const lang = storage.getString(STORAGE_KEYS.LANGUAGE, "fr") as "fr" | "en";
   return authMessages[lang][key];
 };
 

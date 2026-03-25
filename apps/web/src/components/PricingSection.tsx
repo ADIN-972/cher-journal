@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import api from "../lib/api";
 import PlanCard from "./common/PlanCard";
 
 interface Volume {
@@ -65,6 +67,14 @@ export default function PricingSection({
   protagonistBundlePromotion,
   coloringPromotion,
 }: PricingSectionProps) {
+  const [clubInfo, setClubInfo] = useState<{ discountPercent: number } | null>(null);
+
+  useEffect(() => {
+    api.getClubInfo().then(setClubInfo).catch(() => {});
+  }, []);
+
+  const protaDiscountPercent = clubInfo?.discountPercent ?? 25;
+
   // Only show if user hasn't purchased everything
   if (pricing.bundleDiscountedPrice <= 0) {
     return null;
@@ -78,7 +88,7 @@ export default function PricingSection({
   // Calculate protagonist bundle price
   const protagonistPrice = pricing.priceProtagonistUnlock || 99;
   const protagonistBundleOriginal = protagonistPrice * pricing.totalVolumes;
-  const protagonistBundleDiscounted = Math.round(protagonistBundleOriginal * 0.75);
+  const protagonistBundleDiscounted = Math.round(protagonistBundleOriginal * (1 - protaDiscountPercent / 100));
 
   // Calculate coloring bundle price
   const coloringBundlePrice = pricing.priceColoring || 0; // Will be implemented with coloring feature

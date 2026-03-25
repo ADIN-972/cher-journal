@@ -19,7 +19,12 @@ export default function Login() {
 
     try {
       await login(formData.email, formData.password);
-      navigate('/');
+      const { user } = useAuthStore.getState();
+      if (user && user.emailVerified === false) {
+        navigate('/verify-email');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       console.error('Login error:', err);
     }

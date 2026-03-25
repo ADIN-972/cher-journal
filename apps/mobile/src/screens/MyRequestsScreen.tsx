@@ -13,6 +13,8 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { customStoriesAPI, museChaptersAPI, type CustomStoryRequest, type MuseChapterEntry } from '@/services/api/chapters';
 import Icon from '@/components/Icon';
 import { colors, spacing, fontSize, borderRadius } from '@/utils/theme';
+import { useThemeColors } from '@/theme/ThemeContext';
+import ScreenHeader from '@/components/ScreenHeader';
 
 const GENRE_LABELS: Record<string, string> = {
   PASSIONS_CHARNELLES: 'Passions Charnelles',
@@ -58,6 +60,7 @@ const formatDate = (dateString: string) => {
 
 const MyRequestsScreen: React.FC = () => {
   const router = useRouter();
+  const tc = useThemeColors();
   const [stories, setStories] = useState<CustomStoryRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -125,19 +128,19 @@ const MyRequestsScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <View style={styles.centeredContainer}>
-        <ActivityIndicator size="large" color={colors.gold} />
-        <Text style={styles.loadingText}>Chargement de vos demandes...</Text>
+      <View style={[styles.centeredContainer, { backgroundColor: tc.background }]}>
+        <ActivityIndicator size="large" color={tc.gold} />
+        <Text style={[styles.loadingText, { color: tc.textSecondary }]}>Chargement de vos demandes...</Text>
       </View>
     );
   }
 
   if (error && stories.length === 0) {
     return (
-      <View style={styles.centeredContainer}>
-        <Icon name="error" size={40} color={colors.error} />
-        <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={handleRefresh}>
+      <View style={[styles.centeredContainer, { backgroundColor: tc.background }]}>
+        <Icon name="error" size={40} color={tc.error} />
+        <Text style={[styles.errorText, { color: tc.textSecondary }]}>{error}</Text>
+        <TouchableOpacity style={[styles.retryButton, { backgroundColor: tc.rose }]} onPress={handleRefresh}>
           <Text style={styles.retryText}>Reessayer</Text>
         </TouchableOpacity>
       </View>
@@ -146,10 +149,10 @@ const MyRequestsScreen: React.FC = () => {
 
   if (stories.length === 0) {
     return (
-      <View style={styles.centeredContainer}>
-        <Icon name="edit_note" size={56} color={colors.gold} style={{ opacity: 0.4 }} />
-        <Text style={styles.emptyTitle}>Aucune demande</Text>
-        <Text style={styles.emptyText}>
+      <View style={[styles.centeredContainer, { backgroundColor: tc.background }]}>
+        <Icon name="edit_note" size={56} color={tc.gold} style={{ opacity: 0.4 }} />
+        <Text style={[styles.emptyTitle, { color: tc.text }]}>Aucune demande</Text>
+        <Text style={[styles.emptyText, { color: tc.textSecondary }]}>
           Vous n'avez pas encore soumis de demandes de creation d'histoire personnalisee.
         </Text>
         <TouchableOpacity
@@ -166,23 +169,15 @@ const MyRequestsScreen: React.FC = () => {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: tc.background }]}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.gold} />
+        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={tc.gold} />
       }
     >
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.replace('/account')} style={{ marginBottom: spacing.sm }}>
-          <Icon name="arrow_back" size={22} color={colors.charcoal} />
-        </TouchableOpacity>
-        <View style={styles.headerRow}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.headerTitle}>Mes Demandes</Text>
-            <Text style={styles.headerSubtitle}>
-              {stories.length} demande{stories.length !== 1 ? 's' : ''}
-            </Text>
-          </View>
+      <ScreenHeader
+        title="Mes Demandes"
+        subtitle={`${stories.length} demande${stories.length !== 1 ? 's' : ''}`}
+        rightAction={
           <TouchableOpacity
             style={styles.newRequestButton}
             onPress={() => router.push('/account/create-story')}
@@ -191,22 +186,22 @@ const MyRequestsScreen: React.FC = () => {
             <Icon name="add" size={16} color={colors.white} />
             <Text style={styles.newRequestText}>Nouvelle</Text>
           </TouchableOpacity>
-        </View>
-      </View>
+        }
+      />
 
       {/* Muse chapters section */}
       {museChapters.length > 0 && (
         <View style={styles.museSection}>
           {museChapters.map((entry) => (
-            <View key={entry.id} style={styles.museCard}>
+            <View key={entry.id} style={[styles.museCard, { backgroundColor: tc.card }]}>
               <View style={styles.museCardHeader}>
                 <View style={styles.museIconContainer}>
                   <Icon name="auto_awesome" size={22} color="#D4AF37" />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.museTitle}>Votre histoire a pris vie !</Text>
-                  <Text style={styles.museChapterTitle}>{entry.chapter.title}</Text>
-                  <Text style={styles.museProtagonist}>
+                  <Text style={[styles.museChapterTitle, { color: tc.text }]}>{entry.chapter.title}</Text>
+                  <Text style={[styles.museProtagonist, { color: tc.textSecondary }]}>
                     Protagoniste : {entry.chapter.protagonistName}
                   </Text>
                 </View>
@@ -237,12 +232,12 @@ const MyRequestsScreen: React.FC = () => {
           const isExpanded = expandedId === story.id;
 
           return (
-            <View key={story.id} style={[styles.card, story.status === 'REJECTED' && styles.cardRejected]}>
+            <View key={story.id} style={[styles.card, { backgroundColor: tc.card, borderColor: tc.cardBorder }, story.status === 'REJECTED' && styles.cardRejected]}>
               {/* Card header */}
               <View style={styles.cardHeader}>
                 <View style={{ flex: 1 }}>
                   <View style={styles.cardTitleRow}>
-                    <Text style={styles.cardProtagonist}>{story.protagonistName}</Text>
+                    <Text style={[styles.cardProtagonist, { color: tc.text }]}>{story.protagonistName}</Text>
                     <View style={[styles.statusBadge, { backgroundColor: statusCfg.bg }]}>
                       <Icon name={statusCfg.icon} size={14} color={statusCfg.color} />
                       <Text style={[styles.statusText, { color: statusCfg.color }]}>
@@ -250,7 +245,7 @@ const MyRequestsScreen: React.FC = () => {
                       </Text>
                     </View>
                   </View>
-                  <Text style={styles.cardDescription} numberOfLines={2}>
+                  <Text style={[styles.cardDescription, { color: tc.textSecondary }]} numberOfLines={2}>
                     {story.description}
                   </Text>
                 </View>
@@ -259,34 +254,34 @@ const MyRequestsScreen: React.FC = () => {
               {/* Info grid */}
               <View style={styles.infoGrid}>
                 <View style={styles.infoItem}>
-                  <Text style={styles.infoLabel}>Genres</Text>
+                  <Text style={[styles.infoLabel, { color: tc.textTertiary }]}>Genres</Text>
                   <View style={styles.genreRow}>
                     {(story.selectedGenres || []).slice(0, 2).map((g, i) => (
-                      <Text key={i} style={styles.genreTag}>
+                      <Text key={i} style={[styles.genreTag, { backgroundColor: tc.surfaceSecondary }]}>
                         {GENRE_LABELS[g] || g}
                       </Text>
                     ))}
                     {(story.selectedGenres || []).length > 2 && (
-                      <Text style={styles.genreTag}>+{story.selectedGenres.length - 2}</Text>
+                      <Text style={[styles.genreTag, { backgroundColor: tc.surfaceSecondary }]}>+{story.selectedGenres.length - 2}</Text>
                     )}
                   </View>
                 </View>
 
                 <View style={styles.infoItem}>
-                  <Text style={styles.infoLabel}>Explicite</Text>
-                  <Text style={styles.infoValue}>
+                  <Text style={[styles.infoLabel, { color: tc.textTertiary }]}>Explicite</Text>
+                  <Text style={[styles.infoValue, { color: tc.text }]}>
                     {EXPLICIT_LABELS[story.explicitLevel] || story.explicitLevel}
                   </Text>
                 </View>
 
                 <View style={styles.infoItem}>
-                  <Text style={styles.infoLabel}>Photos</Text>
-                  <Text style={styles.infoValue}>{(story.photoAssetIds || []).length}/10</Text>
+                  <Text style={[styles.infoLabel, { color: tc.textTertiary }]}>Photos</Text>
+                  <Text style={[styles.infoValue, { color: tc.text }]}>{(story.photoAssetIds || []).length}/10</Text>
                 </View>
 
                 <View style={styles.infoItem}>
-                  <Text style={styles.infoLabel}>Date</Text>
-                  <Text style={styles.infoValue}>{formatDate(story.submittedAt || story.createdAt)}</Text>
+                  <Text style={[styles.infoLabel, { color: tc.textTertiary }]}>Date</Text>
+                  <Text style={[styles.infoValue, { color: tc.text }]}>{formatDate(story.submittedAt || story.createdAt)}</Text>
                 </View>
               </View>
 
@@ -311,7 +306,7 @@ const MyRequestsScreen: React.FC = () => {
               {/* Actions */}
               <View style={styles.actionsRow}>
                 <TouchableOpacity
-                  style={styles.detailsButton}
+                  style={[styles.detailsButton, { backgroundColor: tc.surfaceSecondary }]}
                   onPress={() => setExpandedId(isExpanded ? null : story.id)}
                   activeOpacity={0.7}
                 >
@@ -337,9 +332,9 @@ const MyRequestsScreen: React.FC = () => {
 
               {/* Expanded details */}
               {isExpanded && (
-                <View style={styles.expandedSection}>
-                  <Text style={styles.expandedLabel}>Description</Text>
-                  <Text style={styles.expandedText}>{story.description}</Text>
+                <View style={[styles.expandedSection, { backgroundColor: tc.surface, borderTopColor: tc.cardBorder }]}>
+                  <Text style={[styles.expandedLabel, { color: tc.textSecondary }]}>Description</Text>
+                  <Text style={[styles.expandedText, { color: tc.text }]}>{story.description}</Text>
 
                   <Text style={[styles.expandedLabel, { marginTop: spacing.md }]}>
                     Genres selectionnes
@@ -422,19 +417,33 @@ const styles = StyleSheet.create({
 
   // Header
   header: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
+    paddingTop: spacing['3xl'],
     paddingBottom: spacing.lg,
+    gap: spacing.md,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.gray[100],
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  },
+  headerTextBlock: {
+    flex: 1,
   },
   headerTitle: {
     fontFamily: 'Newsreader_400Regular_Italic',
-    fontSize: fontSize['3xl'],
+    fontSize: fontSize['2xl'],
     color: colors.charcoal,
   },
   headerSubtitle: {
-    fontSize: fontSize.sm,
+    fontSize: fontSize.xs,
     color: colors.gray[500],
-    marginTop: spacing.xs,
+    marginTop: 2,
   },
   headerRow: {
     flexDirection: 'row',

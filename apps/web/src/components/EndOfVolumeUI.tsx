@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 interface EndOfVolumeUIProps {
   volumeNumber: number;
   chapterId: string;
@@ -10,6 +12,7 @@ interface EndOfVolumeUIProps {
     isAccessible?: boolean;
     blockageType?: string;
     blockageInfo?: any;
+    canStartWait?: boolean;
   } | null;
   onClose: () => void;
   onStartWait?: () => void;
@@ -18,6 +21,8 @@ interface EndOfVolumeUIProps {
   totalVolumes?: number;
   allVolumesOwned?: boolean;
   chapterPrice?: number;
+  activeWaitsCount?: number;
+  maxWaitsAllowed?: number;
 }
 
 function formatPrice(cents: number): string {
@@ -52,7 +57,24 @@ export default function EndOfVolumeUI({
   totalVolumes = 10,
   allVolumesOwned = false,
   chapterPrice,
+  activeWaitsCount = 0,
+  maxWaitsAllowed = 2,
 }: EndOfVolumeUIProps) {
+  const [isStartingWait, setIsStartingWait] = useState(false);
+
+  const handleStartWait = async () => {
+    if (!onStartWait) return;
+    setIsStartingWait(true);
+    try {
+      await onStartWait();
+    } finally {
+      setIsStartingWait(false);
+    }
+  };
+
+  const reachedWaitLimit = activeWaitsCount >= maxWaitsAllowed;
+  const hasActiveWait = (nextVolume?.blockageInfo?.waitRemaining ?? 0) > 0;
+  const canStartWait = nextVolume?.canStartWait && !hasActiveWait && !reachedWaitLimit;
   // PROTAGONIST price per volume (0.99€)
   const protagonistPrice = 99;
   const isProtagonist = perspective === 'PROTAGONIST';

@@ -9,6 +9,7 @@ interface User {
   lastName: string;
   username?: string;
   role: 'reader' | 'admin';
+  emailVerified?: boolean;
 }
 
 interface AuthState {

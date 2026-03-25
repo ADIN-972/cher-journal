@@ -2,14 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
-import {
-  MdArrowBack,
-  MdCheckCircle,
-  MdHourglassEmpty,
-  MdCancel,
-  MdDone,
-  MdSend,
-} from 'react-icons/md';
 
 interface SupportClaim {
   id: string;
@@ -30,14 +22,38 @@ interface SupportClaim {
     lastName: string;
     publicId: string;
   };
+  messages?: SupportMessage[];
 }
+
+interface SupportMessage {
+  id: string;
+  claimId: string;
+  authorId: string;
+  role: 'USER' | 'ADMIN';
+  content: string;
+  createdAt: string;
+}
+
+const STATUS_CONFIG: Record<string, { label: string; badgeClass: string; dotClass: string }> = {
+  OPEN: { label: 'Ouvert', badgeClass: 'bg-red-50 text-red-700', dotClass: 'bg-red-500 animate-pulse' },
+  IN_PROGRESS: { label: 'En cours', badgeClass: 'bg-amber-50 text-amber-700', dotClass: 'bg-amber-500' },
+  RESOLVED: { label: 'Résolu', badgeClass: 'bg-blue-50 text-blue-700', dotClass: 'bg-blue-500' },
+  CLOSED: { label: 'Fermé', badgeClass: 'bg-green-50 text-green-700', dotClass: 'bg-green-600' },
+};
+
+const CATEGORY_ICONS: Record<string, { icon: string; label: string }> = {
+  TECHNICAL: { icon: 'build', label: 'Technique' },
+  BILLING: { icon: 'payments', label: 'Facturation' },
+  CONTENT: { icon: 'library_books', label: 'Contenu' },
+  OTHER: { icon: 'help', label: 'Autre' },
+};
 
 export default function SupportClaimDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [claim, setClaim] = useState<SupportClaim | null>(null);
   const [loading, setLoading] = useState(true);
-  const [newStatus, setNewStatus] = useState<'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED'>('OPEN');
+  const [newStatus, setNewStatus] = useState<string>('OPEN');
   const [adminNote, setAdminNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -53,7 +69,7 @@ export default function SupportClaimDetail() {
       );
       setClaim(response.data);
       setNewStatus(response.data.status);
-      setAdminNote(response.data.adminNote || '');
+      setAdminNote('');
     } catch (err) {
       console.error('Failed to load support claim:', err);
       toast.error('Erreur lors du chargement de la réclamation');
@@ -65,18 +81,13 @@ export default function SupportClaimDetail() {
 
   const handleUpdateStatus = async () => {
     if (!claim) return;
-
     try {
       setSubmitting(true);
-      await api.patch<{ success: boolean; data: SupportClaim }>(
-        `/admin/support-claims/${claim.id}`,
-        { status: newStatus }
-      );
-      toast.success('Statut mis à jour avec succès');
+      await api.patch(`/admin/support-claims/${claim.id}`, { status: newStatus });
+      toast.success('Statut mis à jour');
       loadClaim();
     } catch (err) {
-      console.error('Failed to update status:', err);
-      toast.error('Erreur lors de la mise à jour du statut');
+      toast.error('Erreur lors de la mise à jour');
     } finally {
       setSubmitting(false);
     }
@@ -87,201 +98,301 @@ export default function SupportClaimDetail() {
       toast.error('Veuillez entrer une réponse');
       return;
     }
-
     try {
       setSubmitting(true);
-      await api.post<{ success: boolean; data: SupportClaim }>(
-        `/admin/support-claims/${claim.id}/respond`,
-        { adminNote }
-      );
-      toast.success('Réponse envoyée avec succès');
+      await api.post(`/admin/support-claims/${claim.id}/respond`, { adminNote });
+      toast.success('Réponse envoyée');
       setAdminNote('');
       loadClaim();
     } catch (err) {
-      console.error('Failed to respond:', err);
-      toast.error('Erreur lors de l\'envoi de la réponse');
+      toast.error("Erreur lors de l'envoi");
     } finally {
       setSubmitting(false);
     }
   };
 
-  const getCategoryLabel = (category: string) => {
-    const labels: Record<string, string> = {
-      TECHNICAL: '🔧 Technique',
-      BILLING: '💳 Facturation',
-      CONTENT: '📚 Contenu',
-      OTHER: '❓ Autre',
-    };
-    return labels[category] || category;
-  };
-
-  const getStatusBadge = (status: string) => {
-    const styles: Record<string, string> = {
-      OPEN: 'bg-red-100 text-red-700',
-      IN_PROGRESS: 'bg-yellow-100 text-yellow-700',
-      RESOLVED: 'bg-blue-100 text-blue-700',
-      CLOSED: 'bg-green-100 text-green-700',
-    };
-    const icons: Record<string, React.ReactNode> = {
-      OPEN: <MdCancel className="inline mr-1" />,
-      IN_PROGRESS: <MdHourglassEmpty className="inline mr-1" />,
-      RESOLVED: <MdCheckCircle className="inline mr-1" />,
-      CLOSED: <MdDone className="inline mr-1" />,
-    };
-    const labels: Record<string, string> = {
-      OPEN: 'Ouvert',
-      IN_PROGRESS: 'En cours',
-      RESOLVED: 'Résolu',
-      CLOSED: 'Fermé',
-    };
-    return (
-      <span className={`px-3 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
-        {icons[status]}
-        {labels[status]}
-      </span>
-    );
+  const handleResolve = async () => {
+    if (!claim) return;
+    try {
+      setSubmitting(true);
+      await api.patch(`/admin/support-claims/${claim.id}`, { status: 'RESOLVED' });
+      toast.success('Ticket résolu');
+      loadClaim();
+    } catch (err) {
+      toast.error('Erreur');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Chargement...</div>
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
       </div>
     );
   }
 
   if (!claim) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-red-600">Réclamation non trouvée</div>
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <p className="text-gray-400">Réclamation non trouvée</p>
       </div>
     );
   }
 
+  const status = STATUS_CONFIG[claim.status] || STATUS_CONFIG.OPEN;
+  const cat = CATEGORY_ICONS[claim.category] || CATEGORY_ICONS.OTHER;
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      {/* Back Button */}
-      <button
-        onClick={() => navigate('/support-claims')}
-        className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-6"
-      >
-        <MdArrowBack />
-        Retour à la liste
-      </button>
-
-      {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <div className="flex items-start justify-between mb-4">
+    <div className="p-8 h-[calc(100vh-5rem)] overflow-hidden">
+      <div className="max-w-7xl mx-auto h-full flex flex-col gap-6">
+        {/* Page Header */}
+        <div className="flex items-end justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{claim.subject}</h1>
-            <div className="flex items-center gap-3">
-              {getStatusBadge(claim.status)}
-              <span className="text-gray-500">{getCategoryLabel(claim.category)}</span>
-            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/support-claims')}
+              className="text-[10px] uppercase tracking-[0.2em] text-gray-400 hover:text-amber-700 mb-1 flex items-center gap-1 transition-colors"
+            >
+              <span className="material-symbols-outlined text-sm">arrow_back</span>
+              Support
+            </button>
+            <h1 className="text-4xl font-bold text-gray-900 flex items-center gap-4">
+              <span className="opacity-50 font-light">#{claim.id.slice(0, 8)}</span>
+              <span className="italic">"{claim.subject}"</span>
+            </h1>
+          </div>
+          <div className="flex gap-3">
+            {/* Status selector */}
+            <select
+              aria-label="Changer le statut"
+              value={newStatus}
+              onChange={(e) => setNewStatus(e.target.value)}
+              className="px-4 py-2.5 rounded-full border border-gray-200 text-xs font-semibold uppercase tracking-wider focus:ring-2 focus:ring-amber-200 focus:border-amber-500 outline-none"
+            >
+              <option value="OPEN">Ouvert</option>
+              <option value="IN_PROGRESS">En cours</option>
+              <option value="RESOLVED">Résolu</option>
+              <option value="CLOSED">Fermé</option>
+            </select>
+            <button
+              type="button"
+              onClick={handleUpdateStatus}
+              disabled={submitting || newStatus === claim.status}
+              className="px-6 py-2.5 rounded-full border border-amber-200 text-amber-700 text-[10px] tracking-widest uppercase font-bold hover:bg-amber-50 transition-colors disabled:opacity-40"
+            >
+              Mettre à jour
+            </button>
+            <button
+              type="button"
+              onClick={handleResolve}
+              disabled={submitting || claim.status === 'RESOLVED' || claim.status === 'CLOSED'}
+              className="px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-600 to-amber-700 text-white text-[10px] tracking-widest uppercase font-bold shadow-xl shadow-amber-600/10 hover:opacity-90 transition-opacity disabled:opacity-40"
+            >
+              Résoudre le ticket
+            </button>
           </div>
         </div>
 
-        {/* User Info */}
-        <div className="border-t pt-4 mt-4">
-          <h3 className="font-semibold text-gray-900 mb-2">Utilisateur</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <div className="text-sm text-gray-500">Email</div>
-              <div className="font-medium text-gray-900">{claim.user?.email}</div>
+        {/* Main Content: 2 columns */}
+        <div className="flex-1 grid grid-cols-12 gap-8 overflow-hidden">
+          {/* Left Column: Conversation */}
+          <div className="col-span-8 flex flex-col bg-gray-50 rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-8 space-y-3">
+              {(claim.messages && claim.messages.length > 0) ? (
+                claim.messages.map((msg) => {
+                  const isAdmin = msg.role === 'ADMIN';
+                  const time = new Date(msg.createdAt).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+                  return isAdmin ? (
+                    <div key={msg.id} className="flex flex-col items-end ml-auto max-w-[85%]">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-[10px] text-gray-300">{time} •</span>
+                        <span className="text-[10px] uppercase tracking-widest text-amber-600 font-bold">Admin</span>
+                      </div>
+                      <div className="bg-amber-50 p-2 rounded-lg rounded-tr-none shadow-md border border-amber-100">
+                        <p className="text-lg leading-relaxed italic text-amber-900 whitespace-pre-line">"{msg.content}"</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div key={msg.id} className="flex flex-col items-start max-w-[85%]">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
+                          {claim.user?.firstName} {claim.user?.lastName}
+                        </span>
+                        <span className="text-[10px] text-gray-300">• {time}</span>
+                      </div>
+                      <div className="bg-white p-2 rounded-lg rounded-tl-none border-l-2 border-amber-300 shadow-sm">
+                        <p className="text-lg leading-relaxed italic text-gray-600 whitespace-pre-line">"{msg.content}"</p>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                /* Fallback: legacy single message + adminNote */
+                <>
+                  <div className="flex flex-col items-start max-w-[85%]">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
+                        {claim.user?.firstName} {claim.user?.lastName}
+                      </span>
+                      <span className="text-[10px] text-gray-300">
+                        • {new Date(claim.createdAt).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <div className="bg-white p-6 rounded-2xl rounded-tl-none border-l-2 border-amber-300 shadow-sm">
+                      <p className="text-lg leading-relaxed italic text-gray-600">"{claim.message}"</p>
+                    </div>
+                  </div>
+                  {claim.adminNote && (
+                    <div className="flex flex-col items-end ml-auto max-w-[85%]">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-[10px] text-gray-300">
+                          {claim.respondedAt && new Date(claim.respondedAt).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                          {' '}•
+                        </span>
+                        <span className="text-[10px] uppercase tracking-widest text-amber-600 font-bold">Admin</span>
+                      </div>
+                      <div className="bg-amber-50 p-6 rounded-2xl rounded-tr-none shadow-md border border-amber-100">
+                        <p className="text-lg leading-relaxed italic text-amber-900">"{claim.adminNote}"</p>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
-            <div>
-              <div className="text-sm text-gray-500">Nom</div>
-              <div className="font-medium text-gray-900">
-                {claim.user?.firstName} {claim.user?.lastName}
+
+            {/* Reply Editor */}
+            <div className="p-6 bg-white/60 border-t border-gray-100">
+              <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-inner">
+                <textarea
+                  className="w-full bg-transparent border-none focus:ring-0 italic text-lg text-gray-600 resize-none h-24 placeholder:opacity-30 outline-none"
+                  placeholder={`Répondre à ${claim.user?.firstName}...`}
+                  value={adminNote}
+                  onChange={(e) => setAdminNote(e.target.value)}
+                />
+                <div className="flex justify-end items-center mt-2">
+                  <button
+                    type="button"
+                    onClick={handleRespond}
+                    disabled={submitting || !adminNote.trim()}
+                    className="flex items-center gap-2 px-8 py-2 rounded-full bg-gradient-to-r from-amber-600 to-amber-700 text-white text-[10px] tracking-[0.2em] uppercase font-bold hover:shadow-lg transition-all disabled:opacity-40"
+                  >
+                    Envoyer
+                    <span className="material-symbols-outlined text-sm">send</span>
+                  </button>
+                </div>
               </div>
             </div>
-            <div>
-              <div className="text-sm text-gray-500">ID Public</div>
-              <div className="font-medium text-gray-900 font-mono text-xs">
-                {claim.user?.publicId.slice(0, 12)}...
+          </div>
+
+          {/* Right Column: Sidebar */}
+          <div className="col-span-4 space-y-6 overflow-y-auto pr-2">
+            {/* Metadata Card */}
+            <div className="bg-white p-6 rounded-2xl border border-gray-100">
+              <h3 className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-6">Métadonnées</h3>
+              <div className="space-y-5">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-400">Statut</span>
+                  <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${status.badgeClass}`}>
+                    <span className={`w-2 h-2 rounded-full ${status.dotClass}`}></span>
+                    {status.label}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-400">Catégorie</span>
+                  <span className="text-xs font-medium text-gray-700 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-sm">{cat.icon}</span>
+                    {cat.label}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-400">Créé le</span>
+                  <span className="text-xs text-gray-700">
+                    {new Date(claim.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-400">Mis à jour</span>
+                  <span className="text-xs text-gray-700">
+                    {new Date(claim.updatedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </span>
+                </div>
               </div>
             </div>
-            <div>
-              <div className="text-sm text-gray-500">Date de création</div>
-              <div className="font-medium text-gray-900">
-                {new Date(claim.createdAt).toLocaleDateString('fr-FR')}
+
+            {/* Reader Info Card */}
+            <div className="bg-white p-6 rounded-2xl border border-gray-100">
+              <h3 className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-6">Profil Lectrice</h3>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center text-amber-700 font-bold text-xl border-2 border-amber-200">
+                  {(claim.user?.firstName?.[0] || '?').toUpperCase()}
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold italic text-gray-900 leading-tight">
+                    {claim.user?.firstName} {claim.user?.lastName}
+                  </h4>
+                  <p className="text-[10px] uppercase text-gray-400 tracking-wider">
+                    ID: {claim.user?.publicId?.slice(0, 12)}
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-3 pt-4 border-t border-gray-50">
+                <div className="flex items-center gap-3 text-xs text-gray-500">
+                  <span className="material-symbols-outlined text-lg opacity-40">mail</span>
+                  {claim.user?.email}
+                </div>
+              </div>
+            </div>
+
+            {/* Activity Timeline */}
+            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+              <h3 className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-6">
+                Historique ({(claim.messages?.length || 0)} messages)
+              </h3>
+              <div className="space-y-5 relative before:absolute before:left-2 before:top-2 before:bottom-2 before:w-[1px] before:bg-gray-200">
+                {/* Ticket created */}
+                <div className="relative pl-8">
+                  <div className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-amber-300 border-2 border-white shadow-sm"></div>
+                  <p className="text-[11px] font-medium text-gray-700">Ticket créé</p>
+                  <p className="text-[10px] text-gray-400">
+                    {new Date(claim.createdAt).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+
+                {/* Message events from conversation */}
+                {claim.messages?.slice(1).map((msg) => (
+                  <div key={msg.id} className="relative pl-8">
+                    <div className={`absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 border-white shadow-sm ${
+                      msg.role === 'ADMIN' ? 'bg-amber-500' : 'bg-gray-300'
+                    }`}></div>
+                    <p className="text-[11px] font-medium text-gray-700">
+                      {msg.role === 'ADMIN' ? 'Réponse admin' : 'Message client'}
+                    </p>
+                    <p className="text-[10px] text-gray-400">
+                      {new Date(msg.createdAt).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                ))}
+
+                {/* Status events */}
+                {(claim.status === 'RESOLVED' || claim.status === 'CLOSED') && (
+                  <div className="relative pl-8">
+                    <div className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-green-500 border-2 border-white shadow-sm"></div>
+                    <p className="text-[11px] font-medium text-gray-700">
+                      Ticket {claim.status === 'RESOLVED' ? 'résolu' : 'fermé'}
+                    </p>
+                    <p className="text-[10px] text-gray-400">
+                      {new Date(claim.updatedAt).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Message */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Message</h3>
-        <div className="bg-gray-50 rounded p-4 text-gray-700 whitespace-pre-wrap">
-          {claim.message}
-        </div>
-      </div>
-
-      {/* Status Update */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Changer le statut</h3>
-        <div className="flex items-center gap-4">
-          <select
-            value={newStatus}
-            onChange={(e) => setNewStatus(e.target.value as any)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="OPEN">Ouvert</option>
-            <option value="IN_PROGRESS">En cours</option>
-            <option value="RESOLVED">Résolu</option>
-            <option value="CLOSED">Fermé</option>
-          </select>
-          <button
-            onClick={handleUpdateStatus}
-            disabled={submitting || newStatus === claim.status}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
-          >
-            Mettre à jour
-          </button>
-        </div>
-      </div>
-
-      {/* Admin Note */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Réponse</h3>
-
-        {claim.adminNote && (
-          <div className="mb-6 pb-6 border-b">
-            <div className="text-sm text-gray-500 mb-2">Note existante :</div>
-            <div className="bg-blue-50 rounded p-4 text-gray-700">
-              {claim.adminNote}
-            </div>
-            {claim.respondedAt && (
-              <div className="text-xs text-gray-500 mt-2">
-                Répondu le {new Date(claim.respondedAt).toLocaleDateString('fr-FR')}
-              </div>
-            )}
-          </div>
-        )}
-
-        <textarea
-          value={adminNote}
-          onChange={(e) => setAdminNote(e.target.value)}
-          placeholder="Entrez votre réponse ou note..."
-          rows={6}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-        />
-        <button
-          onClick={handleRespond}
-          disabled={submitting || !adminNote.trim()}
-          className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition-colors flex items-center gap-2"
-        >
-          <MdSend />
-          Envoyer la réponse
-        </button>
-      </div>
-
-      {/* Info */}
-      <div className="text-xs text-gray-500 text-center">
-        <p>ID: {claim.id}</p>
-        <p>Dernière modification: {new Date(claim.updatedAt).toLocaleString('fr-FR')}</p>
       </div>
     </div>
   );

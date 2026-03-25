@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { MdFilterList, MdClear, MdBookmark, MdClose } from "react-icons/md";
+import { storage, STORAGE_KEYS } from "../lib/storage";
 
 export interface UserFilterCriteria {
   role?: "ALL" | "ADMIN" | "USER";
@@ -40,8 +41,7 @@ export default function UserFilters({
   const [savedFilters, setSavedFilters] = useState<
     { name: string; filters: UserFilterCriteria }[]
   >(() => {
-    const saved = localStorage.getItem("userFilterPresets");
-    return saved ? JSON.parse(saved) : [];
+    return storage.get<{ name: string; filters: UserFilterCriteria }[]>(STORAGE_KEYS.USER_FILTER_PRESETS, []);
   });
 
   const handleChange = (key: keyof UserFilterCriteria, value: any) => {
@@ -59,7 +59,7 @@ export default function UserFilters({
 
     const newSaved = [...savedFilters, { name, filters }];
     setSavedFilters(newSaved);
-    localStorage.setItem("userFilterPresets", JSON.stringify(newSaved));
+    storage.set(STORAGE_KEYS.USER_FILTER_PRESETS, newSaved);
   };
 
   const loadSavedFilter = (saved: { name: string; filters: UserFilterCriteria }) => {
@@ -69,7 +69,7 @@ export default function UserFilters({
   const deleteSavedFilter = (index: number) => {
     const newSaved = savedFilters.filter((_, i) => i !== index);
     setSavedFilters(newSaved);
-    localStorage.setItem("userFilterPresets", JSON.stringify(newSaved));
+    storage.set(STORAGE_KEYS.USER_FILTER_PRESETS, newSaved);
   };
 
   const hasActiveFilters = () => {
