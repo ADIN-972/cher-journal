@@ -55,7 +55,9 @@ export default function ConnectionStatsChart({
         </div>
       </div>
 
-      <div className="flex items-end gap-1.5" style={{ height: 200 }}>
+      <div
+        className="flex items-end gap-1.5"
+        style={{ height: 200 }}>
         {stats.days.map((day) => {
           const heightPct = (day.count / maxCount) * 100;
           const isToday = day.date === today;
@@ -63,8 +65,8 @@ export default function ConnectionStatsChart({
           return (
             <div
               key={day.date}
-              className="flex-1 flex flex-col items-center gap-1"
-            >
+              className="flex-1 flex flex-col items-center gap-1 h-full mt-auto">
+              <div className="flex h-full"></div>
               <span className="text-[10px] text-gray-400 font-medium">
                 {day.count || ""}
               </span>
@@ -83,8 +85,7 @@ export default function ConnectionStatsChart({
                 title={`${day.label}: ${day.count} utilisateur(s) actif(s)`}
               />
               <span
-                className={`text-[9px] ${isToday ? "text-amber-600 font-bold" : "text-gray-300"}`}
-              >
+                className={`text-[9px] ${isToday ? "text-amber-600 font-bold" : "text-gray-300"}`}>
                 {day.label}
               </span>
             </div>

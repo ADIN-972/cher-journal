@@ -30,135 +30,122 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950 to-gray-950 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Decorative Background Elements */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl" />
+    <div className="min-h-screen bg-[#F2EDE9] flex flex-col items-center justify-center px-4 relative overflow-hidden selection:bg-[#e9c176]/30">
+      {/* Visual Accents */}
+      <div className="fixed top-0 right-0 -z-10 w-64 h-64 bg-[#e3bcca]/20 blur-[100px] rounded-full pointer-events-none" />
+      <div className="fixed bottom-0 left-0 -z-10 w-96 h-96 bg-[#e9c176]/10 blur-[120px] rounded-full pointer-events-none" />
 
-      <div className="w-full max-w-md">
-        {/* Brand Section */}
-        <div className="flex flex-col items-center gap-4 mb-12">
-          <div className="text-amber-600">
-            <span className="material-symbols-outlined text-6xl">fluid</span>
+      <main className="w-full max-w-sm flex flex-col items-center">
+        {/* Hero Section */}
+        <section className="mb-10 text-center">
+          <div className="relative inline-block mb-5">
+            <div className="absolute -inset-4 bg-[#e3bcca]/30 blur-2xl rounded-full" />
+            <img
+              src="/logo-cher-journal.png"
+              alt="Cher Journal"
+              className="relative w-20 h-20 object-contain rounded-full border-2 border-[#e9c176]/20 p-1 bg-white shadow-sm"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = "none";
+              }}
+            />
           </div>
-          <h1 className="text-4xl font-display font-bold tracking-tight text-gray-50">
-            Éros &amp; Plume
-          </h1>
-        </div>
+          <h2 className="font-serif text-4xl italic text-[#2A1720] mb-2">Cher Journal</h2>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-[#2A1720]/50 font-semibold">
+            Administration
+          </p>
+        </section>
 
-        {/* Login Card with Glow Effect */}
-        <div className="relative group">
-          <div className="absolute -inset-0.5 bg-amber-600/20 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000"></div>
-          <div className="relative bg-gray-950/80 backdrop-blur-2xl border border-amber-600/30 p-10 rounded-2xl shadow-2xl">
-            <h2 className="text-2xl font-display italic text-center mb-8 text-gray-50/90">
-              {t("login.welcome_subtitle")}
-            </h2>
+        {/* Login Form */}
+        <form className="space-y-6 w-full" onSubmit={handleSubmit}>
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200/60 text-red-700 px-4 py-3 rounded-2xl flex items-start gap-3 text-sm">
+              <span className="material-symbols-outlined text-base mt-0.5">error</span>
+              <span>{error}</span>
+            </div>
+          )}
 
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              {/* Error Message */}
-              {error && (
-                <div className="bg-rose-500/20 border border-rose-400/50 text-rose-200 px-4 py-3 rounded-lg flex items-start gap-3">
-                  <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-sm">{error}</span>
-                </div>
-              )}
-
-              {/* Email Field */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-amber-600/80 mb-2 uppercase tracking-widest text-[10px]">
-                  {t("login.email_label")}
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-gray-900/50 border border-amber-600/20 rounded-lg py-3 px-4 text-gray-50 focus:ring-1 focus:ring-amber-600 focus:border-amber-600 transition-all font-serif outline-none placeholder-gray-500"
-                  placeholder="admin@cherjournal.com"
-                />
-              </div>
-
-              {/* Password Field */}
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-amber-600/80 mb-2 uppercase tracking-widest text-[10px]">
-                  {t("login.password_label")}
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-gray-900/50 border border-amber-600/20 rounded-lg py-3 px-4 text-gray-50 focus:ring-1 focus:ring-amber-600 focus:border-amber-600 transition-all font-serif outline-none placeholder-gray-500"
-                  placeholder="••••••••"
-                />
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white py-4 rounded-lg font-bold text-lg transition-all active:scale-[0.98] shadow-xl shadow-rose-600/20 flex items-center justify-center gap-3 mt-8 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span className="material-symbols-outlined text-xl">key</span>
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <svg
-                      className="animate-spin h-5 w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24">
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    {t("messages.loading")}
-                  </span>
-                ) : (
-                  t("login.submit_button")
-                )}
-              </button>
-            </form>
-
-            {/* Footer Links */}
-            <div className="mt-8 pt-8 border-t border-gray-700/50 flex flex-col items-center gap-4">
-              <Link to="/forgot-password" className="text-sm text-gray-400 hover:text-amber-600 transition-colors font-serif italic">
-                {t("auth.login.forgot_password")}
-              </Link>
-              <p className="text-[11px] text-gray-500 uppercase tracking-widest">
-                {t("auth.no_account_yet")}{' '}
-                <Link to="/register" className="text-amber-600/60 hover:text-amber-600 transition-colors">
-                  {t("auth.create_account")}
-                </Link>
-              </p>
+          {/* Email */}
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest uppercase text-[#2A1720]/50 mb-2 ml-1">
+              {t("login.email_label")}
+            </label>
+            <div className="relative">
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-white border-none rounded-2xl px-5 py-4 text-[#2A1720] placeholder:text-[#2A1720]/30 focus:ring-2 focus:ring-[#e9c176]/40 transition-all outline-none shadow-sm text-sm"
+                placeholder="admin@cherjournal.com"
+              />
+              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#2A1720]/30 text-lg">
+                mail
+              </span>
             </div>
           </div>
-        </div>
+
+          {/* Password */}
+          <div>
+            <div className="flex justify-between items-center mb-2 ml-1">
+              <label className="text-[10px] font-bold tracking-widest uppercase text-[#2A1720]/50">
+                {t("login.password_label")}
+              </label>
+              <Link
+                to="/forgot-password"
+                className="text-[10px] font-bold tracking-widest uppercase text-[#7a5763]/80 hover:text-[#7a5763]">
+                {t("auth.login.forgot_password")}
+              </Link>
+            </div>
+            <div className="relative">
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-white border-none rounded-2xl px-5 py-4 text-[#2A1720] placeholder:text-[#2A1720]/30 focus:ring-2 focus:ring-[#e9c176]/40 transition-all outline-none shadow-sm text-sm"
+                placeholder="••••••••"
+              />
+              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#2A1720]/30 text-lg">
+                lock
+              </span>
+            </div>
+          </div>
+
+          {/* Submit */}
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-4 bg-gradient-to-r from-[#7a5763] to-[#2A1720] rounded-full text-white font-bold tracking-wider uppercase text-xs shadow-lg shadow-[#7a5763]/20 hover:opacity-90 transition-opacity active:scale-[0.98] duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  {t("messages.loading")}
+                </span>
+              ) : (
+                t("login.submit_button")
+              )}
+            </button>
+          </div>
+        </form>
 
         {/* Demo Credentials */}
-        <div className="mt-8 p-4 bg-gray-900/50 rounded-xl border border-gray-800/50">
-          <p className="text-xs text-gray-400 text-center mb-3 font-semibold uppercase tracking-widest">
+        <div className="mt-6 p-4 bg-white/60 rounded-2xl border border-[#e9c176]/10 w-full">
+          <p className="text-[9px] text-[#2A1720]/40 text-center mb-2 font-bold uppercase tracking-widest">
             {t("login.test_account_title")}
           </p>
-          <div className="text-xs text-gray-500 space-y-2">
-            <p className="text-center">
-              <span className="font-mono bg-gray-950 px-3 py-2 rounded text-amber-600/80">
+          <div className="text-xs text-[#2A1720]/60 space-y-1 text-center">
+            <p>
+              <span className="font-mono bg-[#F2EDE9] px-3 py-1 rounded-lg text-[#7a5763]">
                 admin@cherjournal.com
               </span>
             </p>
-            <p className="text-center">
-              <span className="font-mono bg-gray-950 px-3 py-2 rounded text-amber-600/80">
+            <p>
+              <span className="font-mono bg-[#F2EDE9] px-3 py-1 rounded-lg text-[#7a5763]">
                 admin123
               </span>
             </p>
@@ -167,19 +154,16 @@ export default function Login() {
 
         {/* Footer */}
         <footer className="mt-12 text-center">
-          <div className="flex justify-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-gray-600 hover:text-gray-500">
-            <a href="#" className="hover:text-amber-600 transition-colors">
-              Privacy
-            </a>
-            <a href="#" className="hover:text-amber-600 transition-colors">
-              Terms
-            </a>
-            <a href="#" className="hover:text-amber-600 transition-colors">
-              Help
-            </a>
-          </div>
+          <p className="text-[#2A1720]/50 text-sm">
+            {t("auth.no_account_yet")}{" "}
+            <Link
+              to="/register"
+              className="text-[#7a5763] font-bold border-b border-[#7a5763]/40 pb-0.5 ml-1">
+              {t("auth.create_account")}
+            </Link>
+          </p>
         </footer>
-      </div>
+      </main>
     </div>
   );
 }

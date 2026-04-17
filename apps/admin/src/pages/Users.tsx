@@ -592,7 +592,7 @@ export default function Users() {
       <div className="mt-8">
         <ConnectionStatsChart />
       </div>
-
+<div className="flex mb-[100px]"></div>
       {/* Floating Action Button */}
       <FloatingActionButton
         sections={[

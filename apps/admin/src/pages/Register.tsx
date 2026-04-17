@@ -3,13 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { api } from "../lib/api";
 import { useI18n } from "../lib/i18n";
-import {
-  MdEmail,
-  MdLock,
-  MdVisibility,
-  MdVisibilityOff,
-  MdPerson,
-} from "react-icons/md";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -19,7 +12,6 @@ export default function Register() {
   const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { t } = useI18n();
@@ -29,18 +21,14 @@ export default function Register() {
     e.preventDefault();
     setError("");
 
-    // Validation
     if (!firstName.trim()) {
-      const msg =
-        t("register.errors.first_name_required") ||
-        "Le prénom est obligatoire.";
+      const msg = t("register.errors.first_name_required") || "Le prenom est obligatoire.";
       setError(msg);
       toast.error(msg);
       return;
     }
     if (!lastName.trim()) {
-      const msg =
-        t("register.errors.last_name_required") || "Le nom est obligatoire.";
+      const msg = t("register.errors.last_name_required") || "Le nom est obligatoire.";
       setError(msg);
       toast.error(msg);
       return;
@@ -82,323 +70,231 @@ export default function Register() {
     }
   };
 
-  const passwordStrength = (password: string) => {
-    if (password.length === 0) return { strength: 0, label: "", color: "" };
-    if (password.length < 6)
-      return {
-        strength: 1,
-        label: t("register.strength.weak"),
-        color: "bg-red-500",
-      };
-    if (password.length < 10)
-      return {
-        strength: 2,
-        label: t("register.strength.medium"),
-        color: "bg-yellow-500",
-      };
-    if (
-      password.length >= 10 &&
-      /[A-Z]/.test(password) &&
-      /[0-9]/.test(password)
-    )
-      return {
-        strength: 3,
-        label: t("register.strength.strong"),
-        color: "bg-green-500",
-      };
-    return {
-      strength: 2,
-      label: t("register.strength.medium"),
-      color: "bg-yellow-500",
-    };
+  const passwordStrength = (pw: string) => {
+    if (pw.length === 0) return { strength: 0, label: "", color: "bg-[#2A1720]/10" };
+    if (pw.length < 6) return { strength: 1, label: t("register.strength.weak"), color: "bg-red-400" };
+    if (pw.length < 10) return { strength: 2, label: t("register.strength.medium"), color: "bg-[#e9c176]" };
+    if (pw.length >= 10 && /[A-Z]/.test(pw) && /[0-9]/.test(pw))
+      return { strength: 3, label: t("register.strength.strong"), color: "bg-green-500" };
+    return { strength: 2, label: t("register.strength.medium"), color: "bg-[#e9c176]" };
   };
 
   const strength = passwordStrength(password);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-      </div>
+    <div className="min-h-screen bg-[#F2EDE9] flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden selection:bg-[#e9c176]/30">
+      <div className="fixed top-0 right-0 -z-10 w-64 h-64 bg-[#e3bcca]/20 blur-[100px] rounded-full pointer-events-none" />
+      <div className="fixed bottom-0 left-0 -z-10 w-96 h-96 bg-[#e9c176]/10 blur-[120px] rounded-full pointer-events-none" />
 
-      <div className="relative bg-white/80 backdrop-blur-lg p-8 rounded-2xl shadow-2xl w-full max-w-md border border-white/20">
-        {/* Logo or Brand */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl mb-4 shadow-lg">
-            <span className="text-white text-2xl font-bold">CJ</span>
-          </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            {t("register.title")}
+      <main className="w-full max-w-sm flex flex-col items-center">
+        {/* Hero */}
+        <section className="mb-8 w-full">
+          <h1 className="font-serif italic text-4xl leading-tight text-[#2A1720]">
+            Ecrivons votre <br />
+            <span className="bg-gradient-to-r from-[#7a5763] to-[#e9c176] bg-clip-text text-transparent">premier chapitre.</span>
           </h1>
-          <p className="text-gray-600 mt-2 text-sm">{t("register.subtitle")}</p>
-        </div>
+          <p className="text-sm text-[#2A1720]/50 max-w-[280px] leading-relaxed mt-3">
+            Rejoignez le Boudoir Moderne et laissez-vous porter par une experience litteraire sur-mesure.
+          </p>
+        </section>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-start gap-3 animate-shake">
-            <svg
-              className="w-5 h-5 mt-0.5 flex-shrink-0"
-              fill="currentColor"
-              viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="text-sm">{error}</span>
-          </div>
-        )}
+        {/* Form */}
+        <form className="space-y-5 w-full" onSubmit={handleSubmit}>
+          {error && (
+            <div className="bg-red-50 border border-red-200/60 text-red-700 px-4 py-3 rounded-2xl flex items-start gap-3 text-sm">
+              <span className="material-symbols-outlined text-base mt-0.5">error</span>
+              <span>{error}</span>
+            </div>
+          )}
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-5">
-          {/* First Name Input */}
-          <div className="group">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              {t("register.first_name_label")}
-            </label>
-            <input
-              type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-200 bg-white/50"
-              placeholder={t("register.first_name_placeholder")}
-              required
-            />
-          </div>
-
-          {/* Last Name Input */}
-          <div className="group">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              {t("register.last_name_label")}
-            </label>
-            <input
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-200 bg-white/50"
-              placeholder={t("register.last_name_placeholder")}
-              required
-            />
-          </div>
-
-          {/* Username Input (optional) */}
-          <div className="group">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              {t("register.username_label")}
-            </label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-200 bg-white/50"
-              placeholder={t("register.username_placeholder")}
-            />
-          </div>
-
-          {/* Email Input */}
-          <div className="group">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              {t("register.email_label")}
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <MdEmail className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
-              </div>
+          {/* Name fields */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[10px] font-bold tracking-widest uppercase text-[#2A1720]/50 mb-2 ml-1">
+                {t("register.first_name_label")}
+              </label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-200 bg-white/50"
-                placeholder={t("register.email_placeholder")}
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="w-full bg-white border-none rounded-2xl px-4 py-3.5 text-[#2A1720] placeholder:text-[#2A1720]/30 focus:ring-2 focus:ring-[#e9c176]/40 transition-all outline-none shadow-sm text-sm"
+                placeholder={t("register.first_name_placeholder")}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold tracking-widest uppercase text-[#2A1720]/50 mb-2 ml-1">
+                {t("register.last_name_label")}
+              </label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="w-full bg-white border-none rounded-2xl px-4 py-3.5 text-[#2A1720] placeholder:text-[#2A1720]/30 focus:ring-2 focus:ring-[#e9c176]/40 transition-all outline-none shadow-sm text-sm"
+                placeholder={t("register.last_name_placeholder")}
                 required
               />
             </div>
           </div>
 
-          {/* Password Input */}
-          <div className="group">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          {/* Username */}
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest uppercase text-[#2A1720]/50 mb-2 ml-1">
+              {t("register.username_label")}
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full bg-white border-none rounded-2xl px-5 py-4 text-[#2A1720] placeholder:text-[#2A1720]/30 focus:ring-2 focus:ring-[#e9c176]/40 transition-all outline-none shadow-sm text-sm"
+                placeholder={t("register.username_placeholder")}
+              />
+              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#2A1720]/30 text-lg">
+                person
+              </span>
+            </div>
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest uppercase text-[#2A1720]/50 mb-2 ml-1">
+              {t("register.email_label")}
+            </label>
+            <div className="relative">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-white border-none rounded-2xl px-5 py-4 text-[#2A1720] placeholder:text-[#2A1720]/30 focus:ring-2 focus:ring-[#e9c176]/40 transition-all outline-none shadow-sm text-sm"
+                placeholder={t("register.email_placeholder")}
+                required
+              />
+              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#2A1720]/30 text-lg">
+                mail
+              </span>
+            </div>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest uppercase text-[#2A1720]/50 mb-2 ml-1">
               {t("register.password_label")}
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <MdLock className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
-              </div>
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-200 bg-white/50"
+                className="w-full bg-white border-none rounded-2xl px-5 py-4 pr-12 text-[#2A1720] placeholder:text-[#2A1720]/30 focus:ring-2 focus:ring-[#e9c176]/40 transition-all outline-none shadow-sm text-sm"
                 placeholder={t("register.password_placeholder")}
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
-                {showPassword ? (
-                  <MdVisibilityOff className="h-5 w-5" />
-                ) : (
-                  <MdVisibility className="h-5 w-5" />
-                )}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#2A1720]/30 hover:text-[#7a5763] transition-colors">
+                <span className="material-symbols-outlined text-lg">
+                  {showPassword ? "visibility_off" : "visibility"}
+                </span>
               </button>
             </div>
-            {/* Password Strength Indicator */}
+            {/* Strength indicator */}
             {password && (
-              <div className="mt-2">
+              <div className="mt-2 ml-1">
                 <div className="flex gap-1 mb-1">
                   {[1, 2, 3].map((level) => (
                     <div
                       key={level}
-                      className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                        level <= strength.strength
-                          ? strength.color
-                          : "bg-gray-200"
+                      className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                        level <= strength.strength ? strength.color : "bg-[#2A1720]/10"
                       }`}
                     />
                   ))}
                 </div>
                 {strength.label && (
-                  <p className="text-xs text-gray-600">
-                    {t("register.password_strength")}
-                    <span className="font-semibold">{strength.label}</span>
+                  <p className="text-[10px] text-[#2A1720]/40">
+                    {t("register.password_strength")} <span className="font-bold">{strength.label}</span>
                   </p>
                 )}
               </div>
             )}
           </div>
 
-          {/* Confirm Password Input */}
-          <div className="group">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          {/* Confirm Password */}
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest uppercase text-[#2A1720]/50 mb-2 ml-1">
               {t("register.confirm_password_label")}
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <MdLock className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
-              </div>
               <input
-                type={showConfirmPassword ? "text" : "password"}
+                type={showPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-200 bg-white/50"
+                className="w-full bg-white border-none rounded-2xl px-5 py-4 text-[#2A1720] placeholder:text-[#2A1720]/30 focus:ring-2 focus:ring-[#e9c176]/40 transition-all outline-none shadow-sm text-sm"
                 placeholder={t("register.confirm_password_placeholder")}
                 required
               />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
-                {showConfirmPassword ? (
-                  <MdVisibilityOff className="h-5 w-5" />
+              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-lg">
+                {confirmPassword && password === confirmPassword ? (
+                  <span className="text-green-500">check_circle</span>
+                ) : confirmPassword ? (
+                  <span className="text-red-400">cancel</span>
                 ) : (
-                  <MdVisibility className="h-5 w-5" />
+                  <span className="text-[#2A1720]/30">lock</span>
                 )}
-              </button>
+              </span>
             </div>
-            {confirmPassword && password !== confirmPassword && (
-              <p className="mt-2 text-xs text-red-600 flex items-center gap-1">
-                <svg
-                  className="w-4 h-4"
-                  fill="currentColor"
-                  viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                {t("register.errors.password_mismatch")}
-              </p>
-            )}
-            {confirmPassword && password === confirmPassword && (
-              <p className="mt-2 text-xs text-green-600 flex items-center gap-1">
-                <svg
-                  className="w-4 h-4"
-                  fill="currentColor"
-                  viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                {t("register.errors.password_match")}
-              </p>
-            )}
           </div>
 
-          {/* Terms and conditions */}
-          <div className="flex items-start gap-2">
+          {/* Terms */}
+          <div className="flex items-start gap-3 pt-1">
             <input
               type="checkbox"
               required
-              className="w-4 h-4 mt-0.5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 focus:ring-2 cursor-pointer"
+              className="w-4 h-4 mt-0.5 text-[#7a5763] border-[#2A1720]/20 rounded focus:ring-[#e9c176] cursor-pointer accent-[#7a5763]"
             />
-            <label className="text-xs text-gray-600">
-              {t("register.terms.prefix")} {""}
-              <a
-                href="#"
-                className="text-indigo-600 hover:text-indigo-700 font-semibold">
-                {t("register.terms.tos")}
-              </a>{" "}
-              {t("register.terms.and")} {""}
-              <a
-                href="#"
-                className="text-indigo-600 hover:text-indigo-700 font-semibold">
-                {t("register.terms.privacy")}
-              </a>
+            <label className="text-xs text-[#2A1720]/50 leading-relaxed">
+              {t("register.terms.prefix")}{" "}
+              <a href="#" className="text-[#7a5763] font-bold">{t("register.terms.tos")}</a>{" "}
+              {t("register.terms.and")}{" "}
+              <a href="#" className="text-[#7a5763] font-bold">{t("register.terms.privacy")}</a>
             </label>
           </div>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg
-                  className="animate-spin h-5 w-5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                {t("register.submitting")}
-              </span>
-            ) : (
-              t("register.submit")
-            )}
-          </button>
+          {/* Submit */}
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-4 bg-gradient-to-r from-[#7a5763] to-[#2A1720] rounded-full text-white font-bold tracking-wider uppercase text-xs shadow-lg shadow-[#7a5763]/20 hover:opacity-90 transition-opacity active:scale-[0.98] duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  {t("register.submitting")}
+                </span>
+              ) : (
+                t("register.submit")
+              )}
+            </button>
+          </div>
         </form>
 
-        {/* Login Link */}
-        <div className="mt-6 text-center">
-          <p className="text-gray-600 text-sm">
-            {t("register.already_account")} {""}
+        {/* Footer */}
+        <footer className="mt-10 text-center">
+          <p className="text-[#2A1720]/50 text-sm">
+            {t("register.already_account")}{" "}
             <Link
               to="/login"
-              className="text-indigo-600 hover:text-indigo-700 font-semibold transition-colors">
+              className="text-[#7a5763] font-bold border-b border-[#7a5763]/40 pb-0.5 ml-1">
               {t("register.login")}
             </Link>
           </p>
-        </div>
-      </div>
+        </footer>
+      </main>
     </div>
   );
 }

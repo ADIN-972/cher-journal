@@ -824,26 +824,6 @@
       "validation_firstname_required": "First name is required",
       "validation_lastname_required": "Last name is required",
       "validation_fullname_required": "Full name is required"
-    },
-    "verify_email": {
-      "brand_name": "Cher Journal",
-      "title": "Verify your email",
-      "description": "A verification code has been sent to",
-      "digit_label": "Digit",
-      "button_verify": "Verify",
-      "verifying": "Verifying...",
-      "success": "Email verified successfully!",
-      "redirecting": "Redirecting...",
-      "no_code": "Didn't receive a code?",
-      "resend_button": "Resend code",
-      "resend_countdown": "Resend code",
-      "sending": "Sending...",
-      "error_invalid_code": "Incorrect code. Please try again.",
-      "error_code_expired": "Code has expired. Please request a new one.",
-      "error_too_many_attempts": "Too many attempts. Please request a new code.",
-      "error_rate_limited": "Please wait 60 seconds before requesting a new code.",
-      "error_send_failed": "Failed to send code. Please try again.",
-      "error_generic": "An error occurred. Please try again."
     }
   },
   "common": {

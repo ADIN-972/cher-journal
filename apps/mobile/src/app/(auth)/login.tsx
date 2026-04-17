@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '@stores/authStore';
 import { colors, spacing, fontSize, borderRadius } from '@/utils/theme';
@@ -34,63 +35,74 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: tc.boudoir950 }]}
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.brand}>Cher Journal</Text>
-          <Text style={[styles.subtitle, { color: tc.softGold }]}>L'Ecrin des Desirs</Text>
-          <View style={[styles.separator, { backgroundColor: tc.gold }]} />
+        {/* Hero Section */}
+        <View style={styles.heroSection}>
+          <View style={styles.logoContainer}>
+            <View style={styles.logoGlow} />
+            <Image
+              source={require('../../../assets/logo-cher-journal.png')}
+              style={styles.logo}
+              contentFit="contain"
+            />
+          </View>
+          <Text style={styles.brandName}>Cher Journal</Text>
+          <Text style={[styles.tagline, { color: tc.textSecondary }]}>
+            Entrez dans votre salon prive
+          </Text>
         </View>
 
         {/* Form */}
-        <View style={[styles.form, { backgroundColor: tc.card }]}>
-          <Text style={[styles.title, { color: tc.text }]}>Connexion</Text>
-          <Text style={[styles.description, { color: tc.textSecondary }]}>
-            Retrouvez vos histoires et votre progression
-          </Text>
-
+        <View style={styles.formContainer}>
           {/* Error */}
           {error && (
             <View style={styles.errorBanner}>
-              <Text style={[styles.errorText, { color: tc.error }]}>{error}</Text>
+              <Text style={styles.errorText}>{error}</Text>
               <TouchableOpacity onPress={clearError}>
-                <Text style={[styles.errorDismiss, { color: tc.error }]}>x</Text>
+                <Text style={styles.errorDismiss}>x</Text>
               </TouchableOpacity>
             </View>
           )}
 
           {/* Email */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: tc.text }]}>Email</Text>
-            <TextInput
-              style={[styles.input, { backgroundColor: tc.inputBg, borderColor: tc.inputBorder, color: tc.text }]}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="votre@email.com"
-              placeholderTextColor={tc.placeholder}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!loading}
-            />
+            <Text style={styles.label}>Adresse Email</Text>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="votre@mail.com"
+                placeholderTextColor="rgba(42, 23, 32, 0.3)"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={!loading}
+              />
+            </View>
           </View>
 
           {/* Password */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: tc.text }]}>Mot de passe</Text>
-            <View style={[styles.passwordContainer, { backgroundColor: tc.inputBg, borderColor: tc.inputBorder }]}>
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>Mot de passe</Text>
+              <TouchableOpacity onPress={() => router.push('/reset-password')}>
+                <Text style={styles.forgotText}>Oublie ?</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.inputWrapper}>
               <TextInput
-                style={[styles.passwordInput, { color: tc.text }]}
+                style={[styles.input, styles.passwordInput]}
                 value={password}
                 onChangeText={setPassword}
-                placeholder="Votre mot de passe"
-                placeholderTextColor={tc.placeholder}
+                placeholder="••••••••"
+                placeholderTextColor="rgba(42, 23, 32, 0.3)"
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 editable={!loading}
@@ -99,24 +111,16 @@ export default function LoginScreen() {
                 style={styles.showPasswordBtn}
                 onPress={() => setShowPassword(!showPassword)}
               >
-                <Text style={[styles.showPasswordText, { color: tc.rose }]}>
+                <Text style={styles.showPasswordText}>
                   {showPassword ? 'Masquer' : 'Afficher'}
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* Forgot password */}
+          {/* Login Button */}
           <TouchableOpacity
-            style={styles.forgotLink}
-            onPress={() => router.push('/reset-password')}
-          >
-            <Text style={[styles.forgotText, { color: tc.rose }]}>Mot de passe oublie ?</Text>
-          </TouchableOpacity>
-
-          {/* Login button */}
-          <TouchableOpacity
-            style={[styles.loginButton, { backgroundColor: tc.rose }, loading && styles.loginButtonDisabled]}
+            style={[styles.loginButton, loading && styles.loginButtonDisabled]}
             onPress={handleLogin}
             disabled={loading || !email.trim() || !password.trim()}
             activeOpacity={0.8}
@@ -124,39 +128,52 @@ export default function LoginScreen() {
             {loading ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Text style={styles.loginButtonText}>Se connecter</Text>
+              <Text style={styles.loginButtonText}>Se Connecter</Text>
             )}
           </TouchableOpacity>
 
           {/* Divider */}
           <View style={styles.divider}>
-            <View style={[styles.dividerLine, { backgroundColor: tc.separator }]} />
-            <Text style={[styles.dividerText, { color: tc.textTertiary }]}>ou</Text>
-            <View style={[styles.dividerLine, { backgroundColor: tc.separator }]} />
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>Ou</Text>
+            <View style={styles.dividerLine} />
           </View>
 
-          {/* Signup link */}
-          <TouchableOpacity
-            style={[styles.signupButton, { borderColor: tc.boudoir800 }]}
-            onPress={() => router.push('/signup')}
-          >
-            <Text style={[styles.signupButtonText, { color: tc.boudoir800 }]}>Creer un compte</Text>
-          </TouchableOpacity>
+          {/* Social Buttons */}
+          <View style={styles.socialRow}>
+            <TouchableOpacity style={styles.socialButton} activeOpacity={0.7}>
+              <Text style={styles.socialButtonText}>Google</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.socialButton} activeOpacity={0.7}>
+              <Text style={styles.socialButtonText}>Apple</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Footer */}
-        <Text style={[styles.footer, { color: tc.textTertiary }]}>
-          En vous connectant, vous acceptez nos conditions d'utilisation
-        </Text>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            Nouveau ici ?{' '}
+          </Text>
+          <TouchableOpacity onPress={() => router.push('/signup')}>
+            <Text style={styles.footerLink}>Creer un compte</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
+const BG = '#F2EDE9';
+const DARK = '#2A1720';
+const WINE = '#7a5763';
+const GOLD = '#e9c176';
+const ROSE_LIGHT = '#e3bcca';
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.boudoir[950],
+    backgroundColor: BG,
   },
   scrollContent: {
     flexGrow: 1,
@@ -165,75 +182,70 @@ const styles = StyleSheet.create({
     paddingVertical: spacing['4xl'],
   },
 
-  // Header
-  header: {
+  // Hero
+  heroSection: {
     alignItems: 'center',
-    marginBottom: spacing['4xl'],
+    marginBottom: spacing['3xl'],
   },
-  brand: {
+  logoContainer: {
+    position: 'relative',
+    marginBottom: spacing.lg,
+  },
+  logoGlow: {
+    position: 'absolute',
+    top: -16,
+    left: -16,
+    right: -16,
+    bottom: -16,
+    backgroundColor: ROSE_LIGHT,
+    opacity: 0.3,
+    borderRadius: 999,
+  },
+  logo: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 2,
+    borderColor: `${GOLD}33`,
+  },
+  brandName: {
     fontSize: fontSize['4xl'],
-    fontWeight: '700',
-    color: colors.white,
-    fontStyle: 'italic',
-    letterSpacing: 1,
+    fontFamily: 'Newsreader_400Regular_Italic',
+    color: DARK,
+    marginBottom: spacing.xs,
   },
-  subtitle: {
-    fontSize: fontSize.sm,
-    fontWeight: '300',
-    color: colors.goldLight,
+  tagline: {
+    fontSize: 10,
     letterSpacing: 3,
     textTransform: 'uppercase',
-    marginTop: spacing.xs,
-  },
-  separator: {
-    width: 50,
-    height: 1,
-    backgroundColor: colors.gold,
-    marginTop: spacing.lg,
+    color: `${DARK}80`,
+    fontWeight: '600',
   },
 
   // Form
-  form: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius['2xl'],
-    padding: spacing['2xl'],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 12,
-  },
-  title: {
-    fontSize: fontSize['2xl'],
-    fontWeight: '700',
-    color: colors.charcoal,
-    marginBottom: spacing.xs,
-  },
-  description: {
-    fontSize: fontSize.sm,
-    color: colors.gray[500],
-    marginBottom: spacing['2xl'],
+  formContainer: {
+    width: '100%',
   },
 
   // Error
   errorBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(220, 38, 38, 0.08)',
+    backgroundColor: 'rgba(239, 68, 68, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(220, 38, 38, 0.2)',
-    borderRadius: borderRadius.lg,
+    borderColor: 'rgba(239, 68, 68, 0.15)',
+    borderRadius: 16,
     padding: spacing.md,
     marginBottom: spacing.lg,
   },
   errorText: {
     flex: 1,
     fontSize: fontSize.sm,
-    color: colors.error,
+    color: '#DC2626',
   },
   errorDismiss: {
     fontSize: fontSize.lg,
-    color: colors.error,
+    color: '#DC2626',
     paddingLeft: spacing.sm,
     fontWeight: '300',
   },
@@ -243,74 +255,87 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   label: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.charcoal,
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    color: `${DARK}80`,
     marginBottom: spacing.sm,
+    marginLeft: 4,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.gray[200],
-    borderRadius: borderRadius.lg,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    fontSize: fontSize.base,
-    color: colors.charcoal,
-    backgroundColor: colors.gray[100],
+  labelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+    marginLeft: 4,
+    marginRight: 4,
   },
-  passwordContainer: {
+  inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.gray[200],
-    borderRadius: borderRadius.lg,
-    backgroundColor: colors.gray[100],
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  input: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    fontSize: fontSize.sm,
+    color: DARK,
   },
   passwordInput: {
     flex: 1,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    fontSize: fontSize.base,
-    color: colors.charcoal,
   },
   showPasswordBtn: {
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: 16,
   },
   showPasswordText: {
-    fontSize: fontSize.xs,
-    color: colors.rose,
-    fontWeight: '500',
-  },
-
-  // Forgot
-  forgotLink: {
-    alignSelf: 'flex-end',
-    marginBottom: spacing['2xl'],
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    color: WINE,
   },
   forgotText: {
-    fontSize: fontSize.sm,
-    color: colors.rose,
-    fontWeight: '500',
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    color: `${WINE}CC`,
   },
 
-  // Buttons
+  // Login Button
   loginButton: {
-    backgroundColor: colors.rose,
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing.md + 2,
+    backgroundColor: WINE,
+    borderRadius: 999,
+    paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    height: 50,
+    marginTop: spacing.xl,
+    shadowColor: WINE,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 6,
   },
   loginButtonDisabled: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
   loginButtonText: {
-    color: colors.white,
-    fontSize: fontSize.lg,
-    fontWeight: '600',
-    letterSpacing: 0.5,
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
   },
+
+  // Divider
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -319,34 +344,56 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: colors.gray[200],
+    backgroundColor: `${DARK}15`,
   },
   dividerText: {
-    paddingHorizontal: spacing.md,
-    fontSize: fontSize.sm,
-    color: colors.gray[400],
+    paddingHorizontal: spacing.lg,
+    fontSize: 10,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    color: `${DARK}40`,
   },
-  signupButton: {
+
+  // Social
+  socialRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  socialButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 999,
     borderWidth: 1,
-    borderColor: colors.boudoir[800],
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing.md + 2,
+    borderColor: `${GOLD}33`,
     alignItems: 'center',
-    height: 50,
     justifyContent: 'center',
   },
-  signupButtonText: {
-    color: colors.boudoir[800],
-    fontSize: fontSize.lg,
-    fontWeight: '600',
+  socialButtonText: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    color: `${DARK}60`,
   },
 
   // Footer
   footer: {
-    textAlign: 'center',
-    fontSize: fontSize.xs,
-    color: colors.boudoir[200],
-    marginTop: spacing['2xl'],
-    lineHeight: 18,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: spacing['3xl'],
+    paddingBottom: spacing['2xl'],
+  },
+  footerText: {
+    fontSize: fontSize.sm,
+    color: `${DARK}80`,
+  },
+  footerLink: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: WINE,
+    borderBottomWidth: 1,
+    borderBottomColor: `${WINE}66`,
+    paddingBottom: 1,
   },
 });

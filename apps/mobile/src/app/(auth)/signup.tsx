@@ -12,12 +12,16 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '@stores/authStore';
-import { colors, spacing, fontSize, borderRadius } from '@/utils/theme';
-import { useThemeColors } from '@/theme/ThemeContext';
+import { spacing, fontSize } from '@/utils/theme';
+
+const BG = '#F2EDE9';
+const DARK = '#2A1720';
+const WINE = '#7a5763';
+const GOLD = '#e9c176';
+const ROSE_LIGHT = '#e3bcca';
 
 export default function SignupScreen() {
   const router = useRouter();
-  const tc = useThemeColors();
   const { signup, loading, error, clearError } = useAuthStore();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -66,91 +70,96 @@ export default function SignupScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: tc.boudoir950 }]}
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.brand}>Cher Journal</Text>
-          <Text style={[styles.subtitle, { color: tc.softGold }]}>L'Ecrin des Desirs</Text>
-          <View style={[styles.separator, { backgroundColor: tc.gold }]} />
+        {/* Hero */}
+        <View style={styles.heroSection}>
+          <Text style={styles.heroHeadline}>
+            Ecrivons votre{'\n'}
+            <Text style={styles.heroGradient}>premier chapitre.</Text>
+          </Text>
+          <Text style={styles.heroDescription}>
+            Rejoignez le Boudoir Moderne et laissez-vous porter par une experience litteraire sur-mesure.
+          </Text>
         </View>
 
         {/* Form */}
-        <View style={[styles.form, { backgroundColor: tc.card }]}>
-          <Text style={[styles.title, { color: tc.text }]}>Creer un compte</Text>
-          <Text style={[styles.description, { color: tc.textSecondary }]}>
-            Rejoignez notre univers litteraire
-          </Text>
-
+        <View style={styles.formContainer}>
           {/* Error */}
           {displayError && (
             <View style={styles.errorBanner}>
-              <Text style={[styles.errorText, { color: tc.error }]}>{displayError}</Text>
+              <Text style={styles.errorText}>{displayError}</Text>
               <TouchableOpacity onPress={clearAllErrors}>
-                <Text style={[styles.errorDismiss, { color: tc.error }]}>x</Text>
+                <Text style={styles.errorDismiss}>x</Text>
               </TouchableOpacity>
             </View>
           )}
 
           {/* Name row */}
           <View style={styles.nameRow}>
-            <View style={[styles.inputGroup, styles.nameField]}>
-              <Text style={[styles.label, { color: tc.text }]}>Prenom</Text>
-              <TextInput
-                style={[styles.input, { backgroundColor: tc.inputBg, borderColor: tc.inputBorder, color: tc.text }]}
-                value={firstName}
-                onChangeText={setFirstName}
-                placeholder="Marie"
-                placeholderTextColor={tc.placeholder}
-                autoCapitalize="words"
-                editable={!loading}
-              />
+            <View style={styles.nameField}>
+              <Text style={styles.label}>Prenom</Text>
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={styles.input}
+                  value={firstName}
+                  onChangeText={setFirstName}
+                  placeholder="Marie"
+                  placeholderTextColor={`${DARK}4D`}
+                  autoCapitalize="words"
+                  editable={!loading}
+                />
+              </View>
             </View>
-            <View style={[styles.inputGroup, styles.nameField]}>
-              <Text style={[styles.label, { color: tc.text }]}>Nom</Text>
-              <TextInput
-                style={[styles.input, { backgroundColor: tc.inputBg, borderColor: tc.inputBorder, color: tc.text }]}
-                value={lastName}
-                onChangeText={setLastName}
-                placeholder="Dupont"
-                placeholderTextColor={tc.placeholder}
-                autoCapitalize="words"
-                editable={!loading}
-              />
+            <View style={styles.nameField}>
+              <Text style={styles.label}>Nom</Text>
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={styles.input}
+                  value={lastName}
+                  onChangeText={setLastName}
+                  placeholder="Dupont"
+                  placeholderTextColor={`${DARK}4D`}
+                  autoCapitalize="words"
+                  editable={!loading}
+                />
+              </View>
             </View>
           </View>
 
           {/* Email */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: tc.text }]}>Email</Text>
-            <TextInput
-              style={[styles.input, { backgroundColor: tc.inputBg, borderColor: tc.inputBorder, color: tc.text }]}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="votre@email.com"
-              placeholderTextColor={tc.placeholder}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!loading}
-            />
+            <Text style={styles.label}>Adresse Email</Text>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="votre@mail.com"
+                placeholderTextColor={`${DARK}4D`}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={!loading}
+              />
+            </View>
           </View>
 
           {/* Password */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: tc.text }]}>Mot de passe</Text>
-            <View style={[styles.passwordContainer, { backgroundColor: tc.inputBg, borderColor: tc.inputBorder }]}>
+            <Text style={styles.label}>Mot de passe</Text>
+            <View style={styles.inputWrapperRow}>
               <TextInput
-                style={[styles.passwordInput, { color: tc.text }]}
+                style={[styles.input, styles.passwordInput]}
                 value={password}
                 onChangeText={setPassword}
                 placeholder="Minimum 8 caracteres"
-                placeholderTextColor={tc.placeholder}
+                placeholderTextColor={`${DARK}4D`}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 editable={!loading}
@@ -159,7 +168,7 @@ export default function SignupScreen() {
                 style={styles.showPasswordBtn}
                 onPress={() => setShowPassword(!showPassword)}
               >
-                <Text style={[styles.showPasswordText, { color: tc.rose }]}>
+                <Text style={styles.showPasswordText}>
                   {showPassword ? 'Masquer' : 'Afficher'}
                 </Text>
               </TouchableOpacity>
@@ -168,22 +177,32 @@ export default function SignupScreen() {
 
           {/* Confirm Password */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: tc.text }]}>Confirmer le mot de passe</Text>
-            <TextInput
-              style={[styles.input, { backgroundColor: tc.inputBg, borderColor: tc.inputBorder, color: tc.text }]}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              placeholder="Retapez votre mot de passe"
-              placeholderTextColor={tc.placeholder}
-              secureTextEntry={!showPassword}
-              autoCapitalize="none"
-              editable={!loading}
-            />
+            <Text style={styles.label}>Confirmer le mot de passe</Text>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={styles.input}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                placeholder="Retapez votre mot de passe"
+                placeholderTextColor={`${DARK}4D`}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                editable={!loading}
+              />
+            </View>
+            {confirmPassword.length > 0 && (
+              <Text style={[
+                styles.matchHint,
+                { color: password === confirmPassword ? '#22c55e' : '#ef4444' }
+              ]}>
+                {password === confirmPassword ? '✓ Les mots de passe correspondent' : '✕ Les mots de passe ne correspondent pas'}
+              </Text>
+            )}
           </View>
 
           {/* Signup button */}
           <TouchableOpacity
-            style={[styles.signupButton, { backgroundColor: tc.rose }, loading && styles.buttonDisabled]}
+            style={[styles.primaryButton, loading && styles.buttonDisabled]}
             onPress={handleSignup}
             disabled={loading}
             activeOpacity={0.8}
@@ -191,28 +210,29 @@ export default function SignupScreen() {
             {loading ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Text style={styles.signupButtonText}>Creer mon compte</Text>
+              <Text style={styles.primaryButtonText}>Creer Mon Compte</Text>
             )}
           </TouchableOpacity>
 
           {/* Divider */}
           <View style={styles.divider}>
-            <View style={[styles.dividerLine, { backgroundColor: tc.separator }]} />
-            <Text style={[styles.dividerText, { color: tc.textTertiary }]}>ou</Text>
-            <View style={[styles.dividerLine, { backgroundColor: tc.separator }]} />
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>Ou</Text>
+            <View style={styles.dividerLine} />
           </View>
 
           {/* Login link */}
           <TouchableOpacity
-            style={[styles.loginButton, { borderColor: tc.boudoir800 }]}
+            style={styles.secondaryButton}
             onPress={() => router.back()}
+            activeOpacity={0.7}
           >
-            <Text style={[styles.loginButtonText, { color: tc.boudoir800 }]}>J'ai deja un compte</Text>
+            <Text style={styles.secondaryButtonText}>J'ai deja un compte</Text>
           </TouchableOpacity>
         </View>
 
         {/* Footer */}
-        <Text style={[styles.footer, { color: tc.textTertiary }]}>
+        <Text style={styles.footer}>
           En creant un compte, vous acceptez nos conditions d'utilisation et notre politique de confidentialite
         </Text>
       </ScrollView>
@@ -223,84 +243,60 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.boudoir[950],
+    backgroundColor: BG,
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: spacing['2xl'],
-    paddingVertical: spacing['4xl'],
+    paddingVertical: spacing['3xl'],
   },
 
-  // Header
-  header: {
-    alignItems: 'center',
-    marginBottom: spacing['4xl'],
+  // Hero
+  heroSection: {
+    marginBottom: spacing['2xl'],
   },
-  brand: {
+  heroHeadline: {
     fontSize: fontSize['4xl'],
-    fontWeight: '700',
-    color: colors.white,
-    fontStyle: 'italic',
-    letterSpacing: 1,
+    fontFamily: 'Newsreader_400Regular_Italic',
+    color: DARK,
+    lineHeight: 44,
   },
-  subtitle: {
+  heroGradient: {
+    color: WINE,
+  },
+  heroDescription: {
     fontSize: fontSize.sm,
-    fontWeight: '300',
-    color: colors.goldLight,
-    letterSpacing: 3,
-    textTransform: 'uppercase',
-    marginTop: spacing.xs,
-  },
-  separator: {
-    width: 50,
-    height: 1,
-    backgroundColor: colors.gold,
-    marginTop: spacing.lg,
+    color: `${DARK}80`,
+    lineHeight: 20,
+    marginTop: spacing.md,
+    maxWidth: 280,
   },
 
   // Form
-  form: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius['2xl'],
-    padding: spacing['2xl'],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 12,
-  },
-  title: {
-    fontSize: fontSize['2xl'],
-    fontWeight: '700',
-    color: colors.charcoal,
-    marginBottom: spacing.xs,
-  },
-  description: {
-    fontSize: fontSize.sm,
-    color: colors.gray[500],
-    marginBottom: spacing['2xl'],
+  formContainer: {
+    width: '100%',
   },
 
   // Error
   errorBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(220, 38, 38, 0.08)',
+    backgroundColor: 'rgba(239, 68, 68, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(220, 38, 38, 0.2)',
-    borderRadius: borderRadius.lg,
+    borderColor: 'rgba(239, 68, 68, 0.15)',
+    borderRadius: 16,
     padding: spacing.md,
     marginBottom: spacing.lg,
   },
   errorText: {
     flex: 1,
     fontSize: fontSize.sm,
-    color: colors.error,
+    color: '#DC2626',
   },
   errorDismiss: {
     fontSize: fontSize.lg,
-    color: colors.error,
+    color: '#DC2626',
     paddingLeft: spacing.sm,
     fontWeight: '300',
   },
@@ -309,6 +305,7 @@ const styles = StyleSheet.create({
   nameRow: {
     flexDirection: 'row',
     gap: spacing.md,
+    marginBottom: spacing.lg,
   },
   nameField: {
     flex: 1,
@@ -317,63 +314,82 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   label: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.charcoal,
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    color: `${DARK}80`,
     marginBottom: spacing.sm,
+    marginLeft: 4,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.gray[200],
-    borderRadius: borderRadius.lg,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    fontSize: fontSize.base,
-    color: colors.charcoal,
-    backgroundColor: colors.gray[100],
+  inputWrapper: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  passwordContainer: {
+  inputWrapperRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.gray[200],
-    borderRadius: borderRadius.lg,
-    backgroundColor: colors.gray[100],
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  input: {
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    fontSize: fontSize.sm,
+    color: DARK,
   },
   passwordInput: {
     flex: 1,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    fontSize: fontSize.base,
-    color: colors.charcoal,
   },
   showPasswordBtn: {
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: 16,
   },
   showPasswordText: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    color: WINE,
+  },
+  matchHint: {
     fontSize: fontSize.xs,
-    color: colors.rose,
-    fontWeight: '500',
+    marginTop: spacing.xs,
+    marginLeft: 4,
   },
 
   // Buttons
-  signupButton: {
-    backgroundColor: colors.rose,
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing.md + 2,
+  primaryButton: {
+    backgroundColor: WINE,
+    borderRadius: 999,
+    paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    height: 50,
     marginTop: spacing.sm,
+    shadowColor: WINE,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 6,
   },
   buttonDisabled: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
-  signupButtonText: {
-    color: colors.white,
-    fontSize: fontSize.lg,
-    fontWeight: '600',
-    letterSpacing: 0.5,
+  primaryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
   },
   divider: {
     flexDirection: 'row',
@@ -383,34 +399,38 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: colors.gray[200],
+    backgroundColor: `${DARK}15`,
   },
   dividerText: {
-    paddingHorizontal: spacing.md,
-    fontSize: fontSize.sm,
-    color: colors.gray[400],
+    paddingHorizontal: spacing.lg,
+    fontSize: 10,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    color: `${DARK}40`,
   },
-  loginButton: {
+  secondaryButton: {
     borderWidth: 1,
-    borderColor: colors.boudoir[800],
-    borderRadius: borderRadius.lg,
-    paddingVertical: spacing.md + 2,
+    borderColor: `${WINE}66`,
+    borderRadius: 999,
+    paddingVertical: 14,
     alignItems: 'center',
-    height: 50,
     justifyContent: 'center',
   },
-  loginButtonText: {
-    color: colors.boudoir[800],
-    fontSize: fontSize.lg,
-    fontWeight: '600',
+  secondaryButtonText: {
+    color: WINE,
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
   },
 
   // Footer
   footer: {
     textAlign: 'center',
     fontSize: fontSize.xs,
-    color: colors.boudoir[200],
+    color: `${DARK}50`,
     marginTop: spacing['2xl'],
     lineHeight: 18,
+    paddingHorizontal: spacing.lg,
   },
 });

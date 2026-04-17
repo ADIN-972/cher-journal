@@ -17,29 +17,27 @@ export default function Register() {
   });
 
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     clearError();
     setValidationError(null);
 
-    if (formData.password.length < 6) {
-      setValidationError(t('auth.register.validation_password_weak'));
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setValidationError(t('auth.register.validation_password_mismatch'));
-      return;
-    }
-
     if (!formData.firstName.trim()) {
       setValidationError(t('auth.register.validation_firstname_required'));
       return;
     }
-
     if (!formData.lastName.trim()) {
       setValidationError(t('auth.register.validation_lastname_required'));
+      return;
+    }
+    if (formData.password.length < 6) {
+      setValidationError(t('auth.register.validation_password_weak'));
+      return;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setValidationError(t('auth.register.validation_password_mismatch'));
       return;
     }
 
@@ -56,168 +54,166 @@ export default function Register() {
     }
   };
 
+  const displayError = validationError || error;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-[#1a0b10cc] to-[#1a0b10e6] flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Decorative Background Elements */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-[#1a0b10e6]/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl" />
+    <div className="min-h-screen bg-[#F2EDE9] flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden selection:bg-[#e9c176]/30">
+      <div className="fixed top-0 right-0 -z-10 w-64 h-64 bg-[#e3bcca]/20 blur-[100px] rounded-full pointer-events-none" />
+      <div className="fixed bottom-0 left-0 -z-10 w-96 h-96 bg-[#e9c176]/10 blur-[120px] rounded-full pointer-events-none" />
 
-      <div className="w-full max-w-md">
-        {/* Brand Section */}
-        <div className="flex flex-col items-center gap-4 mb-12">
-          <div className="text-amber-600">
-          </div>
-          <h1 className="text-4xl font-display font-medium tracking-tight text-gold handwriting">
-            {t('auth.register.brand_name')}
+      <main className="w-full max-w-sm flex flex-col items-center">
+        {/* Hero */}
+        <section className="mb-8 w-full">
+          <h1 className="font-serif italic text-4xl leading-tight text-[#2A1720]">
+            Ecrivons votre <br />
+            <span className="bg-gradient-to-r from-[#7a5763] to-[#e9c176] bg-clip-text text-transparent">premier chapitre.</span>
           </h1>
-        </div>
+          <p className="text-sm text-[#2A1720]/50 max-w-[280px] leading-relaxed mt-3">
+            Rejoignez le Boudoir Moderne et laissez-vous porter par une experience litteraire sur-mesure.
+          </p>
+        </section>
 
-        {/* Register Card with Glow Effect */}
-        <div className="relative group">
-          <div className="absolute -inset-0.5 bg-amber-600/20 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000"></div>
-          <div className="relative bg-gray-950/80 backdrop-blur-2xl border border-amber-600/30 p-10 rounded-2xl shadow-2xl">
-            <h2 className="text-2xl font-display italic text-center mb-8 text-gray-50/90">
-              {t('auth.register.tagline')}
-            </h2>
+        {/* Form */}
+        <form className="space-y-5 w-full" onSubmit={handleSubmit}>
+          {displayError && (
+            <div className="bg-red-50 border border-red-200/60 text-red-700 px-4 py-3 rounded-2xl flex items-start gap-3 text-sm">
+              <span className="material-symbols-outlined text-base mt-0.5">error</span>
+              <span>{displayError}</span>
+            </div>
+          )}
 
-            <form className="space-y-5" onSubmit={handleSubmit}>
-              {/* Error Message */}
-              {(error || validationError) && (
-                <div className="bg-rose-500/20 border border-rose-400/50 text-rose-200 px-4 py-3 rounded-lg flex items-start gap-3">
-                  <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-sm">{validationError || error}</span>
-                </div>
-              )}
-
-              {/* Name Fields Grid */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-amber-600/80 mb-2 uppercase tracking-widest text-[10px]">
-                    {t('auth.register.firstname_label')}
-                  </label>
-                  <input
-                    id="firstName"
-                    type="text"
-                    required
-                    value={formData.firstName}
-                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    className="w-full bg-gray-900/50 border border-amber-600/20 rounded-lg py-2.5 px-3 text-gray-50 focus:ring-1 focus:ring-amber-600 focus:border-amber-600 transition-all font-serif outline-none placeholder-gray-500 text-sm"
-                    placeholder={t('auth.register.firstname_placeholder')}
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-amber-600/80 mb-2 uppercase tracking-widest text-[10px]">
-                    {t('auth.register.lastname_label')}
-                  </label>
-                  <input
-                    id="lastName"
-                    type="text"
-                    required
-                    value={formData.lastName}
-                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                    className="w-full bg-gray-900/50 border border-amber-600/20 rounded-lg py-2.5 px-3 text-gray-50 focus:ring-1 focus:ring-amber-600 focus:border-amber-600 transition-all font-serif outline-none placeholder-gray-500 text-sm"
-                    placeholder={t('auth.register.lastname_placeholder')}
-                  />
-                </div>
-              </div>
-
-              {/* Email Field */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-amber-600/80 mb-2 uppercase tracking-widest text-[10px]">
-                  {t('auth.register.email_label')}
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-gray-900/50 border border-amber-600/20 rounded-lg py-3 px-4 text-gray-50 focus:ring-1 focus:ring-amber-600 focus:border-amber-600 transition-all font-serif outline-none placeholder-gray-500"
-                  placeholder={t('auth.register.email_placeholder')}
-                />
-              </div>
-
-              {/* Password Field */}
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-amber-600/80 mb-2 uppercase tracking-widest text-[10px]">
-                  {t('auth.register.password_label')}
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full bg-gray-900/50 border border-amber-600/20 rounded-lg py-3 px-4 text-gray-50 focus:ring-1 focus:ring-amber-600 focus:border-amber-600 transition-all font-serif outline-none placeholder-gray-500"
-                  placeholder={t('auth.register.password_placeholder')}
-                />
-                <p className="mt-1.5 text-xs text-amber-600/60">{t('auth.register.password_helper')}</p>
-              </div>
-
-              {/* Confirm Password Field */}
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-amber-600/80 mb-2 uppercase tracking-widest text-[10px]">
-                  {t('auth.register.confirm_password_label')}
-                </label>
-                <input
-                  id="confirmPassword"
-                  type="password"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className="w-full bg-gray-900/50 border border-amber-600/20 rounded-lg py-3 px-4 text-gray-50 focus:ring-1 focus:ring-amber-600 focus:border-amber-600 transition-all font-serif outline-none placeholder-gray-500"
-                  placeholder={t('auth.register.confirm_password_placeholder')}
-                />
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white py-4 rounded-lg font-bold text-lg transition-all active:scale-[0.98] shadow-xl shadow-rose-600/20 flex items-center justify-center gap-3 mt-8 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span className="material-symbols-outlined text-xl">edit</span>
-                {isLoading ? (
-                  <>
-                    <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
-                    <span>{t('auth.register.loading')}</span>
-                  </>
-                ) : (
-                  t('auth.register.button_register')
-                )}
-              </button>
-            </form>
-
-            {/* Footer Links */}
-            <div className="mt-8 pt-8 border-t border-gray-700/50 flex flex-col items-center gap-4">
-              <p className="text-[11px] text-gray-500 uppercase tracking-widest">
-                {t('auth.register.login_prompt')}{' '}
-                <Link to="/login" className="text-amber-600/60 hover:text-amber-600 transition-colors">
-                  {t('auth.register.login_link')}
-                </Link>
-              </p>
+          {/* Name fields */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[10px] font-bold tracking-widest uppercase text-[#2A1720]/50 mb-2 ml-1">
+                {t('auth.register.firstname_label')}
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.firstName}
+                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                className="w-full bg-white border-none rounded-2xl px-4 py-3.5 text-[#2A1720] placeholder:text-[#2A1720]/30 focus:ring-2 focus:ring-[#e9c176]/40 transition-all outline-none shadow-sm text-sm"
+                placeholder={t('auth.register.firstname_placeholder')}
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold tracking-widest uppercase text-[#2A1720]/50 mb-2 ml-1">
+                {t('auth.register.lastname_label')}
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                className="w-full bg-white border-none rounded-2xl px-4 py-3.5 text-[#2A1720] placeholder:text-[#2A1720]/30 focus:ring-2 focus:ring-[#e9c176]/40 transition-all outline-none shadow-sm text-sm"
+                placeholder={t('auth.register.lastname_placeholder')}
+              />
             </div>
           </div>
-        </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest uppercase text-[#2A1720]/50 mb-2 ml-1">
+              {t('auth.register.email_label')}
+            </label>
+            <div className="relative">
+              <input
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full bg-white border-none rounded-2xl px-5 py-4 text-[#2A1720] placeholder:text-[#2A1720]/30 focus:ring-2 focus:ring-[#e9c176]/40 transition-all outline-none shadow-sm text-sm"
+                placeholder={t('auth.register.email_placeholder')}
+              />
+              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#2A1720]/30 text-lg">
+                mail
+              </span>
+            </div>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest uppercase text-[#2A1720]/50 mb-2 ml-1">
+              {t('auth.register.password_label')}
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className="w-full bg-white border-none rounded-2xl px-5 py-4 pr-12 text-[#2A1720] placeholder:text-[#2A1720]/30 focus:ring-2 focus:ring-[#e9c176]/40 transition-all outline-none shadow-sm text-sm"
+                placeholder={t('auth.register.password_placeholder')}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#2A1720]/30 hover:text-[#7a5763] transition-colors">
+                <span className="material-symbols-outlined text-lg">
+                  {showPassword ? 'visibility_off' : 'visibility'}
+                </span>
+              </button>
+            </div>
+            <p className="mt-1.5 ml-1 text-[10px] text-[#2A1720]/30">{t('auth.register.password_helper')}</p>
+          </div>
+
+          {/* Confirm Password */}
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest uppercase text-[#2A1720]/50 mb-2 ml-1">
+              {t('auth.register.confirm_password_label')}
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                className="w-full bg-white border-none rounded-2xl px-5 py-4 text-[#2A1720] placeholder:text-[#2A1720]/30 focus:ring-2 focus:ring-[#e9c176]/40 transition-all outline-none shadow-sm text-sm"
+                placeholder={t('auth.register.confirm_password_placeholder')}
+              />
+              <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-lg">
+                {formData.confirmPassword && formData.password === formData.confirmPassword ? (
+                  <span className="text-green-500">check_circle</span>
+                ) : formData.confirmPassword ? (
+                  <span className="text-red-400">cancel</span>
+                ) : (
+                  <span className="text-[#2A1720]/30">lock</span>
+                )}
+              </span>
+            </div>
+          </div>
+
+          {/* Submit */}
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-4 bg-gradient-to-r from-[#7a5763] to-[#2A1720] rounded-full text-white font-bold tracking-wider uppercase text-xs shadow-lg shadow-[#7a5763]/20 hover:opacity-90 transition-opacity active:scale-[0.98] duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                  {t('auth.register.loading')}
+                </span>
+              ) : (
+                t('auth.register.button_register')
+              )}
+            </button>
+          </div>
+        </form>
 
         {/* Footer */}
-        <footer className="mt-12 text-center">
-          <div className="flex justify-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-gray-600 hover:text-gray-500">
-            <a href="#" className="hover:text-amber-600 transition-colors">
-              Privacy
-            </a>
-            <a href="#" className="hover:text-amber-600 transition-colors">
-              Terms
-            </a>
-            <a href="#" className="hover:text-amber-600 transition-colors">
-              Help
-            </a>
-          </div>
+        <footer className="mt-10 text-center pb-8">
+          <p className="text-[#2A1720]/50 text-sm">
+            {t('auth.register.login_prompt')}{' '}
+            <Link
+              to="/login"
+              className="text-[#7a5763] font-bold border-b border-[#7a5763]/40 pb-0.5 ml-1">
+              {t('auth.register.login_link')}
+            </Link>
+          </p>
         </footer>
-      </div>
+      </main>
     </div>
   );
 }

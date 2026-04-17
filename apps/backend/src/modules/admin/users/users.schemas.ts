@@ -8,6 +8,9 @@ import {
 export const updateUserSchema = z.object({
   status: z.nativeEnum(UserStatus).optional(),
   role: z.nativeEnum(UserRole).optional(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  username: z.string().optional(),
 });
 
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
