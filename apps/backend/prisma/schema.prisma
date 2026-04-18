@@ -40,6 +40,8 @@ model User {
   notificationPreferences   NotificationPreference[]
   pushTokens                PushToken[]
   emailVerificationCodes    EmailVerificationCode[]
+  passwordResetToken        String?
+  passwordResetExpiry       DateTime?
 
   @@map("users")
 }

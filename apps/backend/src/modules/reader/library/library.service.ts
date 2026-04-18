@@ -1,5 +1,5 @@
 import prisma from '../../../lib/prisma';
-import { ChapterStatus, EntitlementVersionScope, VolumeStatus } from '@prisma/client';
+import { ChapterStatus, VolumeStatus } from '@prisma/client';
 import { AccessControlService } from '../../../lib/accessControl';
 
 export class LibraryService {
