@@ -246,7 +246,7 @@ export default function NouveautesSectionV2({
                             bordered={true}
                             // hasGrayscaleEffect={true}
                             textSize="auto"
-                            isAccesClub={item.isPrivate}  
+                            isAccesClub={item.isPrivate}
                           /> /* reads --cover-img */
                         ) : (
                           <div className="bsv2-cover-fallback" />
@@ -273,11 +273,9 @@ export default function NouveautesSectionV2({
               <div
                 className={`grid grid-[auto_1fr] gap-3 text-charcoal dark:text-white/70 w-full h-full overflow-hidden text-ellipsis leading-relaxed mt-4 p-3 italic Newsreader `}>
                 <div className="text-xl font-bold">
-                 
                   {items[activeIndex].title}
                 </div>
                 <div className="grid h-full w-full text- overflow-hidden text-ellipsis   text-sm">
-                 
                   {items[activeIndex].accroche_classic}
                 </div>
               </div>
@@ -311,6 +309,7 @@ export default function NouveautesSectionV2({
           {items.map((item, index) => {
             return (
               <div
+                key={item.id}
                 className={`${index === activeIndex ? "" : "hidden"} text-charcoal dark:text-white/70 max-w-md leading-relaxed mt-4 italic Newsreader`}>
                 <div className="text-xl font-bold"> {item.title}</div>
                 <div className="py-4"> {item.accroche_classic}</div>
