@@ -1,6 +1,6 @@
-import prisma from '../../../lib/prisma';
-import { ChapterStatus, VolumeStatus } from '@prisma/client';
-import { AccessControlService } from '../../../lib/accessControl';
+import prisma from "../../../lib/prisma";
+import { ChapterStatus, VolumeStatus } from "@prisma/client";
+import { AccessControlService } from "../../../lib/accessControl";
 
 export class LibraryService {
   private accessControl = new AccessControlService();
@@ -20,12 +20,12 @@ export class LibraryService {
                   {
                     OR: [
                       { scheduledFor: null },
-                      { scheduledFor: { lte: new Date() } }
-                    ]
-                  }
-                ]
+                      { scheduledFor: { lte: new Date() } },
+                    ],
+                  },
+                ],
               },
-              orderBy: { volumeNumber: 'asc' },
+              orderBy: { volumeNumber: "asc" },
             },
           },
         },
@@ -42,13 +42,15 @@ export class LibraryService {
       where: { userId },
     });
 
-    const library = entitlements.map(ent => {
-      const chapterUnlocks = unlocks.filter(u => u.chapterId === ent.chapterId);
-      const chapterReads = reads.filter(r => r.chapterId === ent.chapterId);
+    const library = entitlements.map((ent) => {
+      const chapterUnlocks = unlocks.filter(
+        (u) => u.chapterId === ent.chapterId,
+      );
+      const chapterReads = reads.filter((r) => r.chapterId === ent.chapterId);
 
       // Find current volume (last read or first)
-      const lastRead = chapterReads.sort((a, b) =>
-        b.firstOpenedAt.getTime() - a.firstOpenedAt.getTime()
+      const lastRead = chapterReads.sort(
+        (a, b) => b.firstOpenedAt.getTime() - a.firstOpenedAt.getTime(),
       )[0];
 
       const currentVolume = lastRead ? lastRead.volumeNumber : ent.volumeFrom;
@@ -56,16 +58,14 @@ export class LibraryService {
       // Available volumes (within entitlement range or unlocked)
       const availableVolumes: number[] = [];
       for (let v = ent.volumeFrom; v <= ent.volumeTo; v++) {
-        const unlock = chapterUnlocks.find(u => u.volumeNumber === v);
+        const unlock = chapterUnlocks.find((u) => u.volumeNumber === v);
         if (!unlock || unlock.unlocksAt <= new Date()) {
           availableVolumes.push(v);
         }
       }
 
       // Active wait
-      const activeWait = chapterUnlocks.find(
-        u => u.unlocksAt > new Date()
-      );
+      const activeWait = chapterUnlocks.find((u) => u.unlocksAt > new Date());
 
       // Serialize chapter data and convert BigInt to string
       const serializedChapter = {
@@ -79,7 +79,7 @@ export class LibraryService {
         isArchived: ent.chapter.isArchived,
         createdAt: ent.chapter.createdAt,
         coverAsset: ent.chapter.coverAsset,
-        volumes: ent.chapter.volumes.map(vol => ({
+        volumes: ent.chapter.volumes.map((vol) => ({
           id: vol.id,
           volumeNumber: vol.volumeNumber,
           title: vol.title,
@@ -99,13 +99,15 @@ export class LibraryService {
         availableVolumes,
         currentVolume,
         scopes: ent.scopes,
-        waitStatus: activeWait ? {
-          isActive: true,
-          unlocksAt: activeWait.unlocksAt,
-          remainingMs: activeWait.unlocksAt.getTime() - Date.now(),
-        } : {
-          isActive: false,
-        },
+        waitStatus: activeWait
+          ? {
+              isActive: true,
+              unlocksAt: activeWait.unlocksAt,
+              remainingMs: activeWait.unlocksAt.getTime() - Date.now(),
+            }
+          : {
+              isActive: false,
+            },
       };
     });
 

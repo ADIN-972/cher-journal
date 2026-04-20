@@ -41,7 +41,7 @@ model User {
   pushTokens                PushToken[]
   emailVerificationCodes    EmailVerificationCode[]
   passwordResetToken        String?
-  passwordResetExpiry       DateTime?
+  passwordResetExpiry       DateTime? 
 
   @@map("users")
 }
